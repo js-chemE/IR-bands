@@ -319,7 +319,7 @@ fig.update_layout(
 
 fig_div = pio.to_html(
     fig,
-    include_plotlyjs="cdn",
+    include_plotlyjs=True,
     full_html=False,
     div_id="drifts-plot",
     config={"responsive": True},
