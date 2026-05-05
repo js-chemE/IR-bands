@@ -8,6 +8,7 @@ dependencies = [
     "matplotlib>=3.10.9",
     "plotly>=6.7.0",
     "pydantic>=2.13.3",
+    "scipy>=1.15.3",
 ]
 
 

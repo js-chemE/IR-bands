@@ -2,8 +2,11 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from pathlib import Path
 
+import math
+
+
 from collections import defaultdict
-from ploty_helper import wrap_for_hover
+from ploty_helper import wrap_for_hover, wn_to_value
 
 from bands import (
     load_bands,
@@ -16,7 +19,7 @@ from bands import (
 FILE_DIR = Path(__file__).parent
 DATA_DIR = FILE_DIR / "data"
 FILE_BANDS = DATA_DIR / "drifts_bands.json"
-SITE_DIR = FILE_DIR.parent / "site"
+SITE_DIR = FILE_DIR.parent / "docs"
 HTML_NAME = "index.html"
 
 meta, regions, groups, bands = load_bands(FILE_BANDS)
@@ -284,11 +287,93 @@ for lane_idx, grp_keys in lane_groups.items():
         align="right",
     ))
 
+# ----- Unit conversions from wavenumber (cm⁻¹) -----
+
+# ----- Define all axis options -----
+
+AXIS_UNITS = {
+    "wavenumber": ["/cm", "/m"],
+    "wavelength": ["m", "cm", "μm", "nm", "Å"],
+    "energy":     ["J", "kJ", "eV", "J/mol", "kJ/mol", "kcal", "kcal/mol"],
+}
+
+# Axis direction: True if higher value = right side (normal),
+# False if higher value = left side (IR convention for wavenumber)
+AXIS_REVERSED = {
+    "wavenumber": True,   # IR convention: high wn on left
+    "wavelength": False,  # short wl on left
+    "energy":     True,   # high energy on left (parallels wavenumber)
+}
+
+# Precompute axis label and the (x_min, x_max) for each (axis, unit) combo
+def axis_label(axis: str, unit: str) -> str:
+    return f"{axis.capitalize()} ({unit})"
+
+# WN_LIMITS in (cm⁻¹, cm⁻¹) — the high and low edges of your default axis
+wn_limits_cm = (4050, 450)  # high, low
+
+# Precompute the bar x-coordinates for all bands at all (axis, unit) combos
+def converted_band_xs(axis: str, unit: str):
+    """Return list of [x0, x1, x1, x0, x0] for each band, in the new units."""
+    out = []
+    for b in bands:
+        if id(b) in skipped_band_ids:
+            out.append([None, None, None, None, None])
+            continue
+        x0 = wn_to_value(b.wn_min, axis, unit)
+        x1 = wn_to_value(b.wn_max, axis, unit)
+        # Make sure x0 <= x1 in the new units (in some axes, lower wn = higher value)
+        lo, hi = min(x0, x1), max(x0, x1)
+        out.append([lo, hi, hi, lo, lo])
+    return out
+
+
+def converted_axis_range(axis: str, unit: str):
+    """Return the [start, end] axis range in new units, respecting axis direction."""
+    v_high = wn_to_value(wn_limits_cm[0], axis, unit)
+    v_low  = wn_to_value(wn_limits_cm[1], axis, unit)
+    # Plotly axis range: [start, end]; reversed axes have start > end
+    if AXIS_REVERSED[axis]:
+        # IR convention: higher original wavenumber on the left
+        if axis == "wavelength":
+            # wavelength inverts the relationship — high wn = short wl
+            # so reverse means short wl on left (inverted from typical wl axis)
+            return [min(v_high, v_low), max(v_high, v_low)]
+        else:
+            return [max(v_high, v_low), min(v_high, v_low)]
+    else:
+        return [min(v_high, v_low), max(v_high, v_low)]
+
+
+# ----- Build axis-switch buttons -----
+
+axis_buttons = []
+for axis_name, units in AXIS_UNITS.items():
+    for unit in units:
+        # Build the per-band x array for this (axis, unit) combo
+        new_xs = converted_band_xs(axis_name, unit)
+        new_range = converted_axis_range(axis_name, unit)
+        new_title = axis_label(axis_name, unit)
+
+        # Apply x updates to bar traces only (indices 0 to n_bar_traces-1)
+        # plus the xaxis.range and title via relayout
+        # Use a "update" method (combines restyle + relayout)
+        axis_buttons.append(dict(
+            label=f"{axis_name}: {unit}",
+            method="update",
+            args=[
+                {"x": new_xs + [[None]] * (n_total - n_bar_traces)},
+                {"xaxis.range": new_range, "xaxis.title.text": new_title},
+            ],
+        ))
+
+
 # ----- Layout -----
 fig.update_layout(
     title=meta["title"],
     xaxis=dict(
-        title="Wavenumber (cm⁻¹)", range=list(WN_LIMITS),
+        title=axis_label("wavenumber", "/cm"),  # was: "Wavenumber (cm⁻¹)"
+        range=converted_axis_range("wavenumber", "/cm"),  # was: list(WN_LIMITS)
         showgrid=True, gridcolor="lightgray", griddash="dot",
     ),
     yaxis=dict(visible=False, range=[y_min - 0.3, y_max + 0.3]),
@@ -314,6 +399,26 @@ fig.update_layout(
             y=1.12, yanchor="top",
             pad=dict(t=4, r=4),
         ),
+        # Combined dimension dropdown — top right
+        dict(
+            type="dropdown",
+            buttons=dimension_buttons,
+            direction="down",
+            showactive=True,
+            x=1.0, xanchor="right",
+            y=1.12, yanchor="top",
+            pad=dict(t=4, r=4),
+        ),
+        # Axis-unit dropdown — left of the dimension dropdown
+        dict(
+            type="dropdown",
+            buttons=axis_buttons,
+            direction="down",
+            showactive=True,
+            x=0.55, xanchor="right",
+            y=1.12, yanchor="top",
+            pad=dict(t=4, r=4),
+        )
     ],
 )
 
