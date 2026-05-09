@@ -1,12 +1,11 @@
 """Plotly figure construction.
 
 Inputs: a Dataset (validated, with lanes assigned) and a references map.
-Output: a plotly.graph_objects.Figure ready for to_html() or write_html().
+Output: a plotly.graph_objects.Figure ready for to_html().
 
-The figure carries side-channel data via fig.layout.meta so a small JS handler
-embedded in the page (see build.py) can collapse empty lanes when the user
-toggles legend groups. Specifically, layout.meta["lanes_per_band"] is a list
-parallel to bar traces, giving the lane index of each band.
+Side-channel data via fig.layout.meta so JS can:
+  - build a sidebar with one checkbox per group (groups_for_sidebar)
+  - collapse empty lanes when groups are toggled (band_lanes etc.)
 """
 from __future__ import annotations
 
@@ -35,7 +34,7 @@ BAR_FRACTION = 0.25
 SUB_LANE_OFFSET_FRAC = 0.52
 
 # Default x-axis range (cm⁻¹)
-WN_LIMITS = (4050, 450)  # (high, low)
+WN_LIMITS = (4050, 450)
 
 
 # ---------------------------------------------------------------------------
@@ -119,7 +118,6 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
     colors_atoms = color_map_by_atoms(bands)
     colors_refs = color_map_by_references(bands)
 
-    # Per-band color arrays (parallel to bar traces)
     bar_color_arrays: dict[str, list[str]] = {
         "group":      [colors_group[b.species] for b in bands],
         "vibration":  [colors_vib[vibration_key(b)] for b in bands],
@@ -129,7 +127,7 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
 
     fig = go.Figure()
 
-    # ----- Bar traces (one per band) -----
+    # ----- Bar traces -----
     for b in bands:
         if b.id in skipped_ids:
             fig.add_trace(go.Scatter(
@@ -141,7 +139,6 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
         lane_y = _lane_y_top(b.lane, n_lanes)
         bar_y0 = lane_y
         bar_y1 = lane_y + LANE_HEIGHT * BAR_FRACTION
-
         sub_offset = b.sub_lane * (LANE_HEIGHT * SUB_LANE_OFFSET_FRAC * BAR_FRACTION)
         bar_y0 += sub_offset
         bar_y1 += sub_offset
@@ -162,14 +159,13 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
             text=_hover_text(b, dataset, references),
             hoverinfo="text",
             showlegend=False,
-            legendgroup=b.group,  # initial dimension is "group"
+            legendgroup=b.group,
             name=b.species,
             customdata=[b.id],
         ))
     n_bar_traces = len(bands)
 
-    # ----- Define dimensions for the dimension-switcher -----
-    # Each dimension provides: how to extract the per-band key, and its display label.
+    # ----- Dimension definitions (drives the color/legend dropdown) -----
     DIMENSIONS = {
         "group":      {"key": lambda b: b.group,       "display": lambda v: groups[v].label},
         "vibration":  {"key": vibration_key,           "display": vibration_label},
@@ -177,7 +173,7 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
         "references": {"key": references_key,          "display": references_label},
     }
 
-    # ----- Legend marker traces, one per (dimension, category) -----
+    # ----- Legend marker traces -----
     legend_trace_info: list[dict] = []
     for dim_key, dim in DIMENSIONS.items():
         cats_seen: dict[str, int] = {}
@@ -193,7 +189,7 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
                 color = colors_vib[cat]
             elif dim_key == "atoms":
                 color = colors_atoms[cat]
-            else:  # references
+            else:
                 color = colors_refs[cat]
 
             fig.add_trace(go.Scatter(
@@ -264,6 +260,7 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
             ))
 
     # ----- Per-lane group labels (left margin) -----
+    # Kept lightweight; the sidebar is the primary group-control surface.
     lane_groups: dict[int, list[str]] = defaultdict(list)
     for b in bands:
         if b.group not in lane_groups[b.lane]:
@@ -287,25 +284,41 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
             showarrow=False,
             xanchor="right", yanchor="middle",
             xshift=-8, font=dict(size=10), align="right",
-            # Tag with lane index so the JS collapser can reposition it
             name=f"lane_label_{lane_idx}",
         ))
 
-    # ----- Side-channel data for the lane-collapsing JS handler -----
-    # layout.meta is a free-form dict; Plotly preserves it round-trip.
-    # The JS handler reads it to know which trace belongs to which lane,
-    # and what the original lane positions were.
+    # ----- Group metadata for the sidebar -----
+    # One entry per group key that has at least one band; ordered by the order
+    # groups first appear in `bands` so the sidebar follows the visual top-to-
+    # bottom order of the lanes.
+    group_counts: dict[str, int] = defaultdict(int)
+    group_first_lane: dict[str, int] = {}
+    for b in bands:
+        group_counts[b.group] += 1
+        if b.group not in group_first_lane:
+            group_first_lane[b.group] = b.lane
+
+    groups_for_sidebar = []
+    for g_key in sorted(group_counts, key=lambda k: group_first_lane[k]):
+        g = groups[g_key]
+        groups_for_sidebar.append({
+            "key": g_key,
+            "label": g.label,
+            "color": g.color,
+            "count": group_counts[g_key],
+        })
+
+    # ----- Side-channel data for the JS handlers -----
     lane_data_for_js = {
         "n_lanes": n_lanes,
         "lane_height": LANE_HEIGHT,
         "bar_fraction": BAR_FRACTION,
         "sub_lane_offset_frac": SUB_LANE_OFFSET_FRAC,
         "n_bar_traces": n_bar_traces,
-        # Parallel to bar traces (length n_bar_traces). For skipped bands the
-        # lane is still recorded — they just have empty x/y.
         "band_lanes": [b.lane for b in bands],
         "band_sub_lanes": [b.sub_lane for b in bands],
-        "band_groups": [b.group for b in bands],  # for legend-toggle mapping
+        "band_groups": [b.group for b in bands],
+        "groups_for_sidebar": groups_for_sidebar,
     }
 
     # ----- Final layout -----
@@ -321,7 +334,7 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
         height=max(550, int(n_lanes * LANE_HEIGHT * 55)) + 80,
         autosize=True,
         plot_bgcolor="white",
-        margin=dict(l=220, r=40, t=120, b=140),
+        margin=dict(l=180, r=40, t=120, b=140),
         annotations=lane_label_annotations,
         legend=dict(
             orientation="h",
