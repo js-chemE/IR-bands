@@ -10,11 +10,11 @@ from typing import Optional, Literal
 
 
 # Allowed enum values — keep in sync with the JSONC schema header
-VibCategory = Literal["stretch", "bend", "combination", "overtone", "lattice"]
+VibCategory = Literal["stretch", "bend", "combination", "lattice"]
 VibSubtype = Literal["symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"]
 Branch = Literal["R", "P", "Q"]
 
-VALID_CATEGORIES = {"stretch", "bend", "combination", "overtone", "lattice"}
+VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice"}
 VALID_SUBTYPES = {"symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"}
 VALID_BRANCHES = {"R", "P", "Q"}
 
@@ -24,8 +24,8 @@ class Vibration:
     """The structured vibration descriptor.
 
     category is required; subtype and branch are optional.
-    Combinations and overtones MUST have category set accordingly and
-    SHOULD have subtype=None (they aren't themselves sym/asym).
+    Combinations must have subtype=None (they aren't themselves sym/asym).
+    Overtone bands use their parent's category with an "overtone" tag.
     """
     category: VibCategory
     subtype: Optional[VibSubtype] = None
@@ -38,11 +38,10 @@ class Vibration:
             raise ValueError(f"vibration.subtype={self.subtype!r} not in {VALID_SUBTYPES}")
         if self.branch is not None and self.branch not in VALID_BRANCHES:
             raise ValueError(f"vibration.branch={self.branch!r} not in {VALID_BRANCHES}")
-        # Combinations/overtones don't have a subtype (they aren't sym/asym themselves)
-        if self.category in {"combination", "overtone"} and self.subtype is not None:
+        if self.category == "combination" and self.subtype is not None:
             raise ValueError(
-                f"vibration.category={self.category} cannot have subtype={self.subtype!r}; "
-                "combinations and overtones aren't themselves symmetric/asymmetric."
+                f"vibration.category=combination cannot have subtype={self.subtype!r}; "
+                "combinations aren't themselves symmetric/asymmetric."
             )
 
 
@@ -73,7 +72,6 @@ class Band:
     atoms: str
     wn_start: int
     wn_end: int
-    region: str
     short: str = ""
     description: str = ""
     based_on: list[BasedOn] = field(default_factory=list)
@@ -110,8 +108,15 @@ class Band:
 
     @property
     def is_derived(self) -> bool:
-        """True if this band is a combination or overtone of others."""
-        return self.vibration.category in {"combination", "overtone"}
+        """True if this band is a combination of others."""
+        return self.vibration.category == "combination"
+
+    def region_for(self, regions: "dict[str, Region]") -> "Optional[Region]":
+        """Return the Region whose wn range contains this band's center, or None."""
+        for r in regions.values():
+            if r.wn_min <= self.wn_center <= r.wn_max:
+                return r
+        return None
 
 
 @dataclass

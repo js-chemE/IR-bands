@@ -15,6 +15,9 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+
 import plotly.io as pio
 
 from src.layout import assign_lanes
@@ -181,17 +184,30 @@ HEADER_HINT_HTML = """
   <strong>Tip:</strong> if the page looks stale after an update, hard-refresh:
   <kbd>Ctrl + Shift + R</kbd> (Windows / Linux) or
   <kbd>⌘ + Shift + R</kbd> (macOS).
-  Use the sidebar to toggle groups on or off — empty lanes will collapse
-  automatically.
+  <br>
+  <strong>Sidebar</strong> = which groups exist (toggling collapses lanes).
+  <strong>Legend</strong> = highlight/hide bands within the visible groups
+  (no lane collapse).
 </div>
 """
 
 
 # ---------------------------------------------------------------------------
-# JavaScript:
-#   1. Build sidebar from layout.meta.groups_for_sidebar
-#   2. Toggle bands' visibility per group via Plotly.restyle
-#   3. Recompute lane positions when anything is hidden (lane-collapse)
+# JavaScript: clean separation of two interaction layers.
+#
+# Sidebar (structural):
+#   - Owns enabledGroups[g] : boolean per group
+#   - Toggling a group hides/shows its bands AND collapses empty lanes
+#   - Source of truth for which lanes are visible
+#
+# Legend (cosmetic):
+#   - Plotly's built-in toggle behavior, untouched
+#   - Hides individual color-categories for visual focus
+#   - Does NOT trigger lane collapse
+#
+# To keep these independent, we track sidebar-hidden bands in our own shadow
+# state (sidebarHidden[i]). When the sidebar re-enables a group, we only
+# restore bands that *we* hid; bands the legend hid stay hidden.
 # ---------------------------------------------------------------------------
 SIDEBAR_AND_COLLAPSE_JS = r"""
 <script>
@@ -232,9 +248,13 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       if (groupToTraces[g]) groupToTraces[g].push(i);
     }
 
-    // Track which groups are currently enabled (true = shown).
-    const enabled = {};
-    ORIG.groups.forEach(g => { enabled[g.key] = true; });
+    // Sidebar state: which groups are currently enabled (true = shown).
+    const enabledGroups = {};
+    ORIG.groups.forEach(g => { enabledGroups[g.key] = true; });
+
+    // Shadow state: bands that the sidebar has hidden. We use this to tell
+    // sidebar-hides apart from legend-hides when restoring visibility.
+    const sidebarHidden = new Array(ORIG.n_bar).fill(false);
 
     // ----- Build the sidebar UI -----
     const sidebar = document.getElementById(SIDEBAR_ID);
@@ -287,96 +307,119 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       rowsByKey[g.key] = { row, checkbox: cb };
 
       cb.addEventListener("change", function () {
-        enabled[g.key] = cb.checked;
+        enabledGroups[g.key] = cb.checked;
         row.classList.toggle("off", !cb.checked);
-        applyVisibilityAndCollapse();
+        applySidebarChange();
       });
     });
 
     btnAll.addEventListener("click", function () {
       ORIG.groups.forEach(function (g) {
-        enabled[g.key] = true;
+        enabledGroups[g.key] = true;
         rowsByKey[g.key].checkbox.checked = true;
         rowsByKey[g.key].row.classList.remove("off");
       });
-      applyVisibilityAndCollapse();
+      applySidebarChange();
     });
     btnNone.addEventListener("click", function () {
       ORIG.groups.forEach(function (g) {
-        enabled[g.key] = false;
+        enabledGroups[g.key] = false;
         rowsByKey[g.key].checkbox.checked = false;
         rowsByKey[g.key].row.classList.add("off");
       });
-      applyVisibilityAndCollapse();
+      applySidebarChange();
     });
 
-    // ----- Visibility + lane-collapse -----
+    // ----- Sidebar-driven visibility + lane collapse -----
     let busy = false;
 
-    function applyVisibilityAndCollapse() {
+    function applySidebarChange() {
       if (busy) return;
       busy = true;
 
-      // Per-band visibility (true | "legendonly").
-      // We use "legendonly" so Plotly keeps the trace in the figure but hides
-      // it; this is the same state legend-clicks produce.
-      const visibilityByTrace = new Array(ORIG.n_bar).fill(true);
-      for (let i = 0; i < ORIG.n_bar; i++) {
-        const g = ORIG.band_groups[i];
-        if (!enabled[g]) visibilityByTrace[i] = "legendonly";
-      }
-
-      // Apply visibility to bar traces. Plotly.restyle accepts an array
-      // of values when paired with an array of trace indices.
+      // Compute the new visibility we want to push to Plotly.
+      // - If the sidebar disables a group: hide all its bands (regardless of
+      //   their current legend state) and mark them sidebar-hidden.
+      // - If the sidebar re-enables a group: only show bands that WE hid;
+      //   bands the user legend-hid (sidebarHidden[i] === false but Plotly
+      //   marks them "legendonly") stay hidden.
       const indices = [];
       const values = [];
+      const data = gd.data;
+
       for (let i = 0; i < ORIG.n_bar; i++) {
-        indices.push(i);
-        values.push(visibilityByTrace[i]);
+        const g = ORIG.band_groups[i];
+        const groupOn = enabledGroups[g];
+        const wasSidebarHidden = sidebarHidden[i];
+
+        if (!groupOn) {
+          // Sidebar wants this band hidden.
+          if (data[i].visible !== "legendonly" && data[i].visible !== false) {
+            indices.push(i);
+            values.push("legendonly");
+          }
+          sidebarHidden[i] = true;
+        } else if (groupOn && wasSidebarHidden) {
+          // Sidebar is restoring this band; show it.
+          // (If the legend later hides it, that's fine and independent.)
+          indices.push(i);
+          values.push(true);
+          sidebarHidden[i] = false;
+        }
+        // Otherwise: groupOn && !wasSidebarHidden → no change from sidebar.
       }
 
-      Plotly.restyle(gd, { visible: values }, indices).then(function () {
-        // After visibility settles, recompute lane positions.
+      const restylePromise = (indices.length > 0)
+        ? Plotly.restyle(gd, { visible: values }, indices)
+        : Promise.resolve();
+
+      restylePromise.then(function () {
         applyCollapse();
         busy = false;
       });
     }
 
+    // Lane-collapse based on SIDEBAR state only — legend state is ignored.
     function applyCollapse() {
-      const data = gd.data;
-      const visibleByBand = [];
+      // Which lanes have at least one band whose group is sidebar-enabled?
+      // (We don't ask Plotly which bands are visible; legend toggling is
+      // cosmetic and shouldn't affect lane geometry.)
+      const laneEnabled = new Array(ORIG.n_lanes).fill(false);
       for (let i = 0; i < ORIG.n_bar; i++) {
-        const v = data[i] && data[i].visible;
-        visibleByBand.push(v !== false && v !== "legendonly");
+        if (enabledGroups[ORIG.band_groups[i]]) {
+          laneEnabled[ORIG.band_lanes[i]] = true;
+        }
       }
 
-      const laneHasVisible = new Array(ORIG.n_lanes).fill(false);
-      for (let i = 0; i < ORIG.n_bar; i++) {
-        if (visibleByBand[i]) laneHasVisible[ORIG.band_lanes[i]] = true;
-      }
-
+      // Map original lane index -> compact index
       const newLaneIdx = new Array(ORIG.n_lanes).fill(-1);
       let next = 0;
       for (let lane = 0; lane < ORIG.n_lanes; lane++) {
-        if (laneHasVisible[lane]) newLaneIdx[lane] = next++;
+        if (laneEnabled[lane]) newLaneIdx[lane] = next++;
       }
       const newNLanes = next;
 
+      // Recompute y-coordinates for ALL bar traces in still-enabled lanes.
+      // We update y for legend-hidden traces too — they're invisible but their
+      // y still has to be correct, so unhiding them via the legend gives a
+      // sensible position.
       const newYs = [];
       const traceIndices = [];
       for (let i = 0; i < ORIG.n_bar; i++) {
         const origLane = ORIG.band_lanes[i];
         const compactLane = newLaneIdx[origLane];
-        if (compactLane < 0) continue;  // lane fully collapsed
+        if (compactLane < 0) continue;  // band is in a fully-disabled lane
         const subLane = ORIG.band_sub_lanes[i];
         const laneY = (newNLanes > 0)
-          ? (newNLanes - 1 - compactLane) * ORIG.lane_height : 0;
+          ? (newNLanes - 1 - compactLane) * ORIG.lane_height
+          : 0;
         const y0 = laneY + subLane * (ORIG.lane_height * ORIG.sub_offset_frac * ORIG.bar_fraction);
         const y1 = y0 + ORIG.lane_height * ORIG.bar_fraction;
         newYs.push([y0, y0, y1, y1, y0]);
         traceIndices.push(i);
       }
 
+      // Lane labels: hide those for disabled lanes, reposition the rest.
       const annotations = (gd.layout.annotations || []).map(function (a) {
         const m = a && a.name && a.name.match(/^lane_label_(\d+)$/);
         if (!m) return a;
@@ -394,9 +437,7 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       const yMax = (newNLanes > 0 ? newNLanes : 1) * ORIG.lane_height;
       const newHeight = Math.max(550, Math.round(newNLanes * ORIG.lane_height * 55)) + 80;
 
-      const updates = {};
       if (traceIndices.length > 0) {
-        // Apply y in a single restyle for all visible traces
         Plotly.restyle(gd, { y: newYs }, traceIndices);
       }
       Plotly.relayout(gd, {

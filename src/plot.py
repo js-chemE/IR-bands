@@ -9,6 +9,7 @@ Side-channel data via fig.layout.meta so JS can:
 """
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 
 import plotly.graph_objects as go
@@ -38,12 +39,115 @@ WN_LIMITS = (4050, 450)
 
 
 # ---------------------------------------------------------------------------
+# Reference formatting
+# ---------------------------------------------------------------------------
+
+def _field_str(val) -> str:
+    """Return the plain string value of a BibTeX field.
+
+    Handles bibtexparser v2 Field objects and strips BibTeX case-protection braces.
+    """
+    if val is None:
+        return ""
+    s = str(val.value) if hasattr(val, "value") else str(val)
+    # Strip BibTeX case-protection braces: {ACS} → ACS
+    return re.sub(r"\{([^}]*)\}", r"\1", s)
+
+
+def _format_authors_ieee(author_str: str) -> str:
+    """Convert a BibTeX author string to IEEE abbreviated form.
+
+    Input:  'Smith, John A. and Jones, Alice B. and Brown, Charles'
+    Output: 'J. A. Smith, A. B. Jones, and C. Brown'
+    """
+    authors = re.split(r"\s+and\s+", author_str.strip(), flags=re.IGNORECASE)
+    formatted = []
+    for author in authors:
+        author = author.strip()
+        if "," in author:
+            last, _, first = author.partition(",")
+            last = last.strip()
+            first = first.strip()
+        else:
+            parts = author.split()
+            last = parts[-1] if parts else ""
+            first = " ".join(parts[:-1])
+        initials = "".join(f"{n[0]}." for n in first.split() if n)
+        formatted.append(f"{initials} {last}".strip() if initials else last)
+
+    if not formatted:
+        return ""
+    if len(formatted) == 1:
+        return formatted[0]
+    if len(formatted) == 2:
+        return f"{formatted[0]} and {formatted[1]}"
+    return ", ".join(formatted[:-1]) + f", and {formatted[-1]}"
+
+
+def _format_short_ref(ref: dict, key: str) -> str:
+    """Format a BibTeX entry as 'Author et al., Year' for inline hover citations."""
+    author_str = _field_str(ref.get("author"))
+    year_raw = _field_str(ref.get("year") or ref.get("date"))
+    year = year_raw[:4] if year_raw else ""
+
+    if author_str:
+        authors = re.split(r"\s+and\s+", author_str.strip(), flags=re.IGNORECASE)
+        first = authors[0].strip()
+        last_name = first.split(",")[0].strip() if "," in first else first.split()[-1]
+        suffix = " et al." if len(authors) > 2 else (f" & {authors[1].split(',')[0].strip()}" if len(authors) == 2 else "")
+        author_part = last_name + suffix
+    else:
+        author_part = key
+
+    return f"{author_part}, {year}" if year else author_part
+
+
+def _format_ieee_ref(ref: dict, key: str) -> str:
+    """Format a BibTeX entry dict as an IEEE-style citation string."""
+    author = _field_str(ref.get("author"))
+    title = _field_str(ref.get("title"))
+    # Biblatex uses "journaltitle"; classic BibTeX uses "journal"
+    journal = _field_str(
+        ref.get("journal") or ref.get("journaltitle") or ref.get("booktitle")
+    )
+    volume = _field_str(ref.get("volume"))
+    number = _field_str(ref.get("number"))
+    pages = _field_str(ref.get("pages"))
+    # Biblatex uses "date" (ISO 8601); classic BibTeX uses "year"
+    year_raw = _field_str(ref.get("year") or ref.get("date"))
+    year = year_raw[:4] if year_raw else ""
+
+    parts = []
+    if author:
+        parts.append(_format_authors_ieee(author))
+    if title:
+        parts.append(f'"{title}"')
+    if journal:
+        parts.append(f"<i>{journal}</i>")
+
+    detail = []
+    if volume:
+        detail.append(f"vol. {volume}")
+    if number:
+        detail.append(f"no. {number}")
+    if pages:
+        detail.append(f"pp. {pages.replace('--', '–')}")
+    if detail:
+        parts.append(", ".join(detail))
+    if year:
+        parts.append(year)
+
+    return (", ".join(parts) + ".") if parts else key
+
+
+# ---------------------------------------------------------------------------
 # Hover text
 # ---------------------------------------------------------------------------
 
 def _hover_text(b: Band, dataset: Dataset, references: dict | None = None) -> str:
     group_label = dataset.groups[b.group].label
-    region_label = dataset.regions[b.region].label
+    r = b.region_for(dataset.regions)
+    region_label = r.label if r is not None else "unknown"
 
     sub = f" {b.vibration.subtype}" if b.vibration.subtype else ""
     branch = f" ({b.vibration.branch})" if b.vibration.branch else ""
@@ -70,16 +174,11 @@ def _hover_text(b: Band, dataset: Dataset, references: dict | None = None) -> st
         parts.append(f"Built from: {' + '.join(parent_strs)}")
 
     if b.references and references is not None:
-        cite_strs = []
+        cite_lines = []
         for key in b.references:
             ref = references.get(key)
-            if ref:
-                author = ref.get("author", "").split(",")[0].split(" and ")[0].strip()
-                year = ref.get("year", "")
-                cite_strs.append(f"{author} {year}".strip() or key)
-            else:
-                cite_strs.append(key)
-        parts.append(f"Refs: [{'; '.join(cite_strs)}]")
+            cite_lines.append(_format_short_ref(ref, key) if ref else key)
+        parts.append(f"Ref: {'; '.join(cite_lines)}")
     elif not b.references:
         parts.append("<i>(no reference yet)</i>")
 
@@ -143,18 +242,14 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
         bar_y0 += sub_offset
         bar_y1 += sub_offset
 
-        is_derived = b.is_derived
-        line_dash = "dot" if is_derived else "solid"
-        opacity = 0.55 if is_derived else 0.85
-
         fig.add_trace(go.Scatter(
             x=[b.wn_min, b.wn_max, b.wn_max, b.wn_min, b.wn_min],
             y=[bar_y0, bar_y0, bar_y1, bar_y1, bar_y0],
             fill="toself",
             fillcolor=colors_group[b.species],
-            line=dict(color="black", width=0.5, dash=line_dash),
+            line=dict(color="black", width=0.5),
             mode="lines",
-            opacity=opacity,
+            opacity=0.85,
             hoveron="fills",
             text=_hover_text(b, dataset, references),
             hoverinfo="text",
