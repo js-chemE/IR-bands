@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from schema import Band
+from ir_bands.schema import Band
 
 
 def assign_lanes(bands: list[Band], gap: int = 5) -> None:

@@ -15,6 +15,9 @@
 //                 parent modes not in the dataset, e.g. IR-inactive ν₁ of CO₂)
 //   references  — list of BibTeX keys (resolved at build time)
 //   tags        — free-form list of strings; "overtone" marks overtone bands
+//   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
+//   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
+//   confidence  — assignment confidence: confirmed | likely | tentative | speculative  (omit if unknown)
 // =============================================================================
 {
   "metadata": {

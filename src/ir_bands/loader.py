@@ -12,7 +12,10 @@ import json
 import re
 from pathlib import Path
 
-from schema import Band, BasedOn, Dataset, Group, Region, Vibration
+from ir_bands.schema import (
+    Band, BasedOn, Dataset, Group, Region, Vibration,
+    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +95,9 @@ def _parse_band(raw: dict) -> Band:
         based_on=based_on,
         references=list(raw.get("references", [])),
         tags=list(raw.get("tags", [])),
+        intensity=raw.get("intensity"),
+        width=raw.get("width"),
+        confidence=raw.get("confidence"),
         pair=raw.get("pair"),
     )
 
@@ -152,14 +158,23 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if b.is_derived and not b.based_on:
             warnings.append(f"Band {b.id}: combination has no based_on entries")
 
-    # 5. wn_start/wn_end sanity
+    # 5. Categorical field values
+    for b in dataset.bands:
+        if b.intensity is not None and b.intensity not in VALID_INTENSITIES:
+            errors.append(f"Band {b.id}: intensity={b.intensity!r} not in {VALID_INTENSITIES}")
+        if b.width is not None and b.width not in VALID_WIDTHS:
+            errors.append(f"Band {b.id}: width={b.width!r} not in {VALID_WIDTHS}")
+        if b.confidence is not None and b.confidence not in VALID_CONFIDENCES:
+            errors.append(f"Band {b.id}: confidence={b.confidence!r} not in {VALID_CONFIDENCES}")
+
+    # 6. wn_start/wn_end sanity
     for b in dataset.bands:
         if b.wn_min <= 0:
             errors.append(f"Band {b.id}: non-positive wavenumber {b.wn_min}")
         if b.wn_max < b.wn_min:
             errors.append(f"Band {b.id}: wn_max < wn_min")
 
-    # 6. Reference keys resolve (if a references map is provided)
+    # 7. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
             for ref_key in b.references:
