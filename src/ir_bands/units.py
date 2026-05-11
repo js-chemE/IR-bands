@@ -50,7 +50,7 @@ AXES: dict[str, AxisDef] = {
 
 
 def axis_label(axis: str, unit: str) -> str:
-    return f"{axis.capitalize()} ({unit})"
+    return f"{axis} / {unit}"
 
 
 def wn_to_value(wn_cm: float, axis: str, unit: str) -> float:

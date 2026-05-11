@@ -15,14 +15,16 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-sys.stdout.reconfigure(encoding="utf-8")
-sys.stderr.reconfigure(encoding="utf-8")
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import plotly.io as pio
 
-from src.layout import assign_lanes
-from src.loader import load_dataset, load_references, validate_dataset
-from src.plot import build_figure
+from ir_bands.layout import assign_lanes
+from ir_bands.loader import load_dataset, load_references, validate_dataset
+from ir_bands.plot import build_figure
+
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -176,6 +178,38 @@ kbd {{
     font-size: 12px;
     font-family: ui-monospace, monospace;
 }}
+
+#sidebar select {{
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 12px;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    margin-bottom: 6px;
+    box-sizing: border-box;
+}}
+
+#sidebar select:hover {{
+    border-color: #A0A0A0;
+}}
+
+.axis-row {{
+    display: flex;
+    gap: 6px;
+}}
+
+.axis-row select {{
+    flex: 1;
+}}
+
+.sidebar-divider {{
+    border: none;
+    border-top: 1px solid #E5E5E5;
+    margin: 12px 0;
+}}
 """
 
 
@@ -215,6 +249,9 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
   const PLOT_DIV_ID = "drifts-plot";
   const SIDEBAR_ID = "sidebar-groups";
 
+  // These groups start toggled off in the sidebar.
+  const DEFAULT_OFF_GROUPS = new Set(["hydride", "support"]);
+
   function ready(fn) {
     const div = document.getElementById(PLOT_DIV_ID);
     if (div && div.data && div.layout) { fn(div); return; }
@@ -238,22 +275,17 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       band_sub_lanes: meta.band_sub_lanes,
       band_groups: meta.band_groups,
       groups: meta.groups_for_sidebar,  // [{key,label,color,count}, ...]
+      legend_trace_info: meta.legend_trace_info || [],   // [{dim, cat}, ...]
+      legend_trace_groups: meta.legend_trace_groups || [], // [[groupKey,...], ...]
     };
-
-    // Map group key -> set of trace indices belonging to that group
-    const groupToTraces = {};
-    ORIG.groups.forEach(g => { groupToTraces[g.key] = []; });
-    for (let i = 0; i < ORIG.n_bar; i++) {
-      const g = ORIG.band_groups[i];
-      if (groupToTraces[g]) groupToTraces[g].push(i);
-    }
 
     // Sidebar state: which groups are currently enabled (true = shown).
     const enabledGroups = {};
-    ORIG.groups.forEach(g => { enabledGroups[g.key] = true; });
+    ORIG.groups.forEach(function (g) {
+      enabledGroups[g.key] = !DEFAULT_OFF_GROUPS.has(g.key);
+    });
 
-    // Shadow state: bands that the sidebar has hidden. We use this to tell
-    // sidebar-hides apart from legend-hides when restoring visibility.
+    // Shadow state: bands the sidebar has hidden (so legend clicks can't restore them).
     const sidebarHidden = new Array(ORIG.n_bar).fill(false);
 
     // ----- Build the sidebar UI -----
@@ -285,7 +317,7 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
 
       const cb = document.createElement("input");
       cb.type = "checkbox";
-      cb.checked = true;
+      cb.checked = enabledGroups[g.key];
 
       const sw = document.createElement("span");
       sw.className = "swatch";
@@ -303,8 +335,9 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       row.appendChild(sw);
       row.appendChild(lbl);
       row.appendChild(cnt);
+      if (!enabledGroups[g.key]) row.classList.add("off");
       sidebar.appendChild(row);
-      rowsByKey[g.key] = { row, checkbox: cb };
+      rowsByKey[g.key] = { row: row, checkbox: cb };
 
       cb.addEventListener("change", function () {
         enabledGroups[g.key] = cb.checked;
@@ -330,6 +363,26 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       applySidebarChange();
     });
 
+    // ----- Legend entry visibility: hide entries whose groups are all disabled -----
+    // Called after any sidebar toggle or color-dim change.
+    function applyLegendVisibility() {
+      var currentDim = colorDimSel ? colorDimSel.value : "group";
+      var showVals = [];
+      var traceIdxs = [];
+      for (var i = 0; i < ORIG.legend_trace_info.length; i++) {
+        var info = ORIG.legend_trace_info[i];
+        var grps = ORIG.legend_trace_groups[i];
+        var dimMatch = info.dim === currentDim;
+        var anyEnabled = grps.some(function (g) { return enabledGroups[g]; });
+        showVals.push(dimMatch && anyEnabled);
+        traceIdxs.push(ORIG.n_bar + i);
+      }
+      if (traceIdxs.length > 0) {
+        return Plotly.restyle(gd, { showlegend: showVals }, traceIdxs);
+      }
+      return Promise.resolve();
+    }
+
     // ----- Sidebar-driven visibility + lane collapse -----
     let busy = false;
 
@@ -337,12 +390,6 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       if (busy) return;
       busy = true;
 
-      // Compute the new visibility we want to push to Plotly.
-      // - If the sidebar disables a group: hide all its bands (regardless of
-      //   their current legend state) and mark them sidebar-hidden.
-      // - If the sidebar re-enables a group: only show bands that WE hid;
-      //   bands the user legend-hid (sidebarHidden[i] === false but Plotly
-      //   marks them "legendonly") stay hidden.
       const indices = [];
       const values = [];
       const data = gd.data;
@@ -353,20 +400,16 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
         const wasSidebarHidden = sidebarHidden[i];
 
         if (!groupOn) {
-          // Sidebar wants this band hidden.
           if (data[i].visible !== "legendonly" && data[i].visible !== false) {
             indices.push(i);
             values.push("legendonly");
           }
           sidebarHidden[i] = true;
         } else if (groupOn && wasSidebarHidden) {
-          // Sidebar is restoring this band; show it.
-          // (If the legend later hides it, that's fine and independent.)
           indices.push(i);
           values.push(true);
           sidebarHidden[i] = false;
         }
-        // Otherwise: groupOn && !wasSidebarHidden → no change from sidebar.
       }
 
       const restylePromise = (indices.length > 0)
@@ -375,15 +418,13 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
 
       restylePromise.then(function () {
         applyCollapse();
+        applyLegendVisibility();
         busy = false;
       });
     }
 
     // Lane-collapse based on SIDEBAR state only — legend state is ignored.
     function applyCollapse() {
-      // Which lanes have at least one band whose group is sidebar-enabled?
-      // (We don't ask Plotly which bands are visible; legend toggling is
-      // cosmetic and shouldn't affect lane geometry.)
       const laneEnabled = new Array(ORIG.n_lanes).fill(false);
       for (let i = 0; i < ORIG.n_bar; i++) {
         if (enabledGroups[ORIG.band_groups[i]]) {
@@ -391,7 +432,6 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
         }
       }
 
-      // Map original lane index -> compact index
       const newLaneIdx = new Array(ORIG.n_lanes).fill(-1);
       let next = 0;
       for (let lane = 0; lane < ORIG.n_lanes; lane++) {
@@ -399,16 +439,14 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
       }
       const newNLanes = next;
 
-      // Recompute y-coordinates for ALL bar traces in still-enabled lanes.
-      // We update y for legend-hidden traces too — they're invisible but their
-      // y still has to be correct, so unhiding them via the legend gives a
-      // sensible position.
+      // Update y-coordinates for ALL bar traces in still-enabled lanes.
+      // Includes legend-hidden traces so unhiding them via legend gives correct position.
       const newYs = [];
       const traceIndices = [];
       for (let i = 0; i < ORIG.n_bar; i++) {
         const origLane = ORIG.band_lanes[i];
         const compactLane = newLaneIdx[origLane];
-        if (compactLane < 0) continue;  // band is in a fully-disabled lane
+        if (compactLane < 0) continue;
         const subLane = ORIG.band_sub_lanes[i];
         const laneY = (newNLanes > 0)
           ? (newNLanes - 1 - compactLane) * ORIG.lane_height
@@ -419,7 +457,6 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
         traceIndices.push(i);
       }
 
-      // Lane labels: hide those for disabled lanes, reposition the rest.
       const annotations = (gd.layout.annotations || []).map(function (a) {
         const m = a && a.name && a.name.match(/^lane_label_(\d+)$/);
         if (!m) return a;
@@ -446,6 +483,92 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
         height: newHeight,
       });
     }
+
+    // ----- Guard legend clicks against restoring sidebar-hidden bands -----
+    // When a legendgroup contains both sidebar-hidden and user-visible bands,
+    // clicking the legend entry would normally toggle ALL of them — including
+    // sidebar-hidden ones, which would snap to incorrect (collapsed) positions.
+    // Instead we manually toggle only the non-sidebar-hidden bands.
+    gd.on("plotly_legendclick", function (data) {
+      var clickedIdx = data.curveNumber;
+      var lgName = gd.data[clickedIdx].legendgroup;
+
+      // Collect band traces in this legendgroup, split by sidebar state.
+      var freeIndices = [];   // not sidebar-hidden → user may toggle
+      var hasSbHidden = false;
+      for (var i = 0; i < ORIG.n_bar; i++) {
+        if (gd.data[i].legendgroup !== lgName) continue;
+        if (sidebarHidden[i]) { hasSbHidden = true; }
+        else { freeIndices.push(i); }
+      }
+
+      if (!hasSbHidden) return; // no conflict — let Plotly handle it normally
+
+      // Manual toggle: only the free bands + the legend marker trace itself.
+      var allHidden = freeIndices.every(function (i) {
+        var v = gd.data[i].visible;
+        return v === "legendonly" || v === false;
+      });
+      var newVis = allHidden ? true : "legendonly";
+      var toUpdate = freeIndices.concat([clickedIdx]);
+      Plotly.restyle(gd, { visible: newVis }, toUpdate);
+      return false; // prevent Plotly's default toggle
+    });
+
+    // Disable double-click "toggleothers" when sidebar has hidden bands,
+    // since it would restore sidebar-hidden traces via a Plotly internal path.
+    gd.on("plotly_legenddoubleclick", function () {
+      if (sidebarHidden.some(function (h) { return h; })) return false;
+    });
+
+    // ----- Color dimension selector -----
+    const colorDimSel = document.getElementById("color-dim-select");
+    if (colorDimSel && meta.color_dim_data) {
+      colorDimSel.addEventListener("change", function () {
+        const d = meta.color_dim_data[colorDimSel.value];
+        Plotly.restyle(gd, {
+          fillcolor: d.fillcolors,
+          legendgroup: d.legendgroups,
+        }).then(function () {
+          applyLegendVisibility();
+        });
+      });
+    }
+
+    // ----- Axis property + unit selectors -----
+    const axisPropSel = document.getElementById("axis-property-select");
+    const axisUnitSel = document.getElementById("axis-unit-select");
+    if (axisPropSel && axisUnitSel && meta.axis_data) {
+      function populateUnits(property) {
+        const propData = meta.axis_data[property];
+        axisUnitSel.innerHTML = "";
+        Object.keys(propData.units).forEach(function (unit) {
+          const opt = document.createElement("option");
+          opt.value = unit;
+          opt.textContent = unit;
+          if (unit === propData.default_unit) opt.selected = true;
+          axisUnitSel.appendChild(opt);
+        });
+      }
+
+      function applyAxisChange() {
+        const d = meta.axis_data[axisPropSel.value].units[axisUnitSel.value];
+        Plotly.update(gd,
+          { x: d.xs },
+          { "xaxis.range": d.range, "xaxis.title.text": d.title }
+        );
+      }
+
+      populateUnits(axisPropSel.value);
+      axisPropSel.addEventListener("change", function () {
+        populateUnits(axisPropSel.value);
+        applyAxisChange();
+      });
+      axisUnitSel.addEventListener("change", applyAxisChange);
+    }
+
+    // Apply initial defaults: hide DEFAULT_OFF_GROUPS and sync legend entries.
+    applySidebarChange();
   });
 })();
 </script>
@@ -515,6 +638,28 @@ def main() -> int:
     {HEADER_HINT_HTML}
     <div id="layout">
         <aside id="sidebar">
+            <div id="sidebar-color-dim">
+                <h3>Color by</h3>
+                <select id="color-dim-select">
+                    <option value="group" selected>Group</option>
+                    <option value="vibration">Vibration</option>
+                    <option value="atoms">Atoms</option>
+                    <option value="references">References</option>
+                </select>
+            </div>
+            <hr class="sidebar-divider">
+            <div id="sidebar-axis">
+                <h3>X axis</h3>
+                <div class="axis-row">
+                    <select id="axis-property-select">
+                        <option value="wavenumber" selected>wavenumber</option>
+                        <option value="wavelength">wavelength</option>
+                        <option value="energy">energy</option>
+                    </select>
+                    <select id="axis-unit-select"></select>
+                </div>
+            </div>
+            <hr class="sidebar-divider">
             <div id="sidebar-groups"></div>
         </aside>
         <div id="plot-container">

@@ -12,7 +12,7 @@ Dimensions exposed:
 """
 from __future__ import annotations
 
-from schema import Band, Group
+from ir_bands.schema import Band, Group
 
 
 # Fallback for unmapped keys

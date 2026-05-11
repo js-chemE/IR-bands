@@ -138,6 +138,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -159,6 +162,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -180,6 +186,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -201,6 +210,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -222,6 +234,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -254,6 +269,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -286,6 +304,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -318,6 +339,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -350,6 +374,9 @@
         "Fehr.SpectroscopicSignaturesPressurized.2020"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -374,6 +401,9 @@
         "misassignment-warning",
         "drifts-artifact"
       ],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -395,6 +425,9 @@
         "Paredes-Nunez.SpectrumBaselineArtefacts.2015"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -416,6 +449,9 @@
         "Paredes-Nunez.SpectrumBaselineArtefacts.2015"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -435,6 +471,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -454,6 +493,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -484,6 +526,9 @@
       ],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -503,6 +548,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 1
     },
     {
@@ -522,6 +570,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 2
     },
     {
@@ -541,6 +592,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 2
     },
     {
@@ -560,6 +614,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 2
     },
     {
@@ -579,6 +636,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 2
     },
     {
@@ -600,6 +660,9 @@
         "Gomez.InterdependenceExtentGa.2024"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 3
     },
     {
@@ -619,6 +682,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 3
     },
     {
@@ -638,6 +704,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 3
     },
     {
@@ -657,6 +726,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 3
     },
     {
@@ -676,6 +748,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -695,6 +770,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -714,6 +792,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -733,6 +814,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -752,6 +836,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -771,6 +858,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -790,6 +880,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -809,6 +902,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -828,6 +924,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -847,6 +946,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 4
     },
     {
@@ -866,6 +968,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -885,6 +990,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -912,6 +1020,9 @@
       "tags": [
         "overtone"
       ],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -931,6 +1042,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -950,6 +1064,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -977,6 +1094,9 @@
       "tags": [
         "overtone"
       ],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -996,6 +1116,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 5
     },
     {
@@ -1015,6 +1138,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 6
     },
     {
@@ -1034,6 +1160,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 6
     },
     {
@@ -1053,6 +1182,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 6
     },
     {
@@ -1074,6 +1206,9 @@
         "Gomez.InterdependenceExtentGa.2024"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1095,6 +1230,9 @@
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1116,6 +1254,9 @@
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1137,6 +1278,9 @@
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1169,6 +1313,9 @@
         "Gomez.InterdependenceExtentGa.2024"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1199,6 +1346,9 @@
       ],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 7
     },
     {
@@ -1220,6 +1370,9 @@
         "Gomez.InterdependenceExtentGa.2024"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 8
     },
     {
@@ -1241,6 +1394,9 @@
         "Gomez.InterdependenceExtentGa.2024"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 8
     },
     {
@@ -1260,6 +1416,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 8
     },
     {
@@ -1281,6 +1440,9 @@
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 8
     },
     {
@@ -1300,6 +1462,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 9
     },
     {
@@ -1319,6 +1484,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 9
     },
     {
@@ -1340,6 +1508,9 @@
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 9
     },
     {
@@ -1359,6 +1530,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 10
     },
     {
@@ -1378,6 +1552,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 10
     },
     {
@@ -1397,6 +1574,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 11
     },
     {
@@ -1416,6 +1596,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 11
     },
     {
@@ -1435,6 +1618,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1454,6 +1640,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1473,6 +1662,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1492,6 +1684,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1511,6 +1706,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1535,6 +1733,9 @@
         "hydride-marker",
         "co-overlap-risk"
       ],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1554,6 +1755,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1573,6 +1777,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 12
     },
     {
@@ -1592,6 +1799,9 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 13
     },
     {
@@ -1619,6 +1829,9 @@
       "tags": [
         "overtone"
       ],
+      "intensity": null,
+      "width": null,
+      "confidence": null,
       "pair": 13
     }
   ]

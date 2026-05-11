@@ -14,7 +14,7 @@ from collections import defaultdict
 
 import plotly.graph_objects as go
 
-from colors import (
+from ir_bands.colors import (
     color_map_by_atoms,
     color_map_by_group,
     color_map_by_references,
@@ -24,9 +24,9 @@ from colors import (
     vibration_key,
     vibration_label,
 )
-from layout import assign_sub_lanes
-from schema import Band, Dataset
-from units import AXES, axis_label, axis_range, wn_to_value, wrap_for_hover
+from ir_bands.layout import assign_sub_lanes
+from ir_bands.schema import Band, Dataset
+from ir_bands.units import AXES, axis_label, axis_range, wn_to_value, wrap_for_hover
 
 
 # Layout constants
@@ -298,35 +298,36 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
 
     n_total = len(fig.data)
 
-    # ----- Dimension dropdown -----
+    # ----- Color dimension data for sidebar -----
     band_categories = {
         dim_key: [dim["key"](b) for b in bands]
         for dim_key, dim in DIMENSIONS.items()
     }
 
-    dimension_buttons = []
-    for dim_key in DIMENSIONS:
-        showlegend_array = [False] * n_bar_traces
-        for info in legend_trace_info:
-            showlegend_array.append(info["dim"] == dim_key)
+    # For each legend marker trace: which group keys have bands in that category?
+    # Used by JS to hide legend entries when all contributing groups are disabled.
+    legend_trace_groups: list[list[str]] = []
+    for info in legend_trace_info:
+        d_key = info["dim"]
+        cat = info["cat"]
+        d_fn = DIMENSIONS[d_key]["key"]
+        grps = list(dict.fromkeys(b.group for b in bands if d_fn(b) == cat))
+        legend_trace_groups.append(grps)
 
+    color_dim_data = {}
+    for dim_key in DIMENSIONS:
         legendgroup_array = list(band_categories[dim_key])
         for info in legend_trace_info:
             legendgroup_array.append(info["cat"])
 
         fillcolor_array = list(bar_color_arrays[dim_key]) + [None] * (n_total - n_bar_traces)
 
-        dimension_buttons.append(dict(
-            label=f"By {dim_key}",
-            method="restyle",
-            args=[{
-                "fillcolor":   fillcolor_array,
-                "legendgroup": legendgroup_array,
-                "showlegend":  showlegend_array,
-            }],
-        ))
+        color_dim_data[dim_key] = {
+            "fillcolors": fillcolor_array,
+            "legendgroups": legendgroup_array,
+        }
 
-    # ----- Axis-switch buttons -----
+    # ----- Axis data for sidebar -----
     def _converted_band_xs(axis_name: str, unit: str):
         out = []
         for b in bands:
@@ -339,20 +340,20 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
             out.append([lo, hi, hi, lo, lo])
         return out
 
-    axis_buttons = []
+    axis_data_for_js = {}
     for axis_name, spec in AXES.items():
+        units_data = {}
         for unit in spec.units:
             new_xs = _converted_band_xs(axis_name, unit)
-            new_range = axis_range(WN_LIMITS[1], WN_LIMITS[0], axis_name, unit)
-            new_title = axis_label(axis_name, unit)
-            axis_buttons.append(dict(
-                label=f"{axis_name}: {unit}",
-                method="update",
-                args=[
-                    {"x": new_xs + [[None]] * (n_total - n_bar_traces)},
-                    {"xaxis.range": new_range, "xaxis.title.text": new_title},
-                ],
-            ))
+            units_data[unit] = {
+                "xs": new_xs + [[None]] * (n_total - n_bar_traces),
+                "range": axis_range(WN_LIMITS[1], WN_LIMITS[0], axis_name, unit),
+                "title": axis_label(axis_name, unit),
+            }
+        axis_data_for_js[axis_name] = {
+            "default_unit": spec.default_unit,
+            "units": units_data,
+        }
 
     # ----- Per-lane group labels (left margin) -----
     # Kept lightweight; the sidebar is the primary group-control surface.
@@ -414,6 +415,10 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
         "band_sub_lanes": [b.sub_lane for b in bands],
         "band_groups": [b.group for b in bands],
         "groups_for_sidebar": groups_for_sidebar,
+        "color_dim_data": color_dim_data,
+        "axis_data": axis_data_for_js,
+        "legend_trace_info": legend_trace_info,
+        "legend_trace_groups": legend_trace_groups,
     }
 
     # ----- Final layout -----
@@ -438,20 +443,6 @@ def build_figure(dataset: Dataset, references: dict | None = None) -> go.Figure:
             itemclick="toggle",
             itemdoubleclick="toggleothers",
         ),
-        updatemenus=[
-            dict(
-                type="dropdown", buttons=dimension_buttons, direction="down",
-                showactive=True,
-                x=1.0, xanchor="right", y=1.12, yanchor="top",
-                pad=dict(t=4, r=4),
-            ),
-            dict(
-                type="dropdown", buttons=axis_buttons, direction="down",
-                showactive=True,
-                x=0.55, xanchor="right", y=1.12, yanchor="top",
-                pad=dict(t=4, r=4),
-            ),
-        ],
         meta=lane_data_for_js,
     )
 

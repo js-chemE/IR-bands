@@ -66,6 +66,9 @@ Valid enum values:
 - `vibration.category`: `stretch | bend | combination | lattice`
 - `vibration.subtype`: `symmetric | asymmetric | scissoring | rocking | wagging | twisting`
 - `vibration.branch`: `R | P | Q`
+- `intensity`: `vs | s | m | w | vw` (very strong → very weak; omit if unknown)
+- `width`: `sharp | medium | broad | very_broad` (omit if unknown)
+- `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode
 

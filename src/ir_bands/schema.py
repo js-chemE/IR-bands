@@ -13,10 +13,16 @@ from typing import Optional, Literal
 VibCategory = Literal["stretch", "bend", "combination", "lattice"]
 VibSubtype = Literal["symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"]
 Branch = Literal["R", "P", "Q"]
+BandIntensity = Literal["vs", "s", "m", "w", "vw"]
+BandWidth = Literal["sharp", "medium", "broad", "very_broad"]
+BandConfidence = Literal["confirmed", "likely", "tentative", "speculative"]
 
 VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice"}
 VALID_SUBTYPES = {"symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"}
 VALID_BRANCHES = {"R", "P", "Q"}
+VALID_INTENSITIES = {"vs", "s", "m", "w", "vw"}
+VALID_WIDTHS = {"sharp", "medium", "broad", "very_broad"}
+VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 
 
 @dataclass
@@ -77,6 +83,10 @@ class Band:
     based_on: list[BasedOn] = field(default_factory=list)
     references: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
+
+    intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
+    width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad
+    confidence: Optional[BandConfidence] = None # confirmed | likely | tentative | speculative
 
     # Legacy field kept until the loader is rewritten to use group-based lanes.
     # Used by layout.assign_lanes() for now.
