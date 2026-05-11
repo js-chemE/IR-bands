@@ -25,7 +25,7 @@ _GREY = "#7F7F7F"
 
 def vibration_key(b: Band) -> str:
     """Compound key: 'stretch.symmetric', 'stretch.asymmetric', 'stretch',
-    'bend.scissoring', 'bend', 'combination', 'overtone', 'lattice'.
+    'bend.scissoring', 'bend', 'combination', 'lattice'.
 
     Subtype is appended only if present; bare category covers the rest.
     """
@@ -59,9 +59,8 @@ _VIBRATION_PALETTE: dict[str, str] = {
     "bend.wagging":         "#C99A2E",
     "bend.twisting":        "#A86B4A",
 
-    # combination/overtone — muted purples (supporting evidence)
+    # combination — muted purple (supporting evidence)
     "combination":          "#8C7A95",
-    "overtone":             "#A98FAF",
 
     # lattice — earth brown
     "lattice":              "#9B6B3D",
@@ -102,6 +101,8 @@ def color_map_by_atoms(bands: list[Band]) -> dict[str, str]:
         "M-H":   "#D9A036",
         # M-O family (grey)
         "M-O":   "#5C5C5C",
+        # diverse — combination bands whose parents span different atom groups
+        "diverse": _GREY,
     }
     return {b.atoms: palette.get(b.atoms, _GREY) for b in bands}
 

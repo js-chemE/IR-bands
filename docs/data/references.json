@@ -1,4 +1,23 @@
 {
+  "AlAbdulghani.UncoveringPressureDependentMechanism.2025": {
+    "_type": "article",
+    "title": "Uncovering the Pressure-Dependent Mechanism of {CO}2 Hydrogenation to Methanol on Ga-Promoted Cu/{ZrO}2 Using Operando Modulation-Excitation {DRIFTS}",
+    "volume": "147",
+    "issn": "0002-7863",
+    "url": "https://doi.org/10.1021/jacs.5c04835",
+    "doi": "10.1021/jacs.5c04835",
+    "abstract": "The synthesis of methanol via {CO}2 hydrogenation is attracting significant interest, with Cu-based catalysts currently leading this promising approach. Incorporating Ga and Zr promoters further enhances catalyst performance by suppressing the competing reverse water–gas shift ({RWGS}) reaction. However, their precise mechanistic roles and the identities of key reaction intermediates remain debated, which may be the key for catalyst design and process optimization. In this study, we extend operando modulation-excitation spectroscopy coupled with diffuse reflectance infrared Fourier transform spectroscopy and mass spectrometry ({ME}-{DRIFTS}-{MS}) to investigate {CO}2 hydrogenation over Ga-promoted Cu/{ZrO}2 under varying industrially relevant pressures up to 50 bar. Our results indicate that methanol formation proceeds predominately via the formate pathway with formate ({HCOO}*) and methoxy ({CH}3O*) as pivotal intermediates. Additionally, we demonstrate that the rate-determining step is strongly dependent on the pressure and temperature, ultimately dictated by the local abundance of adsorbed hydrogen (H*) and gaseous H2O. Ga facilitates hydrogen adsorption, accelerating {HCOO}* hydrogenation to {CH}3O* and preventing its decomposition to {CO}. Notably, {CH}3O* conversion to {CH}3OH occurs via a water-assisted pathway rather than direct hydrogenation, explaining previously unclear correlation between Cu dispersion and catalytic activity. These mechanistic insights highlight the potential of optimizing reaction conditions─especially lower operating temperatures and controlled water cofeed─to significantly enhance methanol selectivity over Cu-based {CO}2 hydrogenation catalysts.",
+    "pages": "27438--27448",
+    "number": "31",
+    "journaltitle": "Journal of the American Chemical Society",
+    "shortjournal": "J. Am. Chem. Soc.",
+    "publisher": "American Chemical Society",
+    "author": "Al Abdulghani, Abdullah J. and Ganguly, Sudipta and Hagmann, Ryan H. and Sun, Zhuoran and Alvear, Matias and Mark, Lesli O. and Nikolla, Eranda and Pagán-Torres, Yomaira J. and Hermans, Ive",
+    "urldate": "2026-01-10",
+    "date": "2025-08-06",
+    "keywords": "well-written",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Al Abdulghani et al._2025_Uncovering the Pressure-Dependent Mechanism of CO2 Hydrogenation to Methanol on Ga-Promoted CuZrO2.pdf:application/pdf"
+  },
   "Gomez.InterdependenceExtentGa.2024": {
     "_type": "article",
     "title": "Interdependence Between the Extent of Ga Promotion, the Nature of Active Sites, and the Reaction Mechanism Over Cu Catalysts for {CO}2 Hydrogenation to Methanol",
@@ -52,5 +71,21 @@
     "note": "\\_eprint: https://chemistry-europe.onlinelibrary.wiley.com/doi/pdf/10.1002/cctc.201902038",
     "keywords": "useful, well-written",
     "file": "Fehr and Krossing_2020_Spectroscopic Signatures of Pressurized Carbon Dioxide in Diffuse Reflectance Infrared Spectroscopy.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Fehr and Krossing_2020_Spectroscopic Signatures of Pressurized Carbon Dioxide in Diffuse Reflectance Infrared Spectroscopy.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\8M3L2DGS\\\\cctc.html:text/html"
+  },
+  "Paredes-Nunez.SpectrumBaselineArtefacts.2015": {
+    "_type": "article",
+    "title": "Spectrum baseline artefacts and correction of gas-phase species signal during diffuse reflectance {FT}-{IR} analyses of catalysts at variable temperatures",
+    "volume": "495",
+    "issn": "0926-860X",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0926860X15000708",
+    "doi": "10.1016/j.apcata.2015.01.042",
+    "abstract": "Diffuse reflectance {FT}-{IR} spectroscopy ({DRIFTS}) is commonly used to investigate catalytic reactions. {CO} is a reagent of many reactions of interest for environmental catalysis and fuel and chemical synthesis, as well as being a surface probe to investigate the structure and oxidation state of metal-based particles by in situ and operando {FT}-{IR} spectroscopy. It is crucial to avoid {IR} signal distortion that may affect the {IR} spectrum in the region corresponding to adsorbed {CO}, which spans from ca. 2250cm−1 down to 1600cm−1. Such bands can appear in the {DRIFTS} spectra of silica-based solids when the temperature and/or the hydration level of the sample are modified. These bands are merely due to variations in the vibrations modes of the silica solids and are not related to adsorbed {CO}. Accurate correction of gas-phase {CO} signal during {DRIFTS} analyses can be obtained by collecting a subtrahend spectrum under identical reaction conditions over an inert material such as {SiC}. Spurious bands may otherwise arise if a subtrahend is collected at a different temperature.",
+    "pages": "17--22",
+    "journaltitle": "Applied Catalysis A: General",
+    "shortjournal": "Applied Catalysis A: General",
+    "author": "Paredes-Nunez, Anaëlle and Jbir, Imen and Bianchi, Daniel and Meunier, Frederic C.",
+    "urldate": "2026-05-10",
+    "date": "2015-04-05",
+    "file": "Paredes-Nunez et al._2015_Spectrum baseline artefacts and correction of gas-phase species signal during diffuse reflectance FT.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Paredes-Nunez et al._2015_Spectrum baseline artefacts and correction of gas-phase species signal during diffuse reflectance FT.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\ZVTRN38A\\\\S0926860X15000708.html:text/html"
   }
 }

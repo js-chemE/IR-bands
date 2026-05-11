@@ -87,7 +87,6 @@ def _parse_band(raw: dict) -> Band:
         atoms=raw["atoms"],
         wn_start=raw["wn_start"],
         wn_end=raw["wn_end"],
-        region=raw["region"],
         short=raw.get("short", ""),
         description=raw.get("description", ""),
         based_on=based_on,
@@ -134,12 +133,10 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
 
     id_set = set(seen)
 
-    # 2. Group / region keys exist
+    # 2. Group keys exist
     for b in dataset.bands:
         if b.group not in dataset.groups:
             errors.append(f"Band {b.id}: group {b.group!r} not in groups table")
-        if b.region not in dataset.regions:
-            errors.append(f"Band {b.id}: region {b.region!r} not in regions table")
 
     # 3. based_on cross-references resolve
     for b in dataset.bands:
@@ -149,11 +146,11 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                     f"Band {b.id}: based_on references unknown band id {bo.band_id!r}"
                 )
 
-    # 4. Combinations/overtones SHOULD have non-empty based_on (warning only)
+    # 4. Combinations SHOULD have non-empty based_on (warning only)
     warnings: list[str] = []
     for b in dataset.bands:
         if b.is_derived and not b.based_on:
-            warnings.append(f"Band {b.id}: {b.vibration.category} has no based_on entries")
+            warnings.append(f"Band {b.id}: combination has no based_on entries")
 
     # 5. wn_start/wn_end sanity
     for b in dataset.bands:
@@ -170,28 +167,6 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                     errors.append(
                         f"Band {b.id}: reference key {ref_key!r} not found in references.bib"
                     )
-
-    # 7. Soft check: overtone wavenumber consistent with parent (warning only)
-    for b in dataset.bands:
-        if b.vibration.category != "overtone":
-            continue
-        if len(b.based_on) != 1:
-            continue  # not a simple n×fundamental overtone
-        bo = b.based_on[0]
-        if bo.band_id is None:
-            continue
-        try:
-            parent = dataset.band_by_id(bo.band_id)
-        except KeyError:
-            continue  # already reported as an error above
-        expected = parent.wn_center * bo.multiplier
-        # 15% tolerance — anharmonicity makes overtones somewhat lower than n×ν
-        if not (0.85 * expected <= b.wn_center <= 1.05 * expected):
-            warnings.append(
-                f"Band {b.id}: overtone center {b.wn_center:.0f} cm⁻¹ inconsistent "
-                f"with {bo.multiplier}× parent {parent.id} ({parent.wn_center:.0f} → "
-                f"expected ~{expected:.0f})"
-            )
 
     if errors:
         msg = "Dataset validation failed:\n  " + "\n  ".join(errors)
