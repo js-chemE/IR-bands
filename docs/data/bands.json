@@ -141,7 +141,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2350,
+      "wn_max": 2390
     },
     {
       "id": "co2_asym_2335_P",
@@ -165,7 +168,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2310,
+      "wn_max": 2349
     },
     {
       "id": "co2_bend_700_R",
@@ -189,7 +195,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 690,
+      "wn_max": 720
     },
     {
       "id": "co2_bend_667_Q",
@@ -213,7 +222,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 670,
+      "wn_max": 685
     },
     {
       "id": "co2_bend_660_P",
@@ -237,7 +249,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 640,
+      "wn_max": 665
     },
     {
       "id": "co2_combo_3730_R",
@@ -252,7 +267,7 @@
       "wn_start": 3725,
       "wn_end": 3735,
       "short": "ν<sub>s</sub>+ν<sub>as</sub>(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the ν_as fundamental saturates.",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the ν<sub>as</sub> fundamental saturates.",
       "based_on": [
         {
           "band_id": null,
@@ -272,7 +287,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 3725,
+      "wn_max": 3735
     },
     {
       "id": "co2_combo_3699_P",
@@ -307,7 +325,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 3695,
+      "wn_max": 3705
     },
     {
       "id": "co2_combo_3627_R",
@@ -342,7 +363,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 3622,
+      "wn_max": 3632
     },
     {
       "id": "co2_combo_3597_P",
@@ -377,7 +401,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 3592,
+      "wn_max": 3602
     },
     {
       "id": "co2_combo_2077_Q",
@@ -404,7 +431,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2073,
+      "wn_max": 2081
     },
     {
       "id": "co_stretch_2170_R",
@@ -428,7 +458,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2165,
+      "wn_max": 2185
     },
     {
       "id": "co_stretch_2115_P",
@@ -452,7 +485,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2105,
+      "wn_max": 2125
     },
     {
       "id": "ch4g_asym_3019",
@@ -474,7 +510,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 1,
+      "wn_min": 2980,
+      "wn_max": 3060
     },
     {
       "id": "ch4g_bend_1306",
@@ -496,7 +535,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 1280,
+      "wn_max": 1340
     },
     {
       "id": "ch4g_combo_4220",
@@ -511,12 +553,12 @@
       "wn_start": 4180,
       "wn_end": 4250,
       "short": "δ<sub>s</sub>+ν<sub>as</sub>(HCH) CH₄(g)",
-      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when ν_as saturates. Often outside standard DRIFTS window.",
+      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when ν<sub>as</sub> saturates. Often outside standard DRIFTS window.",
       "based_on": [
         {
           "band_id": null,
           "multiplier": 1,
-          "label": "δ_s(HCH) CH₄(g) ν₂ (not in dataset)"
+          "label": "δ<sub>s</sub>(HCH) CH₄(g) ν₂ (not in dataset)"
         },
         {
           "band_id": "ch4g_asym_3019",
@@ -529,7 +571,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 4180,
+      "wn_max": 4250
     },
     {
       "id": "ch4ads_asym_2985",
@@ -551,7 +596,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 1
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2950,
+      "wn_max": 3020
     },
     {
       "id": "co_linear_mu1_2060",
@@ -573,7 +621,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 2
+      "lane": 1,
+      "sub_lane": 0,
+      "wn_min": 2000,
+      "wn_max": 2120
     },
     {
       "id": "co_bridge_mu2_1900",
@@ -595,7 +646,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 2
+      "lane": 1,
+      "sub_lane": 1,
+      "wn_min": 1820,
+      "wn_max": 1980
     },
     {
       "id": "co_3fold_mu3_1810",
@@ -617,7 +671,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 2
+      "lane": 1,
+      "sub_lane": 0,
+      "wn_min": 1750,
+      "wn_max": 1870
     },
     {
       "id": "co_4fold_mu4_1650",
@@ -639,7 +696,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 2
+      "lane": 1,
+      "sub_lane": 0,
+      "wn_min": 1600,
+      "wn_max": 1700
     },
     {
       "id": "co_cation_stretch_2175",
@@ -663,7 +723,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 3
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 2120,
+      "wn_max": 2230
     },
     {
       "id": "co_isocarbonyl_2220",
@@ -685,7 +748,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 3
+      "lane": 2,
+      "sub_lane": 1,
+      "wn_min": 2200,
+      "wn_max": 2240
     },
     {
       "id": "co_gemdi_asym_2095",
@@ -707,7 +773,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 3
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 2080,
+      "wn_max": 2110
     },
     {
       "id": "co_gemdi_sym_2035",
@@ -729,7 +798,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 3
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 2020,
+      "wn_max": 2050
     },
     {
       "id": "formyl_co_stretch_1750",
@@ -751,7 +823,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 1,
+      "wn_min": 1700,
+      "wn_max": 1800
     },
     {
       "id": "formyl_ch_stretch_2850",
@@ -773,7 +848,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 1,
+      "wn_min": 2800,
+      "wn_max": 2900
     },
     {
       "id": "formaldehyde_co_stretch_1725",
@@ -795,7 +873,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": -1,
+      "wn_min": 1700,
+      "wn_max": 1750
     },
     {
       "id": "formaldehyde_asym_2875",
@@ -817,7 +898,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 2850,
+      "wn_max": 2900
     },
     {
       "id": "formaldehyde_sym_2785",
@@ -839,7 +923,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 2750,
+      "wn_max": 2820
     },
     {
       "id": "formaldehyde_bend_1500",
@@ -853,15 +940,18 @@
       "atoms": "H-C-H",
       "wn_start": 1480,
       "wn_end": 1520,
-      "short": "δ(HCH) H₂CO*",
-      "description": "Adsorbed formaldehyde CH₂ scissoring (H₂CO*); overlaps monodentate carbonate ν_as.",
+      "short": "δ<sub>s</sub>(HCH) H₂CO*",
+      "description": "Adsorbed formaldehyde CH₂ scissoring (H₂CO*); overlaps monodentate carbonate ν<sub>as</sub>.",
       "based_on": [],
       "references": [],
       "tags": [],
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 1480,
+      "wn_max": 1520
     },
     {
       "id": "acyl_co_stretch_1700",
@@ -883,7 +973,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 1650,
+      "wn_max": 1750
     },
     {
       "id": "hydroxymethyl_oh_stretch_3575",
@@ -905,7 +998,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 3500,
+      "wn_max": 3650
     },
     {
       "id": "hydroxymethyl_ch_stretch_2930",
@@ -927,7 +1023,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 2905,
+      "wn_max": 2960
     },
     {
       "id": "hydroxymethyl_co_stretch_1075",
@@ -949,7 +1048,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 4
+      "lane": 3,
+      "sub_lane": 0,
+      "wn_min": 1050,
+      "wn_max": 1100
     },
     {
       "id": "carbonate_bidentate_asym_1645",
@@ -971,7 +1073,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 1620,
+      "wn_max": 1670
     },
     {
       "id": "carbonate_bidentate_sym_1300",
@@ -993,7 +1098,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 1270,
+      "wn_max": 1330
     },
     {
       "id": "carbonate_bidentate_asym_overtone_3000",
@@ -1023,7 +1131,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 2900,
+      "wn_max": 3100
     },
     {
       "id": "carbonate_monodentate_asym_1500",
@@ -1045,7 +1156,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 1480,
+      "wn_max": 1520
     },
     {
       "id": "carbonate_monodentate_sym_1400",
@@ -1067,7 +1181,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 1380,
+      "wn_max": 1420
     },
     {
       "id": "carbonate_monodentate_asym_overtone_2950",
@@ -1097,7 +1214,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 1,
+      "wn_min": 2900,
+      "wn_max": 3000
     },
     {
       "id": "carbonate_bend_850",
@@ -1119,7 +1239,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 5
+      "lane": 4,
+      "sub_lane": 0,
+      "wn_min": 830,
+      "wn_max": 870
     },
     {
       "id": "bicarbonate_asym_1630",
@@ -1141,7 +1264,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 6
+      "lane": 5,
+      "sub_lane": 0,
+      "wn_min": 1610,
+      "wn_max": 1650
     },
     {
       "id": "bicarbonate_sym_1425",
@@ -1163,7 +1289,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 6
+      "lane": 5,
+      "sub_lane": 0,
+      "wn_min": 1410,
+      "wn_max": 1440
     },
     {
       "id": "bicarbonate_coh_bend_1220",
@@ -1185,7 +1314,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 6
+      "lane": 5,
+      "sub_lane": 0,
+      "wn_min": 1210,
+      "wn_max": 1230
     },
     {
       "id": "formate_ch_stretch_2885",
@@ -1209,7 +1341,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 2870,
+      "wn_max": 2900
     },
     {
       "id": "formate_asym_1585",
@@ -1233,7 +1368,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1550,
+      "wn_max": 1620
     },
     {
       "id": "formate_sym_1365",
@@ -1257,7 +1395,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1340,
+      "wn_max": 1390
     },
     {
       "id": "formate_och_bend_1390",
@@ -1272,7 +1413,7 @@
       "wn_start": 1380,
       "wn_end": 1400,
       "short": "δ(OCH) HCOO*",
-      "description": "Formate C-H bending (HCOO*); overlaps ν_s(OCO).",
+      "description": "Formate C-H bending (HCOO*); overlaps ν<sub>s</sub>(OCO).",
       "based_on": [],
       "references": [
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
@@ -1281,7 +1422,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 1,
+      "wn_min": 1380,
+      "wn_max": 1400
     },
     {
       "id": "formate_combo_2950",
@@ -1316,7 +1460,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 2940,
+      "wn_max": 2960
     },
     {
       "id": "formate_combo_3300",
@@ -1349,10 +1496,13 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 7
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 3250,
+      "wn_max": 3350
     },
     {
-      "id": "methoxy_asym_2935",
+      "id": "methoxy_asym_2925",
       "species": "Methoxy (CH₃O*)",
       "group": "methoxy",
       "vibration": {
@@ -1361,19 +1511,26 @@
         "branch": null
       },
       "atoms": "H-C-H",
-      "wn_start": 2920,
+      "wn_start": 2910,
       "wn_end": 2950,
       "short": "ν<sub>as</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ antisymmetric stretch (CH₃O*). Asterisk denotes surface adsorption.",
+      "description": "Methoxy CH₃ antisymmetric stretch (CH₃O*). Position is support- and site-sensitive: ~2929 cm⁻¹ on TiO₂ (Wu 2000), ~2926 cm⁻¹ on Cu/SiO₂, ~2919 cm⁻¹ on Ga-promoted Cu/SiO₂ where CH₃O* sits on Cu⁺ at the Cu–Ga₂O₃ interface (Gómez 2024), ~2970 cm⁻¹ on Zr-rich CuGaZrO_x (Al Abdulghani 2025). The frequency shift between unpromoted and promoted Cu catalysts is diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a) which is typically blue-shifted ~10–20 cm⁻¹. Asterisk denotes surface adsorption.",
       "based_on": [],
       "references": [
-        "Gomez.InterdependenceExtentGa.2024"
+        "Wu.BondingGeometryReactivity.2000",
+        "Gomez.InterdependenceExtentGa.2024",
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
-      "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 8
+      "tags": [
+        "site-sensitive"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 2910,
+      "wn_max": 2950
     },
     {
       "id": "methoxy_sym_2835",
@@ -1385,45 +1542,82 @@
         "branch": null
       },
       "atoms": "H-C-H",
-      "wn_start": 2820,
+      "wn_start": 2815,
       "wn_end": 2850,
       "short": "ν<sub>s</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric stretch (CH₃O*).",
+      "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive: ~2828 cm⁻¹ on TiO₂ (Wu 2000), ~2842 cm⁻¹ on Cu/SiO₂, ~2836 cm⁻¹ on Ga-promoted Cu/SiO₂ (Cu⁺ at Cu–Ga₂O₃ interface; Gómez 2024), ~2819 cm⁻¹ on CuGaZrO_x (Al Abdulghani 2025). Like ν<sub>as</sub>, the shift between catalysts is diagnostic of a change in adsorption site. Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
       "based_on": [],
       "references": [
-        "Gomez.InterdependenceExtentGa.2024"
+        "Wu.BondingGeometryReactivity.2000",
+        "Gomez.InterdependenceExtentGa.2024",
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
-      "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 8
+      "tags": [
+        "site-sensitive"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 2815,
+      "wn_max": 2850
     },
     {
-      "id": "methoxy_bend_1440",
+      "id": "methoxy_bend_1441",
       "species": "Methoxy (CH₃O*)",
       "group": "methoxy",
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "asymmetric",
         "branch": null
       },
       "atoms": "H-C-H",
       "wn_start": 1430,
-      "wn_end": 1450,
-      "short": "δ(HCH) CH₃O*",
-      "description": "Methoxy CH₃ deformation (CH₃O*).",
+      "wn_end": 1455,
+      "short": "δ<sub>as</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ antisymmetric deformation (CH₃O*). Reported at 1441 cm⁻¹ on TiO₂ (Wu 2000) as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
+      "based_on": [],
+      "references": [
+        "Wu.BondingGeometryReactivity.2000"
+      ],
+      "tags": [],
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 1430,
+      "wn_max": 1455
+    },
+    {
+      "id": "methoxy_bend_1375",
+      "species": "Methoxy (CH₃O*)",
+      "group": "methoxy",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1360,
+      "wn_end": 1390,
+      "short": "δ<sub>s</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the antisymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate ν<sub>s</sub>(OCO) at ~1365 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 8
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "tentative",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 1360,
+      "wn_max": 1390
     },
     {
-      "id": "methoxy_co_stretch_1075",
-      "species": "Methoxy (CH₃O*)",
+      "id": "methoxy_co_stretch_mono_1130",
+      "species": "Methoxy monodentate (CH₃O*)",
       "group": "methoxy",
       "vibration": {
         "category": "stretch",
@@ -1431,19 +1625,55 @@
         "branch": null
       },
       "atoms": "C-O",
-      "wn_start": 1050,
-      "wn_end": 1100,
-      "short": "ν(CO) CH₃O*",
-      "description": "Methoxy C-O stretch (CH₃O*).",
+      "wn_start": 1100,
+      "wn_end": 1170,
+      "short": "ν(CO) mono-CH₃O*",
+      "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Position is support-dependent: ~1126 cm⁻¹ on TiO₂ (Wu 2000, with deconvoluted sub-components at 1100/1126/1156 reflecting a distribution of monodentate sites), ~1152 cm⁻¹ for Zr-OCH₃ on CuGaZrO_x (Al Abdulghani 2025). Diagnostic threshold: ν(C-O) > ~1100 cm⁻¹ indicates monodentate (Hussein 1991). On TiO₂ from CH₃OH dosing the monodentate form typically dominates over bidentate by a factor of ~3 in integrated area, and is ~1.5× more photoreactive toward photooxidation to HCOO* (Wu 2000).",
       "based_on": [],
       "references": [
+        "Wu.BondingGeometryReactivity.2000",
         "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
       ],
-      "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 8
+      "tags": [
+        "geometry-monodentate"
+      ],
+      "intensity": "s",
+      "width": "broad",
+      "confidence": "confirmed",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 1100,
+      "wn_max": 1170
+    },
+    {
+      "id": "methoxy_co_stretch_bi_1045",
+      "species": "Methoxy bidentate (CH₃O*)",
+      "group": "methoxy",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1030,
+      "wn_end": 1090,
+      "short": "ν(CO) bi-CH₃O*",
+      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Reported at 1045 cm⁻¹ on TiO₂ (Wu 2000). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate (Hussein 1991). On TiO₂, bidentate CH₃O* has similar thermal stability to monodentate (no interconversion observed up to ~300 °C) but ~1.5× lower photooxidation rate. Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) ν<sub>s</sub>(CH₃) marker at higher frequency.",
+      "based_on": [],
+      "references": [
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        "Wu.BondingGeometryReactivity.2000"
+      ],
+      "tags": [
+        "geometry-bidentate"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 7,
+      "sub_lane": 0,
+      "wn_min": 1030,
+      "wn_max": 1090
     },
     {
       "id": "meoh_oh_stretch_3400",
@@ -1458,36 +1688,75 @@
       "wn_start": 3200,
       "wn_end": 3600,
       "short": "ν(OH) MeOH",
-      "description": "Methanol O-H stretch (MeOH*/MeOH(g)); often obscured by adsorbed water.",
+      "description": "Methanol O-H stretch (MeOH*/MeOH(g)); often obscured by adsorbed water and support hydroxyls.",
       "based_on": [],
       "references": [],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 9
+      "intensity": "m",
+      "width": "broad",
+      "confidence": "likely",
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 3200,
+      "wn_max": 3600
     },
     {
-      "id": "meoh_ch_stretch_2900",
-      "species": "Methanol",
+      "id": "meoh_asym_2948",
+      "species": "Methanol adsorbed (CH₃OH*)",
       "group": "methanol_product",
       "vibration": {
         "category": "stretch",
-        "subtype": null,
+        "subtype": "asymmetric",
         "branch": null
       },
-      "atoms": "C-H",
-      "wn_start": 2840,
-      "wn_end": 2960,
-      "short": "ν(CH) MeOH",
-      "description": "Methanol C-H stretches (MeOH*/MeOH(g)).",
+      "atoms": "H-C-H",
+      "wn_start": 2935,
+      "wn_end": 2965,
+      "short": "ν<sub>as</sub>(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ antisymmetric stretch (CH₃OH*). Reported at 2948 cm⁻¹ on TiO₂ (Wu 2000); typically blue-shifted by ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃) and is the cleanest marker to distinguish molecularly-adsorbed methanol from dissociatively-formed methoxy in the C-H stretching region. Removed by evacuation at 200 °C on TiO₂, leaving methoxy on the surface.",
       "based_on": [],
-      "references": [],
-      "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 9
+      "references": [
+        "Wu.BondingGeometryReactivity.2000"
+      ],
+      "tags": [
+        "molecular-adsorption"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2935,
+      "wn_max": 2965
+    },
+    {
+      "id": "meoh_sym_2844",
+      "species": "Methanol adsorbed (CH₃OH*)",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2830,
+      "wn_end": 2860,
+      "short": "ν<sub>s</sub>(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Reported at 2844 cm⁻¹ on TiO₂ (Wu 2000); typically blue-shifted ~10–20 cm⁻¹ from methoxy ν<sub>s</sub>(CH₃). The two bands overlap closely and are typically resolved as a shoulder pair; mild evacuation removes CH₃OH* and leaves methoxy as the dominant feature.",
+      "based_on": [],
+      "references": [
+        "Wu.BondingGeometryReactivity.2000"
+      ],
+      "tags": [
+        "molecular-adsorption"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2830,
+      "wn_max": 2860
     },
     {
       "id": "meoh_co_stretch_1030",
@@ -1500,18 +1769,22 @@
       },
       "atoms": "C-O",
       "wn_start": 1020,
-      "wn_end": 1040,
+      "wn_end": 1050,
       "short": "ν(CO) MeOH",
-      "description": "Methanol C-O stretch (MeOH*/MeOH(g)).",
+      "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000-1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region (Wu 2000, Al Abdulghani 2025). Disambiguate via the CH₃ stretching region: adsorbed methanol shows ν<sub>as</sub>/ν<sub>s</sub> blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        "Wu.BondingGeometryReactivity.2000"
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "pair": 9
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1020,
+      "wn_max": 1050
     },
     {
       "id": "oh_isolated_3725",
@@ -1533,7 +1806,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 10
+      "lane": 9,
+      "sub_lane": 0,
+      "wn_min": 3700,
+      "wn_max": 3750
     },
     {
       "id": "oh_hbonded_3525",
@@ -1555,7 +1831,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 10
+      "lane": 9,
+      "sub_lane": 0,
+      "wn_min": 3400,
+      "wn_max": 3650
     },
     {
       "id": "h2o_stretch_3400",
@@ -1577,7 +1856,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 11
+      "lane": 10,
+      "sub_lane": 0,
+      "wn_min": 3200,
+      "wn_max": 3600
     },
     {
       "id": "h2o_bend_1635",
@@ -1591,15 +1873,18 @@
       "atoms": "H-O-H",
       "wn_start": 1620,
       "wn_end": 1650,
-      "short": "δ(HOH) H₂O*",
-      "description": "Water bending mode (H₂O*); overlaps formate ν_as.",
+      "short": "δ<sub>s</sub>(HOH) H₂O*",
+      "description": "Water bending mode (H₂O*); overlaps formate ν<sub>as</sub>.",
       "based_on": [],
       "references": [],
       "tags": [],
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 11
+      "lane": 10,
+      "sub_lane": 0,
+      "wn_min": 1620,
+      "wn_max": 1650
     },
     {
       "id": "cuh_stretch_1250",
@@ -1621,7 +1906,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 0,
+      "wn_min": 1100,
+      "wn_max": 1400
     },
     {
       "id": "znh_stretch_1725",
@@ -1643,7 +1931,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 0,
+      "wn_min": 1700,
+      "wn_max": 1750
     },
     {
       "id": "znoh_stretch_3560",
@@ -1665,7 +1956,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 0,
+      "wn_min": 3500,
+      "wn_max": 3620
     },
     {
       "id": "ceh_stretch_1150",
@@ -1687,7 +1981,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 1,
+      "wn_min": 1100,
+      "wn_max": 1200
     },
     {
       "id": "moh_stretch_1975",
@@ -1709,7 +2006,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 0,
+      "wn_min": 1900,
+      "wn_max": 2050
     },
     {
       "id": "gah_stretch_2050",
@@ -1736,7 +2036,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": 1,
+      "wn_min": 1970,
+      "wn_max": 2060
     },
     {
       "id": "rhh_stretch_2050",
@@ -1758,7 +2061,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": -1,
+      "wn_min": 2000,
+      "wn_max": 2100
     },
     {
       "id": "lih_stretch_1250",
@@ -1780,7 +2086,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 12
+      "lane": 11,
+      "sub_lane": -1,
+      "wn_min": 1100,
+      "wn_max": 1400
     },
     {
       "id": "support_lattice_650",
@@ -1802,7 +2111,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 13
+      "lane": 12,
+      "sub_lane": 0,
+      "wn_min": 500,
+      "wn_max": 800
     },
     {
       "id": "support_lattice_overtone_1550",
@@ -1832,7 +2144,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "pair": 13
+      "lane": 12,
+      "sub_lane": 0,
+      "wn_min": 1500,
+      "wn_max": 1600
     }
   ]
 }
