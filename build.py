@@ -17,11 +17,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-import plotly.io as pio
-
-from ir_bands.layout import assign_lanes
+from ir_bands.layout import assign_lanes, assign_sub_lanes
 from ir_bands.loader import load_dataset, load_references, validate_dataset
-from ir_bands.plot import build_figure
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
@@ -577,9 +574,10 @@ SIDEBAR_AND_COLLAPSE_JS = r"""
 
 def _band_to_dict(b) -> dict:
     d = asdict(b)
-    d.pop("lane", None)
-    d.pop("sub_lane", None)
-    return d
+    d.pop("pair", None)       # internal lane-assignment field, not needed by frontend
+    d["wn_min"] = b.wn_min    # computed properties — convenient for frontend
+    d["wn_max"] = b.wn_max
+    return d                  # lane and sub_lane are kept (frontend uses them)
 
 
 def main() -> int:
@@ -597,7 +595,9 @@ def main() -> int:
     validate_dataset(dataset, references=references)
 
     assign_lanes(dataset.bands)
-    print(f"  {dataset.n_lanes()} lanes")
+    skipped = assign_sub_lanes(dataset.bands)
+    print(f"  {dataset.n_lanes()} lanes"
+          + (f", {len(skipped)} bands skipped (>3-way overlap)" if skipped else ""))
 
     bands_payload = {
         "metadata": dataset.metadata,
@@ -617,61 +617,7 @@ def main() -> int:
     )
     print(f"✓ Wrote {REFS_OUT.relative_to(ROOT)} ({REFS_OUT.stat().st_size:,} bytes)")
 
-    fig = build_figure(dataset, references=references)
-    fig_div = pio.to_html(
-        fig,
-        include_plotlyjs=True,
-        full_html=False,
-        div_id="drifts-plot",
-        config={"responsive": True},
-    )
-
-    title = dataset.metadata.get("title", "DRIFTS band map")
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>{title}</title>
-    <style>{PAGE_CSS}</style>
-</head>
-<body>
-    {HEADER_HINT_HTML}
-    <div id="layout">
-        <aside id="sidebar">
-            <div id="sidebar-color-dim">
-                <h3>Color by</h3>
-                <select id="color-dim-select">
-                    <option value="group" selected>Group</option>
-                    <option value="vibration">Vibration</option>
-                    <option value="atoms">Atoms</option>
-                    <option value="references">References</option>
-                </select>
-            </div>
-            <hr class="sidebar-divider">
-            <div id="sidebar-axis">
-                <h3>X axis</h3>
-                <div class="axis-row">
-                    <select id="axis-property-select">
-                        <option value="wavenumber" selected>wavenumber</option>
-                        <option value="wavelength">wavelength</option>
-                        <option value="energy">energy</option>
-                    </select>
-                    <select id="axis-unit-select"></select>
-                </div>
-            </div>
-            <hr class="sidebar-divider">
-            <div id="sidebar-groups"></div>
-        </aside>
-        <div id="plot-container">
-            {fig_div}
-        </div>
-    </div>
-    {SIDEBAR_AND_COLLAPSE_JS}
-</body>
-</html>
-"""
-    HTML_OUT.write_text(html, encoding="utf-8")
-    print(f"✓ Wrote {HTML_OUT.relative_to(ROOT)} ({HTML_OUT.stat().st_size:,} bytes)")
+    print("→ Run  cd frontend && npm run build  to generate docs/index.html")
 
     return 0
 
