@@ -96,6 +96,9 @@
   <kbd>Ctrl+Shift+R</kbd> (Win/Linux) or <kbd>⌘+Shift+R</kbd> (macOS).
   &ensp;<strong>Sidebar</strong> = toggle groups (collapses/expands lanes).
   &ensp;<strong>Legend</strong> = show/hide color categories.
+  &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
+  &ensp;Found an error, have a tip, or know an interesting paper to reference?
+  Please contact <a class="contact" href="mailto:j.sommer@tudellft.nl">j.sommer@tudellft.nl</a>.
 </div>
 
 {#if loading}
@@ -200,6 +203,14 @@
     font-size: 13px;
     padding: 6px 18px;
   }
+
+  .hint-banner .contact {
+    color: #8a6d00;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  .hint-banner .contact:hover { color: #5c4a00; }
 
   kbd {
     background: #F4F4F4;
