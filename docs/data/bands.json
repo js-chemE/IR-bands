@@ -135,7 +135,12 @@
       "description": "Gas CO₂ antisymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin (~2349). Saturates at high pressure.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -162,7 +167,12 @@
       "description": "Gas CO₂ antisymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition); band origin at ~2349 cm⁻¹. Saturates at high pressure.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -189,7 +199,12 @@
       "description": "Gas CO₂ bending fundamental (ν₂) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -216,7 +231,12 @@
       "description": "Gas CO₂ bending fundamental (ν₂) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because ν₂ is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -243,7 +263,12 @@
       "description": "Gas CO₂ bending fundamental (ν₂) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -281,7 +306,12 @@
         }
       ],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -319,7 +349,12 @@
         }
       ],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -357,7 +392,12 @@
         }
       ],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -395,7 +435,12 @@
         }
       ],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -422,7 +467,12 @@
       "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200-1900 cm⁻¹ region. Falls in the typical metal-carbonyl stretching range and has been repeatedly misassigned in DRIFTS studies of Cu-based methanol synthesis catalysts as ν(CO) on Cu(0)/Cu(111)/low-index Cu planes. Particularly pronounced in long-path-length cells (e.g. Praying Mantis HTRC) and amplified at higher CO₂ pressures and temperatures. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
       "based_on": [],
       "references": [
-        "Fehr.SpectroscopicSignaturesPressurized.2020"
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "misassignment-warning",
@@ -452,7 +502,12 @@
       "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches.",
       "based_on": [],
       "references": [
-        "Paredes-Nunez.SpectrumBaselineArtefacts.2015"
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -479,7 +534,12 @@
       "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution).",
       "based_on": [],
       "references": [
-        "Paredes-Nunez.SpectrumBaselineArtefacts.2015"
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -717,7 +777,12 @@
       "description": "Linear CO adsorbed on Lewis-acidic metal cation sites of oxide supports, zeolites, or isolated metal centers. Reduced metal→CO π-backdonation shifts ν(CO) to higher frequency than on metallic surfaces. Typical values: Cu⁺ ~2100–2130, Cu²⁺ ~2150–2180, Ce³⁺ ~2130, Ce⁴⁺ ~2160, Ti⁴⁺ ~2190, Zn²⁺ ~2200, and Al³⁺/Mg²⁺ ~2210 cm⁻¹. Widely used as a probe of Lewis acidity and oxidation state.",
       "based_on": [],
       "references": [
-        "Gomez.InterdependenceExtentGa.2024"
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1335,7 +1400,12 @@
       "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Asterisk denotes surface adsorption.",
       "based_on": [],
       "references": [
-        "Gomez.InterdependenceExtentGa.2024"
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1362,7 +1432,12 @@
       "description": "Formate antisymmetric OCO stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1389,7 +1464,12 @@
       "description": "Formate symmetric OCO stretch (HCOO*).",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1416,7 +1496,12 @@
       "description": "Formate C-H bending (HCOO*); overlaps ν<sub>s</sub>(OCO).",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1454,7 +1539,12 @@
         }
       ],
       "references": [
-        "Gomez.InterdependenceExtentGa.2024"
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": null,
@@ -1517,9 +1607,24 @@
       "description": "Methoxy CH₃ antisymmetric stretch (CH₃O*). Position is support- and site-sensitive: ~2929 cm⁻¹ on TiO₂ (Wu 2000), ~2926 cm⁻¹ on Cu/SiO₂, ~2919 cm⁻¹ on Ga-promoted Cu/SiO₂ where CH₃O* sits on Cu⁺ at the Cu–Ga₂O₃ interface (Gómez 2024), ~2970 cm⁻¹ on Zr-rich CuGaZrO_x (Al Abdulghani 2025). The frequency shift between unpromoted and promoted Cu catalysts is diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a) which is typically blue-shifted ~10–20 cm⁻¹. Asterisk denotes surface adsorption.",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000",
-        "Gomez.InterdependenceExtentGa.2024",
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "site-sensitive"
@@ -1548,9 +1653,24 @@
       "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive: ~2828 cm⁻¹ on TiO₂ (Wu 2000), ~2842 cm⁻¹ on Cu/SiO₂, ~2836 cm⁻¹ on Ga-promoted Cu/SiO₂ (Cu⁺ at Cu–Ga₂O₃ interface; Gómez 2024), ~2819 cm⁻¹ on CuGaZrO_x (Al Abdulghani 2025). Like ν<sub>as</sub>, the shift between catalysts is diagnostic of a change in adsorption site. Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000",
-        "Gomez.InterdependenceExtentGa.2024",
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "site-sensitive"
@@ -1579,7 +1699,12 @@
       "description": "Methoxy CH₃ antisymmetric deformation (CH₃O*). Reported at 1441 cm⁻¹ on TiO₂ (Wu 2000) as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": "w",
@@ -1631,8 +1756,18 @@
       "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Position is support-dependent: ~1126 cm⁻¹ on TiO₂ (Wu 2000, with deconvoluted sub-components at 1100/1126/1156 reflecting a distribution of monodentate sites), ~1152 cm⁻¹ for Zr-OCH₃ on CuGaZrO_x (Al Abdulghani 2025). Diagnostic threshold: ν(C-O) > ~1100 cm⁻¹ indicates monodentate (Hussein 1991). On TiO₂ from CH₃OH dosing the monodentate form typically dominates over bidentate by a factor of ~3 in integrated area, and is ~1.5× more photoreactive toward photooxidation to HCOO* (Wu 2000).",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000",
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "geometry-monodentate"
@@ -1661,8 +1796,18 @@
       "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Reported at 1045 cm⁻¹ on TiO₂ (Wu 2000). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate (Hussein 1991). On TiO₂, bidentate CH₃O* has similar thermal stability to monodentate (no interconversion observed up to ~300 °C) but ~1.5× lower photooxidation rate. Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) ν<sub>s</sub>(CH₃) marker at higher frequency.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-        "Wu.BondingGeometryReactivity.2000"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "geometry-bidentate"
@@ -1716,7 +1861,12 @@
       "description": "Adsorbed methanol CH₃ antisymmetric stretch (CH₃OH*). Reported at 2948 cm⁻¹ on TiO₂ (Wu 2000); typically blue-shifted by ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃) and is the cleanest marker to distinguish molecularly-adsorbed methanol from dissociatively-formed methoxy in the C-H stretching region. Removed by evacuation at 200 °C on TiO₂, leaving methoxy on the surface.",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "molecular-adsorption"
@@ -1745,7 +1895,12 @@
       "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Reported at 2844 cm⁻¹ on TiO₂ (Wu 2000); typically blue-shifted ~10–20 cm⁻¹ from methoxy ν<sub>s</sub>(CH₃). The two bands overlap closely and are typically resolved as a shoulder pair; mild evacuation removes CH₃OH* and leaves methoxy as the dominant feature.",
       "based_on": [],
       "references": [
-        "Wu.BondingGeometryReactivity.2000"
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "molecular-adsorption"
@@ -1774,8 +1929,18 @@
       "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000-1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region (Wu 2000, Al Abdulghani 2025). Disambiguate via the CH₃ stretching region: adsorbed methanol shows ν<sub>as</sub>/ν<sub>s</sub> blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-        "Wu.BondingGeometryReactivity.2000"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        },
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [],
       "intensity": "m",
@@ -2027,7 +2192,12 @@
       "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; activity marker for heterolytic H₂ dissociation.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": null,
+          "site": null,
+          "note": null
+        }
       ],
       "tags": [
         "hydride-marker",

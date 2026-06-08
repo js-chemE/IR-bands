@@ -70,6 +70,22 @@ class BasedOn:
 
 
 @dataclass
+class Reference:
+    """A citation attached to a band, with optional source-specific specifics.
+
+    key is the only required field (must resolve to an entry in
+    references.bib). wn/site/note record how *this particular* source
+    describes the band — e.g. a different exact wavenumber or assumed surface
+    site — for cases where sources disagree and collapsing to one
+    interpretation (or the band's general description) would lose information.
+    """
+    key: str
+    wn: Optional[int] = None
+    site: Optional[str] = None
+    note: Optional[str] = None
+
+
+@dataclass
 class Band:
     id: str
     species: str
@@ -81,7 +97,7 @@ class Band:
     short: str = ""
     description: str = ""
     based_on: list[BasedOn] = field(default_factory=list)
-    references: list[str] = field(default_factory=list)
+    references: list[Reference] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw

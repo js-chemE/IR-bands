@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 from ir_bands.schema import (
-    Band, BasedOn, Dataset, Group, Region, Vibration,
+    Band, BasedOn, Dataset, Group, Reference, Region, Vibration,
     VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
 )
 
@@ -67,6 +67,23 @@ def load_jsonc(path: str | Path) -> dict:
 # Dataset loader
 # ---------------------------------------------------------------------------
 
+def _parse_reference(raw) -> Reference | None:
+    """Normalize one references[] entry into a Reference.
+
+    Accepts either a bare BibTeX key string (shorthand for {key}) or an
+    object {key, wn, site, note}. key is the only required part; entries
+    without one are disregarded.
+    """
+    if isinstance(raw, str):
+        return Reference(key=raw) if raw else None
+    if isinstance(raw, dict):
+        key = raw.get("key")
+        if not key:
+            return None
+        return Reference(key=key, wn=raw.get("wn"), site=raw.get("site"), note=raw.get("note"))
+    return None
+
+
 def _parse_band(raw: dict) -> Band:
     """Convert a raw dict (from JSON) into a validated Band object."""
     # The vibration field may be a dict (new schema) or a string (legacy);
@@ -93,7 +110,7 @@ def _parse_band(raw: dict) -> Band:
         short=raw.get("short", ""),
         description=raw.get("description", ""),
         based_on=based_on,
-        references=list(raw.get("references", [])),
+        references=[r for r in (_parse_reference(rk) for rk in raw.get("references", [])) if r is not None],
         tags=list(raw.get("tags", [])),
         intensity=raw.get("intensity"),
         width=raw.get("width"),
@@ -177,10 +194,10 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
     # 7. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
-            for ref_key in b.references:
-                if ref_key not in references:
+            for ref in b.references:
+                if ref.key not in references:
                     errors.append(
-                        f"Band {b.id}: reference key {ref_key!r} not found in references.bib"
+                        f"Band {b.id}: reference key {ref.key!r} not found in references.bib"
                     )
 
     if errors:

@@ -13,7 +13,15 @@
 //                 note: overtones use the parent's category + tags: ["overtone"]
 //   based_on    — list of {band_id, multiplier} (or {band_id: null, label} for
 //                 parent modes not in the dataset, e.g. IR-inactive ν₁ of CO₂)
-//   references  — list of BibTeX keys (resolved at build time)
+//   references  — list of citation entries, resolved against references.bib.
+//                 Each entry is either a bare BibTeX key string (shorthand for
+//                 {key}), or an object {key, wn, site, note} for cases where a
+//                 specific source's claim differs from the band's general
+//                 description (e.g. a different exact wavenumber or assumed
+//                 surface site). key is mandatory — entries without one are
+//                 disregarded; wn/site/note are optional and default to null.
+//                 Example: {"key": "Smith.Example.2020", "wn": 1350,
+//                           "site": "bridging carbonate", "note": "..."}
 //   tags        — free-form list of strings; "overtone" marks overtone bands
 //   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
 //   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Band, GroupMap, RefMap } from '../lib/types';
+  import type { Band, BandReference, GroupMap, RefMap } from '../lib/types';
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -99,26 +99,37 @@
     return parts.join(' · ');
   }
 
+  // What *this particular* source claims about the band, when it differs
+  // from (or adds detail to) the band's general description above.
+  function refNoteText(ref: BandReference): string | null {
+    const parts: string[] = [];
+    if (ref.wn != null) parts.push(`${ref.wn} cm⁻¹`);
+    if (ref.site)       parts.push(`site: ${ref.site}`);
+    if (ref.note)       parts.push(ref.note);
+    return parts.length ? parts.join(' · ') : null;
+  }
+
   // ---- By-reference view data ----
-  interface GroupBands { key: string; label: string; color: string; bands: Band[]; }
+  interface BandRef    { band: Band; ref: BandReference; }
+  interface GroupBands { key: string; label: string; color: string; entries: BandRef[]; }
   interface ByRefItem  { refKey: string; html: string; groupBands: GroupBands[]; }
 
   $: byRefItems = (() => {
     if (!refs) return [] as ByRefItem[];
-    const refBands = new Map<string, Band[]>();
+    const refEntries = new Map<string, BandRef[]>();
     for (const b of bands) {
-      for (const rk of b.references) {
-        if (!refBands.has(rk)) refBands.set(rk, []);
-        refBands.get(rk)!.push(b);
+      for (const ref of b.references) {
+        if (!refEntries.has(ref.key)) refEntries.set(ref.key, []);
+        refEntries.get(ref.key)!.push({ band: b, ref });
       }
     }
-    return [...refBands.keys()]
+    return [...refEntries.keys()]
       .sort((a, b) => refSortKey(refs![a] ?? {}).localeCompare(refSortKey(refs![b] ?? {})))
       .map(rk => {
-        const byGroup = new Map<string, Band[]>();
-        for (const b of refBands.get(rk)!) {
-          if (!byGroup.has(b.group)) byGroup.set(b.group, []);
-          byGroup.get(b.group)!.push(b);
+        const byGroup = new Map<string, BandRef[]>();
+        for (const e of refEntries.get(rk)!) {
+          if (!byGroup.has(e.band.group)) byGroup.set(e.band.group, []);
+          byGroup.get(e.band.group)!.push(e);
         }
         const groupBands: GroupBands[] = sortedGroupKeys
           .filter(gk => byGroup.has(gk))
@@ -126,14 +137,14 @@
             key:   gk,
             label: groups[gk]?.label ?? gk,
             color: groups[gk]?.color ?? '#444',
-            bands: byGroup.get(gk)!.sort((a, b) => b.wn_max - a.wn_max),
+            entries: byGroup.get(gk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
           }));
         return { refKey: rk, html: ieeeHtml(refs![rk] ?? {}, rk), groupBands };
       });
   })();
 
   // ---- By-group view data ----
-  interface ByRefEntry  { refKey: string; html: string; bands: Band[]; }
+  interface ByRefEntry  { refKey: string; html: string; entries: BandRef[]; }
   interface ByGroupItem { key: string; label: string; color: string; refs: ByRefEntry[]; }
 
   $: byGroupItems = (() => {
@@ -142,11 +153,11 @@
       .map(gk => {
         const gb = bands.filter(b => b.group === gk && b.references.length > 0);
         if (!gb.length) return null;
-        const refMap = new Map<string, Band[]>();
+        const refMap = new Map<string, BandRef[]>();
         for (const b of gb) {
-          for (const rk of b.references) {
-            if (!refMap.has(rk)) refMap.set(rk, []);
-            refMap.get(rk)!.push(b);
+          for (const ref of b.references) {
+            if (!refMap.has(ref.key)) refMap.set(ref.key, []);
+            refMap.get(ref.key)!.push({ band: b, ref });
           }
         }
         const refEntries: ByRefEntry[] = [...refMap.keys()]
@@ -154,7 +165,7 @@
           .map(rk => ({
             refKey: rk,
             html:   ieeeHtml(refs![rk] ?? {}, rk),
-            bands:  refMap.get(rk)!.sort((a, b) => b.wn_max - a.wn_max),
+            entries: refMap.get(rk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
           }));
         return {
           key:   gk,
@@ -178,15 +189,18 @@
             <div class="group-section">
               <span class="group-label" style="color:{g.color}">{g.label}</span>
               <ul class="band-list">
-                {#each g.bands as b (b.id)}
-                  {@const id = `r-${item.refKey}-${b.id}`}
+                {#each g.entries as e (e.band.id)}
+                  {@const id = `r-${item.refKey}-${e.band.id}`}
                   <li>
                     <button class="arrow" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                       {open.has(id) ? '▾' : '▸'}
                     </button>
-                    <span class="band-name">{@html bandNameHtml(b)}</span>
+                    <span class="band-name">{@html bandNameHtml(e.band)}</span>
                     {#if open.has(id)}
-                      <div class="band-detail">{bandDetail(b)}</div>
+                      <div class="band-detail">{bandDetail(e.band)}</div>
+                      {#if refNoteText(e.ref)}
+                        <div class="band-detail ref-note">per this reference: {refNoteText(e.ref)}</div>
+                      {/if}
                     {/if}
                   </li>
                 {/each}
@@ -205,15 +219,18 @@
             <div class="ref-section">
               <p class="citation">{@html r.html}</p>
               <ul class="band-list">
-                {#each r.bands as b (b.id)}
-                  {@const id = `g-${g.key}-${r.refKey}-${b.id}`}
+                {#each r.entries as e (e.band.id)}
+                  {@const id = `g-${g.key}-${r.refKey}-${e.band.id}`}
                   <li>
                     <button class="arrow" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                       {open.has(id) ? '▾' : '▸'}
                     </button>
-                    <span class="band-name">{@html bandNameHtml(b)}</span>
+                    <span class="band-name">{@html bandNameHtml(e.band)}</span>
                     {#if open.has(id)}
-                      <div class="band-detail">{bandDetail(b)}</div>
+                      <div class="band-detail">{bandDetail(e.band)}</div>
+                      {#if refNoteText(e.ref)}
+                        <div class="band-detail ref-note">per this reference: {refNoteText(e.ref)}</div>
+                      {/if}
                     {/if}
                   </li>
                 {/each}
@@ -314,5 +331,10 @@
     font-size: 11.5px;
     color: #777;
     line-height: 1.4;
+  }
+
+  .band-detail.ref-note {
+    font-style: italic;
+    color: #8a7a4a;
   }
 </style>
