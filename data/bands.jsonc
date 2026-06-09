@@ -167,6 +167,11 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2349,
           "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak."
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 2373,
+          "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker."
         }
       ],
       "tags": []
@@ -502,7 +507,13 @@
       "short": "ν<sub>as</sub>(HCH) CH₄(g)",
       "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 3016,
+          "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃."
+        }
+      ],
       "tags": []
     },
     {
@@ -521,7 +532,13 @@
       "short": "δ<sub>as</sub>(HCH) CH₄(g)",
       "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1306,
+          "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker."
+        }
+      ],
       "tags": []
     },
       // δ_s(HCH) parent (ν₂) not in dataset — add later if needed.
@@ -955,7 +972,14 @@
       "short": "ν<sub>as</sub>(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1670,
+          "site": "Ni-Ce-Fe/La-Al₂O₃",
+          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies."
+        }
+      ],
       "tags": []
     },
     {
@@ -974,7 +998,14 @@
       "short": "ν<sub>s</sub>(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate symmetric stretch (b-CO₃²⁻*).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1310,
+          "site": "Ni-Ce-Fe/La-Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹."
+        }
+      ],
       "tags": []
     },
     {
@@ -1017,7 +1048,14 @@
       "short": "ν<sub>as</sub>(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1530,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
+        }
+      ],
       "tags": []
     },
     {
@@ -1036,7 +1074,14 @@
       "short": "ν<sub>s</sub>(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1340,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1340 cm⁻¹."
+        }
+      ],
       "tags": []
     },
     {
@@ -1103,7 +1148,14 @@
       "short": "ν<sub>as</sub>(OCO) HCO₃⁻*",
       "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1650,
+          "site": "Al₂O₃",
+          "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading."
+        }
+      ],
       "tags": []
     },
     {
@@ -1122,7 +1174,14 @@
       "short": "ν<sub>s</sub>(OCO) HCO₃⁻*",
       "description": "Bicarbonate symmetric OCO stretch (HCO₃⁻*).",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1434,
+          "site": "Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃."
+        }
+      ],
       "tags": []
     },
     {
@@ -1141,7 +1200,14 @@
       "short": "δ(COH) HCO₃⁻*",
       "description": "Bicarbonate COH bending (HCO₃⁻*); distinguishing feature vs. carbonate.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1220,
+          "site": "Al₂O₃",
+          "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹."
+        }
+      ],
       "tags": []
     },
 
@@ -1191,7 +1257,15 @@
       "short": "ν<sub>as</sub>(OCO) HCOO*",
       "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
-      "references": ["AlAbdulghani.UncoveringPressureDependentMechanism.2025"],
+      "references": [
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1585,
+          "site": "Al₂O₃ (basic sites)",
+          "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
+        }
+      ],
       "tags": []
     },
     {
@@ -1210,7 +1284,15 @@
       "short": "ν<sub>s</sub>(OCO) HCOO*",
       "description": "Formate symmetric OCO stretch (HCOO*).",
       "based_on": [],
-      "references": ["AlAbdulghani.UncoveringPressureDependentMechanism.2025"],
+      "references": [
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1380,
+          "site": "Al₂O₃ (basic sites)",
+          "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
+        }
+      ],
       "tags": []
     },
     {
@@ -1412,6 +1494,12 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 1441,
           "site": "TiO₂"
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1480,
+          "site": "Al₂O₃ / Ni-Ce-Fe/La-Al₂O₃",
+          "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
         }
       ],
       "intensity": "w",
@@ -1456,7 +1544,7 @@
       "atoms": "C-O",
       "wn_start": 1100,
       "wn_end": 1170,
-      "short": "ν(CO) mono-CH₃O*",
+      "short": "ν(CO) m-CH₃O*",
       "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Position is support-dependent. Diagnostic threshold: ν(C-O) > ~1100 cm⁻¹ indicates monodentate geometry (Hussein 1991).",
       "based_on": [],
       "references": [
@@ -1490,7 +1578,7 @@
       "atoms": "C-O",
       "wn_start": 1030,
       "wn_end": 1090,
-      "short": "ν(CO) bi-CH₃O*",
+      "short": "ν(CO) b-CH₃O*",
       "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate geometry (Hussein 1991). Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) ν<sub>s</sub>(CH₃) marker at higher frequency.",
       "based_on": [],
       "references": [
