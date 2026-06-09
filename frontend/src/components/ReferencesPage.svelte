@@ -104,7 +104,7 @@
   function refNoteText(ref: BandReference): string | null {
     const parts: string[] = [];
     if (ref.wn != null) parts.push(`${ref.wn} cm⁻¹`);
-    if (ref.site)       parts.push(`site: ${ref.site}`);
+    if (ref.site)       parts.push(`on ${ref.site}`);
     if (ref.note)       parts.push(ref.note);
     return parts.length ? parts.join(' · ') : null;
   }

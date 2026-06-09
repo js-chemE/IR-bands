@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
   import { buildChart } from '../lib/chart';
+  import type { TipData } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
 
   export let bands: Band[];
@@ -17,15 +18,32 @@
   let containerWidth = 1100;
 
   // Zoom stored canonically in wavenumber [lo, hi] cm⁻¹ (lo < hi).
-  // Converting to the current axis on render means zoom persists across axis switches.
   let wnOverride: [number, number] | null = null;
 
-  // Convert wnOverride to the current axis domain for rendering / interaction
   $: xDomainForChart = wnOverride
     ? (axisRange(wnOverride[0], wnOverride[1], axisProperty, axisUnit) as [number, number])
     : undefined;
 
+  // ---------------------------------------------------------------------------
+  // Tooltip state
+  // ---------------------------------------------------------------------------
+  let hovered: { tipData: TipData; color: string } | null = null;
+  let mouseX = 0;
+  let mouseY = 0;
+
+  $: tipX = mouseX > (typeof window !== 'undefined' ? window.innerWidth * 0.55 : 600)
+    ? mouseX - 16
+    : mouseX + 18;
+  $: tipTransform = mouseX > (typeof window !== 'undefined' ? window.innerWidth * 0.55 : 600)
+    ? 'translateX(-100%)'
+    : 'none';
+  $: tipY = Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - 20 : 800));
+
+  // ---------------------------------------------------------------------------
+  // Chart build
+  // ---------------------------------------------------------------------------
   $: if (container) {
+    hovered = null;
     const chart = buildChart(
       bands, groups, enabledGroups, hiddenCats,
       colorDim, axisProperty, axisUnit, refs,
@@ -33,6 +51,12 @@
       xDomainForChart,
     );
     container.replaceChildren(chart);
+
+    // Observable Plot fires 'input' on the SVG when the pointer selection changes
+    chart.addEventListener('input', () => {
+      const val = (chart as any).value as { tipData: TipData; color: string } | undefined;
+      hovered = val ?? null;
+    });
   }
 
   onMount(() => {
@@ -45,9 +69,8 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Zoom / pan — stored in wavenumber, reset only on explicit user action
+  // Zoom / pan
   // ---------------------------------------------------------------------------
-
   const MARGIN_LEFT = 200;
   const MARGIN_RIGHT = 20;
 
@@ -72,7 +95,6 @@
     const t = Math.max(0, Math.min(1, (e.clientX - rect.left - MARGIN_LEFT) / plotWidth));
 
     const pivot = domain[0] + t * (domain[1] - domain[0]);
-    // Clamp deltaY — prevents one large scroll event from jumping across the spectrum
     const factor = Math.pow(1.002, Math.max(-200, Math.min(200, e.deltaY)));
     const d0 = pivot + (domain[0] - pivot) * factor;
     const d1 = pivot + (domain[1] - pivot) * factor;
@@ -81,18 +103,17 @@
     const wn1 = valueToWn(d1, axisProperty, axisUnit);
     const lo = Math.max(1, Math.min(wn0, wn1));
     const hi = Math.min(MAX_WN, Math.max(wn0, wn1));
-    if (hi - lo < MIN_WN_SPAN) return; // at minimum zoom — ignore
+    if (hi - lo < MIN_WN_SPAN) return;
     wnOverride = [lo, hi];
   }
 
-  // Middle-mouse-button drag to pan — keeps left-click free for Observable Plot's tip
   let isPanning = false;
   let panStartClientX = 0;
   let panStartDomain: [number, number] = [0, 0];
 
   function onPointerDown(e: PointerEvent) {
-    if (e.button !== 1) return; // middle button only
-    e.preventDefault(); // stop browser auto-scroll cursor
+    if (e.button !== 1) return;
+    e.preventDefault();
     isPanning = true;
     panStartClientX = e.clientX;
     panStartDomain = currentDomain();
@@ -132,7 +153,62 @@
     on:pointermove={onPointerMove}
     on:pointerup={onPointerUp}
     on:dblclick={resetZoom}
+    on:mousemove={e => { mouseX = e.clientX; mouseY = e.clientY; }}
+    on:mouseleave={() => { hovered = null; }}
   ></div>
+
+  {#if hovered}
+    {@const td = hovered.tipData}
+    <div
+      class="band-tooltip"
+      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{hovered.color};"
+    >
+      <!-- Header -->
+      <div class="tip-header" style="border-left-color:{hovered.color}">
+        <div class="tip-name">{td.name}</div>
+        <div class="tip-vib">{td.vib}</div>
+        <div class="tip-wn">{td.wnRange}</div>
+        <div class="tip-group" style="color:{hovered.color}">{td.group}</div>
+      </div>
+
+      <!-- Quality tags -->
+      {#if td.noteLines.length}
+        <div class="tip-tags">
+          {#each td.noteLines as tag}<span class="tip-tag">{tag}</span>{/each}
+        </div>
+      {/if}
+
+      <!-- General description -->
+      {#if td.description}
+        <div class="tip-desc">{td.description}</div>
+      {/if}
+
+      <!-- Per-reference boxes -->
+      {#if td.refs.length}
+        <div class="tip-refs-section">
+          <div class="tip-refs-header">References</div>
+          {#each td.refs as ref}
+            <div class="tip-ref-box">
+              <div class="tip-ref-title">{ref.short}</div>
+              {#if ref.wn != null || ref.site}
+                <div class="tip-ref-badges">
+                  {#if ref.wn != null}
+                    <span class="badge-wn">{ref.wn} cm⁻¹</span>
+                  {/if}
+                  {#if ref.site}
+                    <span class="badge-site">{ref.site}</span>
+                  {/if}
+                </div>
+              {/if}
+              {#if ref.note}
+                <div class="tip-ref-note">{ref.note}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -161,4 +237,137 @@
   }
   .chart.panning { cursor: grabbing; }
   .chart :global(svg) { max-width: 100%; overflow: visible; }
+
+  /* ── HTML tooltip ── */
+  .band-tooltip {
+    position: fixed;
+    z-index: 200;
+    pointer-events: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: 3px solid #888; /* overridden inline with band color */
+    border-radius: 6px;
+    padding: 8px 10px;
+    max-width: 300px;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  }
+
+  .tip-header {
+    border-left: 3px solid #888; /* overridden inline */
+    padding-left: 7px;
+    margin-bottom: 6px;
+  }
+  .tip-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+  }
+  .tip-vib {
+    font-size: 10.5px;
+    color: #777;
+    margin-top: 1px;
+  }
+  .tip-wn {
+    font-size: 11px;
+    color: #333;
+    font-family: 'Courier New', monospace;
+    margin-top: 1px;
+  }
+  .tip-group {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+
+  .tip-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+  }
+  .tip-tag {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    color: #555;
+  }
+
+  .tip-desc {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .tip-refs-section { margin-top: 2px; }
+
+  .tip-refs-header {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .tip-ref-box {
+    background: #f8f6f1;
+    border: 1px solid #e2d9c9;
+    border-left: 3px solid #c4a86e;
+    border-radius: 4px;
+    padding: 5px 7px;
+    margin-top: 4px;
+  }
+
+  .tip-ref-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .tip-ref-badges {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .badge-wn {
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    color: #1d4ed8;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 10.5px;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+  }
+
+  .badge-site {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #78350f;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  .tip-ref-note {
+    font-size: 10.5px;
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.35;
+  }
 </style>
