@@ -1172,6 +1172,7 @@
           "site": "Cu⁺ at Cu–Ga₂O₃ interface"
         }
       ],
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1256,6 +1257,7 @@
           "multiplier": 1
         }
       ],
+      "confidence": "confirmed",
       "references": [
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
