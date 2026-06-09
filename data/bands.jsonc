@@ -1165,7 +1165,13 @@
       "short": "ν(CH) HCOO*",
       "description": "Formate C-H stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
-      "references": ["Gomez.InterdependenceExtentGa.2024"],
+      "references": [
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2890,
+          "site": "Cu⁺ at Cu–Ga₂O₃ interface"
+        }
+      ],
       "tags": []
     },
     {
@@ -1250,7 +1256,13 @@
           "multiplier": 1
         }
       ],
-      "references": ["Gomez.InterdependenceExtentGa.2024"],
+      "references": [
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2956,
+          "site": "Cu⁺ at Cu–Ga₂O₃ interface"
+        }
+        ],
       "tags": []
     },
       // FIXME: second mode unidentified. Some sources call this 2ν(C=O) overtone.
