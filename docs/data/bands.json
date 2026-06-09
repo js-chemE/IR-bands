@@ -132,7 +132,7 @@
       "wn_start": 2350,
       "wn_end": 2390,
       "short": "ν<sub>as</sub>(OCO) CO₂ (R)",
-      "description": "Gas CO₂ antisymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
@@ -164,7 +164,7 @@
       "wn_start": 2310,
       "wn_end": 2349,
       "short": "ν<sub>as</sub>(OCO) CO₂ (P)",
-      "description": "Gas CO₂ antisymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
@@ -563,7 +563,7 @@
       "wn_start": 2980,
       "wn_end": 3060,
       "short": "ν<sub>as</sub>(HCH) CH₄(g)",
-      "description": "Gas methane antisymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -588,7 +588,7 @@
       "wn_start": 1280,
       "wn_end": 1340,
       "short": "δ<sub>as</sub>(HCH) CH₄(g)",
-      "description": "Gas methane antisymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
+      "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -674,7 +674,7 @@
       "wn_start": 2000,
       "wn_end": 2120,
       "short": "ν(CO) linear (μ₁)",
-      "description": "Linear (atop) CO bonded to a single metal atom. Most common adsorption mode on Cu, Pt, Pd, Rh, Ni, and Co surfaces. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage due to π-backdonation and dipole coupling. Typical values: Cu⁰ ~2080–2100, Pt ~2070, Rh ~2050 cm⁻¹. Electron-poor or partially oxidized sites shift to higher frequency. Asterisk denotes surface adsorption.",
+      "description": "Linear (atop) CO bonded to a single metal atom. Most common adsorption mode on Cu, Pt, Pd, Rh, Ni, and Co surfaces. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage due to π-backdonation and dipole coupling. Typical values: Cu⁰ ~2080–2100, Pt ~2070, Rh ~2050 cm⁻¹. Electron-poor or partially oxidized sites shift to higher frequency.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -831,7 +831,7 @@
       "wn_start": 2080,
       "wn_end": 2110,
       "short": "ν<sub>as</sub>(CO) gem-M⁺(CO)₂",
-      "description": "Antisymmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center, typically Rh⁺, Ir⁺, Ru⁺, or Cu⁺. The symmetric/asymmetric pair is diagnostic of atomically dispersed cationic sites. Typical splitting: ~50–60 cm⁻¹.",
+      "description": "asymmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center, typically Rh⁺, Ir⁺, Ru⁺, or Cu⁺. The symmetric/asymmetric pair is diagnostic of atomically dispersed cationic sites. Typical splitting: ~50–60 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -856,7 +856,7 @@
       "wn_start": 2020,
       "wn_end": 2050,
       "short": "ν<sub>s</sub>(CO) gem-M⁺(CO)₂",
-      "description": "Symmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center. Appears together with the antisymmetric band and is characteristic of isolated cationic adsorption sites.",
+      "description": "Symmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center. Appears together with the asymmetric band and is characteristic of isolated cationic adsorption sites.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -881,7 +881,7 @@
       "wn_start": 1700,
       "wn_end": 1800,
       "short": "ν(CO) HCO*",
-      "description": "Surface formyl C=O stretch (HCO*); mechanistic intermediate from CO + H. Often observed transiently. Distinguishes the CO-H pathway from formate-mediated routes. Asterisk denotes surface intermediate.",
+      "description": "Surface formyl C=O stretch (HCO*); mechanistic intermediate from CO + H. Often observed transiently. Distinguishes the CO-H pathway from formate-mediated routes.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -956,7 +956,7 @@
       "wn_start": 2850,
       "wn_end": 2900,
       "short": "ν<sub>as</sub>(HCH) H₂CO*",
-      "description": "Adsorbed formaldehyde CH₂ antisymmetric stretch (H₂CO*).",
+      "description": "Adsorbed formaldehyde CH₂ asymmetric stretch (H₂CO*).",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1131,7 +1131,7 @@
       "wn_start": 1620,
       "wn_end": 1670,
       "short": "ν<sub>as</sub>(OCO) b-CO₃²⁻",
-      "description": "Bidentate carbonate antisymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹). Asterisk denotes surface adsorption.",
+      "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹).",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1181,7 +1181,7 @@
       "wn_start": 2900,
       "wn_end": 3100,
       "short": "2ν<sub>as</sub>(OCO) b-CO₃²⁻ (overtone)",
-      "description": "Bidentate carbonate antisymmetric stretch first overtone (b-CO₃²⁻*); rare but reported.",
+      "description": "Bidentate carbonate asymmetric stretch first overtone (b-CO₃²⁻*); rare but reported.",
       "based_on": [
         {
           "band_id": "carbonate_bidentate_asym_1645",
@@ -1214,7 +1214,7 @@
       "wn_start": 1480,
       "wn_end": 1520,
       "short": "ν<sub>as</sub>(OCO) m-CO₃²⁻",
-      "description": "Monodentate carbonate antisymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹). Asterisk denotes surface adsorption.",
+      "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1264,7 +1264,7 @@
       "wn_start": 2900,
       "wn_end": 3000,
       "short": "2ν<sub>as</sub>(OCO) m-CO₃²⁻ (overtone)",
-      "description": "Monodentate carbonate antisymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
+      "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
       "based_on": [
         {
           "band_id": "carbonate_monodentate_asym_1500",
@@ -1322,7 +1322,7 @@
       "wn_start": 1610,
       "wn_end": 1650,
       "short": "ν<sub>as</sub>(OCO) HCO₃⁻*",
-      "description": "Bicarbonate antisymmetric OCO stretch (HCO₃⁻*). Asterisk denotes surface adsorption.",
+      "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*).",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1397,7 +1397,7 @@
       "wn_start": 2870,
       "wn_end": 2900,
       "short": "ν(CH) HCOO*",
-      "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Asterisk denotes surface adsorption.",
+      "description": "Formate C-H stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
       "references": [
         {
@@ -1429,7 +1429,7 @@
       "wn_start": 1550,
       "wn_end": 1620,
       "short": "ν<sub>as</sub>(OCO) HCOO*",
-      "description": "Formate antisymmetric OCO stretch (HCOO*); key HCOO* marker.",
+      "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
       "references": [
         {
@@ -1525,7 +1525,7 @@
       "wn_start": 2940,
       "wn_end": 2960,
       "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO* (comb.)",
-      "description": "Formate combination band (HCOO*): bending + antisymmetric stretch; diagnostic for HCOO*.",
+      "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
       "based_on": [
         {
           "band_id": "formate_och_bend_1390",
@@ -1604,7 +1604,7 @@
       "wn_start": 2910,
       "wn_end": 2950,
       "short": "ν<sub>as</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ antisymmetric stretch (CH₃O*). Position is support- and site-sensitive; frequency shifts between catalysts are diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a), which is typically blue-shifted ~10–20 cm⁻¹. Asterisk denotes surface adsorption.",
+      "description": "Methoxy CH₃ asymmetric stretch (CH₃O*). Position is support- and site-sensitive; frequency shifts between catalysts are diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a), which is typically blue-shifted ~10–20 cm⁻¹.",
       "based_on": [],
       "references": [
         {
@@ -1696,7 +1696,7 @@
       "wn_start": 1430,
       "wn_end": 1455,
       "short": "δ<sub>as</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ antisymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
+      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
       "based_on": [],
       "references": [
         {
@@ -1728,7 +1728,7 @@
       "wn_start": 1360,
       "wn_end": 1390,
       "short": "δ<sub>s</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the antisymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate ν<sub>s</sub>(OCO) at ~1365 cm⁻¹.",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the asymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate ν<sub>s</sub>(OCO) at ~1365 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1858,7 +1858,7 @@
       "wn_start": 2935,
       "wn_end": 2965,
       "short": "ν<sub>as</sub>(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ antisymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
+      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
       "based_on": [],
       "references": [
         {
@@ -1964,7 +1964,7 @@
       "wn_start": 3700,
       "wn_end": 3750,
       "short": "ν(OH) iso",
-      "description": "Sharp band; isolated terminal hydroxyls on metal-oxide supports. Asterisk denotes surface species.",
+      "description": "Sharp band; isolated terminal hydroxyls on metal-oxide supports.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1989,7 +1989,7 @@
       "wn_start": 3400,
       "wn_end": 3650,
       "short": "ν(OH) H-b",
-      "description": "Broader band; bridged or hydrogen-bonded hydroxyls. Asterisk denotes surface species.",
+      "description": "Broader band; bridged or hydrogen-bonded hydroxyls.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2014,7 +2014,7 @@
       "wn_start": 3200,
       "wn_end": 3600,
       "short": "ν(HOH) H₂O*",
-      "description": "Very broad O-H stretch of adsorbed/condensed water (H₂O*). Asterisk denotes surface adsorption.",
+      "description": "Very broad O-H stretch of adsorbed/condensed water (H₂O*).",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2064,7 +2064,7 @@
       "wn_start": 1100,
       "wn_end": 1400,
       "short": "ν(Cu-H)",
-      "description": "Cu hydride (Cu-H*); weak, often hidden under carbonate/methoxy bands. Asterisk denotes surface species.",
+      "description": "Cu hydride (Cu-H*); weak, often hidden under carbonate/methoxy bands.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2089,7 +2089,7 @@
       "wn_start": 1700,
       "wn_end": 1750,
       "short": "ν(Zn-H)",
-      "description": "ZnO hydride (Zn-H*); classic marker for heterolytic H₂ dissociation on Cu/ZnO. Asterisk denotes surface species.",
+      "description": "ZnO hydride (Zn-H*); classic marker for heterolytic H₂ dissociation on Cu/ZnO.",
       "based_on": [],
       "references": [],
       "tags": [],
