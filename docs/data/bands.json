@@ -584,7 +584,7 @@
       "width": "broad",
       "confidence": "confirmed",
       "lane": 0,
-      "sub_lane": 1,
+      "sub_lane": 0,
       "wn_min": 2980,
       "wn_max": 3060
     },
@@ -655,31 +655,6 @@
       "sub_lane": 0,
       "wn_min": 4180,
       "wn_max": 4250
-    },
-    {
-      "id": "ch4ads_asym_2985",
-      "species": "CH₄*",
-      "group": "ch4",
-      "vibration": {
-        "category": "stretch",
-        "subtype": "asymmetric",
-        "branch": null
-      },
-      "atoms": "H-C-H",
-      "wn_start": 2950,
-      "wn_end": 3020,
-      "short": "ν<sub>as</sub>(HCH) CH₄*",
-      "description": "Physisorbed methane (CH₄*) on the catalyst surface; red-shifted from gas-phase by 10-30 cm⁻¹.",
-      "based_on": [],
-      "references": [],
-      "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "lane": 0,
-      "sub_lane": 0,
-      "wn_min": 2950,
-      "wn_max": 3020
     },
     {
       "id": "co_linear_mu1_2060",

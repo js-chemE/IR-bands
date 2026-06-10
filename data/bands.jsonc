@@ -613,26 +613,6 @@
       "references": [],
       "tags": []
     },
-    {
-      "id": "ch4ads_asym_2985",
-      "species": "CH₄*",
-      "group": "ch4",
-      "pair": 1,
-      "vibration": {
-        "category": "stretch",
-        "subtype": "asymmetric",
-        "branch": null
-      },
-      "atoms": "H-C-H",
-      "wn_start": 2950,
-      "wn_end": 3020,
-      "short": "ν<sub>as</sub>(HCH) CH₄*",
-      "description": "Physisorbed methane (CH₄*) on the catalyst surface; red-shifted from gas-phase by 10-30 cm⁻¹.",
-      "based_on": [],
-      "references": [],
-      "tags": []
-    },
-
     // ---------------------------------------------------------------------------
     // CO ON REDUCED METALS
     // CO as a probe molecule for metallic surface sites.
