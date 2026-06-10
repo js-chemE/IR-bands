@@ -14,6 +14,8 @@ Reads `data/bands.jsonc` (annotated band assignments) and `data/references.bib` 
 - Switch the colour dimension (group / vibration type / atom family / reference coverage)
 - Toggle individual legend categories
 - Switch the x-axis between wavenumber (cm⁻¹), wavelength (μm / nm), and energy (meV / eV / kJ mol⁻¹ / kcal mol⁻¹)
+- Browse all references with their cited bands (References page)
+- Browse vibration mode categories with representative bands (Vibration Modes page)
 
 ## Stack
 
@@ -21,7 +23,7 @@ Reads `data/bands.jsonc` (annotated band assignments) and `data/references.bib` 
 |-------|-----------|
 | Data pipeline | Python · `uv` |
 | Frontend | Svelte 4 · TypeScript · Vite |
-| Charting | Plotly.js (swap-friendly: only `frontend/src/lib/plotlyHelpers.ts` needs changing) |
+| Charting | Observable Plot (`@observablehq/plot`) |
 | Hosting | GitHub Pages (served from `docs/`) |
 
 ## Prerequisites
@@ -86,22 +88,22 @@ src/ir_bands/
   schema.py            ← dataclasses: Band, Vibration, Group, Region, Dataset
   loader.py            ← JSONC parsing, validation, BibTeX parsing
   layout.py            ← lane assignment (greedy packing + sub-lane staggering)
-  colors.py            ← colour maps (group / vibration / atoms / references)
-  units.py             ← wavenumber ↔ wavelength ↔ energy conversions
 
 frontend/
   src/
-    App.svelte          ← root component; owns all UI state
+    App.svelte          ← root component; owns all UI state and page routing
     lib/
       types.ts          ← TypeScript interfaces (mirrors Python schema)
-      colors.ts         ← colour maps (port of colors.py)
-      units.ts          ← axis conversions (port of units.py)
-      plotlyHelpers.ts  ← Plotly figure construction + reactive update helpers
+      colors.ts         ← colour maps for four coloring dimensions
+      units.ts          ← wavenumber ↔ wavelength ↔ energy conversions
+      chart.ts          ← buildChart() and lane metric helpers (Observable Plot)
     components/
-      BandChart.svelte  ← Plotly lifecycle wrapper
-      Sidebar.svelte    ← group filter
-      ColorLegend.svelte← custom legend (replaces Plotly built-in)
-      AxisSelect.svelte ← axis property / unit selector
+      BandChart.svelte     ← Observable Plot chart with zoom/pan
+      Sidebar.svelte       ← group filter checkboxes
+      ColorLegend.svelte   ← legend swatches for the active colour dimension
+      AxisSelect.svelte    ← x-axis property and unit selectors
+      ReferencesPage.svelte    ← tabular view of all references and cited bands
+      VibrationModesPage.svelte← vibration mode reference page
   vite.config.ts
   package.json
 
