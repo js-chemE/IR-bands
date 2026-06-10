@@ -18,7 +18,7 @@
   let page: Page = 'chart';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
 
-  const DEFAULT_OFF = new Set(['hydride', 'support', "support_oh", "h2"]);
+  const DEFAULT_OFF = new Set(['support', "support_oh", "h2"]);
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
