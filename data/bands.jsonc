@@ -174,6 +174,9 @@
           "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker."
         }
       ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -199,6 +202,9 @@
           "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
         }
       ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -224,6 +230,9 @@
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -249,6 +258,9 @@
           "note": "Q-branch coincides with the reported ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
         }
       ],
+      "intensity": "vs",
+      "width": "sharp",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -274,6 +286,9 @@
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
       // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
@@ -310,6 +325,9 @@
           "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
       // Pair-mate of co2_combo_3730_R (P-branch).
@@ -346,6 +364,9 @@
           "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
       // Lower Fermi-resonance pair: 2ν₂+ν₃. Linked to the bending Q-branch.
@@ -381,6 +402,9 @@
           "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
       // Pair-mate of co2_combo_3627_R (P-branch).
@@ -416,6 +440,9 @@
           "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -441,6 +468,9 @@
           "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures."
         }
       ],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
       "tags": ["misassignment-warning", "drifts-artifact"]
     },
 
@@ -465,6 +495,9 @@
       "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches.",
       "based_on": [],
       "references": ["Paredes-Nunez.SpectrumBaselineArtefacts.2015"],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -484,6 +517,9 @@
       "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution).",
       "based_on": [],
       "references": ["Paredes-Nunez.SpectrumBaselineArtefacts.2015"],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
 
@@ -514,6 +550,9 @@
           "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃."
         }
       ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -539,6 +578,9 @@
           "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
       // δ_s(HCH) parent (ν₂) not in dataset — add later if needed.
@@ -697,6 +739,9 @@
       "description": "Linear CO adsorbed on Lewis-acidic metal cation sites of oxide supports, zeolites, or isolated metal centers. Reduced metal→CO π-backdonation shifts ν(CO) to higher frequency than on metallic surfaces. Typical values: Cu⁺ ~2100–2130, Cu²⁺ ~2150–2180, Ce³⁺ ~2130, Ce⁴⁺ ~2160, Ti⁴⁺ ~2190, Zn²⁺ ~2200, and Al³⁺/Mg²⁺ ~2210 cm⁻¹. Widely used as a probe of Lewis acidity and oxidation state.",
       "based_on": [],
       "references": ["Gomez.InterdependenceExtentGa.2024"],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -980,6 +1025,9 @@
           "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1006,6 +1054,9 @@
           "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1056,6 +1107,9 @@
           "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1082,6 +1136,9 @@
           "note": "Table 3: νs(-C-O) at 1340 cm⁻¹."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1156,6 +1213,9 @@
           "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1182,6 +1242,9 @@
           "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1208,6 +1271,9 @@
           "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹."
         }
       ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
 
@@ -1236,8 +1302,16 @@
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2890,
           "site": "Cu⁺ at Cu–Ga₂O₃ interface"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2876,
+          "site": "CuGaZrOx",
+          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H."
         }
       ],
+      "intensity": "m",
+      "width": "sharp",
       "confidence": "confirmed",
       "tags": []
     },
@@ -1258,7 +1332,12 @@
       "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker.",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1600,
+          "site": "CuGaZrOx",
+          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24."
+        },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1585,
@@ -1266,6 +1345,9 @@
           "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1285,7 +1367,12 @@
       "description": "Formate symmetric OCO stretch (HCOO*).",
       "based_on": [],
       "references": [
-        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1350,
+          "site": "CuGaZrOx",
+          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹."
+        },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1380,
@@ -1293,6 +1380,9 @@
           "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
         }
       ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1311,7 +1401,16 @@
       "short": "δ(OCH) HCOO*",
       "description": "Formate C-H bending (HCOO*); overlaps ν<sub>s</sub>(OCO).",
       "based_on": [],
-      "references": ["AlAbdulghani.UncoveringPressureDependentMechanism.2025"],
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "site": "CuGaZrOx",
+          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -1339,6 +1438,8 @@
           "multiplier": 1
         }
       ],
+      "intensity": "m",
+      "width": "medium",
       "confidence": "confirmed",
       "references": [
         {
@@ -1894,7 +1995,7 @@
       "tags": []
     },
     {
-      "id": "gah_stretch_2050",
+      "id": "gah_stretch_1976",
       "species": "Ga-H",
       "group": "hydride",
       "pair": 12,
@@ -1904,13 +2005,23 @@
         "branch": null
       },
       "atoms": "M-H",
-      "wn_start": 1970,
-      "wn_end": 2060,
+      "wn_start": 1960,
+      "wn_end": 2000,
       "short": "ν(Ga-H)",
-      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; activity marker for heterolytic H₂ dissociation.",
+      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; marker for heterolytic H₂ dissociation. Confirmed by D₂ isotope shift. Plays a role in converting HCOO* to CH₃O* via H spillover.",
       "based_on": [],
-      "references": ["AlAbdulghani.UncoveringPressureDependentMechanism.2025"],
-      "tags": ["hydride-marker", "co-overlap-risk"]
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1976,
+          "site": "GaZrOx / CuGaZrOx",
+          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion."
+        }
+      ],
+      "intensity": "w",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["hydride-marker"]
     },
     {
       "id": "rhh_stretch_2050",

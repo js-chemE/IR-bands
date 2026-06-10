@@ -149,9 +149,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2350,
@@ -181,9 +181,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2310,
@@ -213,9 +213,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 690,
@@ -245,9 +245,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "sharp",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 670,
@@ -277,9 +277,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 640,
@@ -320,9 +320,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3725,
@@ -363,9 +363,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3695,
@@ -406,9 +406,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3622,
@@ -449,9 +449,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3592,
@@ -484,9 +484,9 @@
         "misassignment-warning",
         "drifts-artifact"
       ],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2073,
@@ -516,9 +516,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2165,
@@ -548,9 +548,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2105,
@@ -580,9 +580,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 1,
       "wn_min": 2980,
@@ -612,9 +612,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 1280,
@@ -805,9 +805,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
       "lane": 2,
       "sub_lane": 0,
       "wn_min": 2120,
@@ -1162,9 +1162,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 4,
       "sub_lane": 0,
       "wn_min": 1620,
@@ -1194,9 +1194,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 4,
       "sub_lane": 0,
       "wn_min": 1270,
@@ -1259,9 +1259,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 4,
       "sub_lane": 0,
       "wn_min": 1480,
@@ -1291,9 +1291,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 4,
       "sub_lane": 0,
       "wn_min": 1380,
@@ -1381,9 +1381,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 1610,
@@ -1413,9 +1413,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 1410,
@@ -1445,9 +1445,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 1210,
@@ -1474,11 +1474,17 @@
           "wn": 2890,
           "site": "Cu⁺ at Cu–Ga₂O₃ interface",
           "note": null
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2876,
+          "site": "CuGaZrOx",
+          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H."
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
+      "intensity": "m",
+      "width": "sharp",
       "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
@@ -1503,9 +1509,9 @@
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-          "wn": null,
-          "site": null,
-          "note": null
+          "wn": 1600,
+          "site": "CuGaZrOx",
+          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24."
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -1515,9 +1521,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
       "wn_min": 1550,
@@ -1541,9 +1547,9 @@
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-          "wn": null,
-          "site": null,
-          "note": null
+          "wn": 1350,
+          "site": "CuGaZrOx",
+          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹."
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -1553,9 +1559,9 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
       "wn_min": 1340,
@@ -1580,14 +1586,14 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
-          "site": null,
-          "note": null
+          "site": "CuGaZrOx",
+          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study."
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 1,
       "wn_min": 1380,
@@ -1628,8 +1634,8 @@
         }
       ],
       "tags": [],
-      "intensity": null,
-      "width": null,
+      "intensity": "m",
+      "width": "medium",
       "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
@@ -2264,7 +2270,7 @@
       "wn_max": 2050
     },
     {
-      "id": "gah_stretch_2050",
+      "id": "gah_stretch_1976",
       "species": "Ga-H",
       "group": "hydride",
       "vibration": {
@@ -2273,30 +2279,29 @@
         "branch": null
       },
       "atoms": "M-H",
-      "wn_start": 1970,
-      "wn_end": 2060,
+      "wn_start": 1960,
+      "wn_end": 2000,
       "short": "ν(Ga-H)",
-      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; activity marker for heterolytic H₂ dissociation.",
+      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; marker for heterolytic H₂ dissociation. Confirmed by D₂ isotope shift. Plays a role in converting HCOO* to CH₃O* via H spillover.",
       "based_on": [],
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-          "wn": null,
-          "site": null,
-          "note": null
+          "wn": 1976,
+          "site": "GaZrOx / CuGaZrOx",
+          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion."
         }
       ],
       "tags": [
-        "hydride-marker",
-        "co-overlap-risk"
+        "hydride-marker"
       ],
-      "intensity": null,
-      "width": null,
-      "confidence": null,
+      "intensity": "w",
+      "width": "sharp",
+      "confidence": "confirmed",
       "lane": 11,
       "sub_lane": 1,
-      "wn_min": 1970,
-      "wn_max": 2060
+      "wn_min": 1960,
+      "wn_max": 2000
     },
     {
       "id": "rhh_stretch_2050",
