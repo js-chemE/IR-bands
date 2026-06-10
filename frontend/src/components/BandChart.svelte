@@ -30,14 +30,15 @@
   let hovered: { tipData: TipData; color: string } | null = null;
   let mouseX = 0;
   let mouseY = 0;
+  let tipH = 0;
 
-  $: tipX = mouseX > (typeof window !== 'undefined' ? window.innerWidth * 0.55 : 600)
-    ? mouseX - 16
-    : mouseX + 18;
-  $: tipTransform = mouseX > (typeof window !== 'undefined' ? window.innerWidth * 0.55 : 600)
-    ? 'translateX(-100%)'
-    : 'none';
-  $: tipY = Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - 20 : 800));
+  const TIP_W = 300;
+  $: flipLeft = mouseX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
+  $: tipX = flipLeft ? mouseX - 16 : mouseX + 18;
+  $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
+  // Shift tooltip up so its bottom stays within the viewport; the cursor anchor
+  // point slides down the left border naturally as the tooltip moves up.
+  $: tipY = Math.max(10, Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
 
   // ---------------------------------------------------------------------------
   // Chart build
@@ -161,6 +162,7 @@
     {@const td = hovered.tipData}
     <div
       class="band-tooltip"
+      bind:clientHeight={tipH}
       style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{hovered.color};"
     >
       <!-- Header -->
@@ -248,7 +250,7 @@
     border-top: 3px solid #888; /* overridden inline with band color */
     border-radius: 6px;
     padding: 8px 10px;
-    max-width: 300px;
+    width: 300px;
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 12px;
     line-height: 1.4;

@@ -494,7 +494,14 @@
       "short": "ν(CO) CO (R)",
       "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches.",
       "based_on": [],
-      "references": ["Paredes-Nunez.SpectrumBaselineArtefacts.2015"],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2176,
+          "site": "gas phase (DRIFTS, 30% CO + 60% H₂ + 10% Ar)",
+          "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
+        }
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -516,7 +523,14 @@
       "short": "ν(CO) CO (P)",
       "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution).",
       "based_on": [],
-      "references": ["Paredes-Nunez.SpectrumBaselineArtefacts.2015"],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2114,
+          "site": "gas phase (DRIFTS, 30% CO + 60% H₂ + 10% Ar)",
+          "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
+        }
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -635,7 +649,17 @@
       "short": "ν(CO) linear (μ₁)",
       "description": "Linear (atop) CO bonded to a single metal atom. Most common adsorption mode on Cu, Pt, Pd, Rh, Ni, and Co surfaces. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage due to π-backdonation and dipole coupling. Typical values: Cu⁰ ~2080–2100, Pt ~2070, Rh ~2050 cm⁻¹. Electron-poor or partially oxidized sites shift to higher frequency.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2041,
+          "site": "14% Co/Al₂O₃ at 220°C, 30% CO + 60% H₂ + 10% Ar",
+          "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -654,7 +678,17 @@
       "short": "ν(CO) bridge (μ₂)",
       "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from multiple metal centers. Common on Pt, Pd, Rh, Ni, and Co surfaces; less common on Cu and typically observed only at high coverage or defect sites. Often associated with step and edge sites.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": null,
+          "site": "14% Co/Al₂O₃ at 220°C, 30% CO + 60% H₂ + 10% Ar",
+          "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature."
+        }
+      ],
+      "intensity": "m",
+      "width": "broad",
+      "confidence": "confirmed",
       "tags": []
     },
     {

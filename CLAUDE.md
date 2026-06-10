@@ -37,14 +37,16 @@ src/ir_bands/
   loader.py               ← JSONC comment stripping, dataset loading/validation, BibTeX parsing
   layout.py               ← lane assignment (assign_lanes) and sub-lane staggering (assign_sub_lanes)
 frontend/src/
-  App.svelte              ← root component; owns color/axis/group state
+  App.svelte              ← root component; owns color/axis/group state and page routing
   components/
-    BandChart.svelte      ← Observable Plot chart with zoom/pan
-    Sidebar.svelte        ← group filter checkboxes
-    ColorLegend.svelte    ← legend swatches for the active color dimension
-    AxisSelect.svelte     ← x-axis property and unit selectors
+    BandChart.svelte         ← Observable Plot chart with zoom/pan
+    Sidebar.svelte           ← group filter checkboxes
+    ColorLegend.svelte       ← legend swatches for the active color dimension
+    AxisSelect.svelte        ← x-axis property and unit selectors
+    ReferencesPage.svelte    ← tabular view of all references and cited bands
+    VibrationModesPage.svelte← vibration mode reference page
   lib/
-    plotlyHelpers.ts      ← buildChart() and lane metric helpers
+    chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color maps for four coloring dimensions
     units.ts              ← wavenumber ↔ wavelength ↔ energy conversions
     types.ts              ← shared TypeScript types
@@ -63,7 +65,7 @@ docs/
 
 **Lane layout (`layout.py`):** Two-level layout. `assign_lanes()` groups bands by `pair` value first; unpaired bands are greedy-packed into shared lanes by wn range. `assign_sub_lanes()` staggers overlapping bands within a lane into three sub-lanes (0, +1, −1). Bands with more than 3-way overlap are skipped and logged.
 
-**Frontend rendering (`plotlyHelpers.ts`):** `buildChart()` builds a fresh Observable Plot SVG on every reactive update. Color dimension, axis property/unit, enabled groups, and hidden legend categories are all passed in as props; the chart is fully recomputed rather than mutated.
+**Frontend rendering (`chart.ts`):** `buildChart()` builds a fresh Observable Plot SVG on every reactive update. Color dimension, axis property/unit, enabled groups, and hidden legend categories are all passed in as props; the chart is fully recomputed rather than mutated.
 
 **JSONC (`loader.py`):** Comments are stripped with a hand-rolled regex that correctly skips string literals (so URLs inside strings survive). `bibtexparser` is used for BibTeX if installed; otherwise a minimal hand-rolled parser handles the common cases.
 
