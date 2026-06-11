@@ -20,8 +20,11 @@
 //                 description (e.g. a different exact wavenumber or assumed
 //                 surface site). key is mandatory — entries without one are
 //                 disregarded; wn/site/note are optional and default to null.
+//                 site names the catalyst or surface only (no reaction conditions);
+//                 use a JSON array if the band is observed on multiple surfaces.
 //                 Example: {"key": "Smith.Example.2020", "wn": 1350,
-//                           "site": "bridging carbonate", "note": "..."}
+//                           "site": "CeO₂", "note": "..."}
+//                 Multi-site: {"key": "...", "site": ["Al₂O₃", "TiO₂"]}
 //   tags        — free-form list of strings; "overtone" marks overtone bands
 //   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
 //   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
@@ -498,7 +501,7 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2176,
-          "site": "gas phase (DRIFTS, 30% CO + 60% H₂ + 10% Ar)",
+          "site": "gas phase",
           "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
         }
       ],
@@ -527,7 +530,7 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2114,
-          "site": "gas phase (DRIFTS, 30% CO + 60% H₂ + 10% Ar)",
+          "site": "gas phase",
           "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
         }
       ],
@@ -653,8 +656,14 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2041,
-          "site": "14% Co/Al₂O₃ at 220°C, 30% CO + 60% H₂ + 10% Ar",
+          "site": "Co⁰",
           "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2053,
+          "site": "Pt",
+          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate."
         }
       ],
       "intensity": "s",
@@ -682,7 +691,7 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": null,
-          "site": "14% Co/Al₂O₃ at 220°C, 30% CO + 60% H₂ + 10% Ar",
+          "site": "Co⁰",
           "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature."
         }
       ],
@@ -1037,6 +1046,12 @@
           "wn": 1670,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
           "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 1605,
+          "site": "CeO₂",
+          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle."
         }
       ],
       "intensity": "s",
@@ -1066,6 +1081,12 @@
           "wn": 1310,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
           "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 1251,
+          "site": "CeO₂",
+          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS."
         }
       ],
       "intensity": "m",
@@ -1315,13 +1336,20 @@
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2890,
-          "site": "Cu⁺ at Cu–Ga₂O₃ interface"
+          "site": "Cu⁺",
+          "note": "ν(CH) HCOO* on Cu⁺ at Cu–Ga₂O₃."
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2876,
           "site": "CuGaZrOx",
           "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2910,
+          "site": "CeO₂",
+          "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate."
         }
       ],
       "intensity": "m",
@@ -1355,7 +1383,7 @@
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1585,
-          "site": "Al₂O₃ (basic sites)",
+          "site": "Al₂O₃",
           "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
         }
       ],
@@ -1390,7 +1418,7 @@
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1380,
-          "site": "Al₂O₃ (basic sites)",
+          "site": "Al₂O₃",
           "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
         }
       ],
@@ -1459,7 +1487,14 @@
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2956,
-          "site": "Cu⁺ at Cu–Ga₂O₃ interface"
+          "site": "Cu⁺",
+          "note": "Formate combination band on Cu⁺ at Cu–Ga₂O₃."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2945,
+          "site": "CeO₂",
+          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νas(OCO)."
         }
         ],
       "tags": []
@@ -1535,13 +1570,14 @@
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2919,
-          "site": "Cu⁺ at Cu–Ga₂O₃ interface",
-          "note": "Downshift from ~2926 cm⁻¹ on unpromoted Cu/SiO₂; diagnostic of the promoter-induced site change."
+          "site": "Cu⁺",
+          "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2970,
-          "site": "Zr-rich CuGaZrO_x"
+          "site": "Zr⁴⁺",
+          "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
         }
       ],
       "intensity": "m",
@@ -1574,13 +1610,14 @@
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2836,
-          "site": "Cu⁺ at Cu–Ga₂O₃ interface",
-          "note": "Downshift from ~2842 cm⁻¹ on unpromoted Cu/SiO₂; mirrors the ν<sub>as</sub>(CH₃) site-diagnostic shift."
+          "site": "Cu⁺",
+          "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift."
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2819,
-          "site": "Zr-rich CuGaZrO_x"
+          "site": "Zr⁴⁺",
+          "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
         }
       ],
       "intensity": "m",
@@ -1613,7 +1650,7 @@
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1480,
-          "site": "Al₂O₃ / Ni-Ce-Fe/La-Al₂O₃",
+          "site": ["Al₂O₃", "Ni-Ce-Fe/La-Al₂O₃"],
           "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
         }
       ],
@@ -1672,7 +1709,8 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1152,
-          "site": "Zr-OCH₃ on CuGaZrO_x"
+          "site": "Zr⁴⁺",
+          "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹."
         }
       ],
       "intensity": "s",
@@ -2028,7 +2066,7 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1976,
-          "site": "GaZrOx / CuGaZrOx",
+          "site": "Ga",
           "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion."
         }
       ],

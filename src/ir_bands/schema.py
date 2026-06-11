@@ -6,7 +6,7 @@ Everything else in the codebase consumes Band objects, never raw dicts.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, Literal
+from typing import Optional, Literal, Union
 
 
 # Allowed enum values — keep in sync with the JSONC schema header
@@ -81,7 +81,7 @@ class Reference:
     """
     key: str
     wn: Optional[int] = None
-    site: Optional[str] = None
+    site: Optional[Union[str, list[str]]] = None
     note: Optional[str] = None
 
 

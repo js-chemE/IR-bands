@@ -198,7 +198,13 @@
                     <span class="badge-wn">{ref.wn} cm⁻¹</span>
                   {/if}
                   {#if ref.site}
-                    <span class="badge-site">{ref.site}</span>
+                    {#if Array.isArray(ref.site)}
+                      {#each ref.site as s}
+                        <span class="badge-site">{s}</span>
+                      {/each}
+                    {:else}
+                      <span class="badge-site">{ref.site}</span>
+                    {/if}
                   {/if}
                 </div>
               {/if}
