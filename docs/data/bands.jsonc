@@ -1,0 +1,2166 @@
+// =============================================================================
+// IR band map for CO₂ hydrogenation
+// -----------------------------------------------------------------------------
+// This file is JSONC (JSON with Comments). The build step strips // and /* */
+// comments before shipping clean JSON to the browser.
+//
+// Schema v3:
+//   id          — unique snake_case, append-only (don't rename once referenced)
+//   vibration   — {category, subtype, branch}
+//                 category ∈ stretch | bend | combination | lattice
+//                 subtype  ∈ symmetric | asymmetric | scissoring | wagging | rocking | twisting | null
+//                 branch   ∈ R | P | Q | null
+//                 note: overtones use the parent's category + tags: ["overtone"]
+//   based_on    — list of {band_id, multiplier} (or {band_id: null, label} for
+//                 parent modes not in the dataset, e.g. IR-inactive ν₁ of CO₂)
+//   references  — list of citation entries, resolved against references.bib.
+//                 Each entry is either a bare BibTeX key string (shorthand for
+//                 {key}), or an object {key, wn, site, note} for cases where a
+//                 specific source's claim differs from the band's general
+//                 description (e.g. a different exact wavenumber or assumed
+//                 surface site). key is mandatory — entries without one are
+//                 disregarded; wn/site/note are optional and default to null.
+//                 site names the catalyst or surface only (no reaction conditions);
+//                 use a JSON array if the band is observed on multiple surfaces.
+//                 Example: {"key": "Smith.Example.2020", "wn": 1350,
+//                           "site": "CeO₂", "note": "..."}
+//                 Multi-site: {"key": "...", "site": ["Al₂O₃", "TiO₂"]}
+//   tags        — free-form list of strings; "overtone" marks overtone bands
+//   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
+//   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
+//   confidence  — assignment confidence: confirmed | likely | tentative | speculative  (omit if unknown)
+// =============================================================================
+{
+  "metadata": {
+    "title": "IR band map for CO2 hydrogenation",
+    "wavenumber_unit": "cm^-1",
+    "description": "Approximate band positions for surface and gas-phase species in CO₂ hydrogenation. Exact positions depend on support, coverage, and reaction conditions. The asterisk (*) denotes a surface-bound species.",
+    "schema_version": 3
+  },
+
+  // ---------------------------------------------------------------------------
+  // Spectral regions — used for layout grouping and the lane-label margin.
+  // ---------------------------------------------------------------------------
+  "regions": {
+    "high": {
+      "label": "High frequency",
+      "wn_min": 2500,
+      "wn_max": 4000
+    },
+    "mid_hi": {
+      "label": "Mid-high (gas/CO)",
+      "wn_min": 2000,
+      "wn_max": 2500
+    },
+    "mid": {
+      "label": "Mid (fingerprint)",
+      "wn_min": 1200,
+      "wn_max": 2000
+    },
+    "low": {
+      "label": "Low frequency",
+      "wn_min": 500,
+      "wn_max": 1200
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Chemical groups — drives the default color scheme and lane labels.
+  // The color is the 'family color'; bands inherit it via b.group.
+  // ---------------------------------------------------------------------------
+  "groups": {
+    "hydroxyl": {
+      "label": "Hydroxyl* (R-OH)",
+      "color": "#5BA39B"
+    },
+    "support_oh": {
+      "label": "Support OH",
+      "color": "#3D7E78"
+    },
+    "water": {
+      "label": "Water",
+      "color": "#9DCAC4"
+    },
+    "formate": {
+      "label": "Formate*",
+      "color": "#C73E3A"
+    },
+    "carbonyl": {
+      "label": "Carbonyl* (R-C=O)",
+      "color": "#E07856"
+    },
+    "carbonate": {
+      "label": "Carbonate*",
+      "color": "#7E4A30"
+    },
+    "bicarbonate": {
+      "label": "Bicarbonate*",
+      "color": "#A86B4A"
+    },
+    "methoxy": {
+      "label": "Methoxy*",
+      "color": "#3D8B3D"
+    },
+    "methanol_product": {
+      "label": "MeOH",
+      "color": "#3DAEC9"
+    },
+    "co2": {
+      "label": "CO₂",
+      "color": "#E89B3C"
+    },
+    "co": {
+      "label": "CO",
+      "color": "#F4B468"
+    },
+    "ch4": {
+      "label": "CH₄",
+      "color": "#F4C56F"
+    },
+    "h2": {
+      "label": "H₂",
+      "color": "#FAD896"
+    },
+    "co_metal": {
+      "label": "CO on M⁰",
+      "color": "#C99A2E"
+    },
+    "co_cation": {
+      "label": "CO on Mⁿ⁺",
+      "color": "#E6B85C"
+    },
+    "support": {
+      "label": "Support oxide",
+      "color": "#5C5C5C"
+    },
+    "hydride": {
+      "label": "Hydride*",
+      "color": "#D946A8"
+    }
+  },
+
+  // ===========================================================================
+  // BANDS
+  // Grouped by chemical family. Within each section, ordered roughly by
+  // descending wavenumber (high-frequency first, matching IR-convention axis).
+  // ===========================================================================
+  "bands": [
+    // ---------------------------------------------------------------------------
+    // GAS-PHASE CO₂
+    // Reactant — combination bands, asym stretch (ν₃), bending (ν₂) with P/Q/R branches.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "co2_asym_2360_R",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "R"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2350,
+      "wn_end": 2390,
+      "short": "ν<sub>as</sub>(OCO) CO₂ (R)",
+      "description": "Gas CO₂ asymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2349,
+          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak."
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 2373,
+          "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker."
+        }
+      ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co2_asym_2335_P",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2310,
+      "wn_end": 2349,
+      "short": "ν<sub>as</sub>(OCO) CO₂ (P)",
+      "description": "Gas CO₂ asymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2349,
+          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
+        }
+      ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co2_bend_700_R",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 690,
+      "wn_end": 720,
+      "short": "δ(OCO) CO₂ (R)",
+      "description": "Gas CO₂ bending fundamental (ν₂) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 667,
+          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co2_bend_667_Q",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 670,
+      "wn_end": 685,
+      "short": "δ(OCO) CO₂ (Q)",
+      "description": "Gas CO₂ bending fundamental (ν₂) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because ν₂ is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 667,
+          "note": "Q-branch coincides with the reported ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
+        }
+      ],
+      "intensity": "vs",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co2_bend_660_P",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 640,
+      "wn_end": 665,
+      "short": "δ(OCO) CO₂ (P)",
+      "description": "Gas CO₂ bending fundamental (ν₂) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 667,
+          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+      // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
+    {
+      "id": "co2_combo_3730_R",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3725,
+      "wn_end": 3735,
+      "short": "ν<sub>s</sub>+ν<sub>as</sub>(OCO) CO₂ (R)",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the ν<sub>as</sub> fundamental saturates.",
+      "based_on": [
+        {
+          "band_id": null,
+          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)",
+          "multiplier": 1
+        },
+        {
+          "band_id": "co2_asym_2360_R",
+          "multiplier": 1
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 3715,
+          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+      // Pair-mate of co2_combo_3730_R (P-branch).
+    {
+      "id": "co2_combo_3699_P",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3695,
+      "wn_end": 3705,
+      "short": "ν<sub>s</sub>+ν<sub>as</sub>(OCO) CO₂ (P)",
+      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (ν₁ + ν₃) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
+      "based_on": [
+        {
+          "band_id": null,
+          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)",
+          "multiplier": 1
+        },
+        {
+          "band_id": "co2_asym_2360_R",
+          "multiplier": 1
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 3715,
+          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+      // Lower Fermi-resonance pair: 2ν₂+ν₃. Linked to the bending Q-branch.
+    {
+      "id": "co2_combo_3627_R",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3622,
+      "wn_end": 3632,
+      "short": "2δ+ν<sub>as</sub>(OCO) CO₂ (R)",
+      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2ν₂ + ν₃) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
+      "based_on": [
+        {
+          "band_id": "co2_bend_667_Q",
+          "multiplier": 2
+        },
+        {
+          "band_id": "co2_asym_2360_R",
+          "multiplier": 1
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 3613,
+          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+      // Pair-mate of co2_combo_3627_R (P-branch).
+    {
+      "id": "co2_combo_3597_P",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3592,
+      "wn_end": 3602,
+      "short": "2δ+ν<sub>as</sub>(OCO) CO₂ (P)",
+      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2ν₂ + ν₃) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
+      "based_on": [
+        {
+          "band_id": "co2_bend_667_Q",
+          "multiplier": 2
+        },
+        {
+          "band_id": "co2_asym_2360_R",
+          "multiplier": 1
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 3613,
+          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co2_combo_2077_Q",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2073,
+      "wn_end": 2081,
+      "short": "CO₂ (Q) ~2077",
+      "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls in the typical metal-carbonyl stretching range and has been repeatedly misassigned in DRIFTS studies of Cu-based methanol synthesis catalysts as ν(CO) on Cu(0)/Cu(111)/low-index Cu planes. Intensity grows with CO₂ pressure and temperature. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2077,
+          "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures."
+        }
+      ],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["gas-phase", "misassignment-warning", "drifts-artifact"]
+    },
+
+    // ---------------------------------------------------------------------------
+    // GAS-PHASE CO
+    // Intermediate/byproduct — diatomic stretch with P/R branches (no Q for diatomic).
+    // ---------------------------------------------------------------------------
+    {
+      "id": "co_stretch_2170_R",
+      "species": "CO",
+      "group": "co",
+      "pair": 1,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "C-O",
+      "wn_start": 2165,
+      "wn_end": 2185,
+      "short": "ν(CO) CO (R)",
+      "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2176,
+          "site": "gas phase",
+          "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
+        }
+      ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "co_stretch_2115_P",
+      "species": "CO",
+      "group": "co",
+      "pair": 1,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "C-O",
+      "wn_start": 2105,
+      "wn_end": 2125,
+      "short": "ν(CO) CO (P)",
+      "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2114,
+          "site": "gas phase",
+          "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
+        }
+      ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+
+    // ---------------------------------------------------------------------------
+    // METHANE (gas + adsorbed)
+    // Product on methanation catalysts. Gas-phase ν₃, ν₄, plus a high-pressure combination band.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "ch4g_asym_3019",
+      "species": "CH₄",
+      "group": "ch4",
+      "pair": 1,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2980,
+      "wn_end": 3060,
+      "short": "ν<sub>as</sub>(HCH) CH₄(g)",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 3016,
+          "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃."
+        }
+      ],
+      "intensity": "vs",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "ch4g_bend_1306",
+      "species": "CH₄",
+      "group": "ch4",
+      "pair": 1,
+      "vibration": {
+        "category": "bend",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1280,
+      "wn_end": 1340,
+      "short": "δ<sub>as</sub>(HCH) CH₄(g)",
+      "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1306,
+          "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+      // δ_s(HCH) parent (ν₂) not in dataset — add later if needed.
+    {
+      "id": "ch4g_combo_4220",
+      "species": "CH₄",
+      "group": "ch4",
+      "pair": 1,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 4180,
+      "wn_end": 4250,
+      "short": "δ<sub>s</sub>+ν<sub>as</sub>(HCH) CH₄(g)",
+      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when ν<sub>as</sub> saturates. Often outside standard DRIFTS window.",
+      "based_on": [
+        {
+          "band_id": null,
+          "label": "δ<sub>s</sub>(HCH) CH₄(g) ν₂ (not in dataset)",
+          "multiplier": 1
+        },
+        {
+          "band_id": "ch4g_asym_3019",
+          "multiplier": 1
+        }
+      ],
+      "references": [],
+      "tags": ["gas-phase"]
+    },
+    // ---------------------------------------------------------------------------
+    // CO ON REDUCED METALS
+    // CO as a probe molecule for metallic surface sites.
+    // Frequency depends on coordination geometry, metal identity,
+    // oxidation state, and extent of metal→CO π-backdonation.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "co_linear_mu1_2060",
+      "species": "CO linear (μ₁)",
+      "group": "co_metal",
+      "pair": 2,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 2000,
+      "wn_end": 2120,
+      "short": "ν(CO) linear (μ₁)",
+      "description": "Linear (atop) CO bonded to a single metal atom. Most common adsorption mode on Cu, Pt, Pd, Rh, Ni, and Co surfaces. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage due to π-backdonation and dipole coupling. Typical values: Cu⁰ ~2080–2100, Pt ~2070, Rh ~2050 cm⁻¹. Electron-poor or partially oxidized sites shift to higher frequency.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2041,
+          "site": "Co⁰",
+          "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2053,
+          "site": "Pt",
+          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "co_bridge_mu2_1900",
+      "species": "CO bridge (μ₂)",
+      "group": "co_metal",
+      "pair": 2,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1820,
+      "wn_end": 1980,
+      "short": "ν(CO) bridge (μ₂)",
+      "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from multiple metal centers. Common on Pt, Pd, Rh, Ni, and Co surfaces; less common on Cu and typically observed only at high coverage or defect sites. Often associated with step and edge sites.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": null,
+          "site": "Co⁰",
+          "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature."
+        }
+      ],
+      "intensity": "m",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "co_3fold_mu3_1810",
+      "species": "CO 3-fold hollow (μ₃)",
+      "group": "co_metal",
+      "pair": 2,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1750,
+      "wn_end": 1870,
+      "short": "ν(CO) 3-fold (μ₃)",
+      "description": "Three-fold hollow CO coordinated to three metal atoms. Common on close-packed Pt, Pd, Rh, and Ni surfaces at moderate-to-high CO coverage. Rare on Cu surfaces. Stronger multi-center π-backdonation shifts ν(CO) to lower frequency than bridge or linear adsorption.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "co_4fold_mu4_1650",
+      "species": "CO 4-fold hollow (μ₄)",
+      "group": "co_metal",
+      "pair": 2,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1600,
+      "wn_end": 1700,
+      "short": "ν(CO) 4-fold (μ₄)",
+      "description": "Four-fold hollow CO coordinated to four metal atoms. Rare adsorption geometry reported mainly on Ni(100), Co, and related surfaces. Exhibits the lowest ν(CO) frequencies among metal–CO adsorption modes due to strong multi-center π-backdonation.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // CO ON CATION SITES
+    // CO adsorbed on Lewis-acidic cationic sites of oxides,
+    // zeolites, and isolated metal centers.
+    // Reduced π-backdonation gives higher ν(CO) frequencies.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "co_cation_stretch_2175",
+      "species": "CO/cation site",
+      "group": "co_cation",
+      "pair": 3,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 2120,
+      "wn_end": 2230,
+      "short": "ν(CO)/Mⁿ⁺",
+      "description": "Linear CO adsorbed on Lewis-acidic metal cation sites of oxide supports, zeolites, or isolated metal centers. Reduced metal→CO π-backdonation shifts ν(CO) to higher frequency than on metallic surfaces. Typical values: Cu⁺ ~2100–2130, Cu²⁺ ~2150–2180, Ce³⁺ ~2130, Ce⁴⁺ ~2160, Ti⁴⁺ ~2190, Zn²⁺ ~2200, and Al³⁺/Mg²⁺ ~2210 cm⁻¹. Widely used as a probe of Lewis acidity and oxidation state.",
+      "based_on": [],
+      "references": ["Gomez.InterdependenceExtentGa.2024"],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "co_isocarbonyl_2220",
+      "species": "CO isocarbonyl",
+      "group": "co_cation",
+      "pair": 3,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 2200,
+      "wn_end": 2240,
+      "short": "ν(CO) iso (M-OC)",
+      "description": "Isocarbonyl species with CO coordinated through oxygen rather than carbon (M–OC). Rare adsorption mode observed on highly oxidized surfaces, strongly electrophilic cations, and certain zeolite environments. Typically exhibits higher ν(CO) frequency than conventional C-bound carbonyls.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "co_gemdi_asym_2095",
+      "species": "CO gem-dicarbonyl",
+      "group": "co_cation",
+      "pair": 3,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 2080,
+      "wn_end": 2110,
+      "short": "ν<sub>as</sub>(CO) gem-M⁺(CO)₂",
+      "description": "asymmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center, typically Rh⁺, Ir⁺, Ru⁺, or Cu⁺. The symmetric/asymmetric pair is diagnostic of atomically dispersed cationic sites. Typical splitting: ~50–60 cm⁻¹.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "co_gemdi_sym_2035",
+      "species": "CO gem-dicarbonyl",
+      "group": "co_cation",
+      "pair": 3,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 2020,
+      "wn_end": 2050,
+      "short": "ν<sub>s</sub>(CO) gem-M⁺(CO)₂",
+      "description": "Symmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center. Appears together with the asymmetric band and is characteristic of isolated cationic adsorption sites.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE CARBONYLS (mechanistic intermediates)
+    // HCO*, H₂CO*, R-C=O*, H₂COH* — proposed methanol-pathway intermediates.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "formyl_co_stretch_1750",
+      "species": "Formyl (HCO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1700,
+      "wn_end": 1800,
+      "short": "ν(CO) HCO*",
+      "description": "Surface formyl C=O stretch (HCO*); mechanistic intermediate from CO + H. Often observed transiently. Distinguishes the CO-H pathway from formate-mediated routes.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "formyl_ch_stretch_2850",
+      "species": "Formyl (HCO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-H",
+      "wn_start": 2800,
+      "wn_end": 2900,
+      "short": "ν(CH) HCO*",
+      "description": "Formyl C-H stretch (HCO*); lower than formate ν(CH) at ~2870-2900 and weaker. Diagnostic when paired with C=O at ~1750.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "formaldehyde_co_stretch_1725",
+      "species": "Formaldehyde (H₂CO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1700,
+      "wn_end": 1750,
+      "short": "ν(CO) H₂CO*",
+      "description": "Adsorbed formaldehyde C=O stretch (H₂CO*); reduction product of formyl. Key methanol precursor in some mechanisms.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "formaldehyde_asym_2875",
+      "species": "Formaldehyde (H₂CO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2850,
+      "wn_end": 2900,
+      "short": "ν<sub>as</sub>(HCH) H₂CO*",
+      "description": "Adsorbed formaldehyde CH₂ asymmetric stretch (H₂CO*).",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "formaldehyde_sym_2785",
+      "species": "Formaldehyde (H₂CO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2750,
+      "wn_end": 2820,
+      "short": "ν<sub>s</sub>(HCH) H₂CO*",
+      "description": "Adsorbed formaldehyde CH₂ symmetric stretch (H₂CO*).",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "formaldehyde_bend_1500",
+      "species": "Formaldehyde (H₂CO*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1480,
+      "wn_end": 1520,
+      "short": "δ<sub>s</sub>(HCH) H₂CO*",
+      "description": "Adsorbed formaldehyde CH₂ scissoring (H₂CO*); overlaps monodentate carbonate ν<sub>as</sub>.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "acyl_co_stretch_1700",
+      "species": "Acyl / R-C=O*",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1650,
+      "wn_end": 1750,
+      "short": "ν(CO) R-C=O*",
+      "description": "Generic surface acyl/aldehyde C=O stretch (R-C=O*); broad assignment used when species cannot be specifically identified. Distinguishes from formate by absence of ν(CH) at ~2870.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "hydroxymethyl_oh_stretch_3575",
+      "species": "Hydroxymethyl (H₂COH*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3500,
+      "wn_end": 3650,
+      "short": "ν(OH) H₂COH*",
+      "description": "Hydroxymethyl O-H stretch (H₂COH*); late methanol precursor. Often masked by surface OH.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "hydroxymethyl_ch_stretch_2930",
+      "species": "Hydroxymethyl (H₂COH*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2905,
+      "wn_end": 2960,
+      "short": "ν(HCH) H₂COH*",
+      "description": "Hydroxymethyl CH₂ stretch (H₂COH*); overlaps methoxy and methanol.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "hydroxymethyl_co_stretch_1075",
+      "species": "Hydroxymethyl (H₂COH*)",
+      "group": "carbonyl",
+      "pair": 4,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1050,
+      "wn_end": 1100,
+      "short": "ν(CO) H₂COH*",
+      "description": "Hydroxymethyl C-O stretch (H₂COH*); overlaps methoxy ν(C-O) at ~1050-1100.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE CARBONATES
+    // Bidentate vs monodentate distinguished by ν_as/ν_s splitting (Δν ~300 vs ~100 cm⁻¹).
+    // ---------------------------------------------------------------------------
+    {
+      "id": "carbonate_bidentate_asym_1645",
+      "species": "Bidentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1620,
+      "wn_end": 1670,
+      "short": "ν<sub>as</sub>(OCO) b-CO₃²⁻",
+      "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1670,
+          "site": "Ni-Ce-Fe/La-Al₂O₃",
+          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 1605,
+          "site": "CeO₂",
+          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_bidentate_sym_1300",
+      "species": "Bidentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1270,
+      "wn_end": 1330,
+      "short": "ν<sub>s</sub>(OCO) b-CO₃²⁻",
+      "description": "Bidentate carbonate symmetric stretch (b-CO₃²⁻*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1310,
+          "site": "Ni-Ce-Fe/La-Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 1251,
+          "site": "CeO₂",
+          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_bidentate_asym_overtone_3000",
+      "species": "Bidentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 2900,
+      "wn_end": 3100,
+      "short": "2ν<sub>as</sub>(OCO) b-CO₃²⁻ (overtone)",
+      "description": "Bidentate carbonate asymmetric stretch first overtone (b-CO₃²⁻*); rare but reported.",
+      "based_on": [
+        {
+          "band_id": "carbonate_bidentate_asym_1645",
+          "multiplier": 2
+        }
+      ],
+      "references": [],
+      "tags": ["overtone"]
+    },
+    {
+      "id": "carbonate_monodentate_asym_1500",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1480,
+      "wn_end": 1520,
+      "short": "ν<sub>as</sub>(OCO) m-CO₃²⁻",
+      "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1530,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_monodentate_sym_1400",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1380,
+      "wn_end": 1420,
+      "short": "ν<sub>s</sub>(OCO) m-CO₃²⁻",
+      "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1340,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1340 cm⁻¹."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_monodentate_asym_overtone_2950",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 2900,
+      "wn_end": 3000,
+      "short": "2ν<sub>as</sub>(OCO) m-CO₃²⁻ (overtone)",
+      "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
+      "based_on": [
+        {
+          "band_id": "carbonate_monodentate_asym_1500",
+          "multiplier": 2
+        }
+      ],
+      "references": [],
+      "tags": ["overtone"]
+    },
+    {
+      "id": "carbonate_bend_850",
+      "species": "Carbonates*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 830,
+      "wn_end": 870,
+      "short": "δ(OCO) CO₃²⁻",
+      "description": "Carbonate OCO bending (CO₃²⁻*).",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE BICARBONATES
+    // Distinguished from carbonate by the δ(COH) bend at ~1220 cm⁻¹.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "bicarbonate_asym_1630",
+      "species": "Bicarbonate*",
+      "group": "bicarbonate",
+      "pair": 6,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1610,
+      "wn_end": 1650,
+      "short": "ν<sub>as</sub>(OCO) HCO₃⁻*",
+      "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1650,
+          "site": "Al₂O₃",
+          "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "bicarbonate_sym_1425",
+      "species": "Bicarbonate*",
+      "group": "bicarbonate",
+      "pair": 6,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1410,
+      "wn_end": 1440,
+      "short": "ν<sub>s</sub>(OCO) HCO₃⁻*",
+      "description": "Bicarbonate symmetric OCO stretch (HCO₃⁻*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1434,
+          "site": "Al₂O₃",
+          "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "bicarbonate_coh_bend_1220",
+      "species": "Bicarbonate*",
+      "group": "bicarbonate",
+      "pair": 6,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O-H",
+      "wn_start": 1210,
+      "wn_end": 1230,
+      "short": "δ(COH) HCO₃⁻*",
+      "description": "Bicarbonate COH bending (HCO₃⁻*); distinguishing feature vs. carbonate.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1220,
+          "site": "Al₂O₃",
+          "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE FORMATE (HCOO*)
+    // Often the dominant adsorbed species in CO₂ hydrogenation.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "formate_ch_stretch_2885",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-H",
+      "wn_start": 2870,
+      "wn_end": 2900,
+      "short": "ν(CH) HCOO*",
+      "description": "Formate C-H stretch (HCOO*); key HCOO* marker.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2890,
+          "site": "Cu⁺",
+          "note": "ν(CH) HCOO* on Cu⁺ at Cu–Ga₂O₃."
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2876,
+          "site": "CuGaZrOx",
+          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2910,
+          "site": "CeO₂",
+          "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate."
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "formate_asym_1585",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1550,
+      "wn_end": 1620,
+      "short": "ν<sub>as</sub>(OCO) HCOO*",
+      "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1600,
+          "site": "CuGaZrOx",
+          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24."
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1585,
+          "site": "Al₂O₃",
+          "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "formate_sym_1365",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1340,
+      "wn_end": 1390,
+      "short": "ν<sub>s</sub>(OCO) HCOO*",
+      "description": "Formate symmetric OCO stretch (HCOO*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1350,
+          "site": "CuGaZrOx",
+          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹."
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1380,
+          "site": "Al₂O₃",
+          "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "formate_och_bend_1390",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-C-H",
+      "wn_start": 1380,
+      "wn_end": 1400,
+      "short": "δ(OCH) HCOO*",
+      "description": "Formate C-H bending (HCOO*); overlaps ν<sub>s</sub>(OCO).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "site": "CuGaZrOx",
+          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "formate_combo_2950",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "diverse",
+      "wn_start": 2940,
+      "wn_end": 2960,
+      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO*",
+      "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
+      "based_on": [
+        {
+          "band_id": "formate_och_bend_1390",
+          "multiplier": 1
+        },
+        {
+          "band_id": "formate_asym_1585",
+          "multiplier": 1
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "references": [
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2956,
+          "site": "Cu⁺",
+          "note": "Formate combination band on Cu⁺ at Cu–Ga₂O₃."
+        },
+        {
+          "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "wn": 2945,
+          "site": "CeO₂",
+          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νas(OCO)."
+        }
+        ],
+      "tags": []
+    },
+      // FIXME: second mode unidentified. Some sources call this 2ν(C=O) overtone.
+    {
+      "id": "formate_combo_3300",
+      "species": "Formate*",
+      "group": "formate",
+      "pair": 7,
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "diverse",
+      "wn_start": 3250,
+      "wn_end": 3350,
+      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO*",
+      "description": "Formate higher combination band (HCOO*); sometimes assigned as 2ν(C=O) overtone in older literature.",
+      "based_on": [
+        {
+          "band_id": "formate_asym_1585",
+          "multiplier": 1
+        },
+        {
+          "band_id": null,
+          "label": "second mode unidentified — see description",
+          "multiplier": 1
+        }
+      ],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE METHOXY (CH₃O*)
+    // Methanol precursor — bonds via O to surface cations on a wide variety of
+    // oxide and oxide-supported catalysts (TiO₂, ZrO₂, SiO₂, Ga₂O₃, ZnO, Cu-based
+    // systems, ...). On most oxide supports CH₃O* exists in two adsorption
+    // geometries diagnostically distinguished by ν(C-O): monodentate (bonded
+    // via O to a single cation) above ~1100 cm⁻¹ and bidentate (bridging two
+    // cations or at a bridging-O vacancy) below ~1100 cm⁻¹ (Hussein 1991, Wu 2000).
+    // CH₃ stretching/bending modes are essentially insensitive to the geometry
+    // but are sensitive to the cation identity / local environment: e.g. on Cu/SiO₂
+    // ν_as is ~2926 cm⁻¹ but shifts to ~2919 cm⁻¹ on Ga-promoted Cu (Cu⁺ site at
+    // Cu–Ga₂O₃ interface; Gómez 2024). On Zr-rich supports CH₃O* is typically
+    // Zr-OCH₃ with ν(C-O) at ~1150 cm⁻¹ (Al Abdulghani 2025).
+    // ---------------------------------------------------------------------------
+    {
+      "id": "methoxy_asym_2925",
+      "species": "Methoxy (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2910,
+      "wn_end": 2950,
+      "short": "ν<sub>as</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ asymmetric stretch (CH₃O*). Position is support- and site-sensitive; frequency shifts between catalysts are diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a), which is typically blue-shifted ~10–20 cm⁻¹.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 2929,
+          "site": "TiO₂",
+          "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂."
+        },
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2919,
+          "site": "Cu⁺",
+          "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2970,
+          "site": "Zr⁴⁺",
+          "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["site-sensitive"]
+    },
+    {
+      "id": "methoxy_sym_2835",
+      "species": "Methoxy (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2815,
+      "wn_end": 2850,
+      "short": "ν<sub>s</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive, shifting in tandem with ν<sub>as</sub>(CH₃). Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 2828,
+          "site": "TiO₂"
+        },
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 2836,
+          "site": "Cu⁺",
+          "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift."
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2819,
+          "site": "Zr⁴⁺",
+          "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["site-sensitive"]
+    },
+    {
+      "id": "methoxy_bend_1441",
+      "species": "Methoxy (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "bend",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1430,
+      "wn_end": 1455,
+      "short": "δ<sub>as</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 1441,
+          "site": "TiO₂"
+        },
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1480,
+          "site": ["Al₂O₃", "Ni-Ce-Fe/La-Al₂O₃"],
+          "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
+        }
+      ],
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+      // δ_s(CH₃) is not always resolved as a separate band — Wu 2000 reports only
+      // δ_as on TiO₂. Kept here as a tentative entry for supports where it is.
+    {
+      "id": "methoxy_bend_1375",
+      "species": "Methoxy (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1360,
+      "wn_end": 1390,
+      "short": "δ<sub>s</sub>(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the asymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate ν<sub>s</sub>(OCO) at ~1365 cm⁻¹.",
+      "based_on": [],
+      "references": [],
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "tentative",
+      "tags": []
+    },
+    {
+      "id": "methoxy_co_stretch_mono_1130",
+      "species": "Methoxy monodentate (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1100,
+      "wn_end": 1170,
+      "short": "ν(CO) m-CH₃O*",
+      "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Position is support-dependent. Diagnostic threshold: ν(C-O) > ~1100 cm⁻¹ indicates monodentate geometry (Hussein 1991).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 1126,
+          "site": "TiO₂",
+          "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate."
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1152,
+          "site": "Zr⁴⁺",
+          "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹."
+        }
+      ],
+      "intensity": "s",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "methoxy_co_stretch_bi_1045",
+      "species": "Methoxy bidentate (CH₃O*)",
+      "group": "methoxy",
+      "pair": 8,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1030,
+      "wn_end": 1090,
+      "short": "ν(CO) b-CH₃O*",
+      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate geometry (Hussein 1991). Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) ν<sub>s</sub>(CH₃) marker at higher frequency.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 1045,
+          "site": "TiO₂",
+          "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate."
+        },
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // METHANOL (product / adsorbed reactant)
+    // Free or weakly adsorbed methanol. On reducible oxides (TiO₂, ZrO₂, CeO₂, ...)
+    // and Cu-based catalysts, CH₃OH adsorbs molecularly at low temperature and
+    // partially dissociates (O-H scission) on heating to form methoxy + surface OH.
+    // ν(C-O) at ~1030 is the cleanest marker but overlaps bidentate methoxy ν(C-O).
+    // ---------------------------------------------------------------------------
+    {
+      "id": "meoh_oh_stretch_3400",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "pair": 9,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3200,
+      "wn_end": 3600,
+      "short": "ν(OH) MeOH",
+      "description": "Methanol O-H stretch (MeOH*/MeOH(g)); often obscured by adsorbed water and support hydroxyls.",
+      "based_on": [],
+      "references": [],
+      "intensity": "m",
+      "width": "broad",
+      "confidence": "likely",
+      "tags": []
+    },
+    {
+      "id": "meoh_asym_2948",
+      "species": "Methanol adsorbed (CH₃OH*)",
+      "group": "methanol_product",
+      "pair": 9,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2935,
+      "wn_end": 2965,
+      "short": "ν<sub>as</sub>(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 2948,
+          "site": "TiO₂",
+          "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["molecular-adsorption"]
+    },
+    {
+      "id": "meoh_sym_2844",
+      "species": "Methanol adsorbed (CH₃OH*)",
+      "group": "methanol_product",
+      "pair": 9,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2830,
+      "wn_end": 2860,
+      "short": "ν<sub>s</sub>(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ from methoxy ν<sub>s</sub>(CH₃). Appears as a shoulder pair with methoxy; mild evacuation selectively removes CH₃OH* and leaves methoxy as the dominant feature.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "wn": 2844,
+          "site": "TiO₂"
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": ["molecular-adsorption"]
+    },
+    {
+      "id": "meoh_co_stretch_1030",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "pair": 9,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1020,
+      "wn_end": 1050,
+      "short": "ν(CO) MeOH",
+      "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000–1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region. Disambiguate via the CH₃ stretching region: adsorbed methanol shows ν<sub>as</sub>/ν<sub>s</sub> blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
+      "based_on": [],
+      "references": [
+        "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+        "Wu.BondingGeometryReactivity.2000"
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE HYDROXYLS
+    // Isolated (sharp, high) vs H-bonded (broad, lower) — support-dependent positions.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "oh_isolated_3725",
+      "species": "Isolated OH",
+      "group": "hydroxyl",
+      "pair": 10,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3700,
+      "wn_end": 3750,
+      "short": "ν(OH) iso",
+      "description": "Sharp band; isolated terminal hydroxyls on metal-oxide supports.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "oh_hbonded_3525",
+      "species": "H-bonded OH",
+      "group": "hydroxyl",
+      "pair": 10,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3400,
+      "wn_end": 3650,
+      "short": "ν(OH) H-b",
+      "description": "Broader band; bridged or hydrogen-bonded hydroxyls.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // ADSORBED WATER
+    // Byproduct of methanol/methanation; ν(OH) overlaps OH region, δ(HOH) overlaps formate ν_as.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "h2o_stretch_3400",
+      "species": "H₂O*",
+      "group": "water",
+      "pair": 11,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3200,
+      "wn_end": 3600,
+      "short": "ν(HOH) H₂O*",
+      "description": "Very broad O-H stretch of adsorbed/condensed water (H₂O*).",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
+      "id": "h2o_bend_1635",
+      "species": "H₂O*",
+      "group": "water",
+      "pair": 11,
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "H-O-H",
+      "wn_start": 1620,
+      "wn_end": 1650,
+      "short": "δ<sub>s</sub>(HOH) H₂O*",
+      "description": "Water bending mode (H₂O*); overlaps formate ν<sub>as</sub>.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // SURFACE HYDRIDES
+    // Markers for heterolytic H₂ activation. Cu-H, Zn-H, Ga-H most relevant for methanol synthesis.
+    // ---------------------------------------------------------------------------
+    // {
+    //   "id": "cuh_stretch_1250",
+    //   "species": "Cu-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 1100,
+    //   "wn_end": 1400,
+    //   "short": "ν(Cu-H)",
+    //   "description": "Cu hydride (Cu-H*); weak, often hidden under carbonate/methoxy bands.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    // {
+    //   "id": "znh_stretch_1725",
+    //   "species": "Zn-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 1700,
+    //   "wn_end": 1750,
+    //   "short": "ν(Zn-H)",
+    //   "description": "ZnO hydride (Zn-H*); classic marker for heterolytic H₂ dissociation on Cu/ZnO.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    // {
+    //   "id": "znoh_stretch_3560",
+    //   "species": "Zn-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "O-H",
+    //   "wn_start": 3500,
+    //   "wn_end": 3620,
+    //   "short": "ν(OH) ZnO-H",
+    //   "description": "OH partner of heterolytic H₂ splitting on ZnO; rises in tandem with Zn-H*.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    // {
+    //   "id": "ceh_stretch_1150",
+    //   "species": "Ce-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 1100,
+    //   "wn_end": 1200,
+    //   "short": "ν(Ce-H)",
+    //   "description": "Cerium hydride (Ce-H*) on reduced CeO₂.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    // {
+    //   "id": "moh_stretch_1975",
+    //   "species": "Mo-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 1900,
+    //   "wn_end": 2050,
+    //   "short": "ν(Mo-H)",
+    //   "description": "Mo hydride (Mo-H*) on reduced MoOₓ.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    {
+      "id": "gah_stretch_1976",
+      "species": "Ga-H",
+      "group": "hydride",
+      "pair": 12,
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "M-H",
+      "wn_start": 1960,
+      "wn_end": 2000,
+      "short": "ν(Ga-H)",
+      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; marker for heterolytic H₂ dissociation. Confirmed by D₂ isotope shift. Plays a role in converting HCOO* to CH₃O* via H spillover.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1976,
+          "site": "Ga",
+          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion."
+        }
+      ],
+      "intensity": "w",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["hydride-marker"]
+    }
+    // {
+    //   "id": "rhh_stretch_2050",
+    //   "species": "Rh-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 2000,
+    //   "wn_end": 2100,
+    //   "short": "ν(Rh-H)",
+    //   "description": "Rhodium hydride (Rh-H*) on supported Rh catalysts; observed on Rh single-atom and atomically-dispersed sites. Often paired with gem-dicarbonyl signatures for Rh⁺ identification.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+    // {
+    //   "id": "lih_stretch_1250",
+    //   "species": "Li-H",
+    //   "group": "hydride",
+    //   "pair": 12,
+    //   "vibration": {
+    //     "category": "stretch",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-H",
+    //   "wn_start": 1100,
+    //   "wn_end": 1400,
+    //   "short": "ν(Li-H)",
+    //   "description": "Lithium hydride (Li-H*) on LiH-containing or Li-doped systems. Rare in CO₂ hydrogenation literature; more common in nitrogen activation (LiH/Mn4N).",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+
+    // ---------------------------------------------------------------------------
+    // SUPPORT LATTICE MODES
+    // Bulk oxide phonons; cutoff is window-dependent. Overtone at ~1550 can mimic surface species.
+    // ---------------------------------------------------------------------------
+    // {
+    //   "id": "support_lattice_650",
+    //   "species": "Support oxides",
+    //   "group": "support",
+    //   "pair": 13,
+    //   "vibration": {
+    //     "category": "lattice",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-O",
+    //   "wn_start": 500,
+    //   "wn_end": 800,
+    //   "short": "ν(M-O)",
+    //   "description": "Support lattice modes (ZnO, CeO₂, TiO₂, Al₂O₃); window-dependent cutoff.",
+    //   "based_on": [],
+    //   "references": [],
+    //   "tags": []
+    // },
+      // Overtone of lattice ν(M-O); easily mistaken for surface species.
+    // {
+    //   "id": "support_lattice_overtone_1550",
+    //   "species": "Support oxides",
+    //   "group": "support",
+    //   "pair": 13,
+    //   "vibration": {
+    //     "category": "lattice",
+    //     "subtype": null,
+    //     "branch": null
+    //   },
+    //   "atoms": "M-O",
+    //   "wn_start": 1500,
+    //   "wn_end": 1600,
+    //   "short": "2ν(M-O) (overtone)",
+    //   "description": "Support lattice mode first overtone; can be mistaken for surface species.",
+    //   "based_on": [
+    //     {
+    //       "band_id": "support_lattice_650",
+    //       "multiplier": 2
+    //     }
+    //   ],
+    //   "references": [],
+    //   "tags": ["overtone"]
+    // }
+  ]
+}

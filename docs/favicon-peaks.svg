@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="5" fill="#1e2a3a"/>
+  <!-- Multiple smooth absorption peaks — the IR/Raman spectrum shape -->
+  <path d="M2,24 Q5,24 7,24 Q8,24 9,18 Q10,12 11,10 Q12,12 13,18 Q14,24 16,24 Q17,24 18,16 Q19,8 20,6 Q21,8 22,16 Q23,24 25,24 Q26,24 27,20 Q28,16 29,14 Q30,16 31,20" fill="none" stroke="#e05252" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M2,24 Q4,24 6,24 Q7,24 8,20 Q9,16 10,14 Q11,16 12,20 Q13,24 16,24 Q18,24 20,22 Q21,16 22,12 Q23,16 24,22 Q25,24 28,24 Q29,22 30,20" fill="none" stroke="#3a8fd4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+  <line x1="2" y1="24" x2="30" y2="24" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+</svg>

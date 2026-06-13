@@ -2,10 +2,11 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap } from './lib/types';
   import { AXES } from './lib/units';
-  import { getLegendCategories } from './lib/chart';
+  import { getLegendCategories, getLegendTags } from './lib/chart';
   import BandChart from './components/BandChart.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import ColorLegend from './components/ColorLegend.svelte';
+  import TagLegend from './components/TagLegend.svelte';
   import AxisSelect from './components/AxisSelect.svelte';
   import ReferencesPage from './components/ReferencesPage.svelte';
   import VibrationModesPage from './components/VibrationModesPage.svelte';
@@ -18,12 +19,25 @@
   let page: Page = 'chart';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
   let sidebarOpen = true;
+  let showColorMenu = false;
+  let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function openColorMenu()  {
+    if (colorMenuTimer) { clearTimeout(colorMenuTimer); colorMenuTimer = null; }
+    showColorMenu = true;
+  }
+  function closeColorMenu() {
+    colorMenuTimer = setTimeout(() => { showColorMenu = false; }, 180);
+  }
 
   const DEFAULT_OFF = new Set(['support', "support_oh", "h2", "carbonyl"]);
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
   let hiddenCats: ReadonlySet<string> = new Set();
+  let hiddenTags: ReadonlySet<string> = new Set();
+  let legendHoveredCat: string | null = null;
+  let legendHoveredTag: string | null = null;
   let axisProperty: AxisProperty = 'wavenumber';
   let axisUnit = AXES.wavenumber.defaultUnit;
 
@@ -58,10 +72,13 @@
     enabledGroups = e.detail.all ? new Set(Object.keys(dataset.groups)) : new Set();
   }
 
-  function handleColorDimChange(e: Event) {
-    const dim = (e.currentTarget as HTMLSelectElement).value as ColorDim;
+  function setColorDim(dim: ColorDim) {
     colorDim = dim;
     hiddenCats = new Set();
+  }
+
+  function handleColorDimChange(e: Event) {
+    setColorDim((e.currentTarget as HTMLSelectElement).value as ColorDim);
   }
 
   function handleCatToggle(e: CustomEvent<{ cat: string; visible: boolean }>) {
@@ -70,13 +87,58 @@
     hiddenCats = next;
   }
 
+  function handleCatDblClick(e: CustomEvent<{ cat: string; visible: boolean }>) {
+    const allKeys = legendCats.map(c => c.key);
+    if (e.detail.visible) {
+      // isolate: hide everything except this cat
+      hiddenCats = new Set(allKeys.filter(k => k !== e.detail.cat));
+    } else {
+      // restore: show everything
+      hiddenCats = new Set();
+    }
+  }
+
+  function handleCatHover(e: CustomEvent<{ cat: string | null }>) {
+    legendHoveredCat = e.detail.cat;
+  }
+
+  function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
+    const next = new Set(hiddenTags);
+    if (!e.detail.visible) next.add(e.detail.tag); else next.delete(e.detail.tag);
+    hiddenTags = next;
+  }
+
+  function handleTagDblClick(e: CustomEvent<{ tag: string; visible: boolean }>) {
+    const allKeys = legendTags.map((t: { key: string }) => t.key);
+    if (e.detail.visible) {
+      hiddenTags = new Set(allKeys.filter((k: string) => k !== e.detail.tag));
+    } else {
+      hiddenTags = new Set();
+    }
+  }
+
+  function handleTagHover(e: CustomEvent<{ tag: string | null }>) {
+    legendHoveredTag = e.detail.tag;
+  }
+
   function handleAxisChange(e: CustomEvent<{ property: AxisProperty; unit: string }>) {
     axisProperty = e.detail.property;
     axisUnit = e.detail.unit;
   }
 
+  const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
+    { dim: 'group',      label: 'Group' },
+    { dim: 'vibration',  label: 'Vibration' },
+    { dim: 'atoms',      label: 'Atoms' },
+    { dim: 'references', label: 'References' },
+  ];
+
   $: legendCats = dataset
     ? getLegendCategories(dataset.bands, dataset.groups, enabledGroups, colorDim)
+    : [];
+
+  $: legendTags = dataset
+    ? getLegendTags(dataset.bands, enabledGroups)
     : [];
 
   $: sortedGroupKeys = (() => {
@@ -96,7 +158,7 @@
 <!-- ── Page header ── -->
 <header class="app-header">
   <div class="header-left">
-    <span class="header-title">IR bands</span>
+    <span class="header-title">Spectral Band Atlas</span>
     <span class="header-subtitle">CO₂ hydrogenation</span>
   </div>
   <div class="header-right">
@@ -122,8 +184,26 @@
       {#if !sidebarOpen}
         <!-- collapsed: mini page indicator buttons -->
         <div class="collapsed-page-nav">
-          <button class="page-mini-btn" class:active={page === 'chart'}
-            on:click={() => page = 'chart'} title="Band chart">B</button>
+          <!-- B button: click = go to chart; hover = color quick-switch -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="mini-btn-wrap"
+            on:mouseenter={openColorMenu}
+            on:mouseleave={closeColorMenu}
+          >
+            <button class="page-mini-btn" class:active={page === 'chart'}
+              on:click={() => page = 'chart'} title="Band chart">B</button>
+            {#if showColorMenu}
+              <div class="color-quick-menu">
+                {#each COLOR_DIM_OPTIONS as o}
+                  <button
+                    class="cq-item"
+                    class:cq-active={colorDim === o.dim}
+                    on:click={() => { setColorDim(o.dim); page = 'chart'; showColorMenu = false; }}
+                  >{o.label}</button>
+                {/each}
+              </div>
+            {/if}
+          </div>
           <button class="page-mini-btn" class:active={page === 'references'}
             on:click={() => page = 'references'} title="References">R</button>
           <button class="page-mini-btn" class:active={page === 'vibration'}
@@ -132,6 +212,7 @@
       {/if}
 
       {#if sidebarOpen}
+      <div class="sidebar-open-content">
         <!-- Page selector -->
         <nav class="page-nav">
           <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
@@ -176,6 +257,18 @@
             <button class:active={refViewMode === 'by-group'} on:click={() => refViewMode = 'by-group'}>By group</button>
           </div>
         {/if}
+
+        <!-- Download section — pushed to the bottom via margin-top: auto -->
+        <div class="dl-section">
+          <hr class="divider" />
+          <h3>Download</h3>
+          <div class="dl-btns">
+            <a class="dl-btn" href="data/bands.jsonc" download="bands.jsonc">↓ JSONC</a>
+            <a class="dl-btn" href="data/bands.json"  download="bands.json">↓ JSON</a>
+            <a class="dl-btn" href="data/references.bib" download="references.bib">↓ BIB</a>
+          </div>
+        </div>
+      </div>
       {/if}
     </aside>
 
@@ -189,14 +282,31 @@
           {enabledGroups}
           {colorDim}
           {hiddenCats}
+          {hiddenTags}
           {axisProperty}
           {axisUnit}
+          hoveredCat={legendHoveredCat}
+          hoveredTag={legendHoveredTag}
         />
-        <ColorLegend
-          categories={legendCats}
-          {hiddenCats}
-          on:catToggle={handleCatToggle}
-        />
+        <div class="legend-box">
+          <ColorLegend
+            categories={legendCats}
+            {hiddenCats}
+            on:catToggle={handleCatToggle}
+            on:catDblClick={handleCatDblClick}
+            on:catHover={handleCatHover}
+          />
+          {#if legendTags.length > 0}
+            <hr class="legend-divider" />
+            <TagLegend
+              tags={legendTags}
+              {hiddenTags}
+              on:tagToggle={handleTagToggle}
+              on:tagDblClick={handleTagDblClick}
+              on:tagHover={handleTagHover}
+            />
+          {/if}
+        </div>
       {:else if page === 'references'}
         <ReferencesPage
           bands={dataset.bands}
@@ -342,7 +452,7 @@
     flex-basis: 36px;
     width: 36px;
     padding: 10px 6px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* ── Collapsed sidebar: mini page indicator ── */
@@ -374,6 +484,69 @@
     border-color: #A0B4E0;
     color: #1a3a8f;
   }
+
+  .mini-btn-wrap {
+    position: relative;
+    width: 24px;
+  }
+
+  .color-quick-menu {
+    position: absolute;
+    left: 26px;
+    top: 0;
+    background: white;
+    border: 1px solid #D0D0D0;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    z-index: 200;
+    overflow: hidden;
+    min-width: 100px;
+  }
+
+  .cq-item {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    background: none;
+    border: none;
+    font-size: 11.5px;
+    color: #444;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .cq-item:hover { background: #F0F0F0; }
+  .cq-item.cq-active { color: #1a3a8f; font-weight: 600; background: #EEF3FF; }
+
+  /* ── Sidebar flex wrapper (open state) ── */
+  .sidebar-open-content {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100% - 38px); /* leaves room for toggle button */
+  }
+
+  /* ── Download section ── */
+  .dl-section { margin-top: auto; }
+
+  .dl-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .dl-btn {
+    display: block;
+    padding: 5px 10px;
+    background: white;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #444;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .dl-btn:hover { background: #F0F0F0; color: #111; }
 
   .sidebar-toggle {
     display: block;
@@ -431,6 +604,19 @@
     display: flex;
     flex-direction: column;
     padding: 0 40px;
+  }
+
+  .legend-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin: 4px 0 8px;
+    background: white;
+  }
+
+  .legend-divider {
+    border: none;
+    border-top: 1px solid #f0f0f0;
+    margin: 0;
   }
 
   .state-msg {

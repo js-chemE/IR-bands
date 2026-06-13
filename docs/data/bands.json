@@ -34,7 +34,7 @@
   "groups": {
     "hydroxyl": {
       "key": "hydroxyl",
-      "label": "Surface hydroxyls",
+      "label": "Hydroxyl* (R-OH)",
       "color": "#5BA39B"
     },
     "support_oh": {
@@ -49,27 +49,27 @@
     },
     "formate": {
       "key": "formate",
-      "label": "Surface formate",
+      "label": "Formate*",
       "color": "#C73E3A"
     },
     "carbonyl": {
       "key": "carbonyl",
-      "label": "Surface carbonyl (R-C=O)",
+      "label": "Carbonyl* (R-C=O)",
       "color": "#E07856"
     },
     "carbonate": {
       "key": "carbonate",
-      "label": "Surface carbonate",
+      "label": "Carbonate*",
       "color": "#7E4A30"
     },
     "bicarbonate": {
       "key": "bicarbonate",
-      "label": "Surface bicarbonate",
+      "label": "Bicarbonate*",
       "color": "#A86B4A"
     },
     "methoxy": {
       "key": "methoxy",
-      "label": "Surface methoxy",
+      "label": "Methoxy*",
       "color": "#3D8B3D"
     },
     "methanol_product": {
@@ -99,12 +99,12 @@
     },
     "co_metal": {
       "key": "co_metal",
-      "label": "CO on reduced metals",
+      "label": "CO on M⁰",
       "color": "#C99A2E"
     },
     "co_cation": {
       "key": "co_cation",
-      "label": "CO on cation sites",
+      "label": "CO on Mⁿ⁺",
       "color": "#E6B85C"
     },
     "support": {
@@ -114,7 +114,7 @@
     },
     "hydride": {
       "key": "hydride",
-      "label": "Surface hydride",
+      "label": "Hydride*",
       "color": "#D946A8"
     }
   },
@@ -148,7 +148,9 @@
           "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -180,7 +182,9 @@
           "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -212,7 +216,9 @@
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -244,7 +250,9 @@
           "note": "Q-branch coincides with the reported ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
@@ -276,7 +284,9 @@
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -319,7 +329,9 @@
           "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -362,7 +374,9 @@
           "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -405,7 +419,9 @@
           "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -448,7 +464,9 @@
           "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -469,7 +487,7 @@
       "atoms": "O=C=O",
       "wn_start": 2073,
       "wn_end": 2081,
-      "short": "comb. CO₂ (Q) ~2077",
+      "short": "CO₂ (Q) ~2077",
       "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls in the typical metal-carbonyl stretching range and has been repeatedly misassigned in DRIFTS studies of Cu-based methanol synthesis catalysts as ν(CO) on Cu(0)/Cu(111)/low-index Cu planes. Intensity grows with CO₂ pressure and temperature. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
       "based_on": [],
       "references": [
@@ -481,6 +499,7 @@
         }
       ],
       "tags": [
+        "gas-phase",
         "misassignment-warning",
         "drifts-artifact"
       ],
@@ -515,7 +534,9 @@
           "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -547,7 +568,9 @@
           "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -579,7 +602,9 @@
           "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -611,7 +636,9 @@
           "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker."
         }
       ],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -647,7 +674,9 @@
         }
       ],
       "references": [],
-      "tags": [],
+      "tags": [
+        "gas-phase"
+      ],
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1624,7 +1653,7 @@
       "atoms": "diverse",
       "wn_start": 2940,
       "wn_end": 2960,
-      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO* (comb.)",
+      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO*",
       "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
       "based_on": [
         {
@@ -1673,7 +1702,7 @@
       "atoms": "diverse",
       "wn_start": 3250,
       "wn_end": 3350,
-      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO* (comb.)",
+      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO*",
       "description": "Formate higher combination band (HCOO*); sometimes assigned as 2ν(C=O) overtone in older literature.",
       "based_on": [
         {
@@ -1884,9 +1913,7 @@
           "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹."
         }
       ],
-      "tags": [
-        "geometry-monodentate"
-      ],
+      "tags": [],
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
@@ -1924,9 +1951,7 @@
           "note": null
         }
       ],
-      "tags": [
-        "geometry-bidentate"
-      ],
+      "tags": [],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",

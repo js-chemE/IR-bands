@@ -70,7 +70,7 @@
   // ---------------------------------------------------------------------------
   "groups": {
     "hydroxyl": {
-      "label": "Surface hydroxyls",
+      "label": "Hydroxyl* (R-OH)",
       "color": "#5BA39B"
     },
     "support_oh": {
@@ -82,23 +82,23 @@
       "color": "#9DCAC4"
     },
     "formate": {
-      "label": "Surface formate",
+      "label": "Formate*",
       "color": "#C73E3A"
     },
     "carbonyl": {
-      "label": "Surface carbonyl (R-C=O)",
+      "label": "Carbonyl* (R-C=O)",
       "color": "#E07856"
     },
     "carbonate": {
-      "label": "Surface carbonate",
+      "label": "Carbonate*",
       "color": "#7E4A30"
     },
     "bicarbonate": {
-      "label": "Surface bicarbonate",
+      "label": "Bicarbonate*",
       "color": "#A86B4A"
     },
     "methoxy": {
-      "label": "Surface methoxy",
+      "label": "Methoxy*",
       "color": "#3D8B3D"
     },
     "methanol_product": {
@@ -122,11 +122,11 @@
       "color": "#FAD896"
     },
     "co_metal": {
-      "label": "CO on reduced metals",
+      "label": "CO on M⁰",
       "color": "#C99A2E"
     },
     "co_cation": {
-      "label": "CO on cation sites",
+      "label": "CO on Mⁿ⁺",
       "color": "#E6B85C"
     },
     "support": {
@@ -134,7 +134,7 @@
       "color": "#5C5C5C"
     },
     "hydride": {
-      "label": "Surface hydride",
+      "label": "Hydride*",
       "color": "#D946A8"
     }
   },
@@ -180,7 +180,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "co2_asym_2335_P",
@@ -208,7 +208,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "co2_bend_700_R",
@@ -236,7 +236,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "co2_bend_667_Q",
@@ -264,7 +264,7 @@
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "co2_bend_660_P",
@@ -292,7 +292,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
       // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
     {
@@ -331,7 +331,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
       // Pair-mate of co2_combo_3730_R (P-branch).
     {
@@ -370,7 +370,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
       // Lower Fermi-resonance pair: 2ν₂+ν₃. Linked to the bending Q-branch.
     {
@@ -408,7 +408,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase", "overtone"]
     },
       // Pair-mate of co2_combo_3627_R (P-branch).
     {
@@ -446,7 +446,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase", "overtone"]
     },
     {
       "id": "co2_combo_2077_Q",
@@ -461,7 +461,7 @@
       "atoms": "O=C=O",
       "wn_start": 2073,
       "wn_end": 2081,
-      "short": "comb. CO₂ (Q) ~2077",
+      "short": "CO₂ (Q) ~2077",
       "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls in the typical metal-carbonyl stretching range and has been repeatedly misassigned in DRIFTS studies of Cu-based methanol synthesis catalysts as ν(CO) on Cu(0)/Cu(111)/low-index Cu planes. Intensity grows with CO₂ pressure and temperature. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
       "based_on": [],
       "references": [
@@ -474,7 +474,7 @@
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": ["misassignment-warning", "drifts-artifact"]
+      "tags": ["gas-phase", "misassignment-warning", "drifts-artifact"]
     },
 
     // ---------------------------------------------------------------------------
@@ -508,7 +508,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "co_stretch_2115_P",
@@ -537,7 +537,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
 
     // ---------------------------------------------------------------------------
@@ -570,7 +570,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
     {
       "id": "ch4g_bend_1306",
@@ -598,7 +598,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["gas-phase"]
     },
       // δ_s(HCH) parent (ν₂) not in dataset — add later if needed.
     {
@@ -628,7 +628,7 @@
         }
       ],
       "references": [],
-      "tags": []
+      "tags": ["gas-phase"]
     },
     // ---------------------------------------------------------------------------
     // CO ON REDUCED METALS
@@ -1468,7 +1468,7 @@
       "atoms": "diverse",
       "wn_start": 2940,
       "wn_end": 2960,
-      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO* (comb.)",
+      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO*",
       "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
       "based_on": [
         {
@@ -1513,7 +1513,7 @@
       "atoms": "diverse",
       "wn_start": 3250,
       "wn_end": 3350,
-      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO* (comb.)",
+      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO*",
       "description": "Formate higher combination band (HCOO*); sometimes assigned as 2ν(C=O) overtone in older literature.",
       "based_on": [
         {
@@ -1716,7 +1716,7 @@
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": ["geometry-monodentate"]
+      "tags": []
     },
     {
       "id": "methoxy_co_stretch_bi_1045",
@@ -1746,7 +1746,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["geometry-bidentate"]
+      "tags": []
     },
 
     // ---------------------------------------------------------------------------
