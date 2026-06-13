@@ -4,7 +4,16 @@
       "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\", \"$env:APPDATA\\\\npm\", \"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object FullName)",
       "PowerShell($env:PATH = [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"User\"\\); node --version; npm --version)",
       "Bash(python build.py)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node -e \"const p = require.resolve\\('playwright'\\); console.log\\(p\\)\")",
+      "Bash(npx playwright *)",
+      "Bash(npm install *)",
+      "Bash(node --input-type=module)",
+      "Bash(node -e ' *)",
+      "Bash(npx vite *)"
     ]
   }
 }

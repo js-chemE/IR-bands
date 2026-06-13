@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
   import { buildChart } from '../lib/chart';
-  import type { TipData } from '../lib/chart';
+  import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
 
   export let bands: Band[];
@@ -25,39 +25,27 @@
     : undefined;
 
   // ---------------------------------------------------------------------------
-  // Tooltip state
+  // Chart build — returns svg + pixel hit rects
   // ---------------------------------------------------------------------------
-  let hovered: { tipData: TipData; color: string } | null = null;
-  let mouseX = 0;
-  let mouseY = 0;
-  let tipH = 0;
+  let hitBands: PlotBandHit[] = [];
+  let chartSvgHeight = 0;
 
-  const TIP_W = 300;
-  $: flipLeft = mouseX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
-  $: tipX = flipLeft ? mouseX - 16 : mouseX + 18;
-  $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
-  // Shift tooltip up so its bottom stays within the viewport; the cursor anchor
-  // point slides down the left border naturally as the tooltip moves up.
-  $: tipY = Math.max(10, Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
-
-  // ---------------------------------------------------------------------------
-  // Chart build
-  // ---------------------------------------------------------------------------
   $: if (container) {
     hovered = null;
-    const chart = buildChart(
+    const result = buildChart(
       bands, groups, enabledGroups, hiddenCats,
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,
     );
-    container.replaceChildren(chart);
-
-    // Observable Plot fires 'input' on the SVG when the pointer selection changes
-    chart.addEventListener('input', () => {
-      const val = (chart as any).value as { tipData: TipData; color: string } | undefined;
-      hovered = val ?? null;
-    });
+    container.replaceChildren(result.svg);
+    hitBands = result.hitBands;
+    chartSvgHeight = result.chartHeight;
+    // Re-anchor selected band to the freshly-built hit rects (survives zoom/pan)
+    if (selectedId) {
+      selected = hitBands.find(h => h.tipData.id === selectedId) ?? null;
+      if (!selected) selectedId = null;
+    }
   }
 
   onMount(() => {
@@ -70,10 +58,84 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Zoom / pan
+  // Tooltip / hover / select state
   // ---------------------------------------------------------------------------
-  const MARGIN_LEFT = 200;
-  const MARGIN_RIGHT = 20;
+  let hovered: PlotBandHit | null = null;
+  let selected: PlotBandHit | null = null;
+  let selectedId: string | null = null;  // band.id — survives chart rebuilds
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let tipH = 0;
+
+  $: shown = selected ?? hovered;
+
+  const TIP_W = 300;
+  $: flipLeft = mouseX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
+  $: tipX = flipLeft ? mouseX - 16 : mouseX + 18;
+  $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
+  $: tipY = Math.max(10, Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
+
+  // ---------------------------------------------------------------------------
+  // Chart layout constants (must match chart.ts)
+  // ---------------------------------------------------------------------------
+  const ML = 200, MR = 20, MT = 30, MB = 50;
+
+  // ---------------------------------------------------------------------------
+  // Interaction state
+  // ---------------------------------------------------------------------------
+  type Zone = 'none' | 'band' | 'axis' | 'plot';
+  let zone: Zone = 'none';
+  let isPanning = false;
+  let isScaling = false;
+
+  $: activeCursor = isPanning   ? 'grabbing'
+                  : isScaling  ? 'ew-resize'
+                  : zone === 'band' ? 'pointer'
+                  : zone === 'axis' ? 'ew-resize'
+                  : 'default';
+
+  // Pan
+  let panStartClientX = 0;
+  let panStartDomain: [number, number] = [0, 0];
+
+  // Scale (drag on x-axis)
+  let scaleStartClientX = 0;
+  let scaleStartDomain: [number, number] = [0, 0];
+  let scalePivot = 0;
+
+  // Click vs drag detection
+  let downPos: { x: number; y: number } | null = null;
+  const CLICK_THRESH = 5;
+
+  const MIN_WN_SPAN = 50;
+  const MAX_WN = 12000;
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+  function getSvgPos(e: PointerEvent | MouseEvent) {
+    const rect = container.getBoundingClientRect();
+    return { svgX: e.clientX - rect.left, svgY: e.clientY - rect.top };
+  }
+
+  function hitTest(svgX: number, svgY: number): PlotBandHit | null {
+    for (let i = hitBands.length - 1; i >= 0; i--) {
+      const b = hitBands[i];
+      if (svgX >= b.px1 && svgX <= b.px2 && svgY >= b.py1 && svgY <= b.py2) return b;
+    }
+    return null;
+  }
+
+  function detectZone(svgX: number, svgY: number): Zone {
+    const innerW = containerWidth - ML - MR;
+    const inXBand = svgX >= ML && svgX <= ML + innerW;
+    if (inXBand && svgY >= chartSvgHeight - MB - 8) return 'axis';
+    if (inXBand && svgY >= MT && svgY < chartSvgHeight - MB) {
+      return hitTest(svgX, svgY) ? 'band' : 'plot';
+    }
+    return 'none';
+  }
 
   function currentDomain(): [number, number] {
     return xDomainForChart ?? (axisRange(450, 4050, axisProperty, axisUnit) as [number, number]);
@@ -85,62 +147,113 @@
     return [Math.min(a, b), Math.max(a, b)];
   }
 
-  const MIN_WN_SPAN = 50;
-  const MAX_WN = 12000;
+  // ---------------------------------------------------------------------------
+  // Event handlers
+  // ---------------------------------------------------------------------------
+  function onPointerMove(e: PointerEvent) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
 
-  function onWheel(e: WheelEvent) {
-    e.preventDefault();
-    const domain = currentDomain();
-    const plotWidth = containerWidth - MARGIN_LEFT - MARGIN_RIGHT;
-    const rect = container.getBoundingClientRect();
-    const t = Math.max(0, Math.min(1, (e.clientX - rect.left - MARGIN_LEFT) / plotWidth));
+    if (isPanning) {
+      const plotWidth = containerWidth - ML - MR;
+      const dx = (e.clientX - panStartClientX) / plotWidth;
+      const span = panStartDomain[1] - panStartDomain[0];
+      const [lo, hi] = domainToWnRange(
+        panStartDomain[0] - dx * span,
+        panStartDomain[1] - dx * span,
+      );
+      wnOverride = [Math.max(1, lo), Math.min(MAX_WN, hi)];
+      return;
+    }
 
-    const pivot = domain[0] + t * (domain[1] - domain[0]);
-    const factor = Math.pow(1.002, Math.max(-200, Math.min(200, e.deltaY)));
-    const d0 = pivot + (domain[0] - pivot) * factor;
-    const d1 = pivot + (domain[1] - pivot) * factor;
+    if (isScaling) {
+      const dx = e.clientX - scaleStartClientX;
+      const factor = Math.exp(-dx * 0.006);
+      const d0 = scalePivot + (scaleStartDomain[0] - scalePivot) * factor;
+      const d1 = scalePivot + (scaleStartDomain[1] - scalePivot) * factor;
+      const [lo, hi] = domainToWnRange(d0, d1);
+      const loC = Math.max(1, lo), hiC = Math.min(MAX_WN, hi);
+      if (hiC - loC >= MIN_WN_SPAN) wnOverride = [loC, hiC];
+      return;
+    }
 
-    const wn0 = valueToWn(d0, axisProperty, axisUnit);
-    const wn1 = valueToWn(d1, axisProperty, axisUnit);
-    const lo = Math.max(1, Math.min(wn0, wn1));
-    const hi = Math.min(MAX_WN, Math.max(wn0, wn1));
-    if (hi - lo < MIN_WN_SPAN) return;
-    wnOverride = [lo, hi];
+    const { svgX, svgY } = getSvgPos(e);
+    zone = detectZone(svgX, svgY);
+    hovered = zone === 'band' ? hitTest(svgX, svgY) : null;
   }
-
-  let isPanning = false;
-  let panStartClientX = 0;
-  let panStartDomain: [number, number] = [0, 0];
 
   function onPointerDown(e: PointerEvent) {
-    if (e.button !== 1) return;
+    if (e.button !== 0 && e.button !== 1) return;
+    const { svgX, svgY } = getSvgPos(e);
+    const z = detectZone(svgX, svgY);
+    if (z === 'none') return;
+
+    downPos = { x: e.clientX, y: e.clientY };
     e.preventDefault();
-    isPanning = true;
-    panStartClientX = e.clientX;
-    panStartDomain = currentDomain();
     container.setPointerCapture(e.pointerId);
+
+    if (e.button === 0) {
+      if (z === 'axis') {
+        const domain = currentDomain();
+        const t = Math.max(0, Math.min(1, (svgX - ML) / (containerWidth - ML - MR)));
+        scalePivot = domain[0] + t * (domain[1] - domain[0]);
+        scaleStartClientX = e.clientX;
+        scaleStartDomain = domain;
+        isScaling = true;
+      } else if (z === 'plot') {
+        isPanning = true;
+        panStartClientX = e.clientX;
+        panStartDomain = currentDomain();
+      }
+      // z === 'band': wait for pointerup to register as click
+    } else if (e.button === 1) {
+      isPanning = true;
+      panStartClientX = e.clientX;
+      panStartDomain = currentDomain();
+    }
   }
 
-  function onPointerMove(e: PointerEvent) {
-    if (!isPanning) return;
-    const plotWidth = containerWidth - MARGIN_LEFT - MARGIN_RIGHT;
-    const dx = (e.clientX - panStartClientX) / plotWidth;
-    const span = panStartDomain[1] - panStartDomain[0];
-    wnOverride = domainToWnRange(
-      panStartDomain[0] - dx * span,
-      panStartDomain[1] - dx * span,
-    );
+  function onPointerUp(e: PointerEvent) {
+    const wasClick = downPos
+      && Math.abs(e.clientX - downPos.x) < CLICK_THRESH
+      && Math.abs(e.clientY - downPos.y) < CLICK_THRESH;
+
+    if (wasClick && e.button === 0) {
+      const { svgX, svgY } = getSvgPos(e);
+      const hit = hitTest(svgX, svgY);
+      if (hit) {
+        selected = hit;
+        selectedId = hit.tipData.id;
+      } else {
+        selected = null;
+        selectedId = null;
+      }
+    }
+
+    isPanning = false;
+    isScaling = false;
+    downPos = null;
   }
 
-  function onPointerUp() { isPanning = false; }
+  function onPointerLeave() {
+    if (!isPanning && !isScaling) {
+      hovered = null;
+      zone = 'none';
+    }
+  }
 
   function resetZoom() { wnOverride = null; }
+
+  function onDblClick(e: MouseEvent) {
+    const { svgX, svgY } = getSvgPos(e);
+    if (!hitTest(svgX, svgY)) resetZoom();
+  }
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrap">
   {#if wnOverride}
-    <button class="reset-btn" on:click={resetZoom} title="Reset zoom (or double-click chart)">
+    <button class="reset-btn" on:click={resetZoom} title="Reset zoom (or double-click empty area)">
       ↩ Reset zoom
     </button>
   {/if}
@@ -148,29 +261,28 @@
   <div
     bind:this={container}
     class="chart"
-    class:panning={isPanning}
-    on:wheel|nonpassive={onWheel}
+    style="cursor: {activeCursor}"
     on:pointerdown={onPointerDown}
     on:pointermove={onPointerMove}
     on:pointerup={onPointerUp}
-    on:dblclick={resetZoom}
-    on:mousemove={e => { mouseX = e.clientX; mouseY = e.clientY; }}
-    on:mouseleave={() => { hovered = null; }}
+    on:pointerleave={onPointerLeave}
+    on:dblclick={onDblClick}
   ></div>
 
-  {#if hovered}
-    {@const td = hovered.tipData}
+  {#if shown}
+    {@const td = shown.tipData}
     <div
       class="band-tooltip"
+      class:is-selected={!!selected}
       bind:clientHeight={tipH}
-      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{hovered.color};"
+      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{shown.color};"
     >
       <!-- Header -->
-      <div class="tip-header" style="border-left-color:{hovered.color}">
+      <div class="tip-header" style="border-left-color:{shown.color}">
         <div class="tip-name">{td.name}</div>
         <div class="tip-vib">{td.vib}</div>
         <div class="tip-wn">{td.wnRange}</div>
-        <div class="tip-group" style="color:{hovered.color}">{td.group}</div>
+        <div class="tip-group" style="color:{shown.color}">{td.group}</div>
       </div>
 
       <!-- Quality tags -->
@@ -215,6 +327,10 @@
           {/each}
         </div>
       {/if}
+
+      {#if selected}
+        <div class="tip-lock-hint">click band to switch · click empty to dismiss</div>
+      {/if}
     </div>
   {/if}
 </div>
@@ -240,10 +356,8 @@
 
   .chart {
     width: 100%;
-    cursor: crosshair;
     user-select: none;
   }
-  .chart.panning { cursor: grabbing; }
   .chart :global(svg) { max-width: 100%; overflow: visible; }
 
   /* ── HTML tooltip ── */
@@ -261,6 +375,10 @@
     font-size: 12px;
     line-height: 1.4;
     box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  }
+  .band-tooltip.is-selected {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+    border-color: #bbb;
   }
 
   .tip-header {
@@ -377,5 +495,14 @@
     font-style: italic;
     margin-top: 4px;
     line-height: 1.35;
+  }
+
+  .tip-lock-hint {
+    margin-top: 6px;
+    padding-top: 5px;
+    border-top: 1px solid #eee;
+    font-size: 9.5px;
+    color: #aaa;
+    text-align: center;
   }
 </style>
