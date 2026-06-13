@@ -6,7 +6,9 @@
   export let hiddenCats: ReadonlySet<string>;
 
   const dispatch = createEventDispatcher<{
-    catToggle: { cat: string; visible: boolean };
+    catToggle:   { cat: string; visible: boolean };
+    catDblClick: { cat: string; visible: boolean };
+    catHover:    { cat: string | null };
   }>();
 </script>
 
@@ -14,8 +16,14 @@
   <div class="legend">
     {#each categories as c (c.key)}
       {@const visible = !hiddenCats.has(c.key)}
-      <button class="item" class:dimmed={!visible} title="{c.count} band{c.count !== 1 ? 's' : ''}"
-        on:click={() => dispatch('catToggle', { cat: c.key, visible: !visible })}
+      <button
+        class="item"
+        class:dimmed={!visible}
+        title="{c.count} band{c.count !== 1 ? 's' : ''}"
+        on:click={() => dispatch('catToggle',   { cat: c.key, visible: !visible })}
+        on:dblclick={() => dispatch('catDblClick', { cat: c.key, visible })}
+        on:mouseenter={() => dispatch('catHover', { cat: c.key })}
+        on:mouseleave={() => dispatch('catHover', { cat: null })}
       >
         <span class="swatch" style="background:{c.color}"></span>
         <span class="label">{c.label}</span>
@@ -31,10 +39,9 @@
     justify-content: center;
     align-items: center;
     gap: 2px 4px;
-    padding: 6px 180px 10px; /* match Plotly's left margin so items centre over the plot */
+    padding: 6px 12px 8px;
     font-size: 12px;
     color: #333;
-    border-top: 1px solid #eee;
   }
 
   .item {

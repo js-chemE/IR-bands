@@ -408,7 +408,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase", "overtone"]
+      "tags": ["gas-phase"]
     },
       // Pair-mate of co2_combo_3627_R (P-branch).
     {
@@ -446,7 +446,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase", "overtone"]
+      "tags": ["gas-phase"]
     },
     {
       "id": "co2_combo_2077_Q",

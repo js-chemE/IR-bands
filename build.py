@@ -11,6 +11,7 @@ Outputs:
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -616,6 +617,11 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"✓ Wrote {REFS_OUT.relative_to(ROOT)} ({REFS_OUT.stat().st_size:,} bytes)")
+
+    # Copy source files so the frontend can offer them as downloads.
+    for src, dst in [(BANDS_SRC, DOCS_DATA / "bands.jsonc"), (REFS_SRC, DOCS_DATA / "references.bib")]:
+        shutil.copy(src, dst)
+        print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
 
     print("→ Run  cd frontend && npm run build  to generate docs/index.html")
 

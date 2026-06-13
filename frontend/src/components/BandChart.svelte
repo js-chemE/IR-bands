@@ -1,18 +1,33 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
-  import { buildChart } from '../lib/chart';
+  import { buildChart, TAG_STYLES } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
+  import { getCat } from '../lib/colors';
 
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
   export let enabledGroups: ReadonlySet<string>;
   export let hiddenCats: ReadonlySet<string>;
+  export let hiddenTags: ReadonlySet<string>;
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
+  export let hoveredCat: string | null = null;
+  export let hoveredTag: string | null = null;
+
+  const HIT_PAD = 3; // must match chart.ts
+
+  $: highlightedHits = hoveredCat
+    ? hitBands.filter(h => {
+        const b = bands.find(b => b.id === h.tipData.id);
+        return b ? getCat(b, colorDim) === hoveredCat : false;
+      })
+    : hoveredTag
+      ? hitBands.filter(h => h.tipData.tags.includes(hoveredTag!))
+      : [];
 
   let container: HTMLDivElement;
   let containerWidth = 1100;
@@ -33,7 +48,7 @@
   $: if (container) {
     hovered = null;
     const result = buildChart(
-      bands, groups, enabledGroups, hiddenCats,
+      bands, groups, enabledGroups, hiddenCats, hiddenTags,
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,
@@ -66,15 +81,20 @@
 
   let mouseX = 0;
   let mouseY = 0;
+  let selectedTipX = 0;  // viewport coords captured at click time
+  let selectedTipY = 0;
   let tipH = 0;
 
   $: shown = selected ?? hovered;
 
+  // Selected tooltip stays at click position; hover tooltip follows the mouse.
   const TIP_W = 300;
-  $: flipLeft = mouseX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
-  $: tipX = flipLeft ? mouseX - 16 : mouseX + 18;
+  $: _anchorX = selected ? selectedTipX : mouseX;
+  $: _anchorY = selected ? selectedTipY : mouseY;
+  $: flipLeft = _anchorX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
+  $: tipX = flipLeft ? _anchorX - 16 : _anchorX + 18;
   $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
-  $: tipY = Math.max(10, Math.min(mouseY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
+  $: tipY = Math.max(10, Math.min(_anchorY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
 
   // ---------------------------------------------------------------------------
   // Chart layout constants (must match chart.ts)
@@ -224,6 +244,8 @@
       if (hit) {
         selected = hit;
         selectedId = hit.tipData.id;
+        selectedTipX = e.clientX;
+        selectedTipY = e.clientY;
       } else {
         selected = null;
         selectedId = null;
@@ -269,13 +291,50 @@
     on:dblclick={onDblClick}
   ></div>
 
+  <!-- highlight overlay: glowing rects for hovered legend category -->
+  {#if highlightedHits.length > 0}
+    <svg class="highlight-overlay"
+         width={containerWidth}
+         height={chartSvgHeight}
+         style="pointer-events:none;">
+      <defs>
+        <!-- dark outer shadow -->
+        <filter id="shadow-blur" x="-120%" y="-300%" width="340%" height="700%">
+          <feGaussianBlur stdDeviation="9"/>
+        </filter>
+        <!-- soft coloured inner glow -->
+        <filter id="glow-blur" x="-80%" y="-200%" width="260%" height="500%">
+          <feGaussianBlur stdDeviation="5"/>
+        </filter>
+      </defs>
+      {#each highlightedHits as hit}
+        {@const x = hit.px1}
+        {@const y = hit.py1 + HIT_PAD}
+        {@const w = Math.max(1, hit.px2 - hit.px1)}
+        {@const h = Math.max(1, hit.py2 - hit.py1 - HIT_PAD * 2)}
+        <!-- dark shadow ring (outermost) -->
+        <rect {x} {y} width={w} height={h}
+              fill="rgba(0,0,0,0.32)"
+              filter="url(#shadow-blur)"/>
+        <!-- coloured glow halo -->
+        <rect {x} {y} width={w} height={h}
+              fill={hit.color} opacity="0.75"
+              filter="url(#glow-blur)"/>
+        <!-- solid band on top with white rim -->
+        <rect {x} {y} width={w} height={h}
+              fill={hit.color} opacity="1"
+              stroke="white" stroke-width="1.5" rx="0.5"/>
+      {/each}
+    </svg>
+  {/if}
+
   {#if shown}
     {@const td = shown.tipData}
     <div
       class="band-tooltip"
       class:is-selected={!!selected}
       bind:clientHeight={tipH}
-      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{shown.color};"
+      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{shown.color}; pointer-events:{selected ? 'auto' : 'none'};"
     >
       <!-- Header -->
       <div class="tip-header" style="border-left-color:{shown.color}">
@@ -286,9 +345,16 @@
       </div>
 
       <!-- Quality tags -->
-      {#if td.noteLines.length}
+      {#if td.noteLines.length || td.tags.length}
         <div class="tip-tags">
           {#each td.noteLines as tag}<span class="tip-tag">{tag}</span>{/each}
+          {#each td.tags as tag}
+            {@const style = TAG_STYLES[tag]}
+            <span
+              class="tip-tag tip-tag-extra"
+              style={style ? `background:${style.background};border-color:${style.border};color:${style.color}` : ''}
+            >{tag}</span>
+          {/each}
         </div>
       {/if}
 
@@ -338,6 +404,14 @@
 <style>
   .wrap { position: relative; width: 100%; }
 
+  .highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible;
+    z-index: 5;
+  }
+
   .reset-btn {
     position: absolute;
     top: 8px;
@@ -364,7 +438,7 @@
   .band-tooltip {
     position: fixed;
     z-index: 200;
-    pointer-events: none;
+    pointer-events: none; /* overridden to auto when selected — see inline style */
     background: #fff;
     border: 1px solid #ddd;
     border-top: 3px solid #888; /* overridden inline with band color */
@@ -424,6 +498,11 @@
     padding: 1px 5px;
     font-size: 10px;
     color: #555;
+  }
+  .tip-tag-extra {
+    background: #f9fafb;
+    border-color: #eaecef;
+    color: #8a8f98;
   }
 
   .tip-desc {
