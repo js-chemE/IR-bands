@@ -17,6 +17,7 @@
   type Page = 'chart' | 'references' | 'vibration';
   let page: Page = 'chart';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
+  let sidebarOpen = true;
 
   const DEFAULT_OFF = new Set(['support', "support_oh", "h2", "carbonyl"]);
 
@@ -60,7 +61,7 @@
   function handleColorDimChange(e: Event) {
     const dim = (e.currentTarget as HTMLSelectElement).value as ColorDim;
     colorDim = dim;
-    hiddenCats = new Set(); // reset legend state when switching dimension
+    hiddenCats = new Set();
   }
 
   function handleCatToggle(e: CustomEvent<{ cat: string; visible: boolean }>) {
@@ -91,67 +92,90 @@
   })();
 </script>
 
-<div class="hint-banner">
-  <strong>Tip:</strong> hard-refresh if stale:
-  <kbd>Ctrl+Shift+R</kbd> (Win/Linux) or <kbd>⌘+Shift+R</kbd> (macOS).
-  &ensp;<strong>Sidebar</strong> = toggle groups (collapses/expands lanes).
-  &ensp;<strong>Legend</strong> = show/hide color categories.
-  &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
-  &ensp;Found an error, have a tip, or know an interesting paper to reference?
-  Please contact <a class="contact" href="mailto:j.sommer@tudellft.nl">j.sommer@tudellft.nl</a>.
-</div>
+<div class="app-root">
+<!-- ── Page header ── -->
+<header class="app-header">
+  <div class="header-left">
+    <span class="header-title">IR bands</span>
+    <span class="header-subtitle">CO₂ hydrogenation</span>
+  </div>
+  <div class="header-right">
+    <div class="header-authors">Julius Sommer<sup>1</sup>, Evgeny Pidko<sup>1</sup>, Atsushi Urakawa<sup>1</sup></div>
+    <div class="header-affil"><sup>1</sup>Delft University of Technology</div>
+  </div>
+</header>
 
+<div class="page-body">
 {#if loading}
   <div class="state-msg">Loading band data…</div>
 {:else if error}
   <div class="state-msg error">Failed to load data: {error}</div>
 {:else if dataset}
-  <div class="layout">
-    <!-- ── Sidebar (always visible) ── -->
-    <aside class="sidebar">
-      <!-- Page selector -->
-      <nav class="page-nav">
-        <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
-        <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
-        <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
-      </nav>
+    <!-- ── Sidebar (collapsible) ── -->
+    <aside class="sidebar" class:collapsed={!sidebarOpen}>
+      <button
+        class="sidebar-toggle"
+        on:click={() => sidebarOpen = !sidebarOpen}
+        title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+      >{sidebarOpen ? '◀' : '▶'}</button>
 
-      <hr class="divider" />
+      {#if !sidebarOpen}
+        <!-- collapsed: mini page indicator buttons -->
+        <div class="collapsed-page-nav">
+          <button class="page-mini-btn" class:active={page === 'chart'}
+            on:click={() => page = 'chart'} title="Band chart">B</button>
+          <button class="page-mini-btn" class:active={page === 'references'}
+            on:click={() => page = 'references'} title="References">R</button>
+          <button class="page-mini-btn" class:active={page === 'vibration'}
+            on:click={() => page = 'vibration'} title="Vibration modes">V</button>
+        </div>
+      {/if}
 
-      <!-- Page-specific sidebar controls -->
-      {#if page === 'chart'}
-        <section>
-          <h3>Color by</h3>
-          <select value={colorDim} on:change={handleColorDimChange}>
-            <option value="group">Group</option>
-            <option value="vibration">Vibration</option>
-            <option value="atoms">Atoms</option>
-            <option value="references">References</option>
-          </select>
-        </section>
-
-        <AxisSelect
-          {axisProperty}
-          {axisUnit}
-          on:axisChange={handleAxisChange}
-        />
+      {#if sidebarOpen}
+        <!-- Page selector -->
+        <nav class="page-nav">
+          <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
+          <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
+          <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
+        </nav>
 
         <hr class="divider" />
 
-        <Sidebar
-          groups={dataset.groups}
-          sortedKeys={sortedGroupKeys}
-          {enabledGroups}
-          on:groupToggle={handleGroupToggle}
-          on:allGroups={handleAllGroups}
-        />
+        <!-- Page-specific sidebar controls -->
+        {#if page === 'chart'}
+          <section>
+            <h3>Color by</h3>
+            <select value={colorDim} on:change={handleColorDimChange}>
+              <option value="group">Group</option>
+              <option value="vibration">Vibration</option>
+              <option value="atoms">Atoms</option>
+              <option value="references">References</option>
+            </select>
+          </section>
 
-      {:else if page === 'references'}
-        <h3>View</h3>
-        <div class="sub-nav">
-          <button class:active={refViewMode === 'by-ref'}   on:click={() => refViewMode = 'by-ref'}>By reference</button>
-          <button class:active={refViewMode === 'by-group'} on:click={() => refViewMode = 'by-group'}>By group</button>
-        </div>
+          <AxisSelect
+            {axisProperty}
+            {axisUnit}
+            on:axisChange={handleAxisChange}
+          />
+
+          <hr class="divider" />
+
+          <Sidebar
+            groups={dataset.groups}
+            sortedKeys={sortedGroupKeys}
+            {enabledGroups}
+            on:groupToggle={handleGroupToggle}
+            on:allGroups={handleAllGroups}
+          />
+
+        {:else if page === 'references'}
+          <h3>View</h3>
+          <div class="sub-nav">
+            <button class:active={refViewMode === 'by-ref'}   on:click={() => refViewMode = 'by-ref'}>By reference</button>
+            <button class:active={refViewMode === 'by-group'} on:click={() => refViewMode = 'by-group'}>By group</button>
+          </div>
+        {/if}
       {/if}
     </aside>
 
@@ -185,20 +209,99 @@
         <VibrationModesPage />
       {/if}
     </div>
-  </div>
 {/if}
+</div><!-- page-body -->
+
+<!-- ── Hint banner (footer) ── -->
+<div class="hint-banner">
+  <strong>Tip:</strong> hard-refresh if stale:
+  <kbd>Ctrl+Shift+R</kbd> (Win/Linux) or <kbd>⌘+Shift+R</kbd> (macOS).
+  &ensp;<strong>Sidebar</strong> = toggle groups (collapses/expands lanes).
+  &ensp;<strong>Legend</strong> = show/hide color categories.
+  &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
+  &ensp;Found an error, have a tip, or know an interesting paper to reference?
+  Please contact <a class="contact" href="mailto:j.sommer@tudellft.nl">j.sommer@tudellft.nl</a>.
+</div>
+</div><!-- app-root -->
 
 <style>
   :global(html, body) {
     margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     color: #2A2A2A;
     box-sizing: border-box;
   }
 
+  .app-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .page-body {
+    flex: 1 1 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  /* ── Page header ── */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 28px;
+    background: linear-gradient(100deg, #2c4a6e 0%, #3d6a9a 100%);
+    color: white;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .header-title {
+    font-size: 28px;
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  .header-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    font-style: italic;
+  }
+
+  .header-right { text-align: right; }
+
+  .header-authors {
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.4;
+  }
+  .header-authors :global(sup) { font-size: 9px; vertical-align: super; }
+
+  .header-affil {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.55);
+    font-style: italic;
+    margin-top: 1px;
+  }
+  .header-affil :global(sup) { font-size: 8px; vertical-align: super; }
+
+  /* ── Hint banner (footer) — always visible as the last flex item ── */
   .hint-banner {
+    flex: 0 0 auto;
     background: #FFF8E1;
-    border-bottom: 1px solid #F0DDA0;
+    border-top: 1px solid #F0DDA0;
     color: #3A3A3A;
     font-size: 13px;
     padding: 6px 18px;
@@ -209,7 +312,6 @@
     font-weight: 600;
     text-decoration: underline;
   }
-
   .hint-banner .contact:hover { color: #5c4a00; }
 
   kbd {
@@ -221,25 +323,73 @@
     font-family: ui-monospace, monospace;
   }
 
-  .layout {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
+  /* ── Sidebar ── */
   .sidebar {
     flex: 0 0 220px;
     width: 220px;
+    height: 100%;
     box-sizing: border-box;
-    padding: 16px 14px;
+    padding: 10px 14px;
     border-right: 1px solid #E5E5E5;
     background: #FAFAFA;
-    position: sticky;
-    top: 0;
-    max-height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     font-size: 13px;
+    transition: width 0.18s ease, flex-basis 0.18s ease, padding 0.18s ease;
   }
+
+  .sidebar.collapsed {
+    flex-basis: 36px;
+    width: 36px;
+    padding: 10px 6px;
+    overflow: hidden;
+  }
+
+  /* ── Collapsed sidebar: mini page indicator ── */
+  .collapsed-page-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .page-mini-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: none;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    cursor: pointer;
+    text-align: center;
+    line-height: 22px;
+  }
+  .page-mini-btn:hover { background: #F0F0F0; color: #333; }
+  .page-mini-btn.active {
+    background: #E8F0FE;
+    border-color: #A0B4E0;
+    color: #1a3a8f;
+  }
+
+  .sidebar-toggle {
+    display: block;
+    width: 100%;
+    background: none;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    padding: 5px 0;
+    font-size: 9px;
+    color: #777;
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .sidebar-toggle:hover { background: #F0F0F0; color: #333; }
 
   .sidebar :global(h3) {
     margin: 0 0 8px 0;
@@ -268,8 +418,11 @@
     margin: 12px 0;
   }
 
+  /* ── Main content ── */
   .main-area {
     flex: 1 1 auto;
+    height: 100%;
+    overflow-y: auto;
     overflow-x: auto;
   }
 
@@ -277,6 +430,7 @@
     min-width: 1100px;
     display: flex;
     flex-direction: column;
+    padding: 0 40px;
   }
 
   .state-msg {
@@ -284,10 +438,9 @@
     font-size: 14px;
     color: #666;
   }
-
   .state-msg.error { color: #c00; }
 
-  /* Page navigation */
+  /* ── Page navigation ── */
   .page-nav, .sub-nav {
     display: flex;
     flex-direction: column;

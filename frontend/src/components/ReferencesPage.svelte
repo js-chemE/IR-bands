@@ -84,29 +84,23 @@
   }
 
   function bandNameHtml(b: Band): string {
-    if (b.short) return b.short; // already has <sub>/<sup> HTML
+    if (b.short) return b.short;
     const sub    = b.vibration.subtype  ? ` ${esc(b.vibration.subtype)}`  : '';
     const branch = b.vibration.branch   ? ` ${esc(b.vibration.branch)}`   : '';
     return `${esc(b.species)}${sub} ${esc(b.vibration.category)}${branch}`;
   }
 
-  function bandDetail(b: Band): string {
-    const parts = [`${b.wn_min}–${b.wn_max} cm⁻¹`];
-    if (b.intensity)  parts.push(`intensity: ${b.intensity}`);
-    if (b.confidence) parts.push(`confidence: ${b.confidence}`);
-    if (b.width)      parts.push(`width: ${b.width}`);
-    if (b.description) parts.push(b.description.replace(/<[^>]+>/g, ''));
-    return parts.join(' · ');
+  function siteList(ref: BandReference): string[] {
+    if (!ref.site) return [];
+    return Array.isArray(ref.site) ? ref.site : [ref.site];
   }
 
-  // What *this particular* source claims about the band, when it differs
-  // from (or adds detail to) the band's general description above.
-  function refNoteText(ref: BandReference): string | null {
-    const parts: string[] = [];
-    if (ref.wn != null) parts.push(`${ref.wn} cm⁻¹`);
-    if (ref.site)       parts.push(`on ${ref.site}`);
-    if (ref.note)       parts.push(ref.note);
-    return parts.length ? parts.join(' · ') : null;
+  function qualityTags(b: Band): string[] {
+    return [
+      b.intensity  && b.intensity,
+      b.confidence && b.confidence,
+      b.width      && b.width,
+    ].filter(Boolean) as string[];
   }
 
   // ---- By-reference view data ----
@@ -180,66 +174,100 @@
 
 <main class="content">
 
-    {#if viewMode === 'by-ref'}
-      <!-- ── Alphabetical by reference ── -->
-      {#each byRefItems as item (item.refKey)}
-        <div class="ref-block">
-          <p class="citation">{@html item.html}</p>
-          {#each item.groupBands as g (g.key)}
-            <div class="group-section">
-              <span class="group-label" style="color:{g.color}">{g.label}</span>
-              <ul class="band-list">
-                {#each g.entries as e (e.band.id)}
-                  {@const id = `r-${item.refKey}-${e.band.id}`}
-                  <li>
-                    <button class="arrow" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
-                      {open.has(id) ? '▾' : '▸'}
-                    </button>
-                    <span class="band-name">{@html bandNameHtml(e.band)}</span>
-                    {#if open.has(id)}
-                      <div class="band-detail">{bandDetail(e.band)}</div>
-                      {#if refNoteText(e.ref)}
-                        <div class="band-detail ref-note">per this reference: {refNoteText(e.ref)}</div>
-                      {/if}
+  {#if viewMode === 'by-ref'}
+    <!-- ── Alphabetical by reference ── -->
+    {#each byRefItems as item (item.refKey)}
+      <div class="ref-card">
+        <div class="ref-card-citation">{@html item.html}</div>
+        {#each item.groupBands as g (g.key)}
+          <div class="group-section">
+            <div class="group-label" style="color:{g.color}">{g.label}</div>
+            {#each g.entries as e (e.band.id)}
+              {@const id = `r-${item.refKey}-${e.band.id}`}
+              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+              <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+                <div class="band-row-line">
+                  <span class="band-name">{@html bandNameHtml(e.band)}</span>
+                  {#if e.ref.wn != null}
+                    <span class="badge-wn">{e.ref.wn} cm⁻¹</span>
+                  {:else}
+                    <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
+                  {/if}
+                  {#each siteList(e.ref) as s}
+                    <span class="badge-site">{s}</span>
+                  {/each}
+                  {#each qualityTags(e.band) as tag}
+                    <span class="badge-quality">{tag}</span>
+                  {/each}
+                  <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
+                </div>
+                {#if open.has(id)}
+                  <div class="band-expand">
+                    {#if e.band.description}
+                      <div class="expand-desc">{@html e.band.description}</div>
                     {/if}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/each}
-        </div>
-      {/each}
+                    {#if e.ref.wn != null}
+                      <div class="expand-note">range: {e.band.wn_min}–{e.band.wn_max} cm⁻¹</div>
+                    {/if}
+                    {#if e.ref.note}
+                      <div class="expand-note">{e.ref.note}</div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/each}
+      </div>
+    {/each}
 
-    {:else}
-      <!-- ── By group ── -->
-      {#each byGroupItems as g (g.key)}
-        <div class="group-block">
-          <h2 class="group-header" style="color:{g.color}">{g.label}</h2>
-          {#each g.refs as r (r.refKey)}
-            <div class="ref-section">
-              <p class="citation">{@html r.html}</p>
-              <ul class="band-list">
-                {#each r.entries as e (e.band.id)}
-                  {@const id = `g-${g.key}-${r.refKey}-${e.band.id}`}
-                  <li>
-                    <button class="arrow" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
-                      {open.has(id) ? '▾' : '▸'}
-                    </button>
-                    <span class="band-name">{@html bandNameHtml(e.band)}</span>
-                    {#if open.has(id)}
-                      <div class="band-detail">{bandDetail(e.band)}</div>
-                      {#if refNoteText(e.ref)}
-                        <div class="band-detail ref-note">per this reference: {refNoteText(e.ref)}</div>
-                      {/if}
+  {:else}
+    <!-- ── By group ── -->
+    {#each byGroupItems as g (g.key)}
+      <div class="group-card" style="--group-color:{g.color}; border-left-color:{g.color}">
+        <div class="group-card-header" style="color:{g.color}; border-bottom-color:{g.color}22">{g.label}</div>
+        {#each g.refs as r (r.refKey)}
+          <div class="ref-sub-card">
+            <div class="ref-sub-citation">{@html r.html}</div>
+            {#each r.entries as e (e.band.id)}
+              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}`}
+              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+              <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+                <div class="band-row-line">
+                  <span class="band-name">{@html bandNameHtml(e.band)}</span>
+                  {#if e.ref.wn != null}
+                    <span class="badge-wn">{e.ref.wn} cm⁻¹</span>
+                  {:else}
+                    <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
+                  {/if}
+                  {#each siteList(e.ref) as s}
+                    <span class="badge-site">{s}</span>
+                  {/each}
+                  {#each qualityTags(e.band) as tag}
+                    <span class="badge-quality">{tag}</span>
+                  {/each}
+                  <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
+                </div>
+                {#if open.has(id)}
+                  <div class="band-expand">
+                    {#if e.band.description}
+                      <div class="expand-desc">{@html e.band.description}</div>
                     {/if}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/each}
-        </div>
-      {/each}
-    {/if}
+                    {#if e.ref.wn != null}
+                      <div class="expand-note">range: {e.band.wn_min}–{e.band.wn_max} cm⁻¹</div>
+                    {/if}
+                    {#if e.ref.note}
+                      <div class="expand-note">{e.ref.note}</div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/each}
+      </div>
+    {/each}
+  {/if}
 
 </main>
 
@@ -252,89 +280,163 @@
     line-height: 1.55;
   }
 
-  /* By-reference view */
-  .ref-block {
-    margin-bottom: 28px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #EBEBEB;
-  }
-  .ref-block:last-child { border-bottom: none; }
-
-  .citation {
-    margin: 0 0 8px 0;
-    color: #222;
-    line-height: 1.6;
-  }
-  .citation :global(em) { font-style: italic; }
-  .citation :global(a.ext) { color: #888; text-decoration: none; font-size: 11px; }
-  .citation :global(a.ext:hover) { color: #333; }
-
-  .group-section { margin: 4px 0 4px 14px; }
-
-  .group-label {
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  /* ── Shared badge styles (mirror tooltip) ── */
+  .badge-wn {
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    color: #1d4ed8;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 10.5px;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  /* By-group view */
-  .group-block { margin-bottom: 36px; }
-
-  .group-header {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0 0 14px 0;
-    padding-bottom: 5px;
-    border-bottom: 2px solid currentColor;
-    display: inline-block;
+  .badge-site {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #78350f;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 10.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  .ref-section {
-    margin-bottom: 18px;
-    padding-left: 14px;
-    border-left: 3px solid #E5E5E5;
+  .badge-quality {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    color: #555;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  /* Band list (shared) */
-  .band-list {
-    list-style: none;
-    margin: 4px 0 0 0;
-    padding: 0 0 0 2px;
-  }
-
-  .band-list li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 3px;
-    padding: 1px 0;
-  }
-
-  .arrow {
-    background: none;
-    border: none;
+  /* ── Band row (shared) ── */
+  .band-row {
     cursor: pointer;
-    font-size: 9px;
-    color: #999;
-    padding: 0 1px;
-    line-height: 1;
-    flex: 0 0 auto;
+    border-radius: 3px;
+    margin: 1px 0;
   }
-  .arrow:hover { color: #444; }
+  .band-row:hover { background: rgba(0,0,0,0.04); }
 
-  .band-name { color: #333; font-size: 13px; }
+  .band-row-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding: 3px 4px;
+  }
 
-  .band-detail {
-    width: 100%;
-    padding: 1px 0 2px 18px;
+  .band-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #222;
+    margin-right: 2px;
+  }
+  .band-name :global(sub), .band-name :global(sup) { font-size: 0.75em; }
+
+  .expand-arrow {
+    font-size: 9px;
+    color: #aaa;
+    margin-left: auto;
+    flex-shrink: 0;
+    padding-left: 4px;
+  }
+
+  .band-expand {
+    padding: 2px 4px 6px 8px;
+    border-left: 2px solid #e5e7eb;
+    margin: 0 4px 3px 4px;
+  }
+
+  .expand-desc {
     font-size: 11.5px;
-    color: #777;
+    color: #555;
     line-height: 1.4;
   }
+  .expand-desc :global(sub), .expand-desc :global(sup) { font-size: 0.75em; }
 
-  .band-detail.ref-note {
-    font-style: italic;
+  .expand-note {
+    font-size: 11px;
     color: #8a7a4a;
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.35;
   }
+
+  /* ── By-reference view ── */
+  .ref-card {
+    background: #f8f6f1;
+    border: 1px solid #e2d9c9;
+    border-left: 3px solid #c4a86e;
+    border-radius: 6px;
+    padding: 14px 16px 10px;
+    margin-bottom: 14px;
+  }
+
+  .ref-card-citation {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #222;
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .ref-card-citation :global(em) { font-style: italic; }
+  .ref-card-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 11px; }
+  .ref-card-citation :global(a.ext:hover) { color: #5a3e1b; }
+
+  .group-section { margin-top: 7px; }
+
+  .group-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 2px;
+    opacity: 0.9;
+  }
+
+  /* ── By-group view ── */
+  .group-card {
+    border: 1px solid #e5e5e5;
+    border-left: 4px solid #888;
+    border-radius: 6px;
+    padding: 14px 16px 10px;
+    margin-bottom: 20px;
+    background: #fff;
+  }
+
+  .group-card-header {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .ref-sub-card {
+    background: #f8f6f1;
+    border: 1px solid #e2d9c9;
+    border-left: 3px solid #c4a86e;
+    border-radius: 4px;
+    padding: 10px 12px 7px;
+    margin-bottom: 10px;
+  }
+
+  .ref-sub-citation {
+    font-size: 12px;
+    font-weight: 600;
+    color: #222;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .ref-sub-citation :global(em) { font-style: italic; }
+  .ref-sub-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 11px; }
+  .ref-sub-citation :global(a.ext:hover) { color: #5a3e1b; }
 </style>
