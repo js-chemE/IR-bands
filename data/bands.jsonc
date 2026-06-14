@@ -501,7 +501,6 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2176,
-          "site": "gas phase",
           "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
         }
       ],
@@ -530,7 +529,6 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2114,
-          "site": "gas phase",
           "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
         }
       ],
