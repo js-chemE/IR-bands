@@ -229,7 +229,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 667,
+          "wn": 700,
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
         }
       ],
@@ -285,7 +285,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 667,
+          "wn": 660,
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
         }
       ],
