@@ -532,7 +532,7 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2176,
-          "site": "gas phase",
+          "site": null,
           "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
         }
       ],
@@ -566,7 +566,7 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2114,
-          "site": "gas phase",
+          "site": null,
           "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
         }
       ],
@@ -1545,12 +1545,24 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1550,
+      "wn_start": 1515,
       "wn_end": 1620,
       "short": "ν<sub>as</sub>(OCO) HCOO*",
-      "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker.",
+      "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker. Position is support-dependent: ~1520 cm⁻¹ on Ru/Al₂O₃ and Ru–Na₂O/Al₂O₃, shifting to ~1585–1600 cm⁻¹ on oxide-rich surfaces (Al₂O₃, CuGaZrOx). Appears during H₂ reduction as a methanation intermediate formed at the metal–support interface.",
       "based_on": [],
       "references": [
+        {
+          "key": "Proano.InsituDRIFTSStudy.2019",
+          "wn": 1520,
+          "site": "Ru/Al₂O₃",
+          "note": "Table 2, Fig. 1a: νas(OCO) HCOO* at 1520 cm⁻¹; appears at the onset of H₂ reduction (methanation step, 320 °C, 20% H₂/N₂). Formate forms at the Ru–Al₂O₃ interface via spillover of bicarbonates (adsorbed on Al₂O₃ OH groups); confirmed reaction intermediate en route to CH₄."
+        },
+        {
+          "key": "Proano.InsituDRIFTSStudy.2019",
+          "wn": 1520,
+          "site": "Ru/\"Na₂O\"/Al₂O₃",
+          "note": "Fig. 3a: νas(OCO) HCOO* at 1520 cm⁻¹; intense formation during H₂ reduction step on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM (320 °C). Formate forms after bidentate carbonates (on Al-O⁻-Na⁺ sites) spill over to the Ru–support interface; same position as on Ru/Al₂O₃ despite different CO₂ adsorption pathway."
+        },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1600,
@@ -1562,6 +1574,18 @@
           "wn": 1585,
           "site": "Al₂O₃",
           "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
+        },
+        {
+          "key": "Noei.RevealingFormicAcid.2026",
+          "wn": 1555,
+          "site": "Fe₃O₄(001)",
+          "note": "Table 1, Fig. 6c: νas(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS (Fano line shape, UHV, room temperature): 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe). Paired νs(OCO) at 1369/1377 cm⁻¹ (tet/int). Both sites are bidentate-bridging geometry; distinction only possible with polarized light due to Fano overlap in unpolarized spectra."
+        },
+        {
+          "key": "Noei.RevealingFormicAcid.2026",
+          "wn": 1588,
+          "site": "Fe₃O₄(111)",
+          "note": "Table 1, Fig. 6b/d: νas(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νs at 1335 cm⁻¹) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νs at 1380 cm⁻¹). Bidentate-bridging excluded (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. Positive inverted Fano sign for νas(OCO) indicates TDM parallel to surface (Ept)."
         }
       ],
       "tags": [],
@@ -1570,7 +1594,7 @@
       "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
-      "wn_min": 1550,
+      "wn_min": 1515,
       "wn_max": 1620
     },
     {
@@ -1583,12 +1607,36 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1340,
+      "wn_start": 1315,
       "wn_end": 1390,
       "short": "ν<sub>s</sub>(OCO) HCOO*",
-      "description": "Formate symmetric OCO stretch (HCOO*).",
+      "description": "Formate symmetric OCO stretch (HCOO*). Position varies with support and adsorption geometry: ~1320 cm⁻¹ on Ru/Al₂O₃, ~1335 cm⁻¹ (quasi-bidentate on Fe₃O₄(111)), ~1350–1380 cm⁻¹ on oxide surfaces (Al₂O₃, CuGaZrOx), ~1369–1377 cm⁻¹ on Fe₃O₄(001). Paired with νas(OCO) above ~1520 cm⁻¹; frequency splitting Δν = νas − νs reflects adsorption geometry (bridging vs. chelating).",
       "based_on": [],
       "references": [
+        {
+          "key": "Proano.InsituDRIFTSStudy.2019",
+          "wn": 1320,
+          "site": "Ru/Al₂O₃",
+          "note": "Table 2, Fig. 1a: νs(OCO) HCOO* at 1320 cm⁻¹; appears at onset of H₂ reduction step (320 °C, 20% H₂/N₂), paired with νas at 1520 cm⁻¹. Formate at Ru–Al₂O₃ interface via bicarbonate spillover; identified as key CO₂ methanation intermediate."
+        },
+        {
+          "key": "Proano.InsituDRIFTSStudy.2019",
+          "wn": 1320,
+          "site": "Ru/\"Na₂O\"/Al₂O₃",
+          "note": "Fig. 3a: νs(OCO) HCOO* at 1320 cm⁻¹ during H₂ reduction on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM; intense band paired with νas at 1520 cm⁻¹. Formate from bidentate carbonate spillover to Ru–support interface."
+        },
+        {
+          "key": "Noei.RevealingFormicAcid.2026",
+          "wn": 1369,
+          "site": "Fe₃O₄(001)",
+          "note": "Table 1, Fig. 6a/c: νs(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS: 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site). Paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int). Both negative Fano profiles (TDM perpendicular to surface, Epn coupling). δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. Dissociative HCOOH adsorption at room temperature, UHV."
+        },
+        {
+          "key": "Noei.RevealingFormicAcid.2026",
+          "wn": 1335,
+          "site": "Fe₃O₄(111)",
+          "note": "Table 1, Fig. 6b/d: νs(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹). Both appear as negative Fano resonances (TDM perpendicular to surface). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. No bidentate-bridging on this surface (tet-Fe spacing 5.9 Å too large)."
+        },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1350,
@@ -1608,7 +1656,7 @@
       "confidence": "confirmed",
       "lane": 6,
       "sub_lane": 0,
-      "wn_min": 1340,
+      "wn_min": 1315,
       "wn_max": 1390
     },
     {
