@@ -229,7 +229,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 667,
+          "wn": 700,
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
         }
       ],
@@ -285,7 +285,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 667,
+          "wn": 660,
           "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
         }
       ],
@@ -408,7 +408,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase"]
+      "tags": ["gas-phase", "overtone"]
     },
       // Pair-mate of co2_combo_3627_R (P-branch).
     {
@@ -446,7 +446,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase"]
+      "tags": ["gas-phase", "overtone"]
     },
     {
       "id": "co2_combo_2077_Q",
