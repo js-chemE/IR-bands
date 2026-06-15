@@ -217,7 +217,7 @@
       "pair": 1,
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "R"
       },
       "atoms": "O=C=O",
@@ -236,7 +236,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase"]
+      "tags": ["gas-phase", "degenerated-mode"]
     },
     {
       "id": "co2_bend_667_Q",
@@ -245,7 +245,7 @@
       "pair": 1,
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "Q"
       },
       "atoms": "O=C=O",
@@ -264,7 +264,7 @@
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": ["gas-phase"]
+      "tags": ["gas-phase", "degenerated-mode"]
     },
     {
       "id": "co2_bend_660_P",
@@ -273,7 +273,7 @@
       "pair": 1,
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "P"
       },
       "atoms": "O=C=O",
@@ -292,7 +292,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["gas-phase"]
+      "tags": ["gas-phase", "degenerated-mode"]
     },
       // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
     {

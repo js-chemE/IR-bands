@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
+  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Region } from '../lib/types';
   import { buildChart, TAG_STYLES } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
@@ -23,6 +23,7 @@
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
+  export let regions: Record<string, Region> | undefined = undefined;
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
 
@@ -60,6 +61,7 @@
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,
+      regions,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
