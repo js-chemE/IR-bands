@@ -177,13 +177,13 @@
   {#if viewMode === 'by-ref'}
     <!-- ── Alphabetical by reference ── -->
     {#each byRefItems as item (item.refKey)}
-      <div class="ref-card">
+      <div class="ref-card" id="refcard-{item.refKey}">
         <div class="ref-card-citation">{@html item.html}</div>
         {#each item.groupBands as g (g.key)}
           <div class="group-section">
             <div class="group-label" style="color:{g.color}">{g.label}</div>
-            {#each g.entries as e (e.band.id)}
-              {@const id = `r-${item.refKey}-${e.band.id}`}
+            {#each g.entries as e (`${e.band.id}|${e.ref.wn ?? ''}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
+              {@const id = `r-${item.refKey}-${e.band.id}-${e.ref.wn ?? ''}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
@@ -229,8 +229,8 @@
         {#each g.refs as r (r.refKey)}
           <div class="ref-sub-card">
             <div class="ref-sub-citation">{@html r.html}</div>
-            {#each r.entries as e (e.band.id)}
-              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}`}
+            {#each r.entries as e (`${e.band.id}|${e.ref.wn ?? ''}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
+              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}-${e.ref.wn ?? ''}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
@@ -376,6 +376,7 @@
     border-radius: 6px;
     padding: 14px 16px 10px;
     margin-bottom: 14px;
+    scroll-margin-top: 16px;
   }
 
   .ref-card-citation {
