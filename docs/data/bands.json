@@ -199,7 +199,7 @@
       "group": "co2",
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "R"
       },
       "atoms": "O=C=O",
@@ -217,7 +217,8 @@
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "degenerated-mode"
       ],
       "intensity": "s",
       "width": "medium",
@@ -233,7 +234,7 @@
       "group": "co2",
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "Q"
       },
       "atoms": "O=C=O",
@@ -251,7 +252,8 @@
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "degenerated-mode"
       ],
       "intensity": "vs",
       "width": "sharp",
@@ -267,7 +269,7 @@
       "group": "co2",
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": "P"
       },
       "atoms": "O=C=O",
@@ -285,7 +287,8 @@
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "degenerated-mode"
       ],
       "intensity": "s",
       "width": "medium",
