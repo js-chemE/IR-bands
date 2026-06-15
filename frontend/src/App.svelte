@@ -10,13 +10,15 @@
   import AxisSelect from './components/AxisSelect.svelte';
   import ReferencesPage from './components/ReferencesPage.svelte';
   import VibrationModesPage from './components/VibrationModesPage.svelte';
+  import HomePage from './components/HomePage.svelte';
+  import ImpressumPage from './components/ImpressumPage.svelte';
 
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
   let loading = true;
   let error: string | null = null;
-  type Page = 'chart' | 'references' | 'vibration';
-  let page: Page = 'chart';
+  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
+  let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
   let sidebarOpen = true;
   let showColorMenu = false;
@@ -126,6 +128,30 @@
     axisUnit = e.detail.unit;
   }
 
+  function handleHomeNavigate(e: CustomEvent<{ page: string }>) {
+    page = e.detail.page as Page;
+  }
+
+  function handleNavigateRef(e: CustomEvent<{ key: string }>) {
+    const key = e.detail.key;
+    refViewMode = 'by-ref';
+    page = 'references';
+    // Wait for the page to mount before scrolling
+    setTimeout(() => {
+      const el = document.getElementById(`refcard-${key}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.style.transition = 'box-shadow 0.25s ease-out, background-color 0.25s ease-out';
+      el.style.boxShadow = '0 0 0 3px #c4a86e88';
+      el.style.backgroundColor = '#f5edd8';
+      setTimeout(() => {
+        el.style.boxShadow = '';
+        el.style.backgroundColor = '';
+        setTimeout(() => { el.style.transition = ''; }, 300);
+      }, 1600);
+    }, 80);
+  }
+
   const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
     { dim: 'group',      label: 'Group' },
     { dim: 'vibration',  label: 'Vibration' },
@@ -158,7 +184,7 @@
 <!-- ── Page header ── -->
 <header class="app-header">
   <div class="header-left">
-    <span class="header-title">Spectral Band Atlas</span>
+    <button class="header-title-btn" on:click={() => page = 'home'}>Spectral Band Atlas</button>
     <span class="header-subtitle">CO₂ hydrogenation</span>
   </div>
   <div class="header-right">
@@ -184,6 +210,8 @@
       {#if !sidebarOpen}
         <!-- collapsed: mini page indicator buttons -->
         <div class="collapsed-page-nav">
+          <button class="page-mini-btn" class:active={page === 'home'}
+            on:click={() => page = 'home'} title="Home">H</button>
           <!-- B button: click = go to chart; hover = color quick-switch -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="mini-btn-wrap"
@@ -208,6 +236,8 @@
             on:click={() => page = 'references'} title="References">R</button>
           <button class="page-mini-btn" class:active={page === 'vibration'}
             on:click={() => page = 'vibration'} title="Vibration modes">V</button>
+          <button class="page-mini-btn" class:active={page === 'impressum'}
+            on:click={() => page = 'impressum'} title="Impressum">I</button>
         </div>
       {/if}
 
@@ -215,9 +245,11 @@
       <div class="sidebar-open-content">
         <!-- Page selector -->
         <nav class="page-nav">
+          <button class:active={page === 'home'}       on:click={() => page = 'home'}>Home</button>
           <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
           <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
           <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
+          <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
         </nav>
 
         <hr class="divider" />
@@ -258,23 +290,15 @@
           </div>
         {/if}
 
-        <!-- Download section — pushed to the bottom via margin-top: auto -->
-        <div class="dl-section">
-          <hr class="divider" />
-          <h3>Download</h3>
-          <div class="dl-btns">
-            <a class="dl-btn" href="data/bands.jsonc" download="bands.jsonc">↓ JSONC</a>
-            <a class="dl-btn" href="data/bands.json"  download="bands.json">↓ JSON</a>
-            <a class="dl-btn" href="data/references.bib" download="references.bib">↓ BIB</a>
-          </div>
-        </div>
       </div>
       {/if}
     </aside>
 
     <!-- ── Main content ── -->
     <div class="main-area" class:plot-area={page === 'chart'}>
-      {#if page === 'chart'}
+      {#if page === 'home'}
+        <HomePage on:navigate={handleHomeNavigate} />
+      {:else if page === 'chart'}
         <BandChart
           bands={dataset.bands}
           groups={dataset.groups}
@@ -287,6 +311,7 @@
           {axisUnit}
           hoveredCat={legendHoveredCat}
           hoveredTag={legendHoveredTag}
+          on:navigateRef={handleNavigateRef}
         />
         <div class="legend-box">
           <ColorLegend
@@ -317,6 +342,8 @@
         />
       {:else if page === 'vibration'}
         <VibrationModesPage />
+      {:else if page === 'impressum'}
+        <ImpressumPage />
       {/if}
     </div>
 {/if}
@@ -376,13 +403,19 @@
     gap: 14px;
   }
 
-  .header-title {
+  .header-title-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
     font-size: 28px;
     font-weight: 800;
     font-style: italic;
     letter-spacing: -0.01em;
     color: #fff;
   }
+  .header-title-btn:hover { color: rgba(255,255,255,0.82); }
 
   .header-subtitle {
     font-size: 14px;
@@ -524,29 +557,6 @@
     flex-direction: column;
     min-height: calc(100% - 38px); /* leaves room for toggle button */
   }
-
-  /* ── Download section ── */
-  .dl-section { margin-top: auto; }
-
-  .dl-btns {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .dl-btn {
-    display: block;
-    padding: 5px 10px;
-    background: white;
-    border: 1px solid #D0D0D0;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #444;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .dl-btn:hover { background: #F0F0F0; color: #111; }
 
   .sidebar-toggle {
     display: block;

@@ -1,10 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
   import { buildChart, TAG_STYLES } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat } from '../lib/colors';
+
+  const dispatch = createEventDispatcher<{ navigateRef: { key: string } }>();
+
+  function goToRef(key: string) {
+    selected = null;
+    selectedId = null;
+    dispatch('navigateRef', { key });
+  }
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -366,36 +374,73 @@
       <!-- Per-reference boxes -->
       {#if td.refs.length}
         <div class="tip-refs-section">
-          <div class="tip-refs-header">References</div>
-          {#each td.refs as ref}
-            <div class="tip-ref-box">
-              <div class="tip-ref-title">{ref.short}</div>
-              {#if ref.wn != null || ref.site}
-                <div class="tip-ref-badges">
-                  {#if ref.wn != null}
-                    <span class="badge-wn">{ref.wn} cm⁻¹</span>
+          <div class="tip-refs-header">
+            References
+            {#if !selected && td.refs.length > 3}
+              <span class="tip-refs-overflow">+{td.refs.length - 3} more · click band</span>
+            {/if}
+          </div>
+
+          {#if selected}
+            <!-- Frozen: all refs, scrollable, each clickable to jump to ref page -->
+            <div class="tip-refs-scroll">
+              {#each td.refs as ref}
+                <button class="tip-ref-box tip-ref-btn" on:click={() => goToRef(ref.key)} title="Open in References page">
+                  <div class="tip-ref-title">{ref.short} <span class="tip-ref-arrow">↗</span></div>
+                  {#if ref.wn != null || ref.site}
+                    <div class="tip-ref-badges">
+                      {#if ref.wn != null}
+                        <span class="badge-wn">{ref.wn} cm⁻¹</span>
+                      {/if}
+                      {#if ref.site}
+                        {#if Array.isArray(ref.site)}
+                          {#each ref.site as s}
+                            <span class="badge-site">{s}</span>
+                          {/each}
+                        {:else}
+                          <span class="badge-site">{ref.site}</span>
+                        {/if}
+                      {/if}
+                    </div>
                   {/if}
-                  {#if ref.site}
-                    {#if Array.isArray(ref.site)}
-                      {#each ref.site as s}
-                        <span class="badge-site">{s}</span>
-                      {/each}
-                    {:else}
-                      <span class="badge-site">{ref.site}</span>
-                    {/if}
+                  {#if ref.note}
+                    <div class="tip-ref-note">{ref.note}</div>
                   {/if}
-                </div>
-              {/if}
-              {#if ref.note}
-                <div class="tip-ref-note">{ref.note}</div>
-              {/if}
+                </button>
+              {/each}
             </div>
-          {/each}
+          {:else}
+            <!-- Hover: first 3 refs only, not clickable -->
+            {#each td.refs.slice(0, 3) as ref}
+              <div class="tip-ref-box">
+                <div class="tip-ref-title">{ref.short}</div>
+                {#if ref.wn != null || ref.site}
+                  <div class="tip-ref-badges">
+                    {#if ref.wn != null}
+                      <span class="badge-wn">{ref.wn} cm⁻¹</span>
+                    {/if}
+                    {#if ref.site}
+                      {#if Array.isArray(ref.site)}
+                        {#each ref.site as s}
+                          <span class="badge-site">{s}</span>
+                        {/each}
+                      {:else}
+                        <span class="badge-site">{ref.site}</span>
+                      {/if}
+                    {/if}
+                  </div>
+                {/if}
+                {#if ref.note}
+                  <div class="tip-ref-note">{ref.note}</div>
+                {/if}
+              </div>
+            {/each}
+          {/if}
         </div>
       {/if}
 
       {#if selected}
-        <div class="tip-lock-hint">click band to switch · click empty to dismiss</div>
+        <div class="tip-lock-hint">click ref ↗ to open · click band to switch · click empty to dismiss</div>
       {/if}
     </div>
   {/if}
@@ -523,7 +568,27 @@
     letter-spacing: 0.06em;
     color: #999;
     margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
   }
+
+  .tip-refs-overflow {
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #bbb;
+  }
+
+  .tip-refs-scroll {
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 3px;
+  }
+  .tip-refs-scroll::-webkit-scrollbar { width: 4px; }
+  .tip-refs-scroll::-webkit-scrollbar-thumb { background: #d0c9bc; border-radius: 2px; }
 
   .tip-ref-box {
     background: #f8f6f1;
@@ -532,6 +597,30 @@
     border-radius: 4px;
     padding: 5px 7px;
     margin-top: 4px;
+  }
+
+  /* Clickable ref box (selected mode) */
+  .tip-ref-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    transition: background 0.1s, border-left-color 0.1s;
+  }
+  .tip-ref-btn:hover {
+    background: #f0ece4;
+    border-left-color: #a08050;
+  }
+  .tip-ref-btn:hover .tip-ref-arrow { opacity: 1; }
+
+  .tip-ref-arrow {
+    font-size: 9px;
+    color: #a08050;
+    opacity: 0;
+    transition: opacity 0.1s;
+    margin-left: 3px;
   }
 
   .tip-ref-title {
