@@ -71,8 +71,8 @@ def _parse_reference(raw) -> Reference | None:
     """Normalize one references[] entry into a Reference.
 
     Accepts either a bare BibTeX key string (shorthand for {key}) or an
-    object {key, wn, site, note}. key is the only required part; entries
-    without one are disregarded.
+    object {key, wn, site, note, tags}. key is the only required part;
+    entries without one are disregarded.
     """
     if isinstance(raw, str):
         return Reference(key=raw) if raw else None
@@ -80,7 +80,13 @@ def _parse_reference(raw) -> Reference | None:
         key = raw.get("key")
         if not key:
             return None
-        return Reference(key=key, wn=raw.get("wn"), site=raw.get("site"), note=raw.get("note"))
+        return Reference(
+            key=key,
+            wn=raw.get("wn"),
+            site=raw.get("site"),
+            note=raw.get("note"),
+            tags=list(raw.get("tags", [])),
+        )
     return None
 
 
@@ -117,6 +123,8 @@ def _parse_band(raw: dict) -> Band:
         confidence=raw.get("confidence"),
         pair=raw.get("pair"),
         fermi_partner=raw.get("fermi_partner"),
+        fermi_partner_group=raw.get("fermi_partner_group"),
+        branch_group=raw.get("branch_group"),
     )
 
 
@@ -162,12 +170,17 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if b.group not in dataset.groups:
             errors.append(f"Band {b.id}: group {b.group!r} not in groups table")
 
-    # 3. based_on cross-references resolve
+    # 3. based_on cross-references resolve (band_id or branch_group)
+    branch_group_set = {b.branch_group for b in dataset.bands if b.branch_group}
     for b in dataset.bands:
         for bo in b.based_on:
             if bo.band_id is not None and bo.band_id not in id_set:
                 errors.append(
                     f"Band {b.id}: based_on references unknown band id {bo.band_id!r}"
+                )
+            if bo.branch_group is not None and bo.branch_group not in branch_group_set:
+                errors.append(
+                    f"Band {b.id}: based_on references unknown branch_group {bo.branch_group!r}"
                 )
 
     # 4. Combinations SHOULD have non-empty based_on (warning only)
@@ -185,14 +198,24 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if b.confidence is not None and b.confidence not in VALID_CONFIDENCES:
             errors.append(f"Band {b.id}: confidence={b.confidence!r} not in {VALID_CONFIDENCES}")
 
-    # 6. fermi_partner cross-references resolve and aren't self-referential
+    # 6. fermi_partner / fermi_partner_group cross-references resolve, aren't
+    #    self-referential, and aren't both set on the same band
     for b in dataset.bands:
+        if b.fermi_partner is not None and b.fermi_partner_group is not None:
+            errors.append(f"Band {b.id}: cannot set both fermi_partner and fermi_partner_group")
         if b.fermi_partner is not None:
             if b.fermi_partner == b.id:
                 errors.append(f"Band {b.id}: fermi_partner cannot reference itself")
             elif b.fermi_partner not in id_set:
                 errors.append(
                     f"Band {b.id}: fermi_partner references unknown band id {b.fermi_partner!r}"
+                )
+        if b.fermi_partner_group is not None:
+            if b.fermi_partner_group == b.branch_group:
+                errors.append(f"Band {b.id}: fermi_partner_group cannot reference its own branch_group")
+            elif b.fermi_partner_group not in branch_group_set:
+                errors.append(
+                    f"Band {b.id}: fermi_partner_group references unknown branch_group {b.fermi_partner_group!r}"
                 )
 
     # 7. wn_start/wn_end sanity
@@ -226,27 +249,77 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
 
 
 def tag_fermi_pairs(dataset: Dataset) -> list[str]:
-    """Auto-assign the "fermi-resonance" tag to bands whose fermi_partner
-    link is reciprocated (A.fermi_partner == B.id and B.fermi_partner == A.id).
+    """Auto-assign the "fermi-resonance" tag to bands whose Fermi link is
+    reciprocated, handling both kinds of link and any mix of them:
+      - fermi_partner: one band <-> one specific band.
+      - fermi_partner_group: one band <-> an entire branch_group, used when
+        the resonance partner vibration is itself split into branches (e.g.
+        two multi-branch combination bands resonating with each other).
 
     Must run after validate_dataset(), which guarantees any set fermi_partner
-    resolves to a real band id. One-sided links (A points at B, but B doesn't
-    point back) are left untagged and reported as warnings — returned here
-    rather than printed, so the caller controls how build output looks.
+    resolves to a real band id, fermi_partner_group resolves to a real
+    branch_group, and a band never sets both. One-sided links are left
+    untagged and reported as warnings — returned here rather than printed,
+    so the caller controls how build output looks.
     """
+    branch_group_members: dict[str, list[str]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            branch_group_members.setdefault(b.branch_group, []).append(b.id)
+
+    def fermi_targets(b) -> set[str]:
+        if b.fermi_partner:
+            return {b.fermi_partner}
+        if b.fermi_partner_group:
+            return set(branch_group_members.get(b.fermi_partner_group, []))
+        return set()
+
     warnings: list[str] = []
     for b in dataset.bands:
-        if not b.fermi_partner:
+        targets = fermi_targets(b)
+        if not targets:
             continue
-        partner = dataset.band_by_id(b.fermi_partner)
-        if partner.fermi_partner == b.id:
+        # My own "identity" for reciprocity purposes: my whole branch_group
+        # if I'm in one (any sibling pointing back counts), else just me.
+        my_set = set(branch_group_members.get(b.branch_group, [])) if b.branch_group else {b.id}
+        reciprocated = any(my_set & fermi_targets(dataset.band_by_id(t)) for t in targets)
+        if reciprocated:
             if "fermi-resonance" not in b.tags:
                 b.tags.append("fermi-resonance")
         else:
+            target_desc = b.fermi_partner or b.fermi_partner_group
             warnings.append(
-                f"Band {b.id}: fermi_partner={b.fermi_partner!r} is not reciprocated "
-                f"(its fermi_partner is {partner.fermi_partner!r})"
+                f"Band {b.id}: fermi link to {target_desc!r} is not reciprocated"
             )
+    return warnings
+
+
+def tag_branch_groups(dataset: Dataset) -> list[str]:
+    """Auto-assign the "rotational-branches" tag to every band that shares a
+    non-null branch_group with at least one other band (the R/P/Q siblings
+    of one vibrational transition).
+
+    Unlike fermi_partner this is a shared group key rather than a pairwise
+    link, since a transition can have 2 (R/P) or 3 (R/P/Q) branches. A key
+    used by only one band is most likely a typo or a forgotten sibling —
+    reported as a warning rather than tagged.
+    """
+    groups: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            groups.setdefault(b.branch_group, []).append(b)
+
+    warnings: list[str] = []
+    for key, members in groups.items():
+        if len(members) < 2:
+            warnings.append(
+                f"Band {members[0].id}: branch_group={key!r} has only one member "
+                "(expected >= 2 for R/P/Q siblings)"
+            )
+            continue
+        for b in members:
+            if "rotational-branches" not in b.tags:
+                b.tags.append("rotational-branches")
     return warnings
 
 

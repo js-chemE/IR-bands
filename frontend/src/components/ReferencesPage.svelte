@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Band, BandReference, GroupMap, RefMap } from '../lib/types';
+  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/chart';
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -199,6 +200,10 @@
                   {#each qualityTags(e.band) as tag}
                     <span class="badge-quality">{tag}</span>
                   {/each}
+                  {#each e.ref.tags as tag}
+                    {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                    <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
+                  {/each}
                   <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
                 </div>
                 {#if open.has(id)}
@@ -245,6 +250,10 @@
                   {/each}
                   {#each qualityTags(e.band) as tag}
                     <span class="badge-quality">{tag}</span>
+                  {/each}
+                  {#each e.ref.tags as tag}
+                    {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                    <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
                   {/each}
                   <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
                 </div>
@@ -311,6 +320,15 @@
     padding: 1px 5px;
     font-size: 10px;
     color: #555;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-ref-tag {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
     white-space: nowrap;
     flex-shrink: 0;
   }
