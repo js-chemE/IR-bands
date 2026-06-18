@@ -116,6 +116,7 @@ def _parse_band(raw: dict) -> Band:
         width=raw.get("width"),
         confidence=raw.get("confidence"),
         pair=raw.get("pair"),
+        fermi_partner=raw.get("fermi_partner"),
     )
 
 
@@ -184,14 +185,24 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if b.confidence is not None and b.confidence not in VALID_CONFIDENCES:
             errors.append(f"Band {b.id}: confidence={b.confidence!r} not in {VALID_CONFIDENCES}")
 
-    # 6. wn_start/wn_end sanity
+    # 6. fermi_partner cross-references resolve and aren't self-referential
+    for b in dataset.bands:
+        if b.fermi_partner is not None:
+            if b.fermi_partner == b.id:
+                errors.append(f"Band {b.id}: fermi_partner cannot reference itself")
+            elif b.fermi_partner not in id_set:
+                errors.append(
+                    f"Band {b.id}: fermi_partner references unknown band id {b.fermi_partner!r}"
+                )
+
+    # 7. wn_start/wn_end sanity
     for b in dataset.bands:
         if b.wn_min <= 0:
             errors.append(f"Band {b.id}: non-positive wavenumber {b.wn_min}")
         if b.wn_max < b.wn_min:
             errors.append(f"Band {b.id}: wn_max < wn_min")
 
-    # 7. Reference keys resolve (if a references map is provided)
+    # 8. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
             for ref in b.references:
@@ -212,6 +223,31 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         print("Validation warnings:", file=sys.stderr)
         for w in warnings:
             print(f"  ⚠ {w}", file=sys.stderr)
+
+
+def tag_fermi_pairs(dataset: Dataset) -> list[str]:
+    """Auto-assign the "fermi-resonance" tag to bands whose fermi_partner
+    link is reciprocated (A.fermi_partner == B.id and B.fermi_partner == A.id).
+
+    Must run after validate_dataset(), which guarantees any set fermi_partner
+    resolves to a real band id. One-sided links (A points at B, but B doesn't
+    point back) are left untagged and reported as warnings — returned here
+    rather than printed, so the caller controls how build output looks.
+    """
+    warnings: list[str] = []
+    for b in dataset.bands:
+        if not b.fermi_partner:
+            continue
+        partner = dataset.band_by_id(b.fermi_partner)
+        if partner.fermi_partner == b.id:
+            if "fermi-resonance" not in b.tags:
+                b.tags.append("fermi-resonance")
+        else:
+            warnings.append(
+                f"Band {b.id}: fermi_partner={b.fermi_partner!r} is not reciprocated "
+                f"(its fermi_partner is {partner.fermi_partner!r})"
+            )
+    return warnings
 
 
 # ---------------------------------------------------------------------------
