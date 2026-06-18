@@ -55,16 +55,27 @@ class Vibration:
 class BasedOn:
     """A reference from a derived band (combination/overtone) to a parent mode.
 
-    band_id is None when the parent isn't in the dataset (e.g. IR-inactive ν₁
-    of CO₂); in that case label provides a human-readable description.
+    Exactly one of band_id or branch_group is normally set:
+      - band_id points at one specific observed band — the common case, for
+        vibrations with only one reported branch (no resolved R/P/Q).
+      - branch_group points at the *vibration* via its branch_group key
+        instead of any one specific band, used when the parent vibration is
+        itself split into branches and the combination doesn't depend on
+        which branch was observed (e.g. a combination built from ν₃ is built
+        from ν₃ regardless of whether you cite its R- or P-branch peak).
+    Both are None only when label is given, for parent modes outside the
+    dataset entirely (e.g. IR-inactive ν₁ of CO₂).
     """
-    band_id: Optional[str]
-    multiplier: int
-    label: Optional[str] = None  # only used when band_id is None
+    band_id: Optional[str] = None
+    branch_group: Optional[str] = None
+    multiplier: int = 1
+    label: Optional[str] = None  # only used when band_id and branch_group are both None
 
     def __post_init__(self):
-        if self.band_id is None and not self.label:
-            raise ValueError("based_on entry has band_id=None but no label")
+        if self.band_id is not None and self.branch_group is not None:
+            raise ValueError("based_on entry cannot set both band_id and branch_group")
+        if self.band_id is None and self.branch_group is None and not self.label:
+            raise ValueError("based_on entry has no band_id/branch_group and no label")
         if self.multiplier < 1:
             raise ValueError(f"based_on.multiplier={self.multiplier} must be >= 1")
 
@@ -78,11 +89,15 @@ class Reference:
     describes the band — e.g. a different exact wavenumber or assumed surface
     site — for cases where sources disagree and collapsing to one
     interpretation (or the band's general description) would lose information.
+    tags are free-form, scoped to this one citation rather than the whole
+    band (e.g. one source's claim is a "misassignment-warning" while another
+    source's isn't) — styled the same as band-level tags in the frontend.
     """
     key: str
     wn: Optional[int] = None
     site: Optional[Union[str, list[str]]] = None
     note: Optional[str] = None
+    tags: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -104,6 +119,20 @@ class Band:
     # when complete (A.fermi_partner == B.id and B.fermi_partner == A.id); the
     # "fermi-resonance" tag is then auto-assigned to both by tag_fermi_pairs().
     fermi_partner: Optional[str] = None
+
+    # Fermi resonance with an entire branch group instead of one band, used
+    # when the resonance partner vibration is itself split into R/P/Q
+    # branches (e.g. two multi-branch combination bands resonating with each
+    # other). Mutually exclusive with fermi_partner. Reciprocity (and the
+    # "fermi-resonance" tag) is resolved the same way, just expanded across
+    # both groups' members by tag_fermi_pairs().
+    fermi_partner_group: Optional[str] = None
+
+    # Rotational branches (R/P/Q) of one vibrational transition: all bands
+    # sharing the same non-null branch_group are mutual siblings (2-way for
+    # R/P-only modes, 3-way when Q is also IR-allowed). The "rotational-
+    # branches" tag is auto-assigned to every member by tag_branch_groups().
+    branch_group: Optional[str] = None
 
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
     width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad

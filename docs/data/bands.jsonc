@@ -11,19 +11,33 @@
 //                 subtype  ∈ symmetric | asymmetric | scissoring | wagging | rocking | twisting | null
 //                 branch   ∈ R | P | Q | null
 //                 note: overtones use the parent's category + tags: ["overtone"]
-//   based_on    — list of {band_id, multiplier} (or {band_id: null, label} for
-//                 parent modes not in the dataset, e.g. IR-inactive ν₁ of CO₂)
+//   based_on    — list of parent-mode references, each with `multiplier` plus
+//                 exactly one of:
+//                   band_id      — one specific observed band (the common
+//                                  case: the parent vibration has no
+//                                  resolved R/P/Q branching)
+//                   branch_group — the parent *vibration* via its
+//                                  branch_group key instead of one specific
+//                                  branch, used when the parent is itself
+//                                  branched and the composition doesn't
+//                                  depend on which branch was observed
+//                   (neither, + label) — parent mode outside the dataset
+//                                  entirely, e.g. IR-inactive ν₁ of CO₂
 //   references  — list of citation entries, resolved against references.bib.
 //                 Each entry is either a bare BibTeX key string (shorthand for
-//                 {key}), or an object {key, wn, site, note} for cases where a
-//                 specific source's claim differs from the band's general
-//                 description (e.g. a different exact wavenumber or assumed
-//                 surface site). key is mandatory — entries without one are
-//                 disregarded; wn/site/note are optional and default to null.
-//                 site names the catalyst or surface only (no reaction conditions);
-//                 use a JSON array if the band is observed on multiple surfaces.
+//                 {key}), or an object {key, wn, site, note, tags} for cases
+//                 where a specific source's claim differs from the band's
+//                 general description (e.g. a different exact wavenumber or
+//                 assumed surface site). key is mandatory — entries without
+//                 one are disregarded; wn/site/note/tags are optional and
+//                 default to null/empty. site names the catalyst or surface
+//                 only (no reaction conditions); use a JSON array if the band
+//                 is observed on multiple surfaces. tags are scoped to this
+//                 one citation rather than the whole band (e.g. only this
+//                 source's claim is a "misassignment-warning"); styled the
+//                 same as band-level tags in the frontend (same color/legend).
 //                 Example: {"key": "Smith.Example.2020", "wn": 1350,
-//                           "site": "CeO₂", "note": "..."}
+//                           "site": "CeO₂", "note": "...", "tags": ["..."]}
 //                 Multi-site: {"key": "...", "site": ["Al₂O₃", "TiO₂"]}
 //   tags        — free-form list of strings; "overtone" marks overtone bands
 //   fermi_partner — id of the other band in a Fermi resonance doublet, or
@@ -31,6 +45,18 @@
 //                 B.fermi_partner=A) for the pair to be considered complete;
 //                 build.py then auto-adds "fermi-resonance" to both bands'
 //                 tags. A one-sided link raises a build warning, not an error.
+//   fermi_partner_group — like fermi_partner, but pointing at an entire
+//                 branch_group instead of one band, used when the resonance
+//                 partner vibration is itself split into branches (e.g. two
+//                 multi-branch combination bands resonating with each
+//                 other). Mutually exclusive with fermi_partner.
+//   branch_group — shared string key linking the R/P/Q branches of one
+//                 vibrational transition (2-way for R/P, 3-way when Q is
+//                 also IR-allowed), or omit/null. All bands sharing the same
+//                 key become mutual partners; build.py auto-adds
+//                 "rotational-branches" to all of them. A key used by only
+//                 one band raises a build warning (likely a typo or a
+//                 forgotten sibling), not an error.
 //   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
 //   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
 //   confidence  — assignment confidence: confirmed | likely | tentative | speculative  (omit if unknown)
@@ -158,7 +184,8 @@
       "id": "co2_asym_2360_R",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_nu3_branches",
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -168,13 +195,13 @@
       "wn_start": 2350,
       "wn_end": 2390,
       "short": "νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ asymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2349,
-          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak."
+          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak."
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -191,7 +218,8 @@
       "id": "co2_asym_2335_P",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_nu3_branches",
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -201,13 +229,13 @@
       "wn_start": 2310,
       "wn_end": 2349,
       "short": "νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ asymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2349,
-          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
+          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
         }
       ],
       "intensity": "vs",
@@ -219,7 +247,8 @@
       "id": "co2_bend_700_R",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_nu2_branches",
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -229,13 +258,13 @@
       "wn_start": 690,
       "wn_end": 720,
       "short": "δ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
+      "description": "Gas CO₂ bending fundamental (δ) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 700,
-          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
+          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
         }
       ],
       "intensity": "s",
@@ -247,7 +276,8 @@
       "id": "co2_bend_667_Q",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_nu2_branches",
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -257,13 +287,13 @@
       "wn_start": 670,
       "wn_end": 685,
       "short": "δ(OCO) CO₂ (Q)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because ν₂ is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
+      "description": "Gas CO₂ bending fundamental (δ) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because this mode is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 667,
-          "note": "Q-branch coincides with the reported ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
+          "note": "Q-branch coincides with the reported ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
         }
       ],
       "intensity": "vs",
@@ -275,7 +305,8 @@
       "id": "co2_bend_660_P",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_nu2_branches",
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -285,13 +316,13 @@
       "wn_start": 640,
       "wn_end": 665,
       "short": "δ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
+      "description": "Gas CO₂ bending fundamental (δ) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 660,
-          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
+          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
         }
       ],
       "intensity": "s",
@@ -304,7 +335,9 @@
       "id": "co2_combo_3730_R",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_combo_upper_branches",
+      "fermi_partner_group": "co2_combo_lower_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
@@ -314,15 +347,14 @@
       "wn_start": 3725,
       "wn_end": 3735,
       "short": "νₛ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (νₛ + νₐₛ) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
       "based_on": [
         {
-          "band_id": null,
-          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)",
+          "band_id": "co2_sym_1388",
           "multiplier": 1
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1
         }
       ],
@@ -330,7 +362,7 @@
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
-          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
+          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
         }
       ],
       "intensity": "m",
@@ -343,7 +375,9 @@
       "id": "co2_combo_3699_P",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_combo_upper_branches",
+      "fermi_partner_group": "co2_combo_lower_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
@@ -353,15 +387,14 @@
       "wn_start": 3695,
       "wn_end": 3705,
       "short": "νₛ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (ν₁ + ν₃) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
+      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (νₛ + νₐₛ) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
       "based_on": [
         {
-          "band_id": null,
-          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)",
+          "band_id": "co2_sym_1388",
           "multiplier": 1
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1
         }
       ],
@@ -369,7 +402,7 @@
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
-          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
+          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
         }
       ],
       "intensity": "m",
@@ -382,7 +415,9 @@
       "id": "co2_combo_3627_R",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_combo_lower_branches",
+      "fermi_partner_group": "co2_combo_upper_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
@@ -392,14 +427,14 @@
       "wn_start": 3622,
       "wn_end": 3632,
       "short": "2δ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2ν₂ + ν₃) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
+      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2δ + νₐₛ) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
       "based_on": [
         {
-          "band_id": "co2_bend_667_Q",
+          "branch_group": "co2_nu2_branches",
           "multiplier": 2
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1
         }
       ],
@@ -407,7 +442,7 @@
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
-          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
+          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
         }
       ],
       "intensity": "m",
@@ -420,7 +455,9 @@
       "id": "co2_combo_3597_P",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
+      "branch_group": "co2_combo_lower_branches",
+      "fermi_partner_group": "co2_combo_upper_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
@@ -430,14 +467,14 @@
       "wn_start": 3592,
       "wn_end": 3602,
       "short": "2δ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2ν₂ + ν₃) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
+      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2δ + νₐₛ) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
       "based_on": [
         {
-          "band_id": "co2_bend_667_Q",
+          "branch_group": "co2_nu2_branches",
           "multiplier": 2
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1
         }
       ],
@@ -445,7 +482,7 @@
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
-          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
+          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
         }
       ],
       "intensity": "m",
@@ -457,7 +494,7 @@
       "id": "co2_combo_2077_Q",
       "species": "CO₂",
       "group": "co2",
-      "pair": 1,
+      "pair": 0,
       "vibration": {
         "category": "combination",
         "subtype": null,
@@ -481,6 +518,34 @@
       "confidence": "confirmed",
       "tags": ["gas-phase", "misassignment-warning", "drifts-artifact"]
     },
+      // IR-forbidden (Σg⁺); listed for context as the explicit parent of the
+      // ν₁+ν₃ combination band and the Fermi-dyad partner of 2ν₂.
+    {
+      "id": "co2_sym_1388",
+      "species": "CO₂",
+      "group": "co2",
+      "pair": 0,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1383,
+      "wn_end": 1395,
+      "short": "νₛ(OCO) CO₂",
+      "description": "Gas CO₂ symmetric stretch (νₛ) band origin at ~1388 cm⁻¹. Strictly IR-forbidden by symmetry (Σg⁺ — centrosymmetric, no dipole moment change); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the νₛ+νₐₛ combination band (~3715 cm⁻¹) and as the Fermi-resonance partner of 2δ (~1334 cm⁻¹).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 1388,
+          "note": "ν₁ (our νₛ) band origin (Table 2); IR-inactive (Σg⁺) — included for context as the Fermi-dyad partner of 2ν₂ (our 2δ) and parent of the (ν₁+ν₃) [our νₛ+νₐₛ] combination band."
+        }
+      ],
+      "confidence": "confirmed",
+      "tags": ["gas-phase", "ir-inactive"]
+    },
 
     // ---------------------------------------------------------------------------
     // GAS-PHASE CO
@@ -491,6 +556,7 @@
       "species": "CO",
       "group": "co",
       "pair": 1,
+      "branch_group": "co_nu1_branches",
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -519,6 +585,7 @@
       "species": "CO",
       "group": "co",
       "pair": 1,
+      "branch_group": "co_nu1_branches",
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -561,7 +628,7 @@
       "wn_start": 2980,
       "wn_end": 3060,
       "short": "νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "description": "Gas methane asymmetric C-H stretch (νₐₛ, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
       "based_on": [],
       "references": [
         {
@@ -589,7 +656,7 @@
       "wn_start": 1280,
       "wn_end": 1340,
       "short": "δₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
+      "description": "Gas methane asymmetric bending (δₐₛ, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
       "references": [
         {
@@ -603,7 +670,28 @@
       "confidence": "confirmed",
       "tags": ["gas-phase"]
     },
-      // δ_s(HCH) parent (ν₂) not in dataset — add later if needed.
+      // IR-forbidden (E in Td); listed for context as the explicit parent of
+      // the δₛ+νₐₛ combination band, mirroring co2_sym_1388.
+    {
+      "id": "ch4g_bend_sym_1534",
+      "species": "CH₄",
+      "group": "ch4",
+      "pair": 1,
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1528,
+      "wn_end": 1540,
+      "short": "δₛ(HCH) CH₄(g)",
+      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry (E in Td — no T₂ component); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the δₛ+νₐₛ combination band (~4220 cm⁻¹).",
+      "based_on": [],
+      "references": [],
+      "confidence": "confirmed",
+      "tags": ["gas-phase", "ir-inactive"]
+    },
     {
       "id": "ch4g_combo_4220",
       "species": "CH₄",
@@ -621,8 +709,7 @@
       "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when νₐₛ saturates. Often outside standard DRIFTS window.",
       "based_on": [
         {
-          "band_id": null,
-          "label": "δₛ(HCH) CH₄(g) ν₂ (not in dataset)",
+          "band_id": "ch4g_bend_sym_1534",
           "multiplier": 1
         },
         {
@@ -666,7 +753,8 @@
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2053,
           "site": "Pt⁰-CeO₂ interface",
-          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate. Under ¹³CO₂ a further red-shift to 2005 cm⁻¹ is observed, consistent with the expected isotopic shift for a linear CO stretch."
+          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate. Under ¹³CO₂ a further red-shift to 2005 cm⁻¹ is observed, consistent with the expected isotopic shift for a linear CO stretch.",
+          "tags": ["isotopic-shift"]
         }
       ],
       "intensity": "s",
@@ -1054,7 +1142,8 @@
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 1605,
           "site": "CeO₂",
-          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle."
+          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle.",
+          "tags": ["isotopic-shift"]
         }
       ],
       "intensity": "s",
@@ -1089,7 +1178,8 @@
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 1251,
           "site": "CeO₂",
-          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS."
+          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS.",
+          "tags": ["isotopic-shift"]
         }
       ],
       "intensity": "m",

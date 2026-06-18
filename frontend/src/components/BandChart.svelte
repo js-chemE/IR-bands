@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
-  import { buildChart, TAG_STYLES } from '../lib/chart';
+  import { buildChart, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat } from '../lib/colors';
@@ -43,40 +43,178 @@
   // even after the mouse moves off the band.
   $: active = selected ?? hovered;
 
-  // Partner bands of the active one, restricted to what's currently visible.
-  // Generalized over tipData.partners rather than any one connection kind:
-  // today that list only ever holds a Fermi-resonance partner, but it's
-  // built so a future based_on (or other) connection just adds more ids to
-  // the same list, with no change needed here.
-  $: partnerHits = active
+  // Resolve a band id to a hit, even if it's not currently drawn (hidden by
+  // a category/tag filter, or panned/zoomed out of view) — falls back to
+  // chart.ts's allPositions so a connector can still reach it "as it would
+  // be". Synthetic hits are zero-size and carry only what connectors need
+  // (position + branchGroup); they're never glow-highlighted (see glowHits).
+  function findHitOrSynthetic(id: string): { hit: PlotBandHit; real: boolean } | null {
+    const real = hitBands.find(h => h.tipData.id === id);
+    if (real) return { hit: real, real: true };
+    const pos = allPositions[id];
+    if (!pos) return null;
+    const band = bands.find(b => b.id === id);
+    if (!band) return null;
+    const synthetic: PlotBandHit = {
+      px1: pos.px, px2: pos.px, py1: pos.py, py2: pos.py,
+      color: '#999',
+      tipData: {
+        id: band.id, name: '', vib: '', wnRange: '', group: '', color: '#999',
+        noteLines: [], tags: [], description: '', refs: [], partners: [],
+        branchGroup: band.branch_group ?? null,
+      },
+    };
+    return { hit: synthetic, real: false };
+  }
+
+  // Every member of one band's branch_group (real or synthetic), or just the
+  // band itself if it isn't part of one. Lets fermi/based_on connectors
+  // anchor on a single "center" point per vibration instead of fanning out
+  // to every individual rotational branch.
+  function groupHits(hit: PlotBandHit): PlotBandHit[] {
+    const bg = hit.tipData.branchGroup;
+    if (!bg) return [hit];
+    const memberIds = bands.filter(b => b.branch_group === bg).map(b => b.id);
+    const resolved = memberIds
+      .map(id => findHitOrSynthetic(id)?.hit)
+      .filter((h): h is PlotBandHit => !!h);
+    return resolved.length ? resolved : [hit];
+  }
+  function groupCenter(hits: PlotBandHit[]) {
+    const x = hits.reduce((s, h) => s + (h.px1 + h.px2) / 2, 0) / hits.length;
+    const y = hits.reduce((s, h) => s + (h.py1 + h.py2) / 2, 0) / hits.length;
+    return { x, y };
+  }
+
+  // Branch partners resolve one-to-one and connect directly — there's no
+  // "other side" to collapse to a center, since all siblings are mutually
+  // each other's branch partner.
+  $: directLinks = active
     ? active.tipData.partners
-        .map(id => hitBands.find(h => h.tipData.id === id))
-        .filter((h): h is PlotBandHit => !!h)
+        .filter((p): p is { id: string; kind: 'branch' } => p.kind === 'branch')
+        .map(p => {
+          const found = findHitOrSynthetic(p.id);
+          return found ? { hit: found.hit, kind: p.kind } : null;
+        })
+        .filter((l): l is { hit: PlotBandHit; kind: 'branch' } => !!l)
     : [];
 
+  // Fermi and based_on targets, grouped by branch_group so a multi-branch
+  // partner vibration (on either side) collapses to one connector endpoint
+  // instead of one per branch. Deduplicated so the same group isn't drawn
+  // twice (e.g. two siblings both citing the same partner group).
+  function resolveTargetGroups(activeHit: PlotBandHit, kind: 'fermi' | 'based_on'): PlotBandHit[][] {
+    const ids = activeHit.tipData.partners.filter(p => p.kind === kind).map(p => p.id);
+    const seen = new Set<string>();
+    const groups: PlotBandHit[][] = [];
+    for (const id of ids) {
+      const found = findHitOrSynthetic(id);
+      if (!found) continue;
+      const key = found.hit.tipData.branchGroup ?? `__single__${found.hit.tipData.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      groups.push(groupHits(found.hit));
+    }
+    return groups;
+  }
+  $: fermiGroups = active ? resolveTargetGroups(active, 'fermi') : [];
+  $: basedOnGroups = active ? resolveTargetGroups(active, 'based_on') : [];
+
+  // The active band's own group (its branch siblings, or just itself) — the
+  // shared source anchor for every fermi/based_on connector, so hovering any
+  // one sibling draws the exact same connectors.
+  $: activeGroup = active ? groupHits(active) : [];
+
   // Legend hover (category/tag) takes priority; otherwise glow the active
-  // band plus any partners.
+  // band plus any partners — full group membership for fermi/based_on
+  // links, not just the center point used to anchor the connector. Synthetic
+  // (currently-hidden) hits are filtered out here — only real, drawn bands
+  // get the glow treatment; hidden partners only anchor a connector.
   $: glowHits = (hoveredCat || hoveredTag)
     ? highlightedHits
     : active
-      ? [active, ...partnerHits]
+      ? [active, ...directLinks.map(l => l.hit), ...activeGroup, ...fermiGroups.flat(), ...basedOnGroups.flat()]
+          .filter(h => hitBands.includes(h))
       : [];
 
-  // "Staple" connectors from the active band to each partner: each leg
-  // leaves its band vertically, meeting at a bridge height safely above
-  // both — every lane's bar sits in the lower portion of its row, so a fixed
-  // lift above the higher band's top always lands in clear headroom,
-  // independent of which lanes lie in between.
-  const PARTNER_BRIDGE_LIFT = 16;
-  function connectorBetween(a: PlotBandHit, b: PlotBandHit) {
+  // Connector geometry differs by kind:
+  //  - branch: a plain line straight through the vertical center of both
+  //    bars — branches of one transition are close enough that a flat line
+  //    through them is all the relationship needs.
+  //  - fermi: a "staple" bridging up from each side's group-center to a
+  //    height 80% of the way to mid-lane, clearing any other band sitting
+  //    between the partners — Fermi partners aren't guaranteed to be
+  //    lane-adjacent the way branches are.
+  //  - based_on: a shallow arc from the active band's group-center to each
+  //    parent group-center, bowing upward all the way to mid-lane (100%) —
+  //    distinct from fermi since it's a parent/child relationship, not a
+  //    peer one. Parents only: hovering a fundamental does not show every
+  //    combination built from it.
+  // Fermi and based_on share the same anchor (group center, expanding any
+  // multi-branch side to its center) but no longer the same peak height;
+  // the visual difference is shape (staple vs arc), line style, and height.
+  const FERMI_LIFT_FRAC = 0.8;
+  const BASED_ON_LIFT_FRAC = 1.8;
+  function midLaneLift(frac: number) {
+    return frac * (laneHeightPx / 2);
+  }
+
+  type Connector =
+    | { kind: 'branch'; xA: number; xB: number; y: number }
+    | { kind: 'fermi'; xA: number; xB: number; yA: number; yB: number; bridgeY: number }
+    | { kind: 'based_on'; xA: number; yA: number; xB: number; yB: number; midX: number; controlY: number };
+
+  function connectorBetween(a: PlotBandHit, b: PlotBandHit): Connector {
     const xA = (a.px1 + a.px2) / 2;
     const xB = (b.px1 + b.px2) / 2;
-    const topA = a.py1 + HIT_PAD;
-    const topB = b.py1 + HIT_PAD;
-    const bridgeY = Math.min(topA, topB) - PARTNER_BRIDGE_LIFT;
-    return { xA, topA, xB, topB, bridgeY };
+    const y = ((a.py1 + a.py2) / 2 + (b.py1 + b.py2) / 2) / 2;
+    return { kind: 'branch', xA, xB, y };
   }
-  $: connectors = active ? partnerHits.map(p => connectorBetween(active!, p)) : [];
+
+  function groupConnector(
+    srcHits: PlotBandHit[],
+    dstHits: PlotBandHit[],
+    kind: 'fermi' | 'based_on',
+    liftOverride?: number,
+  ): Connector {
+    const src = groupCenter(srcHits);
+    const dst = groupCenter(dstHits);
+    const lift = liftOverride ?? midLaneLift(kind === 'fermi' ? FERMI_LIFT_FRAC : BASED_ON_LIFT_FRAC);
+    const peakY = Math.min(src.y, dst.y) - lift;
+    if (kind === 'fermi') {
+      return { kind, xA: src.x, xB: dst.x, yA: src.y, yB: dst.y, bridgeY: peakY };
+    }
+    const midX = (src.x + dst.x) / 2;
+    return { kind, xA: src.x, yA: src.y, xB: dst.x, yB: dst.y, midX, controlY: peakY };
+  }
+
+  // Multiple based_on arcs from the same child would otherwise all peak at
+  // the same height and cross each other partway through. Scaling each
+  // arc's height by how far it travels (farthest target = full height,
+  // nearer ones nested progressively lower) avoids that: for two quadratic
+  // Béziers sharing a start point, with the control point at the exact
+  // horizontal midpoint and peak height proportional to span, the shorter
+  // curve is provably never above the longer one in their overlapping
+  // range — they only ever touch at the shared origin.
+  $: scaledBasedOnConnectors = basedOnGroups.length === 0
+    ? []
+    : (() => {
+        const srcX = groupCenter(activeGroup).x;
+        const spans = basedOnGroups.map(g => Math.abs(groupCenter(g).x - srcX));
+        const maxSpan = Math.max(...spans);
+        const maxLift = midLaneLift(BASED_ON_LIFT_FRAC);
+        return basedOnGroups.map((g, i) =>
+          groupConnector(activeGroup, g, 'based_on', maxSpan > 0 ? maxLift * (spans[i] / maxSpan) : maxLift),
+        );
+      })();
+
+  $: connectors = active
+    ? [
+        ...directLinks.map(l => connectorBetween(active!, l.hit)),
+        ...fermiGroups.map(g => groupConnector(activeGroup, g, 'fermi')),
+        ...scaledBasedOnConnectors,
+      ]
+    : [];
 
   let container: HTMLDivElement;
   let containerWidth = 1100;
@@ -93,6 +231,8 @@
   // ---------------------------------------------------------------------------
   let hitBands: PlotBandHit[] = [];
   let chartSvgHeight = 0;
+  let laneHeightPx = 0;
+  let allPositions: Record<string, { px: number; py: number }> = {};
 
   $: if (container) {
     hovered = null;
@@ -105,6 +245,8 @@
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
     chartSvgHeight = result.chartHeight;
+    laneHeightPx = result.laneHeightPx;
+    allPositions = result.allPositions;
     // Re-anchor selected band to the freshly-built hit rects (survives zoom/pan)
     if (selectedId) {
       selected = hitBands.find(h => h.tipData.id === selectedId) ?? null;
@@ -357,12 +499,20 @@
         </filter>
       </defs>
       {#each connectors as c}
-        <path d="M {c.xA} {c.topA}
-                  V {c.bridgeY}
-                  H {c.xB}
-                  V {c.topB}"
-              fill="none" stroke="#555" stroke-width="1.5"
-              stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
+        {#if c.kind === 'branch'}
+          <line x1={c.xA} y1={c.y} x2={c.xB} y2={c.y}
+                stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+        {:else if c.kind === 'fermi'}
+          <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
+                fill="none" stroke="#555" stroke-width="1.5"
+                stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
+          <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
+                text-anchor="middle" font-style="italic" font-size="10"
+                fill="#777" opacity="0.85">fermi</text>
+        {:else}
+          <path d="M {c.xA} {c.yA} Q {c.midX} {c.controlY} {c.xB} {c.yB}"
+                fill="none" stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+        {/if}
       {/each}
       {#each glowHits as hit}
         {@const x = hit.px1}
@@ -452,6 +602,14 @@
                       {/if}
                     </div>
                   {/if}
+                  {#if ref.tags.length}
+                    <div class="tip-ref-tags">
+                      {#each ref.tags as tag}
+                        {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                        <span class="tip-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
+                      {/each}
+                    </div>
+                  {/if}
                   {#if ref.note}
                     <div class="tip-ref-note">{ref.note}</div>
                   {/if}
@@ -477,6 +635,14 @@
                         <span class="badge-site">{ref.site}</span>
                       {/if}
                     {/if}
+                  </div>
+                {/if}
+                {#if ref.tags.length}
+                  <div class="tip-ref-tags">
+                    {#each ref.tags as tag}
+                      {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                      <span class="tip-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
+                    {/each}
                   </div>
                 {/if}
                 {#if ref.note}
@@ -704,6 +870,20 @@
     padding: 1px 6px;
     font-size: 10.5px;
     white-space: nowrap;
+  }
+
+  .tip-ref-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .tip-ref-tag {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
   }
 
   .tip-ref-note {

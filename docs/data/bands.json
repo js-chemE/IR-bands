@@ -132,26 +132,31 @@
       "wn_start": 2350,
       "wn_end": 2390,
       "short": "νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ asymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2349,
           "site": null,
-          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak."
+          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak.",
+          "tags": []
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 2373,
           "site": null,
-          "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker."
+          "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker.",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu3_branches",
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -173,20 +178,24 @@
       "wn_start": 2310,
       "wn_end": 2349,
       "short": "νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ asymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2349,
           "site": null,
-          "note": "Reports the ν₃ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak."
+          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak.",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu3_branches",
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -208,21 +217,25 @@
       "wn_start": 690,
       "wn_end": 720,
       "short": "δ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
+      "description": "Gas CO₂ bending fundamental (δ) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 700,
           "site": null,
-          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum."
+          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode"
+        "degenerated-mode",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu2_branches",
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -244,21 +257,25 @@
       "wn_start": 670,
       "wn_end": 685,
       "short": "δ(OCO) CO₂ (Q)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because ν₂ is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
+      "description": "Gas CO₂ bending fundamental (δ) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because this mode is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 667,
           "site": null,
-          "note": "Q-branch coincides with the reported ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode."
+          "note": "Q-branch coincides with the reported ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode"
+        "degenerated-mode",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu2_branches",
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
@@ -280,21 +297,25 @@
       "wn_start": 640,
       "wn_end": 665,
       "short": "δ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ bending fundamental (ν₂) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
+      "description": "Gas CO₂ bending fundamental (δ) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 660,
           "site": null,
-          "note": "Reports the ν₂ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum."
+          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode"
+        "degenerated-mode",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu2_branches",
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -316,15 +337,17 @@
       "wn_start": 3725,
       "wn_end": 3735,
       "short": "νₛ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (νₛ + νₐₛ) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
       "based_on": [
         {
-          "band_id": null,
+          "band_id": "co2_sym_1388",
+          "branch_group": null,
           "multiplier": 1,
-          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)"
+          "label": null
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1,
           "label": null
         }
@@ -334,13 +357,18 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
           "site": null,
-          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum."
+          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "fermi-resonance",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": "co2_combo_lower_branches",
+      "branch_group": "co2_combo_upper_branches",
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -362,15 +390,17 @@
       "wn_start": 3695,
       "wn_end": 3705,
       "short": "νₛ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (ν₁ + ν₃) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
+      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (νₛ + νₐₛ) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
       "based_on": [
         {
-          "band_id": null,
+          "band_id": "co2_sym_1388",
+          "branch_group": null,
           "multiplier": 1,
-          "label": "ν₁ sym stretch CO₂ (IR-inactive, not in dataset)"
+          "label": null
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1,
           "label": null
         }
@@ -380,13 +410,18 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
           "site": null,
-          "note": "Reports the (ν₁+ν₃) band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum."
+          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "fermi-resonance",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": "co2_combo_lower_branches",
+      "branch_group": "co2_combo_upper_branches",
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -408,15 +443,17 @@
       "wn_start": 3622,
       "wn_end": 3632,
       "short": "2δ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2ν₂ + ν₃) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
+      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2δ + νₐₛ) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
       "based_on": [
         {
-          "band_id": "co2_bend_667_Q",
+          "band_id": null,
+          "branch_group": "co2_nu2_branches",
           "multiplier": 2,
           "label": null
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1,
           "label": null
         }
@@ -426,14 +463,19 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
           "site": null,
-          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum."
+          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase",
-        "overtone"
+        "overtone",
+        "fermi-resonance",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": "co2_combo_upper_branches",
+      "branch_group": "co2_combo_lower_branches",
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -455,15 +497,17 @@
       "wn_start": 3592,
       "wn_end": 3602,
       "short": "2δ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2ν₂ + ν₃) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
+      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2δ + νₐₛ) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
       "based_on": [
         {
-          "band_id": "co2_bend_667_Q",
+          "band_id": null,
+          "branch_group": "co2_nu2_branches",
           "multiplier": 2,
           "label": null
         },
         {
-          "band_id": "co2_asym_2360_R",
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
           "multiplier": 1,
           "label": null
         }
@@ -473,14 +517,19 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
           "site": null,
-          "note": "Reports the (2ν₂+ν₃) band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum."
+          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase",
-        "overtone"
+        "overtone",
+        "fermi-resonance",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": "co2_combo_upper_branches",
+      "branch_group": "co2_combo_lower_branches",
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -509,7 +558,8 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2077,
           "site": null,
-          "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures."
+          "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures.",
+          "tags": []
         }
       ],
       "tags": [
@@ -518,6 +568,8 @@
         "drifts-artifact"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
@@ -525,6 +577,45 @@
       "sub_lane": 0,
       "wn_min": 2073,
       "wn_max": 2081
+    },
+    {
+      "id": "co2_sym_1388",
+      "species": "CO₂",
+      "group": "co2",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1383,
+      "wn_end": 1395,
+      "short": "νₛ(OCO) CO₂",
+      "description": "Gas CO₂ symmetric stretch (νₛ) band origin at ~1388 cm⁻¹. Strictly IR-forbidden by symmetry (Σg⁺ — centrosymmetric, no dipole moment change); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the νₛ+νₐₛ combination band (~3715 cm⁻¹) and as the Fermi-resonance partner of 2δ (~1334 cm⁻¹).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 1388,
+          "site": null,
+          "note": "ν₁ (our νₛ) band origin (Table 2); IR-inactive (Σg⁺) — included for context as the Fermi-dyad partner of 2ν₂ (our 2δ) and parent of the (ν₁+ν₃) [our νₛ+νₐₛ] combination band.",
+          "tags": []
+        }
+      ],
+      "tags": [
+        "gas-phase",
+        "ir-inactive"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "confirmed",
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 1383,
+      "wn_max": 1395
     },
     {
       "id": "co_stretch_2170_R",
@@ -546,17 +637,21 @@
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2176,
           "site": null,
-          "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature."
+          "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature.",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co_nu1_branches",
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "lane": 0,
+      "lane": 1,
       "sub_lane": 0,
       "wn_min": 2165,
       "wn_max": 2185
@@ -581,17 +676,21 @@
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2114,
           "site": null,
-          "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e)."
+          "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e).",
+          "tags": []
         }
       ],
       "tags": [
-        "gas-phase"
+        "gas-phase",
+        "rotational-branches"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co_nu1_branches",
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "lane": 0,
+      "lane": 1,
       "sub_lane": 0,
       "wn_min": 2105,
       "wn_max": 2125
@@ -609,24 +708,27 @@
       "wn_start": 2980,
       "wn_end": 3060,
       "short": "νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "description": "Gas methane asymmetric C-H stretch (νₐₛ, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
       "based_on": [],
       "references": [
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 3016,
           "site": null,
-          "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃."
+          "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "lane": 0,
+      "lane": 1,
       "sub_lane": 0,
       "wn_min": 2980,
       "wn_max": 3060
@@ -644,27 +746,61 @@
       "wn_start": 1280,
       "wn_end": 1340,
       "short": "δₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
+      "description": "Gas methane asymmetric bending (δₐₛ, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
       "references": [
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1306,
           "site": null,
-          "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker."
+          "note": "Table 3: ν(CH₄, Gaseous) at 1306 cm⁻¹; present across all catalysts under DRM at 600°C; gas-phase CH₄ concentration marker.",
+          "tags": []
         }
       ],
       "tags": [
         "gas-phase"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 0,
+      "lane": 1,
       "sub_lane": 0,
       "wn_min": 1280,
       "wn_max": 1340
+    },
+    {
+      "id": "ch4g_bend_sym_1534",
+      "species": "CH₄",
+      "group": "ch4",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1528,
+      "wn_end": 1540,
+      "short": "δₛ(HCH) CH₄(g)",
+      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry (E in Td — no T₂ component); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the δₛ+νₐₛ combination band (~4220 cm⁻¹).",
+      "based_on": [],
+      "references": [],
+      "tags": [
+        "gas-phase",
+        "ir-inactive"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "confirmed",
+      "lane": 1,
+      "sub_lane": 0,
+      "wn_min": 1528,
+      "wn_max": 1540
     },
     {
       "id": "ch4g_combo_4220",
@@ -682,12 +818,14 @@
       "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when νₐₛ saturates. Often outside standard DRIFTS window.",
       "based_on": [
         {
-          "band_id": null,
+          "band_id": "ch4g_bend_sym_1534",
+          "branch_group": null,
           "multiplier": 1,
-          "label": "δₛ(HCH) CH₄(g) ν₂ (not in dataset)"
+          "label": null
         },
         {
           "band_id": "ch4g_asym_3019",
+          "branch_group": null,
           "multiplier": 1,
           "label": null
         }
@@ -697,10 +835,12 @@
         "gas-phase"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 0,
+      "lane": 1,
       "sub_lane": 0,
       "wn_min": 4180,
       "wn_max": 4250
@@ -725,21 +865,27 @@
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2041,
           "site": "Co⁰",
-          "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹."
+          "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹.",
+          "tags": []
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2053,
           "site": "Pt⁰-CeO₂ interface",
-          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate. Under ¹³CO₂ a further red-shift to 2005 cm⁻¹ is observed, consistent with the expected isotopic shift for a linear CO stretch."
+          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate. Under ¹³CO₂ a further red-shift to 2005 cm⁻¹ is observed, consistent with the expected isotopic shift for a linear CO stretch.",
+          "tags": [
+            "isotopic-shift"
+          ]
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
       "wn_min": 2000,
       "wn_max": 2120
@@ -764,15 +910,18 @@
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": null,
           "site": "Co⁰",
-          "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature."
+          "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "broad",
       "confidence": "confirmed",
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 1,
       "wn_min": 1820,
       "wn_max": 1980
@@ -795,10 +944,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
       "wn_min": 1750,
       "wn_max": 1870
@@ -821,10 +972,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
       "wn_min": 1600,
       "wn_max": 1700
@@ -849,15 +1002,18 @@
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": null,
           "site": null,
-          "note": null
+          "note": null,
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 2120,
       "wn_max": 2230
@@ -880,10 +1036,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 1,
       "wn_min": 2200,
       "wn_max": 2240
@@ -906,10 +1064,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 2080,
       "wn_max": 2110
@@ -932,10 +1092,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 2020,
       "wn_max": 2050
@@ -958,10 +1120,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 1,
       "wn_min": 1700,
       "wn_max": 1800
@@ -984,10 +1148,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 1,
       "wn_min": 2800,
       "wn_max": 2900
@@ -1010,10 +1176,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": -1,
       "wn_min": 1700,
       "wn_max": 1750
@@ -1036,10 +1204,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2850,
       "wn_max": 2900
@@ -1062,10 +1232,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2750,
       "wn_max": 2820
@@ -1088,10 +1260,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 1480,
       "wn_max": 1520
@@ -1114,10 +1288,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 1650,
       "wn_max": 1750
@@ -1140,10 +1316,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 3500,
       "wn_max": 3650
@@ -1166,10 +1344,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2905,
       "wn_max": 2960
@@ -1192,10 +1372,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 1050,
       "wn_max": 1100
@@ -1220,21 +1402,27 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1670,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
-          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies."
+          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies.",
+          "tags": []
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 1605,
           "site": "CeO₂",
-          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle."
+          "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle.",
+          "tags": [
+            "isotopic-shift"
+          ]
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1620,
       "wn_max": 1670
@@ -1259,21 +1447,27 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1310,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹."
+          "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹.",
+          "tags": []
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 1251,
           "site": "CeO₂",
-          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS."
+          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS.",
+          "tags": [
+            "isotopic-shift"
+          ]
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1270,
       "wn_max": 1330
@@ -1295,6 +1489,7 @@
       "based_on": [
         {
           "band_id": "carbonate_bidentate_asym_1645",
+          "branch_group": null,
           "multiplier": 2,
           "label": null
         }
@@ -1304,10 +1499,12 @@
         "overtone"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 2900,
       "wn_max": 3100
@@ -1332,15 +1529,18 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1530,
           "site": "La-Al₂O₃",
-          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
+          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1480,
       "wn_max": 1520
@@ -1365,15 +1565,18 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1340,
           "site": "La-Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1340 cm⁻¹."
+          "note": "Table 3: νs(-C-O) at 1340 cm⁻¹.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1380,
       "wn_max": 1420
@@ -1395,6 +1598,7 @@
       "based_on": [
         {
           "band_id": "carbonate_monodentate_asym_1500",
+          "branch_group": null,
           "multiplier": 2,
           "label": null
         }
@@ -1404,10 +1608,12 @@
         "overtone"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 1,
       "wn_min": 2900,
       "wn_max": 3000
@@ -1430,10 +1636,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 830,
       "wn_max": 870
@@ -1458,15 +1666,18 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1650,
           "site": "Al₂O₃",
-          "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading."
+          "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1610,
       "wn_max": 1650
@@ -1491,15 +1702,18 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1434,
           "site": "Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃."
+          "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1410,
       "wn_max": 1440
@@ -1524,15 +1738,18 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1220,
           "site": "Al₂O₃",
-          "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹."
+          "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1210,
       "wn_max": 1230
@@ -1557,29 +1774,34 @@
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2890,
           "site": "Cu⁺",
-          "note": "ν(CH) HCOO* on Cu⁺ at Cu–Ga₂O₃."
+          "note": "ν(CH) HCOO* on Cu⁺ at Cu–Ga₂O₃.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2876,
           "site": "CuGaZrOx",
-          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H."
+          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H.",
+          "tags": []
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2910,
           "site": "CeO₂",
-          "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate."
+          "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate.",
+          "tags": []
         }
       ],
       "tags": [
         "fermi-resonance"
       ],
       "fermi_partner": "formate_combo_2950",
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "sharp",
       "confidence": "confirmed",
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 2870,
       "wn_max": 2900
@@ -1604,45 +1826,53 @@
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1520,
           "site": "Ru/Al₂O₃",
-          "note": "Table 2, Fig. 1a: νas(OCO) HCOO* at 1520 cm⁻¹; appears at the onset of H₂ reduction (methanation step, 320 °C, 20% H₂/N₂). Formate forms at the Ru–Al₂O₃ interface via spillover of bicarbonates (adsorbed on Al₂O₃ OH groups); confirmed reaction intermediate en route to CH₄."
+          "note": "Table 2, Fig. 1a: νas(OCO) HCOO* at 1520 cm⁻¹; appears at the onset of H₂ reduction (methanation step, 320 °C, 20% H₂/N₂). Formate forms at the Ru–Al₂O₃ interface via spillover of bicarbonates (adsorbed on Al₂O₃ OH groups); confirmed reaction intermediate en route to CH₄.",
+          "tags": []
         },
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1520,
           "site": "Ru/\"Na₂O\"/Al₂O₃",
-          "note": "Fig. 3a: νas(OCO) HCOO* at 1520 cm⁻¹; intense formation during H₂ reduction step on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM (320 °C). Formate forms after bidentate carbonates (on Al-O⁻-Na⁺ sites) spill over to the Ru–support interface; same position as on Ru/Al₂O₃ despite different CO₂ adsorption pathway."
+          "note": "Fig. 3a: νas(OCO) HCOO* at 1520 cm⁻¹; intense formation during H₂ reduction step on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM (320 °C). Formate forms after bidentate carbonates (on Al-O⁻-Na⁺ sites) spill over to the Ru–support interface; same position as on Ru/Al₂O₃ despite different CO₂ adsorption pathway.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1600,
           "site": "CuGaZrOx",
-          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24."
+          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24.",
+          "tags": []
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1585,
           "site": "Al₂O₃",
-          "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM."
+          "note": "Table 3: νas(OCO⁻) at 1585 cm⁻¹; dominant CH₄ adsorption product on Al₂O₃ via H-abstraction; nearly absent on La-modified and Ni-Ce-Fe/La-Al₂O₃ under DRM.",
+          "tags": []
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
           "wn": 1555,
           "site": "Fe₃O₄(001)",
-          "note": "Table 1, Fig. 6c: νas(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS (Fano line shape, UHV, room temperature): 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe). Paired νs(OCO) at 1369/1377 cm⁻¹ (tet/int). Both sites are bidentate-bridging geometry; distinction only possible with polarized light due to Fano overlap in unpolarized spectra."
+          "note": "Table 1, Fig. 6c: νas(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS (Fano line shape, UHV, room temperature): 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe). Paired νs(OCO) at 1369/1377 cm⁻¹ (tet/int). Both sites are bidentate-bridging geometry; distinction only possible with polarized light due to Fano overlap in unpolarized spectra.",
+          "tags": []
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
           "wn": 1588,
           "site": "Fe₃O₄(111)",
-          "note": "Table 1, Fig. 6b/d: νas(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νs at 1335 cm⁻¹) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νs at 1380 cm⁻¹). Bidentate-bridging excluded (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. Positive inverted Fano sign for νas(OCO) indicates TDM parallel to surface (Ept)."
+          "note": "Table 1, Fig. 6b/d: νas(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νs at 1335 cm⁻¹) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νs at 1380 cm⁻¹). Bidentate-bridging excluded (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. Positive inverted Fano sign for νas(OCO) indicates TDM parallel to surface (Ept).",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1515,
       "wn_max": 1620
@@ -1667,45 +1897,53 @@
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1320,
           "site": "Ru/Al₂O₃",
-          "note": "Table 2, Fig. 1a: νs(OCO) HCOO* at 1320 cm⁻¹; appears at onset of H₂ reduction step (320 °C, 20% H₂/N₂), paired with νas at 1520 cm⁻¹. Formate at Ru–Al₂O₃ interface via bicarbonate spillover; identified as key CO₂ methanation intermediate."
+          "note": "Table 2, Fig. 1a: νs(OCO) HCOO* at 1320 cm⁻¹; appears at onset of H₂ reduction step (320 °C, 20% H₂/N₂), paired with νas at 1520 cm⁻¹. Formate at Ru–Al₂O₃ interface via bicarbonate spillover; identified as key CO₂ methanation intermediate.",
+          "tags": []
         },
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1320,
           "site": "Ru/\"Na₂O\"/Al₂O₃",
-          "note": "Fig. 3a: νs(OCO) HCOO* at 1320 cm⁻¹ during H₂ reduction on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM; intense band paired with νas at 1520 cm⁻¹. Formate from bidentate carbonate spillover to Ru–support interface."
+          "note": "Fig. 3a: νs(OCO) HCOO* at 1320 cm⁻¹ during H₂ reduction on Ru–6.1%\"Na₂O\"/Al₂O₃ DFM; intense band paired with νas at 1520 cm⁻¹. Formate from bidentate carbonate spillover to Ru–support interface.",
+          "tags": []
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
           "wn": 1369,
           "site": "Fe₃O₄(001)",
-          "note": "Table 1, Fig. 6a/c: νs(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS: 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site). Paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int). Both negative Fano profiles (TDM perpendicular to surface, Epn coupling). δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. Dissociative HCOOH adsorption at room temperature, UHV."
+          "note": "Table 1, Fig. 6a/c: νs(OCO) of bidentate-bridging HCOO* on Fe₃O₄(001) resolved into two components by p-polarized IRRAS: 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site). Paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int). Both negative Fano profiles (TDM perpendicular to surface, Epn coupling). δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. Dissociative HCOOH adsorption at room temperature, UHV.",
+          "tags": []
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
           "wn": 1335,
           "site": "Fe₃O₄(111)",
-          "note": "Table 1, Fig. 6b/d: νs(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹). Both appear as negative Fano resonances (TDM perpendicular to surface). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. No bidentate-bridging on this surface (tet-Fe spacing 5.9 Å too large)."
+          "note": "Table 1, Fig. 6b/d: νs(OCO) of two bidentate formate geometries on Fe₃O₄(111), p-polarized IRRAS: quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹). Both appear as negative Fano resonances (TDM perpendicular to surface). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L. No bidentate-bridging on this surface (tet-Fe spacing 5.9 Å too large).",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1350,
           "site": "CuGaZrOx",
-          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹."
+          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹.",
+          "tags": []
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1380,
           "site": "Al₂O₃",
-          "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
+          "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1315,
       "wn_max": 1390
@@ -1730,15 +1968,18 @@
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
           "site": "CuGaZrOx",
-          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study."
+          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 1,
       "wn_min": 1380,
       "wn_max": 1400
@@ -1760,11 +2001,13 @@
       "based_on": [
         {
           "band_id": "formate_och_bend_1390",
+          "branch_group": null,
           "multiplier": 1,
           "label": null
         },
         {
           "band_id": "formate_asym_1585",
+          "branch_group": null,
           "multiplier": 1,
           "label": null
         }
@@ -1774,23 +2017,27 @@
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2956,
           "site": "Cu⁺",
-          "note": "Formate combination band on Cu⁺ at Cu–Ga₂O₃."
+          "note": "Formate combination band on Cu⁺ at Cu–Ga₂O₃.",
+          "tags": []
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2945,
           "site": "CeO₂",
-          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νₐₛ(OCO)."
+          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νₐₛ(OCO).",
+          "tags": []
         }
       ],
       "tags": [
         "fermi-resonance"
       ],
       "fermi_partner": "formate_ch_stretch_2885",
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 2940,
       "wn_max": 2960
@@ -1812,11 +2059,13 @@
       "based_on": [
         {
           "band_id": "formate_asym_1585",
+          "branch_group": null,
           "multiplier": 1,
           "label": null
         },
         {
           "band_id": null,
+          "branch_group": null,
           "multiplier": 1,
           "label": "second mode unidentified — see description"
         }
@@ -1824,10 +2073,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 3250,
       "wn_max": 3350
@@ -1852,29 +2103,34 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 2929,
           "site": "TiO₂",
-          "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂."
+          "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂.",
+          "tags": []
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2919,
           "site": "Cu⁺",
-          "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
+          "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2970,
           "site": "Zr⁴⁺",
-          "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+          "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
+          "tags": []
         }
       ],
       "tags": [
         "site-sensitive"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2910,
       "wn_max": 2950
@@ -1899,29 +2155,34 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 2828,
           "site": "TiO₂",
-          "note": null
+          "note": null,
+          "tags": []
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2836,
           "site": "Cu⁺",
-          "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift."
+          "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2819,
           "site": "Zr⁴⁺",
-          "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+          "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
+          "tags": []
         }
       ],
       "tags": [
         "site-sensitive"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2815,
       "wn_max": 2850
@@ -1946,7 +2207,8 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 1441,
           "site": "TiO₂",
-          "note": null
+          "note": null,
+          "tags": []
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -1955,15 +2217,18 @@
             "Al₂O₃",
             "Ni-Ce-Fe/La-Al₂O₃"
           ],
-          "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
+          "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "w",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1430,
       "wn_max": 1455
@@ -1986,10 +2251,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "w",
       "width": "medium",
       "confidence": "tentative",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1360,
       "wn_max": 1390
@@ -2014,21 +2281,25 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 1126,
           "site": "TiO₂",
-          "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate."
+          "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1152,
           "site": "Zr⁴⁺",
-          "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹."
+          "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹.",
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1100,
       "wn_max": 1170
@@ -2053,21 +2324,25 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 1045,
           "site": "TiO₂",
-          "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate."
+          "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate.",
+          "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
           "site": null,
-          "note": null
+          "note": null,
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1030,
       "wn_max": 1090
@@ -2090,10 +2365,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "broad",
       "confidence": "likely",
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3200,
       "wn_max": 3600
@@ -2118,17 +2395,20 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 2948,
           "site": "TiO₂",
-          "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface."
+          "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface.",
+          "tags": []
         }
       ],
       "tags": [
         "molecular-adsorption"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2935,
       "wn_max": 2965
@@ -2153,17 +2433,20 @@
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": 2844,
           "site": "TiO₂",
-          "note": null
+          "note": null,
+          "tags": []
         }
       ],
       "tags": [
         "molecular-adsorption"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2830,
       "wn_max": 2860
@@ -2188,21 +2471,25 @@
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
           "site": null,
-          "note": null
+          "note": null,
+          "tags": []
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": null,
           "site": null,
-          "note": null
+          "note": null,
+          "tags": []
         }
       ],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1020,
       "wn_max": 1050
@@ -2225,10 +2512,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 9,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3700,
       "wn_max": 3750
@@ -2251,10 +2540,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 9,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3400,
       "wn_max": 3650
@@ -2277,10 +2568,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 10,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 3200,
       "wn_max": 3600
@@ -2303,10 +2596,12 @@
       "references": [],
       "tags": [],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": null,
       "width": null,
       "confidence": null,
-      "lane": 10,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 1620,
       "wn_max": 1650
@@ -2331,17 +2626,20 @@
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1976,
           "site": "Ga",
-          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion."
+          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion.",
+          "tags": []
         }
       ],
       "tags": [
         "hydride-marker"
       ],
       "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
       "intensity": "w",
       "width": "sharp",
       "confidence": "confirmed",
-      "lane": 11,
+      "lane": 12,
       "sub_lane": 0,
       "wn_min": 1960,
       "wn_max": 2000
