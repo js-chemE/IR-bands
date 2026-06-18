@@ -302,7 +302,6 @@
         <BandChart
           bands={dataset.bands}
           groups={dataset.groups}
-          regions={dataset.regions}
           {refs}
           {enabledGroups}
           {colorDim}

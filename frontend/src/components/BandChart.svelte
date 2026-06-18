@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Region } from '../lib/types';
+  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
   import { buildChart, TAG_STYLES } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
@@ -23,7 +23,6 @@
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
-  export let regions: Record<string, Region> | undefined = undefined;
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
 
@@ -37,6 +36,47 @@
     : hoveredTag
       ? hitBands.filter(h => h.tipData.tags.includes(hoveredTag!))
       : [];
+
+  // The "active" band for partner highlighting: a frozen selection takes
+  // precedence over a live hover — same precedence the tooltip itself uses
+  // (see `shown` below) — so the glow/connectors stay put once you click,
+  // even after the mouse moves off the band.
+  $: active = selected ?? hovered;
+
+  // Partner bands of the active one, restricted to what's currently visible.
+  // Generalized over tipData.partners rather than any one connection kind:
+  // today that list only ever holds a Fermi-resonance partner, but it's
+  // built so a future based_on (or other) connection just adds more ids to
+  // the same list, with no change needed here.
+  $: partnerHits = active
+    ? active.tipData.partners
+        .map(id => hitBands.find(h => h.tipData.id === id))
+        .filter((h): h is PlotBandHit => !!h)
+    : [];
+
+  // Legend hover (category/tag) takes priority; otherwise glow the active
+  // band plus any partners.
+  $: glowHits = (hoveredCat || hoveredTag)
+    ? highlightedHits
+    : active
+      ? [active, ...partnerHits]
+      : [];
+
+  // "Staple" connectors from the active band to each partner: each leg
+  // leaves its band vertically, meeting at a bridge height safely above
+  // both — every lane's bar sits in the lower portion of its row, so a fixed
+  // lift above the higher band's top always lands in clear headroom,
+  // independent of which lanes lie in between.
+  const PARTNER_BRIDGE_LIFT = 16;
+  function connectorBetween(a: PlotBandHit, b: PlotBandHit) {
+    const xA = (a.px1 + a.px2) / 2;
+    const xB = (b.px1 + b.px2) / 2;
+    const topA = a.py1 + HIT_PAD;
+    const topB = b.py1 + HIT_PAD;
+    const bridgeY = Math.min(topA, topB) - PARTNER_BRIDGE_LIFT;
+    return { xA, topA, xB, topB, bridgeY };
+  }
+  $: connectors = active ? partnerHits.map(p => connectorBetween(active!, p)) : [];
 
   let container: HTMLDivElement;
   let containerWidth = 1100;
@@ -61,7 +101,6 @@
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,
-      regions,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
@@ -301,8 +340,8 @@
     on:dblclick={onDblClick}
   ></div>
 
-  <!-- highlight overlay: glowing rects for hovered legend category -->
-  {#if highlightedHits.length > 0}
+  <!-- highlight overlay: glowing rects for hovered/selected band, legend category, or partner links -->
+  {#if glowHits.length > 0}
     <svg class="highlight-overlay"
          width={containerWidth}
          height={chartSvgHeight}
@@ -317,7 +356,15 @@
           <feGaussianBlur stdDeviation="5"/>
         </filter>
       </defs>
-      {#each highlightedHits as hit}
+      {#each connectors as c}
+        <path d="M {c.xA} {c.topA}
+                  V {c.bridgeY}
+                  H {c.xB}
+                  V {c.topB}"
+              fill="none" stroke="#555" stroke-width="1.5"
+              stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
+      {/each}
+      {#each glowHits as hit}
         {@const x = hit.px1}
         {@const y = hit.py1 + HIT_PAD}
         {@const w = Math.max(1, hit.px2 - hit.px1)}

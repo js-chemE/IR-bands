@@ -131,7 +131,7 @@
       "atoms": "O=C=O",
       "wn_start": 2350,
       "wn_end": 2390,
-      "short": "ν<sub>as</sub>(OCO) CO₂ (R)",
+      "short": "νₐₛ(OCO) CO₂ (R)",
       "description": "Gas CO₂ asymmetric stretch (ν₃) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
       "based_on": [],
       "references": [
@@ -151,6 +151,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -171,7 +172,7 @@
       "atoms": "O=C=O",
       "wn_start": 2310,
       "wn_end": 2349,
-      "short": "ν<sub>as</sub>(OCO) CO₂ (P)",
+      "short": "νₐₛ(OCO) CO₂ (P)",
       "description": "Gas CO₂ asymmetric stretch (ν₃) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
       "based_on": [],
       "references": [
@@ -185,6 +186,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -220,6 +222,7 @@
         "gas-phase",
         "degenerated-mode"
       ],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -255,6 +258,7 @@
         "gas-phase",
         "degenerated-mode"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
@@ -290,6 +294,7 @@
         "gas-phase",
         "degenerated-mode"
       ],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -310,8 +315,8 @@
       "atoms": "O=C=O",
       "wn_start": 3725,
       "wn_end": 3735,
-      "short": "ν<sub>s</sub>+ν<sub>as</sub>(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the ν<sub>as</sub> fundamental saturates.",
+      "short": "νₛ+νₐₛ(OCO) CO₂ (R)",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (ν₁ + ν₃) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
       "based_on": [
         {
           "band_id": null,
@@ -335,6 +340,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -355,7 +361,7 @@
       "atoms": "O=C=O",
       "wn_start": 3695,
       "wn_end": 3705,
-      "short": "ν<sub>s</sub>+ν<sub>as</sub>(OCO) CO₂ (P)",
+      "short": "νₛ+νₐₛ(OCO) CO₂ (P)",
       "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (ν₁ + ν₃) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
       "based_on": [
         {
@@ -380,6 +386,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -400,7 +407,7 @@
       "atoms": "O=C=O",
       "wn_start": 3622,
       "wn_end": 3632,
-      "short": "2δ+ν<sub>as</sub>(OCO) CO₂ (R)",
+      "short": "2δ+νₐₛ(OCO) CO₂ (R)",
       "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2ν₂ + ν₃) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
       "based_on": [
         {
@@ -426,6 +433,7 @@
         "gas-phase",
         "overtone"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -446,7 +454,7 @@
       "atoms": "O=C=O",
       "wn_start": 3592,
       "wn_end": 3602,
-      "short": "2δ+ν<sub>as</sub>(OCO) CO₂ (P)",
+      "short": "2δ+νₐₛ(OCO) CO₂ (P)",
       "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2ν₂ + ν₃) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
       "based_on": [
         {
@@ -472,6 +480,7 @@
         "gas-phase",
         "overtone"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -508,6 +517,7 @@
         "misassignment-warning",
         "drifts-artifact"
       ],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
@@ -542,6 +552,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -576,6 +587,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -596,7 +608,7 @@
       "atoms": "H-C-H",
       "wn_start": 2980,
       "wn_end": 3060,
-      "short": "ν<sub>as</sub>(HCH) CH₄(g)",
+      "short": "νₐₛ(HCH) CH₄(g)",
       "description": "Gas methane asymmetric C-H stretch (ν₃, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
       "based_on": [],
       "references": [
@@ -610,6 +622,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
@@ -630,7 +643,7 @@
       "atoms": "H-C-H",
       "wn_start": 1280,
       "wn_end": 1340,
-      "short": "δ<sub>as</sub>(HCH) CH₄(g)",
+      "short": "δₐₛ(HCH) CH₄(g)",
       "description": "Gas methane asymmetric bending (ν₄, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
       "references": [
@@ -644,6 +657,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -664,13 +678,13 @@
       "atoms": "H-C-H",
       "wn_start": 4180,
       "wn_end": 4250,
-      "short": "δ<sub>s</sub>+ν<sub>as</sub>(HCH) CH₄(g)",
-      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when ν<sub>as</sub> saturates. Often outside standard DRIFTS window.",
+      "short": "δₛ+νₐₛ(HCH) CH₄(g)",
+      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when νₐₛ saturates. Often outside standard DRIFTS window.",
       "based_on": [
         {
           "band_id": null,
           "multiplier": 1,
-          "label": "δ<sub>s</sub>(HCH) CH₄(g) ν₂ (not in dataset)"
+          "label": "δₛ(HCH) CH₄(g) ν₂ (not in dataset)"
         },
         {
           "band_id": "ch4g_asym_3019",
@@ -682,6 +696,7 @@
       "tags": [
         "gas-phase"
       ],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -715,11 +730,12 @@
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2053,
-          "site": "Pt",
-          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate."
+          "site": "Pt⁰-CeO₂ interface",
+          "note": "Linear ¹²CO on Pt at the Pt–CeO₂ interface at 2053 cm⁻¹ (Fig. 4a); red-shifted by ~20–30 cm⁻¹ from bare Pt (2070–2080 cm⁻¹) due to enhanced π-backdonation from highly reduced CeO₂. SSITKA confirms this species is an active intermediate in RWGS: isotopic exchange rate matches CO(g) production rate. Under ¹³CO₂ a further red-shift to 2005 cm⁻¹ is observed, consistent with the expected isotopic shift for a linear CO stretch."
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -752,6 +768,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "broad",
       "confidence": "confirmed",
@@ -777,6 +794,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -802,6 +820,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -834,6 +853,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
@@ -859,6 +879,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -879,11 +900,12 @@
       "atoms": "C-O",
       "wn_start": 2080,
       "wn_end": 2110,
-      "short": "ν<sub>as</sub>(CO) gem-M⁺(CO)₂",
+      "short": "νₐₛ(CO) gem-M⁺(CO)₂",
       "description": "asymmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center, typically Rh⁺, Ir⁺, Ru⁺, or Cu⁺. The symmetric/asymmetric pair is diagnostic of atomically dispersed cationic sites. Typical splitting: ~50–60 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -904,11 +926,12 @@
       "atoms": "C-O",
       "wn_start": 2020,
       "wn_end": 2050,
-      "short": "ν<sub>s</sub>(CO) gem-M⁺(CO)₂",
+      "short": "νₛ(CO) gem-M⁺(CO)₂",
       "description": "Symmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center. Appears together with the asymmetric band and is characteristic of isolated cationic adsorption sites.",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -934,6 +957,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -959,6 +983,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -984,6 +1009,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1004,11 +1030,12 @@
       "atoms": "H-C-H",
       "wn_start": 2850,
       "wn_end": 2900,
-      "short": "ν<sub>as</sub>(HCH) H₂CO*",
+      "short": "νₐₛ(HCH) H₂CO*",
       "description": "Adsorbed formaldehyde CH₂ asymmetric stretch (H₂CO*).",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1029,11 +1056,12 @@
       "atoms": "H-C-H",
       "wn_start": 2750,
       "wn_end": 2820,
-      "short": "ν<sub>s</sub>(HCH) H₂CO*",
+      "short": "νₛ(HCH) H₂CO*",
       "description": "Adsorbed formaldehyde CH₂ symmetric stretch (H₂CO*).",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1054,11 +1082,12 @@
       "atoms": "H-C-H",
       "wn_start": 1480,
       "wn_end": 1520,
-      "short": "δ<sub>s</sub>(HCH) H₂CO*",
-      "description": "Adsorbed formaldehyde CH₂ scissoring (H₂CO*); overlaps monodentate carbonate ν<sub>as</sub>.",
+      "short": "δₛ(HCH) H₂CO*",
+      "description": "Adsorbed formaldehyde CH₂ scissoring (H₂CO*); overlaps monodentate carbonate νₐₛ.",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1084,6 +1113,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1109,6 +1139,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1134,6 +1165,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1159,6 +1191,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1179,7 +1212,7 @@
       "atoms": "O-C-O",
       "wn_start": 1620,
       "wn_end": 1670,
-      "short": "ν<sub>as</sub>(OCO) b-CO₃²⁻",
+      "short": "νₐₛ(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹).",
       "based_on": [],
       "references": [
@@ -1197,6 +1230,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1217,7 +1251,7 @@
       "atoms": "O-C-O",
       "wn_start": 1270,
       "wn_end": 1330,
-      "short": "ν<sub>s</sub>(OCO) b-CO₃²⁻",
+      "short": "νₛ(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate symmetric stretch (b-CO₃²⁻*).",
       "based_on": [],
       "references": [
@@ -1235,6 +1269,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1255,7 +1290,7 @@
       "atoms": "O-C-O",
       "wn_start": 2900,
       "wn_end": 3100,
-      "short": "2ν<sub>as</sub>(OCO) b-CO₃²⁻ (overtone)",
+      "short": "2νₐₛ(OCO) b-CO₃²⁻ (overtone)",
       "description": "Bidentate carbonate asymmetric stretch first overtone (b-CO₃²⁻*); rare but reported.",
       "based_on": [
         {
@@ -1268,6 +1303,7 @@
       "tags": [
         "overtone"
       ],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1288,7 +1324,7 @@
       "atoms": "O-C-O",
       "wn_start": 1480,
       "wn_end": 1520,
-      "short": "ν<sub>as</sub>(OCO) m-CO₃²⁻",
+      "short": "νₐₛ(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
       "based_on": [],
       "references": [
@@ -1300,6 +1336,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1320,7 +1357,7 @@
       "atoms": "O-C-O",
       "wn_start": 1380,
       "wn_end": 1420,
-      "short": "ν<sub>s</sub>(OCO) m-CO₃²⁻",
+      "short": "νₛ(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
       "based_on": [],
       "references": [
@@ -1332,6 +1369,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1352,7 +1390,7 @@
       "atoms": "O-C-O",
       "wn_start": 2900,
       "wn_end": 3000,
-      "short": "2ν<sub>as</sub>(OCO) m-CO₃²⁻ (overtone)",
+      "short": "2νₐₛ(OCO) m-CO₃²⁻ (overtone)",
       "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
       "based_on": [
         {
@@ -1365,6 +1403,7 @@
       "tags": [
         "overtone"
       ],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1390,6 +1429,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1410,7 +1450,7 @@
       "atoms": "O-C-O",
       "wn_start": 1610,
       "wn_end": 1650,
-      "short": "ν<sub>as</sub>(OCO) HCO₃⁻*",
+      "short": "νₐₛ(OCO) HCO₃⁻*",
       "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*).",
       "based_on": [],
       "references": [
@@ -1422,6 +1462,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1442,7 +1483,7 @@
       "atoms": "O-C-O",
       "wn_start": 1410,
       "wn_end": 1440,
-      "short": "ν<sub>s</sub>(OCO) HCO₃⁻*",
+      "short": "νₛ(OCO) HCO₃⁻*",
       "description": "Bicarbonate symmetric OCO stretch (HCO₃⁻*).",
       "based_on": [],
       "references": [
@@ -1454,6 +1495,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1468,7 +1510,7 @@
       "group": "bicarbonate",
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": null
       },
       "atoms": "C-O-H",
@@ -1486,6 +1528,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1529,7 +1572,10 @@
           "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate."
         }
       ],
-      "tags": [],
+      "tags": [
+        "fermi-resonance"
+      ],
+      "fermi_partner": "formate_combo_2950",
       "intensity": "m",
       "width": "sharp",
       "confidence": "confirmed",
@@ -1550,7 +1596,7 @@
       "atoms": "O-C-O",
       "wn_start": 1515,
       "wn_end": 1620,
-      "short": "ν<sub>as</sub>(OCO) HCOO*",
+      "short": "νₐₛ(OCO) HCOO*",
       "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker. Position is support-dependent: ~1520 cm⁻¹ on Ru/Al₂O₃ and Ru–Na₂O/Al₂O₃, shifting to ~1585–1600 cm⁻¹ on oxide-rich surfaces (Al₂O₃, CuGaZrOx). Appears during H₂ reduction as a methanation intermediate formed at the metal–support interface.",
       "based_on": [],
       "references": [
@@ -1592,6 +1638,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1612,7 +1659,7 @@
       "atoms": "O-C-O",
       "wn_start": 1315,
       "wn_end": 1390,
-      "short": "ν<sub>s</sub>(OCO) HCOO*",
+      "short": "νₛ(OCO) HCOO*",
       "description": "Formate symmetric OCO stretch (HCOO*). Position varies with support and adsorption geometry: ~1320 cm⁻¹ on Ru/Al₂O₃, ~1335 cm⁻¹ (quasi-bidentate on Fe₃O₄(111)), ~1350–1380 cm⁻¹ on oxide surfaces (Al₂O₃, CuGaZrOx), ~1369–1377 cm⁻¹ on Fe₃O₄(001). Paired with νas(OCO) above ~1520 cm⁻¹; frequency splitting Δν = νas − νs reflects adsorption geometry (bridging vs. chelating).",
       "based_on": [],
       "references": [
@@ -1654,6 +1701,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
@@ -1675,7 +1723,7 @@
       "wn_start": 1380,
       "wn_end": 1400,
       "short": "δ(OCH) HCOO*",
-      "description": "Formate C-H bending (HCOO*); overlaps ν<sub>s</sub>(OCO).",
+      "description": "Formate C-H bending (HCOO*); overlaps νₛ(OCO).",
       "based_on": [],
       "references": [
         {
@@ -1686,6 +1734,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1706,7 +1755,7 @@
       "atoms": "diverse",
       "wn_start": 2940,
       "wn_end": 2960,
-      "short": "δ(OCH)+ν<sub>as</sub>(OCO) HCOO*",
+      "short": "δ(OCH)+νₐₛ(OCO) HCOO*",
       "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
       "based_on": [
         {
@@ -1731,10 +1780,13 @@
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2945,
           "site": "CeO₂",
-          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νas(OCO)."
+          "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νₐₛ(OCO)."
         }
       ],
-      "tags": [],
+      "tags": [
+        "fermi-resonance"
+      ],
+      "fermi_partner": "formate_ch_stretch_2885",
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1755,7 +1807,7 @@
       "atoms": "diverse",
       "wn_start": 3250,
       "wn_end": 3350,
-      "short": "ν<sub>as</sub>(OCO)+δ(???) HCOO*",
+      "short": "νₐₛ(OCO)+δ(???) HCOO*",
       "description": "Formate higher combination band (HCOO*); sometimes assigned as 2ν(C=O) overtone in older literature.",
       "based_on": [
         {
@@ -1771,6 +1823,7 @@
       ],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -1791,7 +1844,7 @@
       "atoms": "H-C-H",
       "wn_start": 2910,
       "wn_end": 2950,
-      "short": "ν<sub>as</sub>(CH₃) CH₃O*",
+      "short": "νₐₛ(CH₃) CH₃O*",
       "description": "Methoxy CH₃ asymmetric stretch (CH₃O*). Position is support- and site-sensitive; frequency shifts between catalysts are diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a), which is typically blue-shifted ~10–20 cm⁻¹.",
       "based_on": [],
       "references": [
@@ -1817,6 +1870,7 @@
       "tags": [
         "site-sensitive"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1837,8 +1891,8 @@
       "atoms": "H-C-H",
       "wn_start": 2815,
       "wn_end": 2850,
-      "short": "ν<sub>s</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive, shifting in tandem with ν<sub>as</sub>(CH₃). Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
+      "short": "νₛ(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive, shifting in tandem with νₐₛ(CH₃). Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
       "based_on": [],
       "references": [
         {
@@ -1863,6 +1917,7 @@
       "tags": [
         "site-sensitive"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -1883,8 +1938,8 @@
       "atoms": "H-C-H",
       "wn_start": 1430,
       "wn_end": 1455,
-      "short": "δ<sub>as</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δ<sub>s</sub> and δ<sub>as</sub> features. Largely geometry- and support-insensitive.",
+      "short": "δₐₛ(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δₛ and δₐₛ features. Largely geometry- and support-insensitive.",
       "based_on": [],
       "references": [
         {
@@ -1904,6 +1959,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "w",
       "width": "medium",
       "confidence": "confirmed",
@@ -1924,11 +1980,12 @@
       "atoms": "H-C-H",
       "wn_start": 1360,
       "wn_end": 1390,
-      "short": "δ<sub>s</sub>(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the asymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate ν<sub>s</sub>(OCO) at ~1365 cm⁻¹.",
+      "short": "δₛ(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the asymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate νₛ(OCO) at ~1365 cm⁻¹.",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "w",
       "width": "medium",
       "confidence": "tentative",
@@ -1967,6 +2024,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
@@ -1988,7 +2046,7 @@
       "wn_start": 1030,
       "wn_end": 1090,
       "short": "ν(CO) b-CH₃O*",
-      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate geometry (Hussein 1991). Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) ν<sub>s</sub>(CH₃) marker at higher frequency.",
+      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate geometry (Hussein 1991). Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) νₛ(CH₃) marker at higher frequency.",
       "based_on": [],
       "references": [
         {
@@ -2005,6 +2063,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -2030,6 +2089,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "broad",
       "confidence": "likely",
@@ -2050,8 +2110,8 @@
       "atoms": "H-C-H",
       "wn_start": 2935,
       "wn_end": 2965,
-      "short": "ν<sub>as</sub>(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy ν<sub>as</sub>(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
+      "short": "νₐₛ(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy νₐₛ(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
       "based_on": [],
       "references": [
         {
@@ -2064,6 +2124,7 @@
       "tags": [
         "molecular-adsorption"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -2084,8 +2145,8 @@
       "atoms": "H-C-H",
       "wn_start": 2830,
       "wn_end": 2860,
-      "short": "ν<sub>s</sub>(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ from methoxy ν<sub>s</sub>(CH₃). Appears as a shoulder pair with methoxy; mild evacuation selectively removes CH₃OH* and leaves methoxy as the dominant feature.",
+      "short": "νₛ(CH₃) CH₃OH*",
+      "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ from methoxy νₛ(CH₃). Appears as a shoulder pair with methoxy; mild evacuation selectively removes CH₃OH* and leaves methoxy as the dominant feature.",
       "based_on": [],
       "references": [
         {
@@ -2098,6 +2159,7 @@
       "tags": [
         "molecular-adsorption"
       ],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -2119,7 +2181,7 @@
       "wn_start": 1020,
       "wn_end": 1050,
       "short": "ν(CO) MeOH",
-      "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000–1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region. Disambiguate via the CH₃ stretching region: adsorbed methanol shows ν<sub>as</sub>/ν<sub>s</sub> blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
+      "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000–1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region. Disambiguate via the CH₃ stretching region: adsorbed methanol shows νₐₛ/νₛ blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
       "based_on": [],
       "references": [
         {
@@ -2136,6 +2198,7 @@
         }
       ],
       "tags": [],
+      "fermi_partner": null,
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
@@ -2161,6 +2224,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -2186,6 +2250,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -2211,6 +2276,7 @@
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -2231,11 +2297,12 @@
       "atoms": "H-O-H",
       "wn_start": 1620,
       "wn_end": 1650,
-      "short": "δ<sub>s</sub>(HOH) H₂O*",
-      "description": "Water bending mode (H₂O*); overlaps formate ν<sub>as</sub>.",
+      "short": "δₛ(HOH) H₂O*",
+      "description": "Water bending mode (H₂O*); overlaps formate νₐₛ.",
       "based_on": [],
       "references": [],
       "tags": [],
+      "fermi_partner": null,
       "intensity": null,
       "width": null,
       "confidence": null,
@@ -2270,6 +2337,7 @@
       "tags": [
         "hydride-marker"
       ],
+      "fermi_partner": null,
       "intensity": "w",
       "width": "sharp",
       "confidence": "confirmed",

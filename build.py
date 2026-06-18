@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from ir_bands.layout import assign_lanes, assign_sub_lanes
-from ir_bands.loader import load_dataset, load_references, validate_dataset
+from ir_bands.loader import load_dataset, load_references, tag_fermi_pairs, validate_dataset
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
@@ -594,6 +594,10 @@ def main() -> int:
           f"{len(dataset.regions)} regions")
 
     validate_dataset(dataset, references=references)
+
+    fermi_warnings = tag_fermi_pairs(dataset)
+    for w in fermi_warnings:
+        print(f"  ⚠ {w}", file=sys.stderr)
 
     assign_lanes(dataset.bands)
     skipped = assign_sub_lanes(dataset.bands)

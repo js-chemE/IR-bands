@@ -100,6 +100,11 @@ class Band:
     references: list[Reference] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
+    # Fermi resonance: id of the other band in the doublet, if any. Reciprocal
+    # when complete (A.fermi_partner == B.id and B.fermi_partner == A.id); the
+    # "fermi-resonance" tag is then auto-assigned to both by tag_fermi_pairs().
+    fermi_partner: Optional[str] = None
+
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
     width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad
     confidence: Optional[BandConfidence] = None # confirmed | likely | tentative | speculative
