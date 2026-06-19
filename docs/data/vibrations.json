@@ -1,0 +1,84 @@
+{
+  "molecules": [
+    {
+      "id": "co2",
+      "label": "CO₂",
+      "species": "CO₂",
+      "band_groups": [
+        "co2"
+      ],
+      "modes": [
+        {
+          "id": "co2_stretch_symmetric",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "label": "νₛ(OCO) CO₂",
+          "note": "Also called the symmetric stretch, ν₁.",
+          "ir_active": false,
+          "raman_active": true,
+          "atoms": "O=C=O",
+          "tags": [
+            "gas-phase",
+            "ir-inactive"
+          ],
+          "band_reference": [
+            "co2_sym_1388"
+          ],
+          "reference": []
+        },
+        {
+          "id": "co2_stretch_asymmetric",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "label": "νₐₛ(OCO) CO₂",
+          "note": "Also called the asymmetric stretch, ν₃.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": [
+            "gas-phase"
+          ],
+          "band_reference": [
+            "co2_nu3_branches"
+          ],
+          "reference": []
+        },
+        {
+          "id": "co2_bend",
+          "category": "bend",
+          "subtype": "scissoring",
+          "label": "δ(OCO) CO₂ (scissoring)",
+          "note": "Also called the in-plane bending mode, ν₂ — degenerate with the out-of-plane wagging component below.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": [
+            "gas-phase",
+            "degenerated-mode"
+          ],
+          "band_reference": [
+            "co2_nu2_branches"
+          ],
+          "reference": []
+        },
+        {
+          "id": "co2_bend_wagging",
+          "category": "bend",
+          "subtype": "wagging",
+          "label": "δ(OCO) CO₂ (wagging)",
+          "note": "The doubly-degenerate, out-of-plane partner of ν₂ — frequency-coincident with the scissoring component above, so it has no separately resolved band of its own.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": [
+            "gas-phase",
+            "degenerated-mode",
+            "out-of-plane"
+          ],
+          "band_reference": [],
+          "reference": []
+        }
+      ]
+    }
+  ]
+}

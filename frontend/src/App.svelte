@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { Dataset, ColorDim, AxisProperty, RefMap } from './lib/types';
+  import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations } from './lib/types';
   import { AXES } from './lib/units';
   import { getLegendCategories, getLegendTags } from './lib/chart';
   import BandChart from './components/BandChart.svelte';
@@ -15,6 +15,7 @@
 
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
+  let vibrations: Vibrations = { molecules: [] };
   let loading = true;
   let error: string | null = null;
   type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
@@ -45,14 +46,18 @@
 
   onMount(async () => {
     try {
-      const [bRes, rRes] = await Promise.all([
+      const [bRes, rRes, vRes] = await Promise.all([
         fetch('data/bands.json'),
         fetch('data/references.json'),
+        fetch('data/vibrations.json'),
       ]);
       if (!bRes.ok) throw new Error(`bands.json: ${bRes.status}`);
       if (!rRes.ok) throw new Error(`references.json: ${rRes.status}`);
       dataset = (await bRes.json()) as Dataset;
       refs = (await rRes.json()) as RefMap;
+      // Vibrations content is supplementary — don't fail the whole app if
+      // it's missing (e.g. build.py was run before this feature existed).
+      vibrations = vRes.ok ? ((await vRes.json()) as Vibrations) : { molecules: [] };
       enabledGroups = new Set(
         Object.keys(dataset.groups).filter(k => !DEFAULT_OFF.has(k))
       );
@@ -150,6 +155,20 @@
         setTimeout(() => { el.style.transition = ''; }, 300);
       }, 1600);
     }, 80);
+  }
+
+  function handleNavigateMode(e: CustomEvent<{ category: string; subtype: string | null }>) {
+    if (!dataset) return;
+    const { category, subtype } = e.detail;
+    const cat = subtype ? `${category}.${subtype}` : category;
+    colorDim = 'vibration';
+    // Compute the isolate set directly for 'vibration' rather than reusing
+    // the legendCats reactive value — it's still derived from the *old*
+    // colorDim at this point in the synchronous handler.
+    const allKeys = getLegendCategories(dataset.bands, dataset.groups, enabledGroups, 'vibration')
+      .map(c => c.key);
+    hiddenCats = new Set(allKeys.filter(k => k !== cat));
+    page = 'chart';
   }
 
   const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
@@ -341,7 +360,13 @@
           viewMode={refViewMode}
         />
       {:else if page === 'vibration'}
-        <VibrationModesPage />
+        <VibrationModesPage
+          bands={dataset.bands}
+          {refs}
+          {vibrations}
+          on:navigateRef={handleNavigateRef}
+          on:navigateMode={handleNavigateMode}
+        />
       {:else if page === 'impressum'}
         <ImpressumPage />
       {/if}

@@ -13,7 +13,8 @@ import re
 from pathlib import Path
 
 from ir_bands.schema import (
-    Band, BasedOn, Dataset, Group, Reference, Region, Vibration,
+    Band, BasedOn, Dataset, Group, Molecule, Reference, Region,
+    Vibration, VibrationMode, Vibrations,
     VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
 )
 
@@ -321,6 +322,116 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
             if "rotational-branches" not in b.tags:
                 b.tags.append("rotational-branches")
     return warnings
+
+
+# ---------------------------------------------------------------------------
+# Vibrations loader (data/vibrations.jsonc)
+# ---------------------------------------------------------------------------
+
+def _parse_mode(raw: dict) -> VibrationMode:
+    return VibrationMode(
+        id=raw["id"],
+        category=raw["category"],
+        subtype=raw.get("subtype"),
+        label=raw.get("label", ""),
+        note=raw.get("note", ""),
+        ir_active=raw.get("ir_active"),
+        raman_active=raw.get("raman_active"),
+        atoms=raw.get("atoms", ""),
+        tags=list(raw.get("tags", [])),
+        band_reference=list(raw.get("band_reference", [])),
+        reference=list(raw.get("reference", [])),
+    )
+
+
+def _parse_molecule(raw: dict) -> Molecule:
+    return Molecule(
+        id=raw["id"],
+        label=raw["label"],
+        species=raw["species"],
+        band_groups=list(raw.get("band_groups", [])),
+        modes=[_parse_mode(m) for m in raw.get("modes", [])],
+    )
+
+
+def load_vibrations(path: str | Path) -> Vibrations:
+    """Load the vibrations content (molecules + their named modes)."""
+    raw = load_jsonc(path)
+    return Vibrations(molecules=[_parse_molecule(m) for m in raw.get("molecules", [])])
+
+
+def validate_vibrations(
+    vib: Vibrations,
+    dataset: Dataset,
+    references: dict | None = None,
+) -> None:
+    """Raise ValueError on any structural problem in the vibrations data.
+
+    Tightly coupled to the real band dataset: every band_groups entry must be
+    a real Group key, every band_reference entry must resolve to a real band
+    id or branch_group, and every band resolved that way must actually have
+    the mode's own category/subtype — a mode can't claim a band it doesn't
+    match. references (citekeys) resolve against references.bib if given.
+    """
+    errors: list[str] = []
+
+    band_ids = {b.id for b in dataset.bands}
+    branch_group_members: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            branch_group_members.setdefault(b.branch_group, []).append(b)
+
+    seen_molecules: dict[str, int] = {}
+    seen_modes: dict[str, str] = {}  # mode id -> molecule id
+
+    for mi, mol in enumerate(vib.molecules):
+        if mol.id in seen_molecules:
+            errors.append(f"Duplicate molecule id {mol.id!r}")
+        else:
+            seen_molecules[mol.id] = mi
+
+        for g in mol.band_groups:
+            if g not in dataset.groups:
+                errors.append(f"Molecule {mol.id}: band_groups entry {g!r} not in groups table")
+
+        for mode in mol.modes:
+            if mode.id in seen_modes:
+                errors.append(f"Duplicate mode id {mode.id!r}")
+            else:
+                seen_modes[mode.id] = mol.id
+
+            for ref in mode.band_reference:
+                resolved: list[Band] = []
+                if ref in band_ids:
+                    resolved = [dataset.band_by_id(ref)]
+                elif ref in branch_group_members:
+                    resolved = branch_group_members[ref]
+                else:
+                    errors.append(
+                        f"Molecule {mol.id}, mode {mode.id}: band_reference {ref!r} "
+                        "is not a known band id or branch_group"
+                    )
+                    continue
+
+                for b in resolved:
+                    if (b.vibration.category, b.vibration.subtype) != (mode.category, mode.subtype):
+                        errors.append(
+                            f"Molecule {mol.id}, mode {mode.id}: band_reference {ref!r} "
+                            f"resolves to band {b.id} with category/subtype "
+                            f"({b.vibration.category!r}, {b.vibration.subtype!r}) but the "
+                            f"mode declares ({mode.category!r}, {mode.subtype!r})"
+                        )
+
+            if references is not None:
+                for key in mode.reference:
+                    if key not in references:
+                        errors.append(
+                            f"Molecule {mol.id}, mode {mode.id}: reference key "
+                            f"{key!r} not found in references.bib"
+                        )
+
+    if errors:
+        raise ValueError("Vibrations validation failed:\n  " + "\n  ".join(errors))
 
 
 # ---------------------------------------------------------------------------

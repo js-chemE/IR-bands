@@ -101,6 +101,57 @@ class Reference:
 
 
 @dataclass
+class VibrationMode:
+    """One named vibrational mode of a Molecule, for the vibration-modes page.
+
+    band_reference entries (band ids or branch_group keys) are validated
+    against the real dataset in validate_vibrations — both that they resolve
+    and that the resolved band(s) actually have this mode's category/subtype.
+    reference entries are citekeys, validated against references.bib.
+    """
+    id: str
+    category: VibCategory
+    subtype: Optional[VibSubtype] = None
+    label: str = ""
+    note: str = ""
+    ir_active: Optional[bool] = None
+    raman_active: Optional[bool] = None
+    atoms: str = ""
+    tags: list[str] = field(default_factory=list)
+    band_reference: list[str] = field(default_factory=list)
+    reference: list[str] = field(default_factory=list)
+
+    def __post_init__(self):
+        if self.category not in VALID_CATEGORIES:
+            raise ValueError(f"mode {self.id}: category={self.category!r} not in {VALID_CATEGORIES}")
+        if self.subtype is not None and self.subtype not in VALID_SUBTYPES:
+            raise ValueError(f"mode {self.id}: subtype={self.subtype!r} not in {VALID_SUBTYPES}")
+        if self.category == "combination" and self.subtype is not None:
+            raise ValueError(f"mode {self.id}: category=combination cannot have subtype")
+
+
+@dataclass
+class Molecule:
+    """A molecule on the vibration-modes page, with its real vibrational modes.
+
+    species matches Band.species; band_groups matches Band.group — both
+    validated against the real dataset in validate_vibrations. Geometry/
+    displacement vectors for rendering live in the frontend, not here — this
+    is editorial content only.
+    """
+    id: str
+    label: str
+    species: str
+    band_groups: list[str] = field(default_factory=list)
+    modes: list[VibrationMode] = field(default_factory=list)
+
+
+@dataclass
+class Vibrations:
+    molecules: list[Molecule]
+
+
+@dataclass
 class Band:
     id: str
     species: str

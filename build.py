@@ -22,9 +22,11 @@ from ir_bands.layout import assign_lanes, assign_sub_lanes
 from ir_bands.loader import (
     load_dataset,
     load_references,
+    load_vibrations,
     tag_branch_groups,
     tag_fermi_pairs,
     validate_dataset,
+    validate_vibrations,
 )
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -41,9 +43,11 @@ DOCS_DATA = DOCS_DIR / "data"
 
 BANDS_SRC = DATA_DIR / "bands.jsonc"
 REFS_SRC = DATA_DIR / "references.bib"
+VIBRATIONS_SRC = DATA_DIR / "vibrations.jsonc"
 
 BANDS_OUT = DOCS_DATA / "bands.json"
 REFS_OUT = DOCS_DATA / "references.json"
+VIBRATIONS_OUT = DOCS_DATA / "vibrations.json"
 HTML_OUT = DOCS_DIR / "index.html"
 
 
@@ -614,6 +618,12 @@ def main() -> int:
     print(f"  {dataset.n_lanes()} lanes"
           + (f", {len(skipped)} bands skipped (>3-way overlap)" if skipped else ""))
 
+    print(f"→ Loading vibrations from {VIBRATIONS_SRC.relative_to(ROOT)}")
+    vibrations = load_vibrations(VIBRATIONS_SRC)
+    n_modes = sum(len(m.modes) for m in vibrations.molecules)
+    print(f"  {len(vibrations.molecules)} molecules, {n_modes} modes")
+    validate_vibrations(vibrations, dataset, references=references)
+
     bands_payload = {
         "metadata": dataset.metadata,
         "regions": {k: asdict(v) for k, v in dataset.regions.items()},
@@ -631,6 +641,15 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"✓ Wrote {REFS_OUT.relative_to(ROOT)} ({REFS_OUT.stat().st_size:,} bytes)")
+
+    vibrations_payload = {
+        "molecules": [asdict(m) for m in vibrations.molecules],
+    }
+    VIBRATIONS_OUT.write_text(
+        json.dumps(vibrations_payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"✓ Wrote {VIBRATIONS_OUT.relative_to(ROOT)} ({VIBRATIONS_OUT.stat().st_size:,} bytes)")
 
     # Copy source files so the frontend can offer them as downloads.
     for src, dst in [(BANDS_SRC, DOCS_DATA / "bands.jsonc"), (REFS_SRC, DOCS_DATA / "references.bib")]:

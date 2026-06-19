@@ -36,11 +36,11 @@
       </div>
       <div class="info-row">
         <span class="info-label">Institution</span>
-        <span>Delft University of Technology</span>
+        <span>Delft University of Technology, Faculty of Applied Sciences</span>
       </div>
       <div class="info-row">
         <span class="info-label">Address</span>
-        <span>Mekelweg 5, 2628 CD Delft, The Netherlands</span>
+        <span>Van der Maasweg 9, 2629 HT Delft, The Netherlands</span>
       </div>
       <div class="info-row">
         <span class="info-label">Contact</span>
