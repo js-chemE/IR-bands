@@ -1313,7 +1313,7 @@
       "tags": []
     },
     {
-      "id": "carbonate_bend_850",
+      "id": "carbonate_scissoring_680",
       "species": "Carbonates*",
       "group": "carbonate",
       "pair": 5,
@@ -1323,10 +1323,10 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 830,
-      "wn_end": 870,
+      "wn_start": 650,
+      "wn_end": 715,
       "short": "δ(OCO) CO₃²⁻",
-      "description": "Carbonate in-plane OCO bend / scissoring (CO₃²⁻*); O-C-O angle deformation within the molecular plane.",
+      "description": "Carbonate in-plane OCO bend / scissoring (CO₃²⁻*); O-C-O angle deformation within the molecular plane. Position is general/approximate — not yet tied to a specific reference.",
       "based_on": [],
       "references": [],
       "tags": []
