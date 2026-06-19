@@ -1294,20 +1294,39 @@
       "tags": ["overtone"]
     },
     {
+      "id": "carbonate_wagging_875",
+      "species": "Carbonates*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "bend",
+        "subtype": "wagging",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 860,
+      "wn_end": 890,
+      "short": "γ(OCO) CO₃²⁻",
+      "description": "Carbonate out-of-plane OCO bend / wagging (CO₃²⁻*); the central C moves out of the O-C-O plane. Position is general/approximate — not yet tied to a specific reference.",
+      "based_on": [],
+      "references": [],
+      "tags": []
+    },
+    {
       "id": "carbonate_bend_850",
       "species": "Carbonates*",
       "group": "carbonate",
       "pair": 5,
       "vibration": {
         "category": "bend",
-        "subtype": null,
+        "subtype": "scissoring",
         "branch": null
       },
       "atoms": "O-C-O",
       "wn_start": 830,
       "wn_end": 870,
       "short": "δ(OCO) CO₃²⁻",
-      "description": "Carbonate OCO bending (CO₃²⁻*).",
+      "description": "Carbonate in-plane OCO bend / scissoring (CO₃²⁻*); O-C-O angle deformation within the molecular plane.",
       "based_on": [],
       "references": [],
       "tags": []
