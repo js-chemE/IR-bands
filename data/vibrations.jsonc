@@ -1,0 +1,79 @@
+// Content for the "Vibration modes" page: molecules and their named modes.
+//
+// Tightly coupled to bands.jsonc: band_groups must be real Group keys, and
+// each mode's band_reference entries (band ids or branch_group keys) are
+// validated to resolve AND to actually have that mode's own category/
+// subtype — see validate_vibrations in src/ir_bands/loader.py. atoms/tags
+// mirror the same fields on the real bands this mode points to, so the page
+// uses the exact same vocabulary (and colors, via ATOMS_PALETTE/TAG_STYLES)
+// as the band chart. labels follow the same short-label notation used in
+// bands.jsonc (e.g. "νₐₛ(OCO) CO₂"); the conventional ν-numbered name is
+// given as a one-sentence aside in `note` instead of in the label itself.
+//
+// Geometry/displacement vectors for the animated diagrams live in the
+// frontend (frontend/src/lib/moleculeGeometry.ts), not here — this file is
+// editorial content only.
+{
+  "molecules": [
+    {
+      "id": "co2",
+      "label": "CO₂",
+      "species": "CO₂",
+      "band_groups": ["co2"],
+      "modes": [
+        {
+          "id": "co2_stretch_symmetric",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "label": "νₛ(OCO) CO₂",
+          "note": "Also called the symmetric stretch, ν₁.",
+          "ir_active": false,
+          "raman_active": true,
+          "atoms": "O=C=O",
+          "tags": ["gas-phase", "ir-inactive"],
+          "band_reference": ["co2_sym_1388"],
+          "reference": []
+        },
+        {
+          "id": "co2_stretch_asymmetric",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "label": "νₐₛ(OCO) CO₂",
+          "note": "Also called the asymmetric stretch, ν₃.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": ["gas-phase"],
+          "band_reference": ["co2_nu3_branches"],
+          "reference": []
+        },
+        {
+          "id": "co2_bend",
+          "category": "bend",
+          "subtype": "scissoring",
+          "label": "δ(OCO) CO₂ (scissoring)",
+          "note": "Also called the in-plane bending mode, ν₂ — degenerate with the out-of-plane wagging component below.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": ["gas-phase", "degenerated-mode"],
+          "band_reference": ["co2_nu2_branches"],
+          "reference": []
+        },
+        {
+          "id": "co2_bend_wagging",
+          "category": "bend",
+          "subtype": "wagging",
+          "label": "δ(OCO) CO₂ (wagging)",
+          "note": "The doubly-degenerate, out-of-plane partner of ν₂ — frequency-coincident with the scissoring component above, so it has no separately resolved band of its own.",
+          "ir_active": true,
+          "raman_active": false,
+          "atoms": "O=C=O",
+          "tags": ["gas-phase", "degenerated-mode", "out-of-plane"],
+          "band_reference": [],
+          "reference": []
+        }
+      ]
+    }
+  ]
+}

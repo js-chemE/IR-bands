@@ -129,24 +129,24 @@
         "branch": "R"
       },
       "atoms": "O=C=O",
-      "wn_start": 2350,
+      "wn_start": 2355,
       "wn_end": 2390,
       "short": "νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — R-branch (ΔJ = +1) at ~2360 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2335. Q-branch forbidden (Σ→Σ transition), leaving a characteristic gap at the band origin. Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — R-branch envelope maximum at ~2360 cm⁻¹, paired with the P-branch at ~2335. The Q-branch between them is symmetry-forbidden — see co2_asym_2349_Q. Saturates at high pCO₂.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 2349,
+          "wn": 2360,
           "site": null,
-          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2360 here is the R-branch envelope maximum, not a measured peak.",
+          "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); 2360 here is the R-branch envelope maximum, not a single measured line.",
           "tags": []
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 2373,
           "site": null,
-          "note": "Table 3: gas-phase CO₂ R-branch at 2373 cm⁻¹ observed during DRM at 600°C; used as reactant concentration marker.",
+          "note": "Gas-phase CO₂ R-branch observed at 2373 cm⁻¹ during DRM at 600°C (Table 3); reactant concentration marker.",
           "tags": []
         }
       ],
@@ -162,8 +162,48 @@
       "confidence": "confirmed",
       "lane": 0,
       "sub_lane": 0,
-      "wn_min": 2350,
+      "wn_min": 2355,
       "wn_max": 2390
+    },
+    {
+      "id": "co2_asym_2349_Q",
+      "species": "CO₂",
+      "group": "co2",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2345,
+      "wn_end": 2353,
+      "short": "νₐₛ(OCO) CO₂ (Q)",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — Q-branch at the 2349 cm⁻¹ band origin. Forbidden by symmetry for this Σᵤ⁺←Σg⁺ parallel transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2349,
+          "site": null,
+          "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2) — the forbidden Q-branch position itself, not an observed line.",
+          "tags": []
+        }
+      ],
+      "tags": [
+        "gas-phase",
+        "ir-inactive",
+        "rotational-branches"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "co2_nu3_branches",
+      "intensity": null,
+      "width": null,
+      "confidence": "confirmed",
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 2345,
+      "wn_max": 2353
     },
     {
       "id": "co2_asym_2335_P",
@@ -176,16 +216,16 @@
       },
       "atoms": "O=C=O",
       "wn_start": 2310,
-      "wn_end": 2349,
+      "wn_end": 2342,
       "short": "νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — P-branch (ΔJ = −1) at ~2335 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2360. Q-branch forbidden (Σ→Σ transition). Saturates at high pressure.",
+      "description": "Gas CO₂ asymmetric stretch (νₐₛ) — P-branch envelope maximum at ~2335 cm⁻¹, paired with the R-branch at ~2360. Same forbidden-Q gap as the R-branch entry — see co2_asym_2349_Q. Saturates at high pCO₂.",
       "based_on": [],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": 2349,
+          "wn": 2335,
           "site": null,
-          "note": "Reports the ν₃ (our νₐₛ) band origin (00011←00001) at 2349 cm⁻¹ (Table 2); ~2335 here is the P-branch envelope maximum, not a measured peak.",
+          "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); 2335 here is the P-branch envelope maximum, not a single measured line.",
           "tags": []
         }
       ],
@@ -202,7 +242,7 @@
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2310,
-      "wn_max": 2349
+      "wn_max": 2342
     },
     {
       "id": "co2_bend_700_R",
@@ -224,7 +264,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 700,
           "site": null,
-          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum.",
+          "note": "Reports the δ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -264,7 +304,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 667,
           "site": null,
-          "note": "Q-branch coincides with the reported ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode.",
+          "note": "Q-branch coincides with the reported δ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode.",
           "tags": []
         }
       ],
@@ -304,7 +344,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 660,
           "site": null,
-          "note": "Reports the ν₂ (our δ) band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum.",
+          "note": "Reports the δ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -357,7 +397,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
           "site": null,
-          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum.",
+          "note": "Reports the νₛ+νₐₛ band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3730 here is the R-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -410,7 +450,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3715,
           "site": null,
-          "note": "Reports the (ν₁+ν₃) [our νₛ+νₐₛ] band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum.",
+          "note": "Reports the νₛ+νₐₛ band origin (10011←00001) at ~3715 cm⁻¹ (Table 2, upper Fermi-resonance pair); ~3699 here is the P-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -463,7 +503,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
           "site": null,
-          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum.",
+          "note": "Reports the 2δ+νₐₛ band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3627 here is the R-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -517,7 +557,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 3613,
           "site": null,
-          "note": "Reports the (2ν₂+ν₃) [our 2δ+νₐₛ] band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum.",
+          "note": "Reports the 2δ+νₐₛ band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum.",
           "tags": []
         }
       ],
@@ -598,7 +638,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 1388,
           "site": null,
-          "note": "ν₁ (our νₛ) band origin (Table 2); IR-inactive (Σg⁺) — included for context as the Fermi-dyad partner of 2ν₂ (our 2δ) and parent of the (ν₁+ν₃) [our νₛ+νₐₛ] combination band.",
+          "note": "νₛ band origin (Table 2); IR-inactive (Σg⁺) — included for context as the Fermi-dyad partner of 2δ and parent of the νₛ+νₐₛ combination band.",
           "tags": []
         }
       ],
