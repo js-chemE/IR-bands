@@ -364,6 +364,7 @@
           bands={dataset.bands}
           {refs}
           {vibrations}
+          {sortedGroupKeys}
           on:navigateRef={handleNavigateRef}
           on:navigateMode={handleNavigateMode}
         />

@@ -270,7 +270,7 @@
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode",
+        "degenerated",
         "rotational-branches"
       ],
       "fermi_partner": null,
@@ -310,7 +310,7 @@
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode",
+        "degenerated",
         "rotational-branches"
       ],
       "fermi_partner": null,
@@ -350,7 +350,7 @@
       ],
       "tags": [
         "gas-phase",
-        "degenerated-mode",
+        "degenerated",
         "rotational-branches"
       ],
       "fermi_partner": null,
@@ -755,7 +755,7 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 3016,
           "site": null,
-          "note": "Table 3: νs(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃.",
+          "note": "Table 3: νₛ(–CH₃) at 3016 cm⁻¹; gas-phase CH₄ C-H stretch during DRM at 600°C over Ni-Ce-Fe/La-Al₂O₃.",
           "tags": []
         }
       ],
@@ -1442,7 +1442,7 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1670,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
-          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νs(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies.",
+          "note": "Table 3: νas(-C=O) 1670 + νas(OCO⁻) 1560 + νₛ(OCO⁻) 1500 cm⁻¹; dominant CO₂ activation product on active catalyst under DRM at 600°C; stabilised by surface oxygen vacancies.",
           "tags": []
         },
         {
@@ -1487,7 +1487,7 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1310,
           "site": "Ni-Ce-Fe/La-Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹.",
+          "note": "Table 3: νₛ(-C-O) at 1310 cm⁻¹; paired with the asymmetric modes at 1670/1560/1500 cm⁻¹.",
           "tags": []
         },
         {
@@ -1605,7 +1605,7 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1340,
           "site": "La-Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1340 cm⁻¹.",
+          "note": "Table 3: νₛ(-C-O) at 1340 cm⁻¹.",
           "tags": []
         }
       ],
@@ -1770,7 +1770,7 @@
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 1434,
           "site": "Al₂O₃",
-          "note": "Table 3: νs(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃.",
+          "note": "Table 3: νₛ(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃.",
           "tags": []
         }
       ],
@@ -1921,7 +1921,7 @@
             "Fe₃O₄(001)",
             "Fe₃O₄(111)"
           ],
-          "note": "Table 1, Fig. 6b–d: νas(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (Fano line shape, UHV, room temperature). On Fe₃O₄(001) (Fig. 6c): two bidentate-bridging components, 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe) — paired νs(OCO) at 1369/1377 cm⁻¹ (tet/int); distinction only possible with polarized light due to Fano overlap in unpolarized spectra. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νs at 1335 cm⁻¹, positive inverted Fano sign — TDM parallel to surface) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νs at 1380 cm⁻¹); bidentate-bridging excluded here (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
+          "note": "Table 1, Fig. 6b–d: νas(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (Fano line shape, UHV, room temperature). On Fe₃O₄(001) (Fig. 6c): two bidentate-bridging components, 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe) — paired νₛ(OCO) at 1369/1377 cm⁻¹ (tet/int); distinction only possible with polarized light due to Fano overlap in unpolarized spectra. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νₛ at 1335 cm⁻¹, positive inverted Fano sign — TDM parallel to surface) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νₛ at 1380 cm⁻¹); bidentate-bridging excluded here (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
           "tags": []
         }
       ],
@@ -1952,7 +1952,7 @@
       "wn_start": 1315,
       "wn_end": 1390,
       "short": "νₛ(OCO) HCOO*",
-      "description": "Formate symmetric OCO stretch (HCOO*). Position varies with support and adsorption geometry: ~1320 cm⁻¹ on Ru/Al₂O₃, ~1335 cm⁻¹ (quasi-bidentate on Fe₃O₄(111)), ~1350–1380 cm⁻¹ on oxide surfaces (Al₂O₃, CuGaZrOx), ~1369–1377 cm⁻¹ on Fe₃O₄(001). Paired with νas(OCO) above ~1520 cm⁻¹; frequency splitting Δν = νas − νs reflects adsorption geometry (bridging vs. chelating).",
+      "description": "Formate symmetric OCO stretch (HCOO*). Position varies with support and adsorption geometry: ~1320 cm⁻¹ on Ru/Al₂O₃, ~1335 cm⁻¹ (quasi-bidentate on Fe₃O₄(111)), ~1350–1380 cm⁻¹ on oxide surfaces (Al₂O₃, CuGaZrOx), ~1369–1377 cm⁻¹ on Fe₃O₄(001). Paired with νas(OCO) above ~1520 cm⁻¹; frequency splitting Δν = νas − νₛ reflects adsorption geometry (bridging vs. chelating).",
       "based_on": [],
       "references": [
         {
@@ -1962,7 +1962,7 @@
             "Ru/Al₂O₃",
             "Ru/\"Na₂O\"/Al₂O₃"
           ],
-          "note": "Table 2/Fig. 1a (Ru/Al₂O₃) and Fig. 3a (Ru–6.1%\"Na₂O\"/Al₂O₃ DFM): νs(OCO) HCOO* at 1320 cm⁻¹ on both surfaces, paired with νas at 1520 cm⁻¹; appears at onset of H₂ reduction (320 °C, 20% H₂/N₂). On Ru/Al₂O₃, formate forms via bicarbonate spillover at the Ru–Al₂O₃ interface; on Ru–Na₂O/Al₂O₃, from bidentate carbonate spillover to the Ru–support interface. Identified as a key CO₂ methanation intermediate.",
+          "note": "Table 2/Fig. 1a (Ru/Al₂O₃) and Fig. 3a (Ru–6.1%\"Na₂O\"/Al₂O₃ DFM): νₛ(OCO) HCOO* at 1320 cm⁻¹ on both surfaces, paired with νas at 1520 cm⁻¹; appears at onset of H₂ reduction (320 °C, 20% H₂/N₂). On Ru/Al₂O₃, formate forms via bicarbonate spillover at the Ru–Al₂O₃ interface; on Ru–Na₂O/Al₂O₃, from bidentate carbonate spillover to the Ru–support interface. Identified as a key CO₂ methanation intermediate.",
           "tags": []
         },
         {
@@ -1972,14 +1972,14 @@
             "Fe₃O₄(001)",
             "Fe₃O₄(111)"
           ],
-          "note": "Table 1, Fig. 6a–d: νs(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (negative Fano profiles, TDM perpendicular to surface; dissociative HCOOH adsorption, room temperature, UHV). On Fe₃O₄(001) (Fig. 6a/c): bidentate-bridging, two components — 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site), Epn coupling; paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int); δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹); no bidentate-bridging here (Fe-tet spacing 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
+          "note": "Table 1, Fig. 6a–d: νₛ(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (negative Fano profiles, TDM perpendicular to surface; dissociative HCOOH adsorption, room temperature, UHV). On Fe₃O₄(001) (Fig. 6a/c): bidentate-bridging, two components — 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site), Epn coupling; paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int); δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹); no bidentate-bridging here (Fe-tet spacing 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
           "tags": []
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1350,
           "site": "CuGaZrOx",
-          "note": "νs(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹.",
+          "note": "νₛ(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹.",
           "tags": []
         },
         {
@@ -2010,7 +2010,7 @@
       "group": "formate",
       "vibration": {
         "category": "bend",
-        "subtype": "rocking",
+        "subtype": "scissoring",
         "branch": null
       },
       "atoms": "O-C-H",
@@ -2024,7 +2024,7 @@
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
           "site": "CuGaZrOx",
-          "note": "Formate C-H bending overlaps with νs(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νs in this study.",
+          "note": "Formate C-H bending overlaps with νₛ(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νₛ in this study.",
           "tags": []
         }
       ],

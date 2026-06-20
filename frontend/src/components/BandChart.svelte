@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
-  import { buildChart, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/chart';
+  import { buildChart } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
-  import { getCat } from '../lib/colors';
+  import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
 
   const dispatch = createEventDispatcher<{ navigateRef: { key: string } }>();
 

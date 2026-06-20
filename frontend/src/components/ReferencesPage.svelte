@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Band, BandReference, GroupMap, RefMap } from '../lib/types';
-  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/chart';
+  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
   import { esc, ieeeHtml, refSortKey } from '../lib/citations';
 
   export let bands: Band[];

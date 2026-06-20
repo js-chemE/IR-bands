@@ -2,23 +2,28 @@
 //
 // Tightly coupled to bands.jsonc: band_groups must be real Group keys, and
 // each mode's band_reference entries (band ids or branch_group keys) are
-// validated to resolve AND to actually have that mode's own category/
-// subtype — see validate_vibrations in src/ir_bands/loader.py. atoms/tags
-// mirror the same fields on the real bands this mode points to, so the page
-// uses the exact same vocabulary (and colors, via ATOMS_PALETTE/TAG_STYLES)
-// as the band chart. labels follow the same short-label notation used in
+// validated to resolve AND to share that mode's category (not subtype —
+// degenerate sub-modes, e.g. bend/scissoring + bend/wagging, can legitimately
+// point at the same observed band) — see validate_vibrations in
+// src/ir_bands/loader.py. atoms/tags mirror the same fields on the real
+// bands this mode points to, so the page uses the exact same vocabulary as
+// the band chart. labels follow the same short-label notation used in
 // bands.jsonc (e.g. "νₐₛ(OCO) CO₂"); the conventional ν-numbered name is
 // given as a one-sentence aside in `note` instead of in the label itself.
 //
-// Geometry/displacement vectors for the animated diagrams live in the
+// Pixel geometry/displacement vectors for the animated diagrams live in the
 // frontend (frontend/src/lib/moleculeGeometry.ts), not here — this file is
-// editorial content only.
+// editorial content only. shape ("linear"/"nonlinear") is the textbook
+// classification the frontend uses with the atom count (from its own
+// geometry table) to compute the 3N-5/3N-6 fundamental-mode count, and flag
+// how many of those are actually listed below.
 {
   "molecules": [
     {
       "id": "co2",
       "label": "CO₂",
       "species": "CO₂",
+      "shape": "linear",
       "band_groups": ["co2"],
       "modes": [
         {
@@ -30,7 +35,7 @@
           "ir_active": false,
           "raman_active": true,
           "atoms": "O=C=O",
-          "tags": ["gas-phase", "ir-inactive"],
+          "tags": ["gas-phase"],
           "band_reference": ["co2_sym_1388"],
           "reference": []
         },
@@ -51,12 +56,12 @@
           "id": "co2_bend",
           "category": "bend",
           "subtype": "scissoring",
-          "label": "δ(OCO) CO₂ (scissoring)",
+          "label": "δ(OCO) CO₂",
           "note": "Also called the in-plane bending mode, ν₂ — degenerate with the out-of-plane wagging component below.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
-          "tags": ["gas-phase", "degenerated-mode"],
+          "tags": ["gas-phase", "degenerated"],
           "band_reference": ["co2_nu2_branches"],
           "reference": []
         },
@@ -64,13 +69,96 @@
           "id": "co2_bend_wagging",
           "category": "bend",
           "subtype": "wagging",
-          "label": "δ(OCO) CO₂ (wagging)",
+          "label": "ω(OCO) CO₂",
           "note": "The doubly-degenerate, out-of-plane partner of ν₂ — frequency-coincident with the scissoring component above, so it has no separately resolved band of its own.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
-          "tags": ["gas-phase", "degenerated-mode", "out-of-plane"],
-          "band_reference": [],
+          "tags": ["gas-phase", "degenerated"],
+          "band_reference": ["co2_nu2_branches"],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "co",
+      "label": "CO",
+      "species": "CO",
+      "shape": "linear",
+      "band_groups": ["co"],
+      "modes": [
+        {
+          "id": "co_stretch",
+          "category": "stretch",
+          "subtype": null,
+          "label": "ν(CO)",
+          "note": "Two different atoms, one bond — only one stretching mode, no symmetric/asymmetric distinction.",
+          "ir_active": true,
+          "raman_active": true,
+          "atoms": "C-O",
+          "tags": ["gas-phase"],
+          "band_reference": ["co_nu1_branches"],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "formate",
+      "label": "Formate*",
+      "species": "Formate*",
+      "shape": "nonlinear",
+      "band_groups": ["formate"],
+      "modes": [
+        {
+          "id": "formate_ch_stretch",
+          "category": "stretch",
+          "subtype": null,
+          "label": "ν(CH) HCOO*",
+          "note": "C-H stretch — the key HCOO* marker band; in Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band on some supports (e.g. CeO₂), splitting into a doublet.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "C-H",
+          "tags": [],
+          "band_reference": ["formate_ch_stretch_2885"],
+          "reference": []
+        },
+        {
+          "id": "formate_stretch_asymmetric",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "label": "νₐₛ(OCO) HCOO*",
+          "note": "Generic surface formate — not specific to a binding mode (mono-/bidentate); position is support-dependent.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": ["site-sensitive"],
+          "band_reference": ["formate_asym_1585"],
+          "reference": []
+        },
+        {
+          "id": "formate_stretch_symmetric",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "label": "νₛ(OCO) HCOO*",
+          "note": "Paired with νₐₛ(OCO) above; the splitting between the two is itself diagnostic of adsorption geometry.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": ["site-sensitive"],
+          "band_reference": ["formate_sym_1365"],
+          "reference": []
+        },
+        {
+          "id": "formate_och_scissoring",
+          "category": "bend",
+          "subtype": "scissoring",
+          "label": "δ(OCH) HCOO*",
+          "note": "C-H bending; often overlaps νₛ(OCO) and isn't always separately resolved.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-H",
+          "tags": [],
+          "band_reference": ["formate_och_bend_1390"],
           "reference": []
         }
       ]
