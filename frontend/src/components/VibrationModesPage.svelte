@@ -135,6 +135,7 @@
       <div class="content-row">
         <div class="main-col">
           <div class="viewer-row">
+            <h2 class="molecule-title">{molecule.label}</h2>
             {#if modeCount}
               <div class="mode-count-line">
                 {molecule.shape === 'linear' ? 'Linear' : 'Non-linear'}: {modeCount.formulaLabel} → {modeCountStatus}
@@ -328,6 +329,13 @@
     border: 1px solid #E5E5E5;
     border-radius: 8px;
     padding: 20px;
+  }
+
+  .molecule-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 6px;
   }
 
   .mode-count-line {

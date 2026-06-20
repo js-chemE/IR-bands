@@ -1,12 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { VibrationMode } from '../../lib/types';
-  import { VIBRATION_PALETTE, ATOMS_PALETTE } from '../../lib/colors';
+  import { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES } from '../../lib/colors';
 
   export let modes: VibrationMode[];
   export let openModeId: string | null;
 
   const GREY = '#7F7F7F';
+  const ACTIVITY_TAGS = ['ir-active', 'raman-active'];
 
   const dispatch = createEventDispatcher<{
     preview: { id: string | null };
@@ -19,6 +20,13 @@
 
   function vibLabel(m: VibrationMode): string {
     return m.subtype ? `${m.category} (${m.subtype})` : m.category;
+  }
+
+  // Only the active case is shown here — an "inactive" tag isn't a notable
+  // fact worth a badge at a glance; the full active/inactive state for both
+  // is always visible once the mode is opened.
+  function activityTags(m: VibrationMode): string[] {
+    return ACTIVITY_TAGS.filter(t => m.tags.includes(t));
   }
 </script>
 
@@ -37,9 +45,15 @@
     >
       <div class="mode-box-top">
         <span class="mode-name" style="color:{color}">{m.label}</span>
-        {#if m.atoms}
-          <span class="pill" style="background:{ATOMS_PALETTE[m.atoms] ?? GREY}">{m.atoms}</span>
-        {/if}
+        <span class="right-pills">
+          {#each activityTags(m) as t (t)}
+            {@const style = TAG_STYLES[t]}
+            <span class="tag-pill" style="background:{style.background};border-color:{style.border};color:{style.color}">{t}</span>
+          {/each}
+          {#if m.atoms}
+            <span class="pill" style="background:{ATOMS_PALETTE[m.atoms] ?? GREY}">{m.atoms}</span>
+          {/if}
+        </span>
       </div>
       <div class="mode-subtitle">{vibLabel(m)}</div>
     </div>
@@ -72,13 +86,19 @@
   .mode-box-top {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
     gap: 8px;
   }
 
   .mode-name {
     font-size: 13px;
     font-weight: 700;
+  }
+
+  .right-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
   }
 
   .mode-subtitle {
@@ -95,6 +115,18 @@
     padding: 1px 6px;
     font-size: 10px;
     color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Same metrics as .pill, but light-fill/colored-text (TAG_STYLES
+     convention) instead of solid-fill/white-text — atoms/vibration are
+     primary classifications, ir-active/raman-active are auxiliary tags. */
+  .tag-pill {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 10px;
     white-space: nowrap;
     flex-shrink: 0;
   }
