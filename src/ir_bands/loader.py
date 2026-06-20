@@ -329,16 +329,27 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def _parse_mode(raw: dict) -> VibrationMode:
+    ir_active = raw.get("ir_active")
+    raman_active = raw.get("raman_active")
+
+    # Auto-tag the active case only — an "inactive" mode isn't itself a
+    # notable fact worth flagging as a tag, just the absence of one.
+    tags = list(raw.get("tags", []))
+    if ir_active is True and "ir-active" not in tags:
+        tags.append("ir-active")
+    if raman_active is True and "raman-active" not in tags:
+        tags.append("raman-active")
+
     return VibrationMode(
         id=raw["id"],
         category=raw["category"],
         subtype=raw.get("subtype"),
         label=raw.get("label", ""),
         note=raw.get("note", ""),
-        ir_active=raw.get("ir_active"),
-        raman_active=raw.get("raman_active"),
+        ir_active=ir_active,
+        raman_active=raman_active,
         atoms=raw.get("atoms", ""),
-        tags=list(raw.get("tags", [])),
+        tags=tags,
         band_reference=list(raw.get("band_reference", [])),
         reference=list(raw.get("reference", [])),
     )

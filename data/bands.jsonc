@@ -4,13 +4,61 @@
 // This file is JSONC (JSON with Comments). The build step strips // and /* */
 // comments before shipping clean JSON to the browser.
 //
-// Schema v3:
+// IMPORTANT — keep this preamble in sync: whenever a key below is added,
+// removed, renamed, or its meaning changes (in schema.py, loader.py, or this
+// file), update this comment block in the same change. See CLAUDE.md.
+//
+// -----------------------------------------------------------------------------
+// Cross-file links — the keys that actually connect the three data files.
+// Everything else below is this file's own, self-contained schema.
+// -----------------------------------------------------------------------------
+//   id, branch_group  → a mode in data/vibrations.jsonc points back at a
+//                        specific band or a whole branch_group via its own
+//                        per-mode `band_reference` list. id is append-only:
+//                        renaming one breaks based_on/fermi_partner/
+//                        branch_group references in THIS file too.
+//   group              → must be a key in the "groups" table below; also
+//                        what data/vibrations.jsonc's `band_groups` list
+//                        points at (validated against this file's groups,
+//                        not against any one band).
+//   references[].key  → must resolve to a citekey in data/references.bib.
+//
+// -----------------------------------------------------------------------------
+// Schema v3 — one entry per band in the "bands" array:
+// -----------------------------------------------------------------------------
 //   id          — unique snake_case, append-only (don't rename once referenced)
+//   species     — display name for the chemical species, e.g. "Formate*"
+//                 (the trailing asterisk marks a surface-bound species; gas-
+//                 phase species have none). Purely descriptive — not used to
+//                 resolve any cross-reference.
 //   vibration   — {category, subtype, branch}
 //                 category ∈ stretch | bend | combination | lattice
 //                 subtype  ∈ symmetric | asymmetric | scissoring | wagging | rocking | twisting | null
 //                 branch   ∈ R | P | Q | null
 //                 note: overtones use the parent's category + tags: ["overtone"]
+//   atoms       — which atoms/bond actually move in this band, e.g. "O=C=O",
+//                 "C-H"; "diverse" for a combination band whose two parent
+//                 modes involve unrelated atom groups. Drives the "atoms"
+//                 color dimension in the chart and the atoms chip in the
+//                 vibration-modes page.
+//   wn_start, wn_end — the band's wavenumber range (cm⁻¹) as drawn on the
+//                 chart. Often an envelope (e.g. an R/P branch spread) rather
+//                 than one precise line — see references[].wn below for a
+//                 specific source's own exact value.
+//   short       — short display label for the chart/legend, e.g.
+//                 "νₐₛ(OCO) CO₂ (R)". Falls back to an auto-generated label
+//                 (species + vibration) if omitted.
+//   description — a band-level synthesis, independent of any single
+//                 reference's wording — this is the editorial summary, not a
+//                 quote from one paper. Should say more than just restating
+//                 vibration.category/subtype: what makes this band worth
+//                 recognizing experimentally (what it overlaps with or gets
+//                 confused for, whether it's a diagnostic/marker band for a
+//                 species or a mechanistic step, pressure/temperature
+//                 behavior, why a symmetry-forbidden transition still gets an
+//                 entry). A specific paper's specific claim belongs in that
+//                 reference's own `note` instead (see references[].note) —
+//                 not here.
 //   based_on    — list of parent-mode references, each with `multiplier` plus
 //                 exactly one of:
 //                   band_id      — one specific observed band (the common
@@ -25,21 +73,32 @@
 //                                  entirely, e.g. IR-inactive ν₁ of CO₂
 //   references  — list of citation entries, resolved against references.bib.
 //                 Each entry is either a bare BibTeX key string (shorthand for
-//                 {key}), or an object {key, wn, site, note, tags} for cases
-//                 where a specific source's claim differs from the band's
-//                 general description (e.g. a different exact wavenumber or
-//                 assumed surface site). key is mandatory — entries without
-//                 one are disregarded; wn/site/note/tags are optional and
-//                 default to null/empty. site names the catalyst or surface
-//                 only (no reaction conditions); use a JSON array if the band
-//                 is observed on multiple surfaces. tags are scoped to this
-//                 one citation rather than the whole band (e.g. only this
-//                 source's claim is a "misassignment-warning"); styled the
-//                 same as band-level tags in the frontend (same color/legend).
+//                 {key}), or an object {key, wn, site, note, tags}. key is
+//                 mandatory — entries without one are disregarded.
+//                   wn   — THIS source's own reported wavenumber, when it
+//                          differs from the band's general wn_start/wn_end
+//                          range (sources often disagree by a few cm⁻¹).
+//                   site — the catalyst/surface/oxidation-state this source
+//                          observed it on (e.g. "Cu⁺", "CeO₂"); use a JSON
+//                          array for multiple surfaces. No reaction
+//                          conditions here — those belong in note.
+//                   note — THIS source's specifics: experimental conditions
+//                          (catalyst, loading, temperature, pressure,
+//                          pretreatment) and any claim/finding unique to that
+//                          one paper (e.g. "confirmed as RWGS intermediate by
+//                          ¹³C isotopic exchange at 200°C"). Contrast with the
+//                          band-level `description` above, which stays true
+//                          independent of which source you're reading.
+//                   tags — scoped to this one citation, not the whole band
+//                          (e.g. only this source's claim is a
+//                          "misassignment-warning"); styled the same as
+//                          band-level tags in the frontend.
 //                 Example: {"key": "Smith.Example.2020", "wn": 1350,
 //                           "site": "CeO₂", "note": "...", "tags": ["..."]}
 //                 Multi-site: {"key": "...", "site": ["Al₂O₃", "TiO₂"]}
-//   tags        — free-form list of strings; "overtone" marks overtone bands
+//   tags        — free-form list of strings, band-level (as opposed to the
+//                 per-citation tags above, which are scoped to one
+//                 reference); "overtone" marks overtone bands.
 //   fermi_partner — id of the other band in a Fermi resonance doublet, or
 //                 omit/null. Must be reciprocal (A.fermi_partner=B AND
 //                 B.fermi_partner=A) for the pair to be considered complete;
@@ -60,6 +119,11 @@
 //   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
 //   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
 //   confidence  — assignment confidence: confirmed | likely | tentative | speculative  (omit if unknown)
+//   pair        — legacy/internal, used only by layout.assign_lanes() for
+//                 manual lane grouping predating group-based lanes. Not part
+//                 of the conceptual schema — don't give it new meaning.
+//   lane, sub_lane — NOT set in this file. Computed at load time by
+//                 layout.py and added to the emitted JSON for the frontend.
 // =============================================================================
 {
   "metadata": {

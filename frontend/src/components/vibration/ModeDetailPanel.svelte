@@ -3,7 +3,7 @@
   import type { VibrationMode, Band, RefMap } from '../../lib/types';
   import { ieeeHtml } from '../../lib/citations';
   import { getBandTags } from '../../lib/chart';
-  import { VIBRATION_PALETTE } from '../../lib/colors';
+  import { VIBRATION_PALETTE, TAG_STYLES, DEFAULT_TAG_STYLE } from '../../lib/colors';
 
   export let mode: VibrationMode;
   export let bands: Band[];
@@ -20,6 +20,10 @@
   $: vibKey = mode.subtype ? `${mode.category}.${mode.subtype}` : mode.category;
   $: color = VIBRATION_PALETTE[vibKey] ?? GREY;
   $: subtitle = `${mode.category}${mode.subtype ? ` (${mode.subtype})` : ''} | ${mode.atoms}`;
+
+  // ir-active/raman-active already get their own colored badge below — drop
+  // them from the generic tag list so they don't show up twice.
+  $: modeTags = mode.tags.filter(t => t !== 'ir-active' && t !== 'raman-active');
 
   // One citation list aggregated across every real band this mode points
   // to, deduped by key — same citations a user would find by opening each
@@ -41,17 +45,23 @@
 
   <div class="tag-section">
     {#if mode.ir_active !== null}
-      <span class="pill">{mode.ir_active ? 'IR-active' : 'IR-inactive'}</span>
+      {@const style = mode.ir_active ? TAG_STYLES['ir-active'] : DEFAULT_TAG_STYLE}
+      <span class="pill" style="background:{style.background};border-color:{style.border};color:{style.color}">
+        {mode.ir_active ? 'IR-active' : 'IR-inactive'}
+      </span>
     {/if}
     {#if mode.raman_active !== null}
-      <span class="pill">{mode.raman_active ? 'Raman-active' : 'Raman-inactive'}</span>
+      {@const style = mode.raman_active ? TAG_STYLES['raman-active'] : DEFAULT_TAG_STYLE}
+      <span class="pill" style="background:{style.background};border-color:{style.border};color:{style.color}">
+        {mode.raman_active ? 'Raman-active' : 'Raman-inactive'}
+      </span>
     {/if}
   </div>
 
-  {#if mode.tags.length}
+  {#if modeTags.length}
     <div class="tag-section">
       <span class="tag-section-label">Mode</span>
-      {#each mode.tags as t (t)}<span class="pill">{t}</span>{/each}
+      {#each modeTags as t (t)}<span class="pill">{t}</span>{/each}
     </div>
   {/if}
 
@@ -71,6 +81,9 @@
           <span class="band-name">{b.short || b.id}</span>
           <span class="badge-wn">{b.wn_min}–{b.wn_max} cm⁻¹</span>
         </div>
+        {#if b.description}
+          <div class="band-desc">{@html b.description}</div>
+        {/if}
         {#if bTags.length}
           <div class="band-box-tags">
             {#each bTags as t (t)}<span class="pill">{t}</span>{/each}
@@ -248,6 +261,14 @@
     font-family: 'Courier New', monospace;
     white-space: nowrap;
   }
+
+  .band-desc {
+    font-size: 11.5px;
+    color: #555;
+    line-height: 1.45;
+    margin-top: 5px;
+  }
+  .band-desc :global(sub), .band-desc :global(sup) { font-size: 0.75em; }
 
   .band-box-tags {
     display: flex;

@@ -13,13 +13,14 @@
           "id": "co2_stretch_symmetric",
           "category": "stretch",
           "subtype": "symmetric",
-          "label": "νₛ(OCO) CO₂",
-          "note": "Also called the symmetric stretch, ν₁.",
+          "label": "νₛ(OCO)",
+          "note": "Both C=O bonds stretch in phase while C stays put — the totally symmetric stretch, conventionally ν₁. Centrosymmetric, so by the mutual exclusion rule it's IR-inactive but Raman-active.",
           "ir_active": false,
           "raman_active": true,
           "atoms": "O=C=O",
           "tags": [
-            "gas-phase"
+            "gas-phase",
+            "raman-active"
           ],
           "band_reference": [
             "co2_sym_1388"
@@ -30,13 +31,14 @@
           "id": "co2_stretch_asymmetric",
           "category": "stretch",
           "subtype": "asymmetric",
-          "label": "νₐₛ(OCO) CO₂",
-          "note": "Also called the asymmetric stretch, ν₃.",
+          "label": "νₐₛ(OCO)",
+          "note": "One C=O bond lengthens as the other shortens, in antiphase — the asymmetric stretch, conventionally ν₃. Breaks the molecule's center of symmetry, making it IR-active (and, by the mutual exclusion rule, Raman-inactive).",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
           "tags": [
-            "gas-phase"
+            "gas-phase",
+            "ir-active"
           ],
           "band_reference": [
             "co2_nu3_branches"
@@ -47,14 +49,15 @@
           "id": "co2_bend",
           "category": "bend",
           "subtype": "scissoring",
-          "label": "δ(OCO) CO₂",
-          "note": "Also called the in-plane bending mode, ν₂ — degenerate with the out-of-plane wagging component below.",
+          "label": "δ(OCO)",
+          "note": "Both O's swing the same way in-plane while C recoils oppositely, closing and opening the O-C-O angle — the in-plane component of the doubly-degenerate bend, conventionally ν₂. Degenerate with the out-of-plane wagging component below; together the pair is why ν₂ is IR-active.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
           "tags": [
             "gas-phase",
-            "degenerated"
+            "degenerated",
+            "ir-active"
           ],
           "band_reference": [
             "co2_nu2_branches"
@@ -65,14 +68,15 @@
           "id": "co2_bend_wagging",
           "category": "bend",
           "subtype": "wagging",
-          "label": "ω(OCO) CO₂",
-          "note": "The doubly-degenerate, out-of-plane partner of ν₂ — frequency-coincident with the scissoring component above, so it has no separately resolved band of its own.",
+          "label": "ω(OCO)",
+          "note": "The same ν₂ bending motion as above, but out of the molecular plane — shown here as the atoms pulsing in size rather than a real 2D displacement, since a flat diagram can't otherwise depict out-of-plane motion. Frequency-coincident with the in-plane scissoring component, so it has no separately resolved band of its own.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
           "tags": [
             "gas-phase",
-            "degenerated"
+            "degenerated",
+            "ir-active"
           ],
           "band_reference": [
             "co2_nu2_branches"
@@ -95,12 +99,14 @@
           "category": "stretch",
           "subtype": null,
           "label": "ν(CO)",
-          "note": "Two different atoms, one bond — only one stretching mode, no symmetric/asymmetric distinction.",
+          "note": "C and O move apart and together along the single bond — the only vibration a two-atom molecule can have, so there's no symmetric/asymmetric pair and nothing to number ν₁/ν₂/ν₃-style.",
           "ir_active": true,
           "raman_active": true,
           "atoms": "C-O",
           "tags": [
-            "gas-phase"
+            "gas-phase",
+            "ir-active",
+            "raman-active"
           ],
           "band_reference": [
             "co_nu1_branches"
@@ -111,8 +117,8 @@
     },
     {
       "id": "formate",
-      "label": "Formate*",
-      "species": "Formate*",
+      "label": "Formate",
+      "species": "HCOO*",
       "shape": "nonlinear",
       "band_groups": [
         "formate"
@@ -122,12 +128,14 @@
           "id": "formate_ch_stretch",
           "category": "stretch",
           "subtype": null,
-          "label": "ν(CH) HCOO*",
-          "note": "C-H stretch — the key HCOO* marker band; in Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band on some supports (e.g. CeO₂), splitting into a doublet.",
+          "label": "ν(CH)",
+          "note": "The C-H bond stretches — the key HCOO* marker band, since no other common surface species shares this exact C-H environment. In Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band on some supports (e.g. CeO₂), splitting into a doublet. The free formate ion has its own conventional ν-numbering in the vibrational-spectroscopy literature (this mode is commonly cited as ν₁), though the exact assignment order varies by source more than CO₂'s does.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "C-H",
-          "tags": [],
+          "tags": [
+            "ir-active"
+          ],
           "band_reference": [
             "formate_ch_stretch_2885"
           ],
@@ -137,13 +145,14 @@
           "id": "formate_stretch_asymmetric",
           "category": "stretch",
           "subtype": "asymmetric",
-          "label": "νₐₛ(OCO) HCOO*",
-          "note": "Generic surface formate — not specific to a binding mode (mono-/bidentate); position is support-dependent.",
+          "label": "νₐₛ(OCO)",
+          "note": "One C-O bond lengthens as the other shortens, in antiphase — often cited as ν₄ of the free formate ion. Independent of surface binding topology: position is support-dependent, so both monodentate and bidentate coordination are listed below.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": [
-            "site-sensitive"
+            "site-sensitive",
+            "ir-active"
           ],
           "band_reference": [
             "formate_asym_1585"
@@ -154,13 +163,14 @@
           "id": "formate_stretch_symmetric",
           "category": "stretch",
           "subtype": "symmetric",
-          "label": "νₛ(OCO) HCOO*",
-          "note": "Paired with νₐₛ(OCO) above; the splitting between the two is itself diagnostic of adsorption geometry.",
+          "label": "νₛ(OCO)",
+          "note": "Both C-O bonds stretch in phase — often cited as ν₂ of the free formate ion. Paired with νₐₛ(OCO) above; the splitting between the two (Δν) is itself diagnostic of binding geometry. Independent of surface binding topology, so both monodentate and bidentate coordination are listed below.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": [
-            "site-sensitive"
+            "site-sensitive",
+            "ir-active"
           ],
           "band_reference": [
             "formate_sym_1365"
@@ -171,14 +181,99 @@
           "id": "formate_och_scissoring",
           "category": "bend",
           "subtype": "scissoring",
-          "label": "δ(OCH) HCOO*",
-          "note": "C-H bending; often overlaps νₛ(OCO) and isn't always separately resolved.",
+          "label": "δ(OCH)",
+          "note": "The C-H bond rocks relative to the O-C-O frame, changing the O-C-H angle — often cited as ν₃ of the free formate ion. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-H",
-          "tags": [],
+          "tags": [
+            "ir-active"
+          ],
           "band_reference": [
             "formate_och_bend_1390"
+          ],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "carbonate",
+      "label": "Carbonate",
+      "species": "CO₃²⁻",
+      "shape": "nonlinear",
+      "band_groups": [
+        "carbonate"
+      ],
+      "modes": [
+        {
+          "id": "carbonate_stretch_asymmetric",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "label": "νₐₛ(OCO)",
+          "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h symmetry). Independent of surface binding topology — listed for both monodentate (smaller splitting from νₛ) and bidentate (larger splitting) coordination, since the splitting itself is diagnostic of which one it is.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "site-sensitive",
+            "ir-active"
+          ],
+          "band_reference": [
+            "carbonate_monodentate_asym_1500",
+            "carbonate_bidentate_asym_1645"
+          ],
+          "reference": []
+        },
+        {
+          "id": "carbonate_stretch_symmetric",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "label": "νₛ(OCO)",
+          "note": "All three C-O bonds stretch in phase — the totally symmetric stretch, ν₁ of the free ion. For the free, symmetric CO₃²⁻ ion this is IR-inactive by symmetry; it becomes IR-active here because surface binding (mono-/bidentate) lowers that symmetry. Independent of surface binding topology — listed for both monodentate and bidentate coordination.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "site-sensitive",
+            "ir-active"
+          ],
+          "band_reference": [
+            "carbonate_monodentate_sym_1400",
+            "carbonate_bidentate_sym_1300"
+          ],
+          "reference": []
+        },
+        {
+          "id": "carbonate_scissoring",
+          "category": "bend",
+          "subtype": "scissoring",
+          "label": "δ(OCO)",
+          "note": "Two of the three O's swing toward/apart in-plane while the third stays fixed — the in-plane bend, ν₄ of the free ion (doubly degenerate there; surface binding can resolve the degeneracy). Generic surface carbonate, not specific to a binding mode.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "ir-active"
+          ],
+          "band_reference": [
+            "carbonate_scissoring_680"
+          ],
+          "reference": []
+        },
+        {
+          "id": "carbonate_wagging",
+          "category": "bend",
+          "subtype": "wagging",
+          "label": "γ(OCO)",
+          "note": "The central C moves out of the O-C-O plane while the O's stay put — the out-of-plane bend, ν₂ of the free ion.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "ir-active"
+          ],
+          "band_reference": [
+            "carbonate_wagging_875"
           ],
           "reference": []
         }
