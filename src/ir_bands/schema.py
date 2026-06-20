@@ -106,8 +106,10 @@ class VibrationMode:
 
     band_reference entries (band ids or branch_group keys) are validated
     against the real dataset in validate_vibrations — both that they resolve
-    and that the resolved band(s) actually have this mode's category/subtype.
-    reference entries are citekeys, validated against references.bib.
+    and that the resolved band(s) share this mode's category (subtype isn't
+    required to match, since degenerate sub-modes can legitimately share one
+    observed band). reference entries are citekeys, validated against
+    references.bib.
     """
     id: str
     category: VibCategory
@@ -130,20 +132,33 @@ class VibrationMode:
             raise ValueError(f"mode {self.id}: category=combination cannot have subtype")
 
 
+VALID_SHAPES = {"linear", "nonlinear"}
+
+
 @dataclass
 class Molecule:
     """A molecule on the vibration-modes page, with its real vibrational modes.
 
     species matches Band.species; band_groups matches Band.group — both
-    validated against the real dataset in validate_vibrations. Geometry/
-    displacement vectors for rendering live in the frontend, not here — this
-    is editorial content only.
+    validated against the real dataset in validate_vibrations. Pixel
+    geometry/displacement vectors for rendering live in the frontend, not
+    here — this is editorial content only.
+
+    shape (linear/nonlinear) is the textbook classification used by the
+    3N-5 / 3N-6 normal-mode-count formula; the frontend combines it with the
+    atom count from its own geometry table to show how many of a molecule's
+    fundamental modes are actually listed below.
     """
     id: str
     label: str
     species: str
+    shape: str
     band_groups: list[str] = field(default_factory=list)
     modes: list[VibrationMode] = field(default_factory=list)
+
+    def __post_init__(self):
+        if self.shape not in VALID_SHAPES:
+            raise ValueError(f"molecule {self.id}: shape={self.shape!r} not in {VALID_SHAPES}")
 
 
 @dataclass

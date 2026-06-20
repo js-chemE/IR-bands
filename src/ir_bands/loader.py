@@ -349,6 +349,7 @@ def _parse_molecule(raw: dict) -> Molecule:
         id=raw["id"],
         label=raw["label"],
         species=raw["species"],
+        shape=raw["shape"],
         band_groups=list(raw.get("band_groups", [])),
         modes=[_parse_mode(m) for m in raw.get("modes", [])],
     )
@@ -369,9 +370,13 @@ def validate_vibrations(
 
     Tightly coupled to the real band dataset: every band_groups entry must be
     a real Group key, every band_reference entry must resolve to a real band
-    id or branch_group, and every band resolved that way must actually have
-    the mode's own category/subtype — a mode can't claim a band it doesn't
-    match. references (citekeys) resolve against references.bib if given.
+    id or branch_group, and every band resolved that way must share the
+    mode's category (e.g. a mode can't claim a "bend" band as a "stretch").
+    subtype is intentionally NOT required to match: degenerate sub-modes
+    (e.g. bend/scissoring and bend/wagging for CO2's doubly-degenerate v2)
+    legitimately share one observed band, since the underlying transition is
+    frequency-coincident and unresolved between the two. references
+    (citekeys) resolve against references.bib if given.
     """
     errors: list[str] = []
 
@@ -414,12 +419,11 @@ def validate_vibrations(
                     continue
 
                 for b in resolved:
-                    if (b.vibration.category, b.vibration.subtype) != (mode.category, mode.subtype):
+                    if b.vibration.category != mode.category:
                         errors.append(
                             f"Molecule {mol.id}, mode {mode.id}: band_reference {ref!r} "
-                            f"resolves to band {b.id} with category/subtype "
-                            f"({b.vibration.category!r}, {b.vibration.subtype!r}) but the "
-                            f"mode declares ({mode.category!r}, {mode.subtype!r})"
+                            f"resolves to band {b.id} with category {b.vibration.category!r} "
+                            f"but the mode declares category {mode.category!r}"
                         )
 
             if references is not None:

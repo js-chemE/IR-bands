@@ -4,6 +4,7 @@
       "id": "co2",
       "label": "CO₂",
       "species": "CO₂",
+      "shape": "linear",
       "band_groups": [
         "co2"
       ],
@@ -18,8 +19,7 @@
           "raman_active": true,
           "atoms": "O=C=O",
           "tags": [
-            "gas-phase",
-            "ir-inactive"
+            "gas-phase"
           ],
           "band_reference": [
             "co2_sym_1388"
@@ -47,14 +47,14 @@
           "id": "co2_bend",
           "category": "bend",
           "subtype": "scissoring",
-          "label": "δ(OCO) CO₂ (scissoring)",
+          "label": "δ(OCO) CO₂",
           "note": "Also called the in-plane bending mode, ν₂ — degenerate with the out-of-plane wagging component below.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
           "tags": [
             "gas-phase",
-            "degenerated-mode"
+            "degenerated"
           ],
           "band_reference": [
             "co2_nu2_branches"
@@ -65,17 +65,121 @@
           "id": "co2_bend_wagging",
           "category": "bend",
           "subtype": "wagging",
-          "label": "δ(OCO) CO₂ (wagging)",
+          "label": "ω(OCO) CO₂",
           "note": "The doubly-degenerate, out-of-plane partner of ν₂ — frequency-coincident with the scissoring component above, so it has no separately resolved band of its own.",
           "ir_active": true,
           "raman_active": false,
           "atoms": "O=C=O",
           "tags": [
             "gas-phase",
-            "degenerated-mode",
-            "out-of-plane"
+            "degenerated"
           ],
-          "band_reference": [],
+          "band_reference": [
+            "co2_nu2_branches"
+          ],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "co",
+      "label": "CO",
+      "species": "CO",
+      "shape": "linear",
+      "band_groups": [
+        "co"
+      ],
+      "modes": [
+        {
+          "id": "co_stretch",
+          "category": "stretch",
+          "subtype": null,
+          "label": "ν(CO)",
+          "note": "Two different atoms, one bond — only one stretching mode, no symmetric/asymmetric distinction.",
+          "ir_active": true,
+          "raman_active": true,
+          "atoms": "C-O",
+          "tags": [
+            "gas-phase"
+          ],
+          "band_reference": [
+            "co_nu1_branches"
+          ],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "formate",
+      "label": "Formate*",
+      "species": "Formate*",
+      "shape": "nonlinear",
+      "band_groups": [
+        "formate"
+      ],
+      "modes": [
+        {
+          "id": "formate_ch_stretch",
+          "category": "stretch",
+          "subtype": null,
+          "label": "ν(CH) HCOO*",
+          "note": "C-H stretch — the key HCOO* marker band; in Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band on some supports (e.g. CeO₂), splitting into a doublet.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "C-H",
+          "tags": [],
+          "band_reference": [
+            "formate_ch_stretch_2885"
+          ],
+          "reference": []
+        },
+        {
+          "id": "formate_stretch_asymmetric",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "label": "νₐₛ(OCO) HCOO*",
+          "note": "Generic surface formate — not specific to a binding mode (mono-/bidentate); position is support-dependent.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "site-sensitive"
+          ],
+          "band_reference": [
+            "formate_asym_1585"
+          ],
+          "reference": []
+        },
+        {
+          "id": "formate_stretch_symmetric",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "label": "νₛ(OCO) HCOO*",
+          "note": "Paired with νₐₛ(OCO) above; the splitting between the two is itself diagnostic of adsorption geometry.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-O",
+          "tags": [
+            "site-sensitive"
+          ],
+          "band_reference": [
+            "formate_sym_1365"
+          ],
+          "reference": []
+        },
+        {
+          "id": "formate_och_scissoring",
+          "category": "bend",
+          "subtype": "scissoring",
+          "label": "δ(OCH) HCOO*",
+          "note": "C-H bending; often overlaps νₛ(OCO) and isn't always separately resolved.",
+          "ir_active": true,
+          "raman_active": null,
+          "atoms": "O-C-H",
+          "tags": [],
+          "band_reference": [
+            "formate_och_bend_1390"
+          ],
           "reference": []
         }
       ]

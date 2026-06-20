@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { MoleculeGeometry, ModeVector } from '../../lib/moleculeGeometry';
-  import { colorForElement, textColorForElement } from '../../lib/elementColors';
+  import { colorForElement, textColorForElement, radiusForElement } from '../../lib/elementColors';
 
   export let geometry: MoleculeGeometry;
   export let activeVectors: ModeVector[] | null = null;
@@ -50,7 +50,10 @@
 
   onDestroy(stop);
 
-  const BASE_R = 9;
+  // Reference: carbon's covalent radius (70pm) renders at 9px, so existing
+  // diagrams don't change scale — other elements size relative to that, by
+  // their own real covalent radius (e.g. O at 60pm comes out a bit smaller).
+  const PX_PER_PM = 9 / 70;
 
   // x/y are the atom's real position — bonds always connect here, never to
   // a separate "anchor" point, so a bond can never drift off an atom's
@@ -58,12 +61,20 @@
   $: positions = geometry.atoms.map((atom, i) => {
     const v = activeVectors?.[i] ?? { dx: 0, dy: 0 };
     const scale = v.scale ?? 0;
-    return {
-      element: atom.element,
-      x: atom.x + v.dx * AMPLITUDE * phase,
-      y: atom.y + v.dy * AMPLITUDE * phase,
-      r: BASE_R * (1 + scale * phase),
-    };
+    const restR = radiusForElement(atom.element) * PX_PER_PM;
+    let x: number, y: number;
+    if (v.rotateDeg) {
+      // Genuine rotation about the local origin — preserves distance from
+      // the origin exactly (bond length), unlike a dx/dy translation.
+      const theta = (v.rotateDeg * Math.PI / 180) * phase;
+      const cos = Math.cos(theta), sin = Math.sin(theta);
+      x = atom.x * cos - atom.y * sin;
+      y = atom.x * sin + atom.y * cos;
+    } else {
+      x = atom.x + v.dx * AMPLITUDE * phase;
+      y = atom.y + v.dy * AMPLITUDE * phase;
+    }
+    return { element: atom.element, x, y, r: restR * (1 + scale * phase), restR };
   });
 </script>
 
@@ -85,7 +96,7 @@
     <text
       x={p.x} y={p.y}
       class="atom-label"
-      style="font-size: {7 * (p.r / BASE_R)}px"
+      style="font-size: {7 * (p.r / p.restR)}px"
       fill={textColorForElement(p.element)}
     >{p.element}</text>
   {/each}
