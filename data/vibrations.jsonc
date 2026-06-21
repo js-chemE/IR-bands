@@ -69,6 +69,23 @@
 //                 missing") — an honest, self-updating completeness signal,
 //                 not something to edit by hand.
 //   band_groups — see "Cross-file links" above.
+//   topologies  — list of {id, short, long}: every binding geometry this
+//                 molecule's animated diagram can show. Every molecule needs
+//                 at least one. id matches a key in this molecule's entry in
+//                 moleculeGeometry.ts's MOLECULE_GEOMETRY table (which has
+//                 its own, separate pixel geometry per topology — different
+//                 atoms are fixed/bound for, say, monodentate vs bidentate).
+//                 short/long are display text for the topology selector
+//                 above the diagram — short for the (usually tiny/single-
+//                 option, often effectively hidden) pill itself, long for
+//                 its tooltip, e.g. {"id": "monodentate", "short": "m",
+//                 "long": "monodentate"}. A gas-phase molecule still needs
+//                 exactly one entry, conventionally {"id": "gas", "short":
+//                 "gas", "long": "gas phase"}. The selector only actually
+//                 shows when a molecule lists more than one topology — it
+//                 only changes which diagram/animation is shown, never the
+//                 mode list itself (a mode's band_reference can and often
+//                 does span bands from more than one topology at once).
 //   modes       — list of VibrationMode (below).
 //
 // VibrationMode fields:
@@ -115,6 +132,9 @@
       "species": "CO₂",
       "shape": "linear",
       "band_groups": ["co2"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "gas phase"}
+      ],
       "modes": [
         {
           "id": "co2_stretch_symmetric",
@@ -176,6 +196,9 @@
       "species": "CO",
       "shape": "linear",
       "band_groups": ["co"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "gas phase"}
+      ],
       "modes": [
         {
           "id": "co_stretch",
@@ -198,6 +221,9 @@
       "species": "HCOO*",
       "shape": "nonlinear",
       "band_groups": ["formate"],
+      "topologies": [
+        {"id": "bidentate", "short": "b", "long": "bidentate"}
+      ],
       "modes": [
         {
           "id": "formate_ch_stretch",
@@ -259,58 +285,62 @@
       "species": "CO₃²⁻",
       "shape": "nonlinear",
       "band_groups": ["carbonate"],
+      "topologies": [
+        {"id": "bidentate", "short": "b", "long": "bidentate"},
+        {"id": "monodentate", "short": "m", "long": "monodentate"}
+      ],
       "modes": [
         {
           "id": "carbonate_stretch_asymmetric",
           "category": "stretch",
           "subtype": "asymmetric",
           "label": "νₐₛ(OCO)",
-          "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h symmetry). Independent of surface binding topology — listed for both monodentate (smaller splitting from νₛ) and bidentate (larger splitting) coordination, since the splitting itself is diagnostic of which one it is.",
+          "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h symmetry); surface binding splits that degenerate pair into two resolved frequencies. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign the higher-frequency resolved component as their ν₆ (asymmetric stretch ν(C-O)), 1450–1490 cm⁻¹ — close to this mode's own monodentate band (1480–1520 cm⁻¹). Independent of surface binding topology — listed for both monodentate (smaller splitting from νₛ) and bidentate (larger splitting) coordination, since the splitting itself is diagnostic of which one it is.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": ["site-sensitive"],
           "band_reference": ["carbonate_monodentate_asym_1500", "carbonate_bidentate_asym_1645"],
-          "reference": []
+          "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_stretch_symmetric",
           "category": "stretch",
           "subtype": "symmetric",
           "label": "νₛ(OCO)",
-          "note": "All three C-O bonds stretch in phase — the totally symmetric stretch, ν₁ of the free ion. For the free, symmetric CO₃²⁻ ion this is IR-inactive by symmetry; it becomes IR-active here because surface binding (mono-/bidentate) lowers that symmetry. Independent of surface binding topology — listed for both monodentate and bidentate coordination.",
+          "note": "The two non-surface-bound C-O bonds stretch in phase — the other resolved component of the same doubly-degenerate ν₃ pair (paired with νₐₛ(OCO) above), not the free ion's true totally-symmetric stretch ν₁ (which stays IR-inactive and isn't separately resolved here). For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this lower-frequency component as their ν₅ (symmetric stretch ν(C-O)+ν(C-Os), where Os is the surface oxygen), 1350–1370 cm⁻¹ — close to this mode's own monodentate band (1380–1420 cm⁻¹). Independent of surface binding topology — listed for both monodentate and bidentate coordination.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": ["site-sensitive"],
           "band_reference": ["carbonate_monodentate_sym_1400", "carbonate_bidentate_sym_1300"],
-          "reference": []
+          "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_scissoring",
           "category": "bend",
           "subtype": "scissoring",
           "label": "δ(OCO)",
-          "note": "Two of the three O's swing toward/apart in-plane while the third stays fixed — the in-plane bend, ν₄ of the free ion (doubly degenerate there; surface binding can resolve the degeneracy). Generic surface carbonate, not specific to a binding mode.",
+          "note": "Two of the three O's swing toward/apart in-plane while the third stays fixed — one component of the doubly-degenerate in-plane bend, ν₄ of the free ion, again resolved into two frequencies by surface binding. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this resolved component as their ν₁ (asymmetric bending δ(OsCO), Os = surface oxygen), 680–700 cm⁻¹ — close to this band's own 650–715 cm⁻¹ range. Generic surface carbonate, not specific to a binding mode; the bidentate case isn't separately diagrammed in that source, but is assumed analogous.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": [],
           "band_reference": ["carbonate_scissoring_680"],
-          "reference": []
+          "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_wagging",
           "category": "bend",
           "subtype": "wagging",
           "label": "γ(OCO)",
-          "note": "The central C moves out of the O-C-O plane while the O's stay put — the out-of-plane bend, ν₂ of the free ion.",
+          "note": "The central C moves out of the O-C-O plane while the O's stay put — the out-of-plane bend, ν₂ of the free ion, non-degenerate so it doesn't split on binding. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this as their ν₃ (out-of-plane deformation π), 850–860 cm⁻¹ — close to this band's own 860–890 cm⁻¹ range.",
           "ir_active": true,
           "raman_active": null,
           "atoms": "O-C-O",
           "tags": [],
           "band_reference": ["carbonate_wagging_875"],
-          "reference": []
+          "reference": ["Solis.InitialStagesCO2.2017"]
         }
       ]
     }

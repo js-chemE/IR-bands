@@ -84,6 +84,16 @@
   role="img"
   aria-label="Molecule diagram{activeVectors ? ', vibrating' : ''}"
 >
+  {#if geometry.surface}
+    <line x1={-44} y1={geometry.surface.y} x2={44} y2={geometry.surface.y} class="surface-line" />
+    {#each geometry.surface.boundAtoms as idx}
+      <line
+        x1={positions[idx].x} y1={positions[idx].y}
+        x2={positions[idx].x} y2={geometry.surface.y}
+        class="surface-bond"
+      />
+    {/each}
+  {/if}
   {#each geometry.bonds as [a, b]}
     <line
       x1={positions[a].x} y1={positions[a].y}
@@ -112,6 +122,17 @@
   .bond {
     stroke: #999;
     stroke-width: 2;
+  }
+
+  .surface-line {
+    stroke: #aaa;
+    stroke-width: 1.5;
+  }
+
+  .surface-bond {
+    stroke: #aaa;
+    stroke-width: 1;
+    stroke-dasharray: 2.5, 2.5;
   }
 
   .atom {

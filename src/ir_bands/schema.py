@@ -136,6 +136,21 @@ VALID_SHAPES = {"linear", "nonlinear"}
 
 
 @dataclass
+class Topology:
+    """One binding-geometry option for a surface-bound molecule (or just
+    "gas phase" for a gas molecule with no real topology choice).
+
+    short/long are both display text — short for the (often-hidden, single-
+    option) selector pill, long for its tooltip. id is what the frontend's
+    moleculeGeometry.ts keys its per-topology pixel geometry by, alongside
+    the molecule's own id.
+    """
+    id: str
+    short: str
+    long: str
+
+
+@dataclass
 class Molecule:
     """A molecule on the vibration-modes page, with its real vibrational modes.
 
@@ -148,17 +163,27 @@ class Molecule:
     3N-5 / 3N-6 normal-mode-count formula; the frontend combines it with the
     atom count from its own geometry table to show how many of a molecule's
     fundamental modes are actually listed below.
+
+    topologies lists every binding geometry this molecule's diagram can show
+    (e.g. mono-/bidentate for a surface species, or just one "gas phase"
+    entry for a gas molecule) — every molecule needs at least one. The mode
+    list itself doesn't vary by topology (the same mode can have band
+    references for several topologies at once); only the animated diagram
+    does, via the frontend's own per-(molecule, topology) geometry table.
     """
     id: str
     label: str
     species: str
     shape: str
     band_groups: list[str] = field(default_factory=list)
+    topologies: list[Topology] = field(default_factory=list)
     modes: list[VibrationMode] = field(default_factory=list)
 
     def __post_init__(self):
         if self.shape not in VALID_SHAPES:
             raise ValueError(f"molecule {self.id}: shape={self.shape!r} not in {VALID_SHAPES}")
+        if not self.topologies:
+            raise ValueError(f"molecule {self.id}: must have at least one topology")
 
 
 @dataclass

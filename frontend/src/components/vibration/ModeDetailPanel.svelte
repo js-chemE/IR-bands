@@ -25,10 +25,12 @@
   // them from the generic tag list so they don't show up twice.
   $: modeTags = mode.tags.filter(t => t !== 'ir-active' && t !== 'raman-active');
 
-  // One citation list aggregated across every real band this mode points
-  // to, deduped by key — same citations a user would find by opening each
-  // band individually, just collected in one place.
-  $: citationKeys = [...new Set(bands.flatMap(b => b.references.map(r => r.key)))];
+  // One citation list aggregated across the mode's own reference list (e.g.
+  // a paper whose figure the note's physical description is grounded in,
+  // not tied to any one band) plus every real band this mode points to,
+  // deduped by key — same citations a user would find by opening each band
+  // individually, just collected in one place.
+  $: citationKeys = [...new Set([...mode.reference, ...bands.flatMap(b => b.references.map(r => r.key))])];
 </script>
 
 <div class="detail-panel">

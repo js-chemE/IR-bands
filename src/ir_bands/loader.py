@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 from ir_bands.schema import (
-    Band, BasedOn, Dataset, Group, Molecule, Reference, Region,
+    Band, BasedOn, Dataset, Group, Molecule, Reference, Region, Topology,
     Vibration, VibrationMode, Vibrations,
     VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
 )
@@ -355,6 +355,10 @@ def _parse_mode(raw: dict) -> VibrationMode:
     )
 
 
+def _parse_topology(raw: dict) -> Topology:
+    return Topology(id=raw["id"], short=raw["short"], long=raw["long"])
+
+
 def _parse_molecule(raw: dict) -> Molecule:
     return Molecule(
         id=raw["id"],
@@ -362,6 +366,7 @@ def _parse_molecule(raw: dict) -> Molecule:
         species=raw["species"],
         shape=raw["shape"],
         band_groups=list(raw.get("band_groups", [])),
+        topologies=[_parse_topology(t) for t in raw.get("topologies", [])],
         modes=[_parse_mode(m) for m in raw.get("modes", [])],
     )
 
@@ -409,6 +414,13 @@ def validate_vibrations(
         for g in mol.band_groups:
             if g not in dataset.groups:
                 errors.append(f"Molecule {mol.id}: band_groups entry {g!r} not in groups table")
+
+        seen_topologies: set[str] = set()
+        for topo in mol.topologies:
+            if topo.id in seen_topologies:
+                errors.append(f"Molecule {mol.id}: duplicate topology id {topo.id!r}")
+            else:
+                seen_topologies.add(topo.id)
 
         for mode in mol.modes:
             if mode.id in seen_modes:
