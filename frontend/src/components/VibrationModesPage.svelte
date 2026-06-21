@@ -2,6 +2,7 @@
   import type { Band, RefMap, Vibrations, VibrationMode } from '../lib/types';
   import { geometryFor, fundamentalModeCount } from '../lib/moleculeGeometry';
   import MoleculeSelector from './vibration/MoleculeSelector.svelte';
+  import TopologySelector from './vibration/TopologySelector.svelte';
   import MoleculeViewer from './vibration/MoleculeViewer.svelte';
   import ModeList from './vibration/ModeList.svelte';
   import ModeDetailPanel from './vibration/ModeDetailPanel.svelte';
@@ -21,12 +22,13 @@
   });
 
   let selectedMoleculeId = orderedMolecules[0]?.id ?? '';
+  let selectedTopologyId = orderedMolecules[0]?.topologies[0]?.id ?? '';
   let previewModeId: string | null = null;
   let openModeId: string | null = null;
   let notationOpen = false;
 
   $: molecule = orderedMolecules.find(m => m.id === selectedMoleculeId) ?? null;
-  $: geometry = molecule ? geometryFor(molecule.id) : null;
+  $: geometry = molecule ? geometryFor(molecule.id, selectedTopologyId) : null;
   // Static at rest — only animate while a mode is actually hovered/focused.
   $: activeMode = previewModeId ? molecule?.modes.find(m => m.id === previewModeId) ?? null : null;
   $: activeVectors = (geometry && activeMode) ? geometry.modes[activeMode.id] ?? null : null;
@@ -56,6 +58,7 @@
 
   function selectMolecule(id: string) {
     selectedMoleculeId = id;
+    selectedTopologyId = orderedMolecules.find(m => m.id === id)?.topologies[0]?.id ?? '';
     previewModeId = null;
     openModeId = null;
   }
@@ -142,7 +145,14 @@
               </div>
             {/if}
             <div class="viewer-inner">
-              <MoleculeViewer {geometry} {activeVectors} />
+              <div class="diagram-col">
+                <TopologySelector
+                  topologies={molecule.topologies}
+                  selectedId={selectedTopologyId}
+                  on:select={(e) => (selectedTopologyId = e.detail.id)}
+                />
+                <MoleculeViewer {geometry} {activeVectors} />
+              </div>
               <ModeList
                 modes={molecule.modes}
                 {openModeId}
@@ -351,5 +361,11 @@
     width: 100%;
     gap: 28px;
     align-items: flex-start;
+  }
+
+  .diagram-col {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
   }
 </style>

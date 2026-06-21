@@ -644,7 +644,9 @@
 
     // ---------------------------------------------------------------------------
     // GAS-PHASE CO
-    // Intermediate/byproduct — diatomic stretch with P/R branches (no Q for diatomic).
+    // Intermediate/byproduct — diatomic stretch with P/R branches; Q-branch is
+    // symmetry-forbidden for this Σ→Σ transition (same rule as CO₂'s νₐₛ Q, see
+    // co2_asym_2349_Q) but kept as a thin ir-inactive marker for the gap.
     // ---------------------------------------------------------------------------
     {
       "id": "co_stretch_2170_R",
@@ -661,7 +663,7 @@
       "wn_start": 2165,
       "wn_end": 2185,
       "short": "ν(CO) CO (R)",
-      "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches.",
+      "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches — see co_stretch_2143_Q.",
       "based_on": [],
       "references": [
         {
@@ -674,6 +676,36 @@
       "width": "broad",
       "confidence": "confirmed",
       "tags": ["gas-phase"]
+    },
+      // Symmetry-forbidden Q-branch (Σ→Σ parallel transition forbids ΔJ=0) —
+      // shown as a thin ir-inactive marker for the gap between the R/P
+      // envelopes, not an observed line; same treatment as co2_asym_2349_Q.
+    {
+      "id": "co_stretch_2143_Q",
+      "species": "CO",
+      "group": "co",
+      "pair": 1,
+      "branch_group": "co_nu1_branches",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "C-O",
+      "wn_start": 2139,
+      "wn_end": 2147,
+      "short": "ν(CO) CO (Q)",
+      "description": "Gas-phase CO stretch (ν) — Q-branch at the ~2143 cm⁻¹ band origin. Forbidden by symmetry for this Σ→Σ transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2143,
+          "note": "Not an observed line in this source — the forbidden Q-branch position sits at the CO fundamental band origin (~2143 cm⁻¹), consistent with the midpoint of their observed P (2114 cm⁻¹) and R (2176 cm⁻¹) branch maxima (Fig. 4)."
+        }
+      ],
+      "confidence": "confirmed",
+      "tags": ["gas-phase", "ir-inactive"]
     },
     {
       "id": "co_stretch_2115_P",
@@ -690,7 +722,7 @@
       "wn_start": 2105,
       "wn_end": 2125,
       "short": "ν(CO) CO (P)",
-      "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution).",
+      "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution). Same forbidden-Q gap as the R-branch entry — see co_stretch_2143_Q.",
       "based_on": [],
       "references": [
         {
