@@ -100,10 +100,11 @@
     {/each}
   {/if}
   {#each geometry.bonds as [a, b]}
+    {@const buried = geometry.surface?.buriedAtoms ?? []}
     <line
       x1={positions[a].x} y1={positions[a].y}
       x2={positions[b].x} y2={positions[b].y}
-      class="bond"
+      class={buried.includes(a) || buried.includes(b) ? 'surface-bond' : 'bond'}
     />
   {/each}
   {#each positions as p}
@@ -115,6 +116,15 @@
       fill={textColorForElement(p.element)}
     >{p.element}</text>
   {/each}
+  {#if geometry.surface && geometry.surface.buriedAtoms?.length}
+    <!-- Opaque slab covering everything below the surface line — drawn
+         after the atoms/bonds above so it visually "buries" whichever
+         atom(s) are meant to poke up out of the surface rather than float
+         above it, simply cutting off their lower portion. Re-drawing the
+         surface line on top keeps its edge crisp against the slab. -->
+    <rect x={-50} y={geometry.surface.y} width={100} height={52 - geometry.surface.y} class="surface-slab" />
+    <line x1={-44} y1={geometry.surface.y} x2={44} y2={geometry.surface.y} class="surface-line" />
+  {/if}
 </svg>
 
 <style>
@@ -138,6 +148,13 @@
     stroke: #aaa;
     stroke-width: 1;
     stroke-dasharray: 2.5, 2.5;
+  }
+
+  /* Matches .viewer-row's own background (VibrationModesPage.svelte) so a
+     "buried" atom's cut-off lower half reads as cleanly gone rather than as
+     a visible colored block. */
+  .surface-slab {
+    fill: #FAFAFA;
   }
 
   .atom {

@@ -287,12 +287,13 @@
       "label": "CO",
       "species": "CO",
       "shape": "linear",
-      "band_groups": ["co", "co_metal"],
+      "band_groups": ["co", "co_metal", "co_cation"],
       "topologies": [
         {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "C<sub>∞v</sub>"},
         {"id": "linear", "short": "lin", "long": "linear (μ₁)", "point_group": "C<sub>∞v</sub>"},
         {"id": "bridged", "short": "br", "long": "bridged (μ₂)", "point_group": "C<sub>2v</sub>"},
-        {"id": "hollow", "short": "hol", "long": "hollow (μ₃/μ₄)"}
+        {"id": "hollow", "short": "hol", "long": "hollow (μ₃/μ₄)"},
+        {"id": "geminal", "short": "gem", "long": "geminal (M(CO)₂)", "point_group": "C<sub>2v</sub>"}
       ],
       "modes": [
         {
@@ -428,19 +429,7 @@
           "raman_active": null,
           "tags": [],
           "reference": ["Yudanov.COAdsorptionPd.2026"]
-        }
-      ]
-    },
-    {
-      "id": "co_geminal",
-      "label": "Geminal (CO)₂",
-      "species": "M(CO)₂*",
-      "shape": "nonlinear",
-      "band_groups": ["co_cation"],
-      "topologies": [
-        {"id": "geminal", "short": "gem", "long": "geminal (M(CO)₂)", "point_group": "C<sub>2v</sub>"}
-      ],
-      "modes": [
+        },
         {
           "id": "co_geminal_stretch_symmetric",
           "label": "νₛ(CO)",
@@ -594,100 +583,10 @@
       "shape": "nonlinear",
       "band_groups": ["carbonate"],
       "topologies": [
-        {"id": "bidentate", "short": "b", "long": "bidentate", "point_group": "C<sub>2v</sub>"},
-        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>s</sub>"}
+        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>s</sub>"},
+        {"id": "bidentate", "short": "b", "long": "bidentate", "point_group": "C<sub>2v</sub>"}
       ],
       "modes": [
-        {
-          "id": "carbonate_stretch_anchor_bidentate",
-          "label": "ν(C-O)",
-          "category": "stretch",
-          "atoms": "C-O",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₁",
-          "symmetry": "A₁",
-          "wn_start": 1600,
-          "wn_end": 1650,
-          "note": "The free ion's true totally-symmetric stretch, ν₁ of D₃h — IR-inactive there, but resolved and IR-active once surface binding breaks that symmetry; the one stretch with no sym/asym partner, since it singles out whichever one oxygen ISN'T equivalent to the other two. For bidentate coordination the odd one out is the free, non-coordinated oxygen, so this is that oxygen's own terminal C=Oₜ stretch, pushing and pulling along its own bond axis — with the carbon itself recoiling slightly the opposite way. A₁, 1600–1650 cm⁻¹, the highest-frequency bidentate mode, well clear of the ring-stretch pair below.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": [],
-          "reference": []
-        },
-        {
-          "id": "carbonate_stretch_asymmetric_bidentate",
-          "label": "νₐₛ(OCO)",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₄",
-          "symmetry": "B₂",
-          "wn_start": 1250,
-          "wn_end": 1320,
-          "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h); surface binding splits that degenerate pair and lowers the overall symmetry to C₂ᵥ for bidentate coordination. The two surface-bound C-Oᵦ bonds engage in this out-of-phase tug-of-war — one stretches as the other compresses — with the free oxygen leaning slightly the opposite way. B₂, 1250–1320 cm⁻¹.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": ["site-sensitive"],
-          "reference": []
-        },
-        {
-          "id": "carbonate_stretch_symmetric_bidentate",
-          "label": "νₛ(OCO)",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₂",
-          "symmetry": "A₁",
-          "wn_start": 1000,
-          "wn_end": 1070,
-          "note": "The two non-surface-bound C-O bonds stretch in phase — the other resolved component of the same doubly-degenerate ν₃ pair (paired with νₐₛ(OCO) above). Both surface-pinned oxygens expand and contract their C-Oᵦ bonds in absolute unison; the free oxygen drifts slightly the opposite way as a small counter-motion. A₁, 1000–1070 cm⁻¹, symmetric stretch of the two coordinated oxygens.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": ["site-sensitive"],
-          "reference": []
-        },
-        {
-          "id": "carbonate_wagging_bidentate",
-          "label": "γ(OCO)",
-          "subtype": "wagging",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₆",
-          "symmetry": "B₁",
-          "wn_start": 830,
-          "wn_end": 850,
-          "note": "The central C buckles out of the O-C-O plane toward the viewer while the free oxygen recoils the opposite way, back into the page — the out-of-plane bend, ν₂ of the free ion, non-degenerate so it doesn't split into two distinct motions on binding (though its frequency still shifts a little by topology). Both surface-pinned oxygens, which anchor the plane itself, stay fixed. B₁, 830–850 cm⁻¹ — the one mode whose out-of-plane motion actually flips the coordinate signs across the molecular plane, unlike every A₁/B₂ mode here.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": [],
-          "reference": []
-        },
-        {
-          "id": "carbonate_scissoring_bidentate",
-          "label": "δ(OCO)",
-          "subtype": "scissoring",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₃",
-          "symmetry": "A₁",
-          "wn_start": 750,
-          "wn_end": 800,
-          "note": "Ring flattening: the inner Oᵦ-C-Oᵦ bound angles open and pinch symmetrically like a pair of scissors, entirely in-plane — shown here as the carbon and the free oxygen drawing apart from each other symmetrically, since the two surface-pinned oxygens that define the ring can't themselves move. One component of the doubly-degenerate in-plane bend, ν₄ of the free ion. A₁, 750–800 cm⁻¹.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": [],
-          "reference": []
-        },
-        {
-          "id": "carbonate_rocking_bidentate",
-          "label": "ρ(OCO)",
-          "category": "bend",
-          "subtype": "rocking",
-          "atoms": "O-C-O",
-          "topology": "bidentate",
-          "herzberg_notation": "ν₅",
-          "symmetry": "B₂",
-          "wn_start": 550,
-          "note": "The other resolved component of the same doubly-degenerate in-plane bend as δ(OCO) above — here the carbon and the free oxygen tilt left and right together, rhythmically, rather than swinging toward/apart from each other; the two surface-pinned oxygens, the fixed pivot this tilts relative to, don't move. B₂, below ~550 cm⁻¹ — the lowest-frequency mode of the six, often outside the practical DRIFTS detection window.",
-          "ir_active": true,
-          "raman_active": true,
-          "tags": [],
-          "reference": []
-        },
         {
           "id": "carbonate_stretch_asymmetric_monodentate",
           "label": "νₐₛ(OCO)",
@@ -778,6 +677,96 @@
           "raman_active": true,
           "tags": [],
           "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_stretch_anchor_bidentate",
+          "label": "ν(C-O)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 1600,
+          "wn_end": 1650,
+          "note": "The free ion's true totally-symmetric stretch, ν₁ of D₃h — IR-inactive there, but resolved and IR-active once surface binding breaks that symmetry; the one stretch with no sym/asym partner, since it singles out whichever one oxygen ISN'T equivalent to the other two. For bidentate coordination the odd one out is the free, non-coordinated oxygen, so this is that oxygen's own terminal C=Oₜ stretch, pushing and pulling along its own bond axis — with the carbon itself recoiling slightly the opposite way. A₁, 1600–1650 cm⁻¹, the highest-frequency bidentate mode, well clear of the ring-stretch pair below.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_stretch_asymmetric_bidentate",
+          "label": "νₐₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "B₂",
+          "wn_start": 1250,
+          "wn_end": 1320,
+          "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h); surface binding splits that degenerate pair and lowers the overall symmetry to C₂ᵥ for bidentate coordination. The two surface-bound C-Oᵦ bonds engage in this out-of-phase tug-of-war — one stretches as the other compresses — with the free oxygen leaning slightly the opposite way. B₂, 1250–1320 cm⁻¹.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": []
+        },
+        {
+          "id": "carbonate_stretch_symmetric_bidentate",
+          "label": "νₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 1000,
+          "wn_end": 1070,
+          "note": "The two non-surface-bound C-O bonds stretch in phase — the other resolved component of the same doubly-degenerate ν₃ pair (paired with νₐₛ(OCO) above). Both surface-pinned oxygens expand and contract their C-Oᵦ bonds in absolute unison; the free oxygen drifts slightly the opposite way as a small counter-motion. A₁, 1000–1070 cm⁻¹, symmetric stretch of the two coordinated oxygens.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": []
+        },
+        {
+          "id": "carbonate_wagging_bidentate",
+          "label": "γ(OCO)",
+          "subtype": "wagging",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "B₁",
+          "wn_start": 830,
+          "wn_end": 850,
+          "note": "The central C buckles out of the O-C-O plane toward the viewer while the free oxygen recoils the opposite way, back into the page — the out-of-plane bend, ν₂ of the free ion, non-degenerate so it doesn't split into two distinct motions on binding (though its frequency still shifts a little by topology). Both surface-pinned oxygens, which anchor the plane itself, stay fixed. B₁, 830–850 cm⁻¹ — the one mode whose out-of-plane motion actually flips the coordinate signs across the molecular plane, unlike every A₁/B₂ mode here.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_scissoring_bidentate",
+          "label": "δ(OCO)",
+          "subtype": "scissoring",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A₁",
+          "wn_start": 750,
+          "wn_end": 800,
+          "note": "Ring flattening: the inner Oᵦ-C-Oᵦ bound angles open and pinch symmetrically like a pair of scissors, entirely in-plane — shown here as the carbon and the free oxygen drawing apart from each other symmetrically, since the two surface-pinned oxygens that define the ring can't themselves move. One component of the doubly-degenerate in-plane bend, ν₄ of the free ion. A₁, 750–800 cm⁻¹.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_rocking_bidentate",
+          "label": "ρ(OCO)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₂",
+          "wn_start": 550,
+          "note": "The other resolved component of the same doubly-degenerate in-plane bend as δ(OCO) above — here the carbon and the free oxygen tilt left and right together, rhythmically, rather than swinging toward/apart from each other; the two surface-pinned oxygens, the fixed pivot this tilts relative to, don't move. B₂, below ~550 cm⁻¹ — the lowest-frequency mode of the six, often outside the practical DRIFTS detection window.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
         }
       ]
     },
