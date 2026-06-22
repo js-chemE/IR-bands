@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { Band, BandReference, GroupMap, RefMap } from '../lib/types';
+  import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
   import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
   import { esc, ieeeHtml, refSortKey } from '../lib/citations';
 
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
+  export let vibrations: Vibrations;
   export let sortedGroupKeys: string[];
   export let viewMode: 'by-ref' | 'by-group';
 
@@ -39,10 +40,55 @@
     ].filter(Boolean) as string[];
   }
 
+  // A mode's own characteristic wavenumber — same convention as
+  // ModeList.svelte/ModeDetailPanel.svelte: a single value (with a "~"
+  // prefix) or a range, independent of any band's own position.
+  function modeWnLabel(m: VibrationMode): string | null {
+    if (m.wn_start == null) return null;
+    if (m.wn_end == null) return `~${m.wn_start} cm⁻¹`;
+    return `${m.wn_start}–${m.wn_end} cm⁻¹`;
+  }
+
+  function topologyLabel(molecule: Molecule, mode: VibrationMode): string | null {
+    if (!mode.topology) return null;
+    return molecule.topologies.find(t => t.id === mode.topology)?.long ?? mode.topology;
+  }
+
+  // Every (molecule, mode) pair that cites at least one reference — built
+  // once and reused by both views below, the same way `bands` already
+  // carries its own references regardless of which view is showing.
+  interface ModeRef { molecule: Molecule; mode: VibrationMode; }
+  $: modeRefEntries = (() => {
+    const map = new Map<string, ModeRef[]>();
+    for (const molecule of vibrations?.molecules ?? []) {
+      for (const mode of molecule.modes) {
+        for (const key of mode.reference) {
+          if (!map.has(key)) map.set(key, []);
+          map.get(key)!.push({ molecule, mode });
+        }
+      }
+    }
+    return map;
+  })();
+
+  // Group a refKey's citing modes by molecule, in vibrations.json's own
+  // molecule order — mirrors how groupBands below groups citing bands by
+  // chart group.
+  function moleculeModesFor(refKey: string): { molecule: Molecule; modes: VibrationMode[] }[] {
+    const entries = modeRefEntries.get(refKey) ?? [];
+    const byMolecule = new Map<string, { molecule: Molecule; modes: VibrationMode[] }>();
+    for (const e of entries) {
+      if (!byMolecule.has(e.molecule.id)) byMolecule.set(e.molecule.id, { molecule: e.molecule, modes: [] });
+      byMolecule.get(e.molecule.id)!.modes.push(e.mode);
+    }
+    return [...byMolecule.values()];
+  }
+
   // ---- By-reference view data ----
   interface BandRef    { band: Band; ref: BandReference; }
   interface GroupBands { key: string; label: string; color: string; entries: BandRef[]; }
-  interface ByRefItem  { refKey: string; html: string; groupBands: GroupBands[]; }
+  interface MoleculeModes { molecule: Molecule; modes: VibrationMode[]; }
+  interface ByRefItem  { refKey: string; html: string; groupBands: GroupBands[]; moleculeModes: MoleculeModes[]; }
 
   $: byRefItems = (() => {
     if (!refs) return [] as ByRefItem[];
@@ -53,11 +99,14 @@
         refEntries.get(ref.key)!.push({ band: b, ref });
       }
     }
-    return [...refEntries.keys()]
+    // Union of every key cited by a band OR by a mode — a mode-only
+    // citation (no band links to it at all) still needs its own card.
+    const allKeys = new Set([...refEntries.keys(), ...modeRefEntries.keys()]);
+    return [...allKeys]
       .sort((a, b) => refSortKey(refs![a] ?? {}).localeCompare(refSortKey(refs![b] ?? {})))
       .map(rk => {
         const byGroup = new Map<string, BandRef[]>();
-        for (const e of refEntries.get(rk)!) {
+        for (const e of (refEntries.get(rk) ?? [])) {
           if (!byGroup.has(e.band.group)) byGroup.set(e.band.group, []);
           byGroup.get(e.band.group)!.push(e);
         }
@@ -69,12 +118,12 @@
             color: groups[gk]?.color ?? '#444',
             entries: byGroup.get(gk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
           }));
-        return { refKey: rk, html: ieeeHtml(refs![rk] ?? {}, rk), groupBands };
+        return { refKey: rk, html: ieeeHtml(refs![rk] ?? {}, rk), groupBands, moleculeModes: moleculeModesFor(rk) };
       });
   })();
 
   // ---- By-group view data ----
-  interface ByRefEntry  { refKey: string; html: string; entries: BandRef[]; }
+  interface ByRefEntry  { refKey: string; html: string; entries: BandRef[]; moleculeModes: MoleculeModes[]; }
   interface ByGroupItem { key: string; label: string; color: string; refs: ByRefEntry[]; }
 
   $: byGroupItems = (() => {
@@ -82,7 +131,16 @@
     return sortedGroupKeys
       .map(gk => {
         const gb = bands.filter(b => b.group === gk && b.references.length > 0);
-        if (!gb.length) return null;
+        // Modes whose owning molecule is itself filed under this chart
+        // group, even if the molecule has no real band linked at all (e.g.
+        // a mode-only citation) — same band_groups field the vibration-
+        // modes page itself uses to order molecules against this list.
+        const groupModeKeys = new Set<string>();
+        for (const molecule of vibrations?.molecules ?? []) {
+          if (!molecule.band_groups.includes(gk)) continue;
+          for (const mode of molecule.modes) for (const key of mode.reference) groupModeKeys.add(key);
+        }
+        if (!gb.length && !groupModeKeys.size) return null;
         const refMap = new Map<string, BandRef[]>();
         for (const b of gb) {
           for (const ref of b.references) {
@@ -90,12 +148,14 @@
             refMap.get(ref.key)!.push({ band: b, ref });
           }
         }
-        const refEntries: ByRefEntry[] = [...refMap.keys()]
+        const allKeys = new Set([...refMap.keys(), ...groupModeKeys]);
+        const refEntries: ByRefEntry[] = [...allKeys]
           .sort((a, b) => refSortKey(refs![a] ?? {}).localeCompare(refSortKey(refs![b] ?? {})))
           .map(rk => ({
             refKey: rk,
             html:   ieeeHtml(refs![rk] ?? {}, rk),
-            entries: refMap.get(rk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
+            entries: (refMap.get(rk) ?? []).sort((a, b) => b.band.wn_max - a.band.wn_max),
+            moleculeModes: moleculeModesFor(rk).filter(mm => mm.molecule.band_groups.includes(gk)),
           }));
         return {
           key:   gk,
@@ -158,6 +218,35 @@
             {/each}
           </div>
         {/each}
+        {#each item.moleculeModes as mm (mm.molecule.id)}
+          <div class="group-section">
+            <div class="group-label mode-group-label">{mm.molecule.label} — vibration modes</div>
+            {#each mm.modes as mode (mode.id)}
+              {@const id = `rm-${item.refKey}-${mode.id}`}
+              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+              <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+                <div class="band-row-line">
+                  <span class="band-name">{mode.label}</span>
+                  {#if mode.herzberg_notation}
+                    <span class="badge-quality">{mode.herzberg_notation}</span>
+                  {/if}
+                  {#if topologyLabel(mm.molecule, mode)}
+                    <span class="badge-site">{topologyLabel(mm.molecule, mode)}</span>
+                  {/if}
+                  {#if modeWnLabel(mode)}
+                    <span class="badge-wn">{modeWnLabel(mode)}</span>
+                  {/if}
+                  <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
+                </div>
+                {#if open.has(id) && mode.note}
+                  <div class="band-expand">
+                    <div class="expand-desc">{mode.note}</div>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/each}
       </div>
     {/each}
 
@@ -205,6 +294,35 @@
                     {/if}
                   </div>
                 {/if}
+              </div>
+            {/each}
+            {#each r.moleculeModes as mm (mm.molecule.id)}
+              <div class="mode-subgroup">
+                <div class="group-label mode-group-label">{mm.molecule.label} — vibration modes</div>
+                {#each mm.modes as mode (mode.id)}
+                  {@const id = `gm-${g.key}-${r.refKey}-${mode.id}`}
+                  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                  <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+                    <div class="band-row-line">
+                      <span class="band-name">{mode.label}</span>
+                      {#if mode.herzberg_notation}
+                        <span class="badge-quality">{mode.herzberg_notation}</span>
+                      {/if}
+                      {#if topologyLabel(mm.molecule, mode)}
+                        <span class="badge-site">{topologyLabel(mm.molecule, mode)}</span>
+                      {/if}
+                      {#if modeWnLabel(mode)}
+                        <span class="badge-wn">{modeWnLabel(mode)}</span>
+                      {/if}
+                      <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
+                    </div>
+                    {#if open.has(id) && mode.note}
+                      <div class="band-expand">
+                        <div class="expand-desc">{mode.note}</div>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
               </div>
             {/each}
           </div>
@@ -353,6 +471,12 @@
     margin-bottom: 2px;
     opacity: 0.9;
   }
+
+  /* Vibration-mode citations get their own neutral color (not tied to any
+     chart group, since a mode isn't a band) rather than reusing g.color. */
+  .mode-group-label { color: #6b5b95; }
+
+  .mode-subgroup { margin-top: 7px; }
 
   /* ── By-group view ── */
   .group-card {

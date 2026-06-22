@@ -126,6 +126,126 @@
       ]
     },
     {
+      "id": "ch4",
+      "label": "CH₄",
+      "species": "CH₄",
+      "shape": "nonlinear",
+      "band_groups": [
+        "ch4"
+      ],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "free-gas",
+          "point_group": "T<sub>d</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "ch4_stretch_symmetric",
+          "label": "νₛ(CH₄)",
+          "note": "All four C-H bonds stretch in phase, lengthening and shortening together — the totally symmetric stretch of this tetrahedral molecule. Doesn't change the molecule's dipole moment at all (it stays exactly zero throughout, by symmetry), so it's IR-forbidden — observed only in Raman. A₁.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Nishimura.VibrationalExcitationsCH4.2002"
+          ],
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "H-C-H",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2917,
+          "wn_end": null,
+          "bands": [
+            "ch4g_sym_2917"
+          ]
+        },
+        {
+          "id": "ch4_bend_e",
+          "label": "δ(HCH)",
+          "note": "Two H-C-H angles open while the other two close, in a complementary pattern — the doubly-degenerate bending mode. Shown here as one representative component of the pair (a second, independent component exists at the same frequency, related to this one by the molecule's own symmetry operations — not separately drawn). Like ν₁, doesn't change the dipole moment, so it's IR-forbidden — Raman-active only. E (doubly degenerate).",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "degenerated",
+            "raman-active"
+          ],
+          "reference": [
+            "Nishimura.VibrationalExcitationsCH4.2002"
+          ],
+          "category": "bend",
+          "subtype": "symmetric",
+          "atoms": "H-C-H",
+          "topology": null,
+          "herzberg_notation": "ν₂",
+          "symmetry": "E",
+          "wn_start": 1534,
+          "wn_end": null,
+          "bands": [
+            "ch4g_bend_sym_1534",
+            "ch4g_combo_4220"
+          ]
+        },
+        {
+          "id": "ch4_stretch_asymmetric",
+          "label": "νₐₛ(CH₄)",
+          "note": "One C-H bond stretches while the others adjust to compensate — the triply-degenerate asymmetric stretch. Shown here as one representative component of three (the other two, related by the molecule's own symmetry operations, sit at the same frequency and aren't separately drawn). This genuinely changes the dipole moment, making it IR-active — the dominant C-H stretching band in methane's infrared spectrum. T₂ (triply degenerate).",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [
+            "degenerated",
+            "ir-active"
+          ],
+          "reference": [
+            "Nishimura.VibrationalExcitationsCH4.2002"
+          ],
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "H-C-H",
+          "topology": null,
+          "herzberg_notation": "ν₃",
+          "symmetry": "T₂",
+          "wn_start": 3019,
+          "wn_end": null,
+          "bands": [
+            "ch4g_asym_3019",
+            "ch4g_combo_4220"
+          ]
+        },
+        {
+          "id": "ch4_bend_t2",
+          "label": "δ(HCH)",
+          "note": "The H atoms rock back and forth relative to the central carbon — the triply-degenerate bending mode. Shown here as one representative component of three, same caveat as ν₃ above. Also IR-active, since it changes the dipole moment too — together with ν₃, these are the two modes responsible for methane's strong infrared absorption (and its potency as a greenhouse gas, since both fall in the thermal-infrared window Earth radiates through). T₂ (triply degenerate).",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [
+            "degenerated",
+            "ir-active"
+          ],
+          "reference": [
+            "Nishimura.VibrationalExcitationsCH4.2002"
+          ],
+          "category": "bend",
+          "subtype": "asymmetric",
+          "atoms": "H-C-H",
+          "topology": null,
+          "herzberg_notation": "ν₄",
+          "symmetry": "T₂",
+          "wn_start": 1306,
+          "wn_end": null,
+          "bands": [
+            "ch4g_bend_1306"
+          ]
+        }
+      ]
+    },
+    {
       "id": "co",
       "label": "CO",
       "species": "CO",
@@ -184,7 +304,7 @@
           "atoms": "C-O",
           "topology": "gas",
           "herzberg_notation": "ν₁",
-          "symmetry": null,
+          "symmetry": "Σ⁺",
           "wn_start": 2143,
           "wn_end": null,
           "bands": [
@@ -546,7 +666,7 @@
           "atoms": "C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "A₁",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -569,7 +689,7 @@
           "atoms": "O-C-O",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "B₂",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -594,7 +714,7 @@
           "atoms": "O-C-O",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "A₁",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -616,7 +736,7 @@
           "atoms": "O-C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "B₂",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -969,7 +1089,7 @@
           "atoms": "H-C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "A₁",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -991,7 +1111,7 @@
           "atoms": "H-C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "E",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -1013,7 +1133,7 @@
           "atoms": "H-C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "A₁",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -1035,7 +1155,7 @@
           "atoms": "H-C-H",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "E",
           "wn_start": null,
           "wn_end": null,
           "bands": [
@@ -1057,7 +1177,7 @@
           "atoms": "C-O",
           "topology": null,
           "herzberg_notation": null,
-          "symmetry": null,
+          "symmetry": "A₁",
           "wn_start": null,
           "wn_end": null,
           "bands": [

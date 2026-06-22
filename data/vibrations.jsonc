@@ -283,6 +283,66 @@
       ]
     },
     {
+      "id": "ch4",
+      "label": "CH₄",
+      "species": "CH₄",
+      "shape": "nonlinear",
+      "band_groups": ["ch4"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "T<sub>d</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "ch4_stretch_symmetric",
+          "label": "νₛ(CH₄)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2917,
+          "note": "All four C-H bonds stretch in phase, lengthening and shortening together — the totally symmetric stretch of this tetrahedral molecule. Doesn't change the molecule's dipole moment at all (it stays exactly zero throughout, by symmetry), so it's IR-forbidden — observed only in Raman. A₁.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_bend_e",
+          "label": "δ(HCH)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "E",
+          "wn_start": 1534,
+          "note": "Two H-C-H angles open while the other two close, in a complementary pattern — the doubly-degenerate bending mode. Shown here as one representative component of the pair (a second, independent component exists at the same frequency, related to this one by the molecule's own symmetry operations — not separately drawn). Like ν₁, doesn't change the dipole moment, so it's IR-forbidden — Raman-active only. E (doubly degenerate).",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_stretch_asymmetric",
+          "label": "νₐₛ(CH₄)",
+          "herzberg_notation": "ν₃",
+          "symmetry": "T₂",
+          "wn_start": 3019,
+          "note": "One C-H bond stretches while the others adjust to compensate — the triply-degenerate asymmetric stretch. Shown here as one representative component of three (the other two, related by the molecule's own symmetry operations, sit at the same frequency and aren't separately drawn). This genuinely changes the dipole moment, making it IR-active — the dominant C-H stretching band in methane's infrared spectrum. T₂ (triply degenerate).",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_bend_t2",
+          "label": "δ(HCH)",
+          "herzberg_notation": "ν₄",
+          "symmetry": "T₂",
+          "wn_start": 1306,
+          "note": "The H atoms rock back and forth relative to the central carbon — the triply-degenerate bending mode. Shown here as one representative component of three, same caveat as ν₃ above. Also IR-active, since it changes the dipole moment too — together with ν₃, these are the two modes responsible for methane's strong infrared absorption (and its potency as a greenhouse gas, since both fall in the thermal-infrared window Earth radiates through). T₂ (triply degenerate).",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        }
+      ]
+    },
+    {
       "id": "co",
       "label": "CO",
       "species": "CO",
@@ -301,6 +361,7 @@
           "label": "ν(CO)",
           "topology": "gas",
           "herzberg_notation": "ν₁",
+          "symmetry": "Σ⁺",
           "wn_start": 2143,
           "note": "C and O move apart and together along the single bond — the only vibration a two-atom molecule can have, so there's no symmetric/asymmetric pair and nothing to number ν₁/ν₂/ν₃-style.",
           "ir_active": true,
@@ -541,6 +602,7 @@
         {
           "id": "formate_ch_stretch",
           "label": "ν(CH)",
+          "symmetry": "A₁",
           "note": "The C-H bond stretches — the key HCOO* marker band, since no other common surface species shares this exact C-H environment. Can fall into Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band, splitting into a doublet. The free formate ion has its own conventional ν-numbering in the vibrational-spectroscopy literature (this mode is commonly cited as ν₁), though the exact assignment order varies by source more than CO₂'s does.",
           "ir_active": true,
           "raman_active": null,
@@ -550,6 +612,7 @@
         {
           "id": "formate_stretch_asymmetric",
           "label": "νₐₛ(OCO)",
+          "symmetry": "B₂",
           "note": "One C-O bond lengthens as the other shortens, in antiphase — often cited as ν₄ of the free formate ion. The position of this stretch is itself sensitive to binding geometry.",
           "ir_active": true,
           "raman_active": null,
@@ -559,6 +622,7 @@
         {
           "id": "formate_stretch_symmetric",
           "label": "νₛ(OCO)",
+          "symmetry": "A₁",
           "note": "Both C-O bonds stretch in phase — often cited as ν₂ of the free formate ion. Paired with νₐₛ(OCO) above; the splitting between the two (Δν) is itself diagnostic of binding geometry.",
           "ir_active": true,
           "raman_active": null,
@@ -568,6 +632,7 @@
         {
           "id": "formate_och_scissoring",
           "label": "δ(OCH)",
+          "symmetry": "B₂",
           "note": "The C-H bond rocks relative to the O-C-O frame, changing the O-C-H angle — often cited as ν₃ of the free formate ion. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum.",
           "ir_active": true,
           "raman_active": null,
@@ -783,6 +848,7 @@
         {
           "id": "methoxy_stretch_symmetric",
           "label": "νₛ(CH₃)",
+          "symmetry": "A₁",
           "note": "All three C-H bonds stretch in phase while C and the surface-bound O stay put — the methyl group's totally symmetric stretch, by analogy with the free CH₃ group's non-degenerate ν₁. Its position shifts in tandem with νₐₛ(CH₃) below.",
           "ir_active": true,
           "raman_active": null,
@@ -791,6 +857,7 @@
         {
           "id": "methoxy_stretch_asymmetric",
           "label": "νₐₛ(CH₃)",
+          "symmetry": "E",
           "note": "One C-H bond lengthens as another shortens, in antiphase, while the third stays put — one component of the methyl group's doubly-degenerate asymmetric stretch.",
           "ir_active": true,
           "raman_active": null,
@@ -799,6 +866,7 @@
         {
           "id": "methoxy_bend_symmetric",
           "label": "δₛ(CH₃)",
+          "symmetry": "A₁",
           "note": "All three H's swing away from (or toward) the C-O axis together — the methyl \"umbrella\" deformation, by analogy with the free CH₃ group's non-degenerate ν₂.",
           "ir_active": true,
           "raman_active": null,
@@ -807,6 +875,7 @@
         {
           "id": "methoxy_bend_asymmetric",
           "label": "δₐₛ(CH₃)",
+          "symmetry": "E",
           "note": "Two H's rock in antiphase relative to the C-O axis while the third stays put — one component of the methyl group's doubly-degenerate asymmetric deformation.",
           "ir_active": true,
           "raman_active": null,
@@ -815,6 +884,7 @@
         {
           "id": "methoxy_co_stretch",
           "label": "ν(CO)",
+          "symmetry": "A₁",
           "note": "The CH₃ group (C plus all three H's, moving together as a rigid unit) stretches away from the fixed, surface-bound O. Frequency is the diagnostic for binding geometry: monodentate (one M-O bond) sits above ~1100 cm⁻¹, bidentate (O bridging two M centers, or sitting at a bridging-O vacancy) below it — independent of the methyl group's own stretch/bend modes above, which barely shift between the two.",
           "ir_active": true,
           "raman_active": null,

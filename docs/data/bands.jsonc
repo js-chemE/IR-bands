@@ -778,6 +778,7 @@
       "species": "CH₄",
       "group": "ch4",
       "pair": 1,
+      "vibration_modes": ["ch4_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -806,6 +807,7 @@
       "species": "CH₄",
       "group": "ch4",
       "pair": 1,
+      "vibration_modes": ["ch4_bend_t2"],
       "vibration": {
         "category": "bend",
         "subtype": "asymmetric",
@@ -836,6 +838,7 @@
       "species": "CH₄",
       "group": "ch4",
       "pair": 1,
+      "vibration_modes": ["ch4_bend_e"],
       "vibration": {
         "category": "bend",
         "subtype": "symmetric",
@@ -848,6 +851,35 @@
       "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry (E in Td — no T₂ component); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the δₛ+νₐₛ combination band (~4220 cm⁻¹).",
       "based_on": [],
       "references": [],
+      "confidence": "confirmed",
+      "tags": ["gas-phase", "ir-inactive"]
+    },
+      // IR-forbidden (A1 in Td); listed for the same reason as
+      // ch4g_bend_sym_1534 above — completeness, not a real IR band.
+    {
+      "id": "ch4g_sym_2917",
+      "species": "CH₄",
+      "group": "ch4",
+      "pair": 1,
+      "vibration_modes": ["ch4_stretch_symmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2900,
+      "wn_end": 2930,
+      "short": "νₛ(HCH) CH₄(g)",
+      "description": "Gas methane symmetric C-H stretch (νₛ, A₁ mode) at ~2917 cm⁻¹. IR-forbidden by symmetry (A₁ in Td has no T₂/dipole component); observed only in Raman spectroscopy.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Nishimura.VibrationalExcitationsCH4.2002",
+          "wn": 2920,
+          "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table."
+        }
+      ],
       "confidence": "confirmed",
       "tags": ["gas-phase", "ir-inactive"]
     },
