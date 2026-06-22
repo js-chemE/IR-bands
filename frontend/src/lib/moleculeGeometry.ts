@@ -63,6 +63,17 @@ export interface SurfaceAnchor {
 export interface SurfaceSpec {
   y: number; // where the horizontal "surface" line is drawn — SURFACE_Y for every topology that has one, see that constant below
   boundAtoms: SurfaceAnchor[];
+  // Indices into atoms[] that are drawn as real, on-diagram atoms embedded
+  // IN the surface rather than floating above it (e.g. a metal cation drawn
+  // at the vertex of a geminal dicarbonyl) — unlike boundAtoms above, which
+  // are never actually drawn crossing the line, these atoms' own circles are
+  // positioned straddling the line and get their lower portion covered by
+  // an opaque slab, so they read as "poking up out of" the surface rather
+  // than floating freely or fully buried. Any bond touching one of these
+  // atoms renders with the same dashed style as a surface-bond connector,
+  // since it's now a bond crossing the surface boundary rather than a bond
+  // between two free-floating atoms.
+  buriedAtoms?: number[];
 }
 
 // Single shared surface-line position for every surface-bound topology in
@@ -240,27 +251,35 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
         ],
       },
     },
-  },
-  // M(CO)2 geminal dicarbonyl — a genuinely separate molecule from "co"
-  // above (not just another topology of it): twice the CO content, and a
-  // bent (nonlinear) C2v shape rather than CO's own linear one, so it needs
-  // its own `shape` and its own atom count for the fundamental-mode count to
-  // make sense. The metal center IS drawn here (a generic "M" atom, unlike
-  // every surface topology elsewhere in this file) since it's the literal
-  // shared pivot both CO ligands bond to and rotate around, not an
-  // off-diagram anchor — centered in the bounding box like a free/gas
-  // species since this is a localized, isolated complex, not bound to an
-  // extended surface.
-  co_geminal: {
+    // M(CO)2 geminal dicarbonyl — twice the CO content of every other "co"
+    // topology, and a bent (nonlinear) shape rather than linear, but still
+    // folded in here as just another adsorption topology rather than its
+    // own molecule (the fundamental-mode-count formula above doesn't
+    // perfectly fit this one as a result — same already-accepted situation
+    // as linear/bridged/hollow's own "extra modes" mismatch, just in the
+    // opposite direction). The metal center IS drawn here (a generic "M"
+    // atom, unlike every OTHER topology in this file, where the metal is
+    // never drawn at all) since it's the literal shared pivot both CO
+    // ligands bond to and rotate around — positioned straddling the shared
+    // surface line itself (buriedAtoms below), with only its top ~2/5
+    // poking up out of it, rather than floating above like a normal bound
+    // atom. M-C bond lengths are deliberately longer than the other CO
+    // topologies' own C-O bonds so that (a) the dashed surface-crossing
+    // bonds actually have room to show their dash pattern instead of
+    // reading as solid, and (b) the asymmetric C-O stretch's inward-moving
+    // oxygen has enough room that it never visually reaches the metal atom.
     geminal: {
       atoms: [
-        { element: 'M', x: 0, y: 22 },
-        { element: 'C', x: -14, y: 4 },
-        { element: 'O', x: -28, y: -14 },
-        { element: 'C', x: 14, y: 4 },
-        { element: 'O', x: 28, y: -14 },
+        { element: 'M', x: 0, y: 33.5 },
+        { element: 'C', x: -20, y: 8 },
+        { element: 'O', x: -36, y: -12 },
+        { element: 'C', x: 20, y: 8 },
+        { element: 'O', x: 36, y: -12 },
       ],
       bonds: [[0, 1], [1, 2], [0, 3], [3, 4]],
+      // M straddles the line (33.5 puts ~2/5 of its drawn radius above
+      // SURFACE_Y=30, the rest cut off by the slab) — see SurfaceSpec.
+      surface: { y: SURFACE_Y, boundAtoms: [], buriedAtoms: [0] },
       modes: {
         // Both C-O bonds stretch outward together, in phase — M and both
         // C's stay fixed, only the O's move, along their own bond
@@ -269,47 +288,49 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
         co_geminal_stretch_symmetric: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: -0.614, dy: -0.789 },
+          { dx: -0.625, dy: -0.781 },
           { dx: 0, dy: 0 },
-          { dx: 0.614, dy: -0.789 },
+          { dx: 0.625, dy: -0.781 },
         ],
         // One C-O bond stretches outward while the other compresses inward
-        // — the same pair of O's, just out of phase with each other.
+        // — the same pair of O's, just out of phase with each other. The
+        // longer C-O bonds keep the inward-moving O well clear of M even at
+        // full amplitude.
         co_geminal_stretch_asymmetric: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: -0.614, dy: -0.789 },
+          { dx: -0.625, dy: -0.781 },
           { dx: 0, dy: 0 },
-          { dx: -0.614, dy: 0.789 },
+          { dx: -0.625, dy: 0.781 },
         ],
         // Both rigid C-O ligands (C+O moving together as one unit) translate
         // away from the fixed M, in phase — the M-C bonds stretching
         // together rather than the internal C-O bonds above.
         co_geminal_mstretch_symmetric: [
           { dx: 0, dy: 0 },
-          { dx: -0.614, dy: -0.789 },
-          { dx: -0.614, dy: -0.789 },
-          { dx: 0.614, dy: -0.789 },
-          { dx: 0.614, dy: -0.789 },
+          { dx: -0.617, dy: -0.787 },
+          { dx: -0.617, dy: -0.787 },
+          { dx: 0.617, dy: -0.787 },
+          { dx: 0.617, dy: -0.787 },
         ],
         // One rigid C-O ligand translates away from M while the other
         // translates toward it — the two M-C bonds stretching in antiphase.
         co_geminal_mstretch_asymmetric: [
           { dx: 0, dy: 0 },
-          { dx: -0.614, dy: -0.789 },
-          { dx: -0.614, dy: -0.789 },
-          { dx: -0.614, dy: 0.789 },
-          { dx: -0.614, dy: 0.789 },
+          { dx: -0.617, dy: -0.787 },
+          { dx: -0.617, dy: -0.787 },
+          { dx: -0.617, dy: 0.787 },
+          { dx: -0.617, dy: 0.787 },
         ],
         // Scissoring: both rigid ligands rotate about the fixed M by equal
         // and opposite angles, so the C-M-C angle genuinely opens/closes
         // while every M-C (and C-O) bond length stays exact.
         co_geminal_scissoring: [
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 33.5 } },
         ],
         // Rocking: both rigid ligands rotate about the fixed M by the SAME
         // angle and sense this time — like a pair of windshield wipers —
@@ -317,10 +338,10 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
         // relative to the rest of the diagram changes.
         co_geminal_rocking: [
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
-          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 33.5 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 33.5 } },
         ],
       },
     },

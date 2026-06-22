@@ -1327,6 +1327,90 @@
     // Bidentate vs monodentate distinguished by ν_as/ν_s splitting (Δν ~300 vs ~100 cm⁻¹).
     // ---------------------------------------------------------------------------
     {
+      "id": "carbonate_monodentate_asym_1500",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration_modes": ["carbonate_stretch_asymmetric_monodentate"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1480,
+      "wn_end": 1520,
+      "short": "νₐₛ(OCO) m-CO₃²⁻",
+      "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1530,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
+        }
+      ],
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_monodentate_sym_1400",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration_modes": ["carbonate_stretch_symmetric_monodentate"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1380,
+      "wn_end": 1420,
+      "short": "νₛ(OCO) m-CO₃²⁻",
+      "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "wn": 1340,
+          "site": "La-Al₂O₃",
+          "note": "Table 3: νₛ(-C-O) at 1340 cm⁻¹."
+        }
+      ],
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "carbonate_monodentate_asym_overtone_2950",
+      "species": "Monodentate carbonate*",
+      "group": "carbonate",
+      "pair": 5,
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 2900,
+      "wn_end": 3000,
+      "short": "2νₐₛ(OCO) m-CO₃²⁻ (overtone)",
+      "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
+      "based_on": [
+        {
+          "band_id": "carbonate_monodentate_asym_1500",
+          "multiplier": 2
+        }
+      ],
+      "references": [],
+      "tags": ["overtone"]
+    },
+    {
       "id": "carbonate_bidentate_asym_1645",
       "species": "Bidentate carbonate*",
       "group": "carbonate",
@@ -1418,90 +1502,6 @@
       "based_on": [
         {
           "band_id": "carbonate_bidentate_asym_1645",
-          "multiplier": 2
-        }
-      ],
-      "references": [],
-      "tags": ["overtone"]
-    },
-    {
-      "id": "carbonate_monodentate_asym_1500",
-      "species": "Monodentate carbonate*",
-      "group": "carbonate",
-      "pair": 5,
-      "vibration_modes": ["carbonate_stretch_asymmetric_monodentate"],
-      "vibration": {
-        "category": "stretch",
-        "subtype": "asymmetric",
-        "branch": null
-      },
-      "atoms": "O-C-O",
-      "wn_start": 1480,
-      "wn_end": 1520,
-      "short": "νₐₛ(OCO) m-CO₃²⁻",
-      "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
-      "based_on": [],
-      "references": [
-        {
-          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
-          "wn": 1530,
-          "site": "La-Al₂O₃",
-          "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
-        }
-      ],
-      "intensity": "s",
-      "width": "medium",
-      "confidence": "confirmed",
-      "tags": []
-    },
-    {
-      "id": "carbonate_monodentate_sym_1400",
-      "species": "Monodentate carbonate*",
-      "group": "carbonate",
-      "pair": 5,
-      "vibration_modes": ["carbonate_stretch_symmetric_monodentate"],
-      "vibration": {
-        "category": "stretch",
-        "subtype": "symmetric",
-        "branch": null
-      },
-      "atoms": "O-C-O",
-      "wn_start": 1380,
-      "wn_end": 1420,
-      "short": "νₛ(OCO) m-CO₃²⁻",
-      "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
-      "based_on": [],
-      "references": [
-        {
-          "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
-          "wn": 1340,
-          "site": "La-Al₂O₃",
-          "note": "Table 3: νₛ(-C-O) at 1340 cm⁻¹."
-        }
-      ],
-      "intensity": "m",
-      "width": "medium",
-      "confidence": "confirmed",
-      "tags": []
-    },
-    {
-      "id": "carbonate_monodentate_asym_overtone_2950",
-      "species": "Monodentate carbonate*",
-      "group": "carbonate",
-      "pair": 5,
-      "vibration": {
-        "category": "stretch",
-        "subtype": "asymmetric",
-        "branch": null
-      },
-      "atoms": "O-C-O",
-      "wn_start": 2900,
-      "wn_end": 3000,
-      "short": "2νₐₛ(OCO) m-CO₃²⁻ (overtone)",
-      "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
-      "based_on": [
-        {
-          "band_id": "carbonate_monodentate_asym_1500",
           "multiplier": 2
         }
       ],
