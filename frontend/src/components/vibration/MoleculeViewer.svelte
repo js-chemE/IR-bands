@@ -64,12 +64,15 @@
     const restR = radiusForElement(atom.element) * PX_PER_PM;
     let x: number, y: number;
     if (v.rotateDeg) {
-      // Genuine rotation about the local origin — preserves distance from
-      // the origin exactly (bond length), unlike a dx/dy translation.
+      // Genuine rotation about `pivot` (defaulting to the origin) —
+      // preserves distance from the pivot exactly (bond length), unlike a
+      // dx/dy translation.
+      const px = v.pivot?.x ?? 0, py = v.pivot?.y ?? 0;
       const theta = (v.rotateDeg * Math.PI / 180) * phase;
       const cos = Math.cos(theta), sin = Math.sin(theta);
-      x = atom.x * cos - atom.y * sin;
-      y = atom.x * sin + atom.y * cos;
+      const rx = atom.x - px, ry = atom.y - py;
+      x = px + rx * cos - ry * sin;
+      y = py + rx * sin + ry * cos;
     } else {
       x = atom.x + v.dx * AMPLITUDE * phase;
       y = atom.y + v.dy * AMPLITUDE * phase;
@@ -80,18 +83,20 @@
 
 <svg
   class="molecule-viewer"
-  viewBox="-50 -40 100 80"
+  viewBox="-50 -52 100 104"
   role="img"
   aria-label="Molecule diagram{activeVectors ? ', vibrating' : ''}"
 >
   {#if geometry.surface}
     <line x1={-44} y1={geometry.surface.y} x2={44} y2={geometry.surface.y} class="surface-line" />
-    {#each geometry.surface.boundAtoms as idx}
-      <line
-        x1={positions[idx].x} y1={positions[idx].y}
-        x2={positions[idx].x} y2={geometry.surface.y}
-        class="surface-bond"
-      />
+    {#each geometry.surface.boundAtoms as anchor}
+      {#each anchor.offsets as offset}
+        <line
+          x1={positions[anchor.atomIndex].x} y1={positions[anchor.atomIndex].y}
+          x2={geometry.atoms[anchor.atomIndex].x + offset} y2={geometry.surface.y}
+          class="surface-bond"
+        />
+      {/each}
     {/each}
   {/if}
   {#each geometry.bonds as [a, b]}
@@ -115,7 +120,7 @@
 <style>
   .molecule-viewer {
     width: 180px;
-    height: 144px;
+    height: 187px;
     flex: 0 0 auto;
   }
 

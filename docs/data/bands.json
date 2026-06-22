@@ -616,7 +616,7 @@
       "wn_start": 2073,
       "wn_end": 2081,
       "short": "CO₂ (Q) ~2077",
-      "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls in the typical metal-carbonyl stretching range and has been repeatedly misassigned in DRIFTS studies of Cu-based methanol synthesis catalysts as ν(CO) on Cu(0)/Cu(111)/low-index Cu planes. Intensity grows with CO₂ pressure and temperature. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
+      "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls squarely in the linear metal-CO stretching range, so in a DRIFTS/transmission cell with gas-phase CO₂ present it's a recurring misassignment risk against a genuine surface ν(CO) band at the same position. Intensity grows with CO₂ pressure and temperature, not with anything happening at the catalyst surface — a useful discriminator. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
       "based_on": [],
       "references": [
         {
@@ -980,7 +980,7 @@
       "wn_start": 2000,
       "wn_end": 2120,
       "short": "ν(CO) linear (μ₁)",
-      "description": "Linear (atop) CO bonded to a single metal atom. Most common adsorption mode on Cu, Pt, Pd, Rh, Ni, and Co surfaces. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage due to π-backdonation and dipole coupling. Typical values: Cu⁰ ~2080–2100, Pt ~2070, Rh ~2050 cm⁻¹. Electron-poor or partially oxidized sites shift to higher frequency.",
+      "description": "Linear (atop) CO bonded end-on to a single metal atom — the most common single-center coordination geometry for adsorbed CO, and usually the strongest, sharpest band in a CO-probe spectrum. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage, all acting through their effect on metal→CO π-backdonation: more backdonation into the CO 2π* orbital weakens and red-shifts the C-O bond, electron-poor or partially oxidized sites push it the other way. ¹³CO substitution red-shifts this band by several tens of cm⁻¹ from the ¹²CO position, a standard isotope-labeling check for confirming a feature is genuinely a CO stretch and not a coincidentally overlapping species.",
       "based_on": [],
       "references": [
         {
@@ -998,6 +998,15 @@
           "tags": [
             "isotopic-shift"
           ]
+        },
+        {
+          "key": "Yudanov.COAdsorptionPd.2026",
+          "wn": 2085,
+          "site": "Pd⁰",
+          "note": "On-top (linear, μ₁) CO on Pd nanoparticles typically observed at 2080–2090 cm⁻¹ (Introduction, citing prior SFG work), distinct from this same paper's own focus on bridge-site coverage dependence (see co_bridge_mu2_1900).",
+          "tags": [
+            "computational"
+          ]
         }
       ],
       "tags": [],
@@ -1007,7 +1016,9 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_stretch_linear"
+      ],
       "lane": 2,
       "sub_lane": 0,
       "wn_min": 2000,
@@ -1026,7 +1037,7 @@
       "wn_start": 1820,
       "wn_end": 1980,
       "short": "ν(CO) bridge (μ₂)",
-      "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from multiple metal centers. Common on Pt, Pd, Rh, Ni, and Co surfaces; less common on Cu and typically observed only at high coverage or defect sites. Often associated with step and edge sites.",
+      "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from the extra metal center, and typically broader/weaker than the linear band, often appearing as a shoulder below it rather than a fully separate peak. Usually emerges or grows in only at higher CO coverage, since it needs two adjacent free metal sites to form.",
       "based_on": [],
       "references": [
         {
@@ -1035,6 +1046,15 @@
           "site": "Co⁰",
           "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature.",
           "tags": []
+        },
+        {
+          "key": "Yudanov.COAdsorptionPd.2026",
+          "wn": 1989,
+          "site": "Pd⁰",
+          "note": "DFT-calculated (scaled) frequency of bridge-bound CO at the edges of Pd nanoparticles, growing from ~1886 cm⁻¹ for an isolated bridge CO up to ~1989 cm⁻¹ once the edge bridge sites are fully occupied by coadsorbed CO (Table 1) — matching the experimentally observed 1980–1990 cm⁻¹ band and implying particles ≥3 nm to host the necessary 10–12-CO edge ensemble.",
+          "tags": [
+            "computational"
+          ]
         }
       ],
       "tags": [],
@@ -1044,7 +1064,9 @@
       "intensity": "m",
       "width": "broad",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_stretch_bridged"
+      ],
       "lane": 2,
       "sub_lane": 1,
       "wn_min": 1820,
@@ -1063,9 +1085,19 @@
       "wn_start": 1750,
       "wn_end": 1870,
       "short": "ν(CO) 3-fold (μ₃)",
-      "description": "Three-fold hollow CO coordinated to three metal atoms. Common on close-packed Pt, Pd, Rh, and Ni surfaces at moderate-to-high CO coverage. Rare on Cu surfaces. Stronger multi-center π-backdonation shifts ν(CO) to lower frequency than bridge or linear adsorption.",
+      "description": "Three-fold hollow CO coordinated to three metal atoms at once. Stronger multi-center π-backdonation shifts ν(CO) well below both bridge and linear adsorption. Generally needs a close-packed facet to offer this coordination geometry at all, and tends to appear or strengthen with increasing coverage as simpler one- and two-fold sites fill up first.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Yudanov.COAdsorptionPd.2026",
+          "wn": 1810,
+          "site": "Pd⁰",
+          "note": "DFT-calculated (scaled) frequencies of 3-fold hollow CO on Pd(111)-type facets/nanoparticles range from ~1802–1815 cm⁻¹ at low coverage up to ~1902 cm⁻¹ at the high-coverage (2×2)-3CO structure (0.75 ML), tracking the same coverage-dependent blue shift seen for bridge-bound CO.",
+          "tags": [
+            "computational"
+          ]
+        }
+      ],
       "tags": [],
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -1073,7 +1105,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_stretch_hollow"
+      ],
       "lane": 2,
       "sub_lane": 0,
       "wn_min": 1750,
@@ -1092,7 +1126,7 @@
       "wn_start": 1600,
       "wn_end": 1700,
       "short": "ν(CO) 4-fold (μ₄)",
-      "description": "Four-fold hollow CO coordinated to four metal atoms. Rare adsorption geometry reported mainly on Ni(100), Co, and related surfaces. Exhibits the lowest ν(CO) frequencies among metal–CO adsorption modes due to strong multi-center π-backdonation.",
+      "description": "Four-fold hollow CO coordinated to four metal atoms at once — a comparatively rare coordination geometry, since it needs a specific square arrangement of surface atoms to form. Exhibits the lowest ν(CO) frequencies among metal-CO adsorption modes, since backdonation from four neighbors at once weakens the C-O bond more than any other coordination geometry.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1102,7 +1136,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_stretch_hollow"
+      ],
       "lane": 2,
       "sub_lane": 0,
       "wn_min": 1600,
@@ -1121,7 +1157,7 @@
       "wn_start": 2120,
       "wn_end": 2230,
       "short": "ν(CO)/Mⁿ⁺",
-      "description": "Linear CO adsorbed on Lewis-acidic metal cation sites of oxide supports, zeolites, or isolated metal centers. Reduced metal→CO π-backdonation shifts ν(CO) to higher frequency than on metallic surfaces. Typical values: Cu⁺ ~2100–2130, Cu²⁺ ~2150–2180, Ce³⁺ ~2130, Ce⁴⁺ ~2160, Ti⁴⁺ ~2190, Zn²⁺ ~2200, and Al³⁺/Mg²⁺ ~2210 cm⁻¹. Widely used as a probe of Lewis acidity and oxidation state.",
+      "description": "Linear CO adsorbed on a Lewis-acidic cation site rather than a reduced metal atom. Markedly less metal→CO π-backdonation than on a metallic surface, blue-shifting ν(CO) above the free-gas value (2143 cm⁻¹) rather than below it — the opposite direction from every metallic-surface CO band in this dataset. Position correlates with the cation's formal charge and Lewis acidity, making this band a widely used spectroscopic probe of acid-site strength and oxidation state; the same ¹³CO isotope-shift check used for metallic sites applies here too.",
       "based_on": [],
       "references": [
         {
@@ -1129,6 +1165,13 @@
           "wn": null,
           "site": null,
           "note": null,
+          "tags": []
+        },
+        {
+          "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "wn": 2158,
+          "site": "Cu⁺",
+          "note": "Monocarbonyl Cu⁺-CO in a Cu-exchanged zeolite, resolved by self-supporting-pellet transmission FTIR (100 K) into 4 distinct Cu⁺ site sub-families: 2166 cm⁻¹ (most electrophilic cationic site, preferentially covered by co-adsorbed H₂O), 2158 cm⁻¹ (principal/dominant cationic site), 2141 cm⁻¹ (a more highly-coordinated, oxide-like Cu⁺ site), and 2139 cm⁻¹ (Cu⁺(H₂O)(CO) mixed-ligand complex, nearly coincident with the oxide-like site). Site assignment supported by selective monocarbonyl→dicarbonyl→tricarbonyl conversion as CO coverage increases/temperature decreases — see co_gemdi_asym_2095/co_gemdi_sym_2035 for the dicarbonyl stage.",
           "tags": []
         }
       ],
@@ -1158,7 +1201,7 @@
       "wn_start": 2200,
       "wn_end": 2240,
       "short": "ν(CO) iso (M-OC)",
-      "description": "Isocarbonyl species with CO coordinated through oxygen rather than carbon (M–OC). Rare adsorption mode observed on highly oxidized surfaces, strongly electrophilic cations, and certain zeolite environments. Typically exhibits higher ν(CO) frequency than conventional C-bound carbonyls.",
+      "description": "Isocarbonyl species with CO coordinated through its oxygen end rather than carbon (M-OC) — the reverse orientation from every other CO-adsorption band in this dataset. A comparatively rare bonding mode, favored by strongly electrophilic/highly oxidized sites, since O-bonding donates less effectively than the usual C-bonding and so is only competitive when backdonation into CO is already heavily suppressed. Typically exhibits a higher ν(CO) frequency than conventional C-bound carbonyls, consistent with that weaker donation.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -1187,9 +1230,19 @@
       "wn_start": 2080,
       "wn_end": 2110,
       "short": "νₐₛ(CO) gem-M⁺(CO)₂",
-      "description": "asymmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center, typically Rh⁺, Ir⁺, Ru⁺, or Cu⁺. The symmetric/asymmetric pair is diagnostic of atomically dispersed cationic sites. Typical splitting: ~50–60 cm⁻¹.",
+      "description": "Asymmetric ν(CO) component of a geminal dicarbonyl species: two linear CO ligands bound to a single isolated cationic metal center, stretching out of phase (one lengthens as the other shortens). The symmetric/asymmetric pair appearing together, rather than a single linear-CO band, is itself diagnostic of an atomically dispersed cationic site — a single metal atom isolated enough to bind two CO molecules at once. Typical splitting between the pair is ~50–60 cm⁻¹.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "wn": 2151,
+          "site": "Cu⁺",
+          "note": "νₐₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2151 cm⁻¹ (paired with νₛ at 2180, see co_gemdi_sym_2035), forming from the monocarbonyl with increasing CO coverage. The geminal (one-cation-two-CO) assignment was proven unambiguously by adsorbing a 1:1 ¹²CO+¹³CO isotopic mixture: a force-field calculation from the pure-¹²CO dicarbonyl frequencies predicted mixed-isotope Cu⁺(¹²CO)(¹³CO) bands at 2169/2113 cm⁻¹ and Cu⁺(¹³CO)₂ bands at 2131/2103 cm⁻¹, and both were observed exactly as calculated — only explainable if two CO ligands genuinely share one cation and vibrationally couple, ruling out two coincidentally-overlapping monocarbonyl bands from different sites.",
+          "tags": [
+            "isotopic-shift"
+          ]
+        }
+      ],
       "tags": [],
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -1197,7 +1250,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_geminal_stretch_asymmetric"
+      ],
       "lane": 3,
       "sub_lane": 0,
       "wn_min": 2080,
@@ -1218,7 +1273,17 @@
       "short": "νₛ(CO) gem-M⁺(CO)₂",
       "description": "Symmetric ν(CO) component of geminal dicarbonyl species with two linear CO ligands bound to a single isolated cationic metal center. Appears together with the asymmetric band and is characteristic of isolated cationic adsorption sites.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "wn": 2180,
+          "site": "Cu⁺",
+          "note": "νₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2180 cm⁻¹ (paired with νₐₛ at 2151, see co_gemdi_asym_2095 for the ¹²CO/¹³CO isotopic-mixture proof of the geminal assignment). At low temperature, a further conversion to Cu⁺(CO)₃ tricarbonyl was observed (bands at 2190/2164/2140 cm⁻¹, not separately modeled in this dataset).",
+          "tags": [
+            "isotopic-shift"
+          ]
+        }
+      ],
       "tags": [],
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -1226,7 +1291,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_geminal_stretch_symmetric"
+      ],
       "lane": 3,
       "sub_lane": 0,
       "wn_min": 2020,
@@ -1563,7 +1630,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "carbonate_stretch_asymmetric"
+        "carbonate_stretch_asymmetric_bidentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -1611,7 +1678,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "carbonate_stretch_symmetric"
+        "carbonate_stretch_symmetric_bidentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -1688,7 +1755,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "carbonate_stretch_asymmetric"
+        "carbonate_stretch_asymmetric_monodentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -1727,7 +1794,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "carbonate_stretch_symmetric"
+        "carbonate_stretch_symmetric_monodentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -1796,7 +1863,8 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [
-        "carbonate_wagging"
+        "carbonate_wagging_bidentate",
+        "carbonate_wagging_monodentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -1827,7 +1895,8 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [
-        "carbonate_scissoring"
+        "carbonate_scissoring_bidentate",
+        "carbonate_scissoring_monodentate"
       ],
       "lane": 5,
       "sub_lane": 0,
@@ -2013,7 +2082,7 @@
       "wn_start": 1515,
       "wn_end": 1620,
       "short": "νₐₛ(OCO) HCOO*",
-      "description": "Formate asymmetric OCO stretch (HCOO*); key HCOO* marker. Position is support-dependent: ~1520 cm⁻¹ on Ru/Al₂O₃ and Ru–Na₂O/Al₂O₃, shifting to ~1585–1600 cm⁻¹ on oxide-rich surfaces (Al₂O₃, CuGaZrOx). Appears during H₂ reduction as a methanation intermediate formed at the metal–support interface.",
+      "description": "Formate asymmetric OCO stretch (HCOO*) — the key HCOO* marker band, since this in-phase/antiphase C-O stretch pair (paired with νₛ(OCO) below) is a clean fingerprint distinct from carbonate or carboxylate features. Usually the more intense of the two paired stretches, and the easier one to spot first in a spectrum. Its exact position isn't a single fixed value — it shifts with the underlying adsorption geometry, so it's always worth cross-checking against the symmetric partner band and the Δν splitting between them (itself a geometry diagnostic, see νₛ(OCO) below) rather than relying on this band's position alone.",
       "based_on": [],
       "references": [
         {
@@ -2081,7 +2150,7 @@
       "wn_start": 1315,
       "wn_end": 1390,
       "short": "νₛ(OCO) HCOO*",
-      "description": "Formate symmetric OCO stretch (HCOO*). Position varies with support and adsorption geometry: ~1320 cm⁻¹ on Ru/Al₂O₃, ~1335 cm⁻¹ (quasi-bidentate on Fe₃O₄(111)), ~1350–1380 cm⁻¹ on oxide surfaces (Al₂O₃, CuGaZrOx), ~1369–1377 cm⁻¹ on Fe₃O₄(001). Paired with νas(OCO) above ~1520 cm⁻¹; frequency splitting Δν = νas − νₛ reflects adsorption geometry (bridging vs. chelating).",
+      "description": "Formate symmetric OCO stretch (HCOO*), paired with νₐₛ(OCO) above. The splitting Δν = νₐₛ − νₛ between the two paired bands is a standard diagnostic for adsorption geometry — how it compares between a more bridging-like and a more chelating-like coordination is a recurring theme in formate vibrational assignments. Where multiple coordination geometries coexist and overlap, polarization-dependent IRRAS/DRIFTS can resolve components that look like a single broad feature in an unpolarized spectrum.",
       "based_on": [],
       "references": [
         {
@@ -2289,7 +2358,7 @@
       "wn_start": 2910,
       "wn_end": 2950,
       "short": "νₐₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ asymmetric stretch (CH₃O*). Position is support- and site-sensitive; frequency shifts between catalysts are diagnostic of a change in adsorption site. Distinguishable from coadsorbed CH₃OH(a), which is typically blue-shifted ~10–20 cm⁻¹.",
+      "description": "Methoxy CH₃ asymmetric stretch (CH₃O*) — one C-H bond stretching out of phase with the other two. Position shifts with adsorption site/coordination environment, tracking together with νₛ(CH₃) below, so a shift in this band is a useful sign that the binding environment itself has changed. A coadsorbed methanol band sits close by, a little higher in frequency, so the two are worth distinguishing carefully rather than assuming a single species.",
       "based_on": [],
       "references": [
         {
@@ -2323,7 +2392,9 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_stretch_asymmetric"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 2910,
@@ -2342,7 +2413,7 @@
       "wn_start": 2815,
       "wn_end": 2850,
       "short": "νₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric stretch (CH₃O*). Position is support- and site-sensitive, shifting in tandem with νₐₛ(CH₃). Often appears as a shoulder pair with coadsorbed CH₃OH(a) at ~10–20 cm⁻¹ higher frequency.",
+      "description": "Methoxy CH₃ symmetric stretch (CH₃O*), shifting in tandem with νₐₛ(CH₃) above. Often appears as a close shoulder pair with a coadsorbed methanol band sitting a little higher in frequency.",
       "based_on": [],
       "references": [
         {
@@ -2376,7 +2447,9 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_stretch_symmetric"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 2815,
@@ -2395,7 +2468,7 @@
       "wn_start": 1430,
       "wn_end": 1455,
       "short": "δₐₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Appears as a single resolved band, in contrast to ethoxy which shows separate δₛ and δₐₛ features. Largely geometry- and support-insensitive.",
+      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Usually appears as a single resolved band rather than splitting into separately resolved symmetric/asymmetric components the way some related alkoxy species do. Position is comparatively insensitive to binding geometry, unlike the stretches above.",
       "based_on": [],
       "references": [
         {
@@ -2423,7 +2496,9 @@
       "intensity": "w",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_bend_asymmetric"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 1430,
@@ -2442,7 +2517,7 @@
       "wn_start": 1360,
       "wn_end": 1390,
       "short": "δₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always resolved as a separate band (e.g. Wu 2000 reports only the asymmetric deformation at 1441 on TiO₂); reported on other supports. May overlap with formate νₛ(OCO) at ~1365 cm⁻¹.",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always separately resolved from δₐₛ(CH₃) above — some spectra show only the asymmetric component. May overlap with formate νₛ(OCO) at ~1365 cm⁻¹, so a band here doesn't necessarily rule out formate also being present.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2452,7 +2527,9 @@
       "intensity": "w",
       "width": "medium",
       "confidence": "tentative",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_bend_symmetric"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 1360,
@@ -2471,7 +2548,7 @@
       "wn_start": 1100,
       "wn_end": 1170,
       "short": "ν(CO) m-CH₃O*",
-      "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Position is support-dependent. Diagnostic threshold: ν(C-O) > ~1100 cm⁻¹ indicates monodentate geometry (Hussein 1991).",
+      "description": "Monodentate methoxy C-O stretch (CH₃O* bonded via O to a single metal cation). Often resolves into several closely-spaced sub-components rather than one clean peak, reflecting a distribution of slightly different monodentate sites rather than a single uniform one. Diagnostic threshold: ν(C-O) above roughly 1100 cm⁻¹ indicates monodentate geometry, below it bidentate (see methoxy_co_stretch_bi_1045) — the two share the same underlying vibration and just trade off in relative position with coordination number.",
       "based_on": [],
       "references": [
         {
@@ -2496,7 +2573,9 @@
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_co_stretch"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 1100,
@@ -2515,7 +2594,7 @@
       "wn_start": 1030,
       "wn_end": 1090,
       "short": "ν(CO) b-CH₃O*",
-      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal cations, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) < ~1100 cm⁻¹ indicates bidentate geometry (Hussein 1991). Overlaps closely with methanol ν(C-O) at ~1030 cm⁻¹ — distinguish via the absence of the CH₃OH(a) νₛ(CH₃) marker at higher frequency.",
+      "description": "Bidentate methoxy C-O stretch (CH₃O* bridging two metal centers, or bonded at a bridging-O vacancy). Diagnostic threshold: ν(C-O) below roughly 1100 cm⁻¹ indicates bidentate geometry (see methoxy_co_stretch_mono_1130 for the monodentate counterpart). Overlaps closely with molecular methanol's own ν(C-O) — distinguish via the absence of methanol's own νₛ(CH₃) marker band at higher frequency.",
       "based_on": [],
       "references": [
         {
@@ -2540,7 +2619,9 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "methoxy_co_stretch"
+      ],
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 1030,
@@ -2559,7 +2640,7 @@
       "wn_start": 3200,
       "wn_end": 3600,
       "short": "ν(OH) MeOH",
-      "description": "Methanol O-H stretch (MeOH*/MeOH(g)); often obscured by adsorbed water and support hydroxyls.",
+      "description": "Methanol O-H stretch (MeOH*/MeOH(g)) — broad and hydrogen-bonding-sensitive like most O-H stretches, so its exact shape depends heavily on the local hydrogen-bonding environment. Often obscured by adsorbed water and surface hydroxyl groups absorbing in the same broad region.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2710,7 +2791,7 @@
       "wn_start": 3700,
       "wn_end": 3750,
       "short": "ν(OH) iso",
-      "description": "Sharp band; isolated terminal hydroxyls on metal-oxide supports.",
+      "description": "Sharp, narrow O-H stretch from an isolated terminal hydroxyl group — not hydrogen-bonded to a neighbor, which is exactly why it stays sharp rather than broadening the way the H-bonded band below does.",
       "based_on": [],
       "references": [],
       "tags": [],
@@ -2826,7 +2907,7 @@
       "wn_start": 1960,
       "wn_end": 2000,
       "short": "ν(Ga-H)",
-      "description": "Gallium hydride (Ga-H*) on Ga₂O₃-based catalysts; marker for heterolytic H₂ dissociation. Confirmed by D₂ isotope shift. Plays a role in converting HCOO* to CH₃O* via H spillover.",
+      "description": "Gallium hydride (Ga-H*) stretch — a marker for heterolytic H₂ dissociation across a Lewis acid/base pair. Confirmed by substituting D₂ for H₂: the band red-shifts by the mass-dependent amount expected for a genuine M-H(D) stretch, ruling out a coincidental overlap with something else. Can play a role in surface hydrogen-transfer chemistry, e.g. converting a formate-type species toward a methoxy-type one via H spillover.",
       "based_on": [],
       "references": [
         {

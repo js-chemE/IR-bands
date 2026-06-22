@@ -21,6 +21,34 @@
   $: color = VIBRATION_PALETTE[vibKey] ?? GREY;
   $: subtitle = `${mode.category}${mode.subtype ? ` (${mode.subtype})` : ''} | ${mode.atoms}`;
 
+  // This mode's own characteristic wavenumber — a single value (with a "~"
+  // prefix, since by definition it's not one precise observed line) or a
+  // range — independent of whichever real bands it's linked to below.
+  function wnLabel(m: VibrationMode): string | null {
+    if (m.wn_start == null) return null;
+    if (m.wn_end == null) return `~${m.wn_start} cm⁻¹`;
+    return `${m.wn_start}–${m.wn_end} cm⁻¹`;
+  }
+
+  // Spelled out as a sentence rather than bare tags, so it reads clearly as
+  // "this is the Herzberg index" / "this is the Mulliken symmetry label"
+  // rather than two unlabeled fragments — composed to degrade gracefully
+  // when only some of the three pieces are filled in (true for every mode
+  // right now except a handful).
+  $: herzbergLine = (() => {
+    const parts: string[] = [];
+    if (mode.herzberg_notation) parts.push(`Herzberg's ${mode.herzberg_notation}`);
+    if (mode.symmetry) parts.push(`Mulliken symmetry ${mode.symmetry}`);
+    let sentence = parts.join(', ');
+    const wn = wnLabel(mode);
+    if (wn) {
+      sentence = sentence ? `${sentence} — characteristic wavenumber ${wn}.` : `Characteristic wavenumber ${wn}.`;
+    } else if (sentence) {
+      sentence += '.';
+    }
+    return sentence || null;
+  })();
+
   // ir-active/raman-active already get their own colored badge below — drop
   // them from the generic tag list so they don't show up twice.
   $: modeTags = mode.tags.filter(t => t !== 'ir-active' && t !== 'raman-active');
@@ -40,6 +68,10 @@
     <div class="panel-title" style="color:{color}">{mode.label}</div>
     <div class="panel-subtitle">{subtitle}</div>
   </div>
+
+  {#if herzbergLine}
+    <p class="panel-herzberg">{@html herzbergLine}</p>
+  {/if}
 
   {#if mode.note}
     <p class="panel-note">{mode.note}</p>
@@ -166,6 +198,14 @@
     color: #777;
     margin-top: 2px;
   }
+
+  .panel-herzberg {
+    font-size: 11.5px;
+    font-style: italic;
+    color: #888;
+    margin: 6px 0 0;
+  }
+  .panel-herzberg :global(sub) { font-size: 0.75em; }
 
   .panel-note {
     font-size: 12.5px;

@@ -7,6 +7,11 @@ export const ELEMENT_COLORS: Record<string, string> = {
   O: '#D9453D',
   H: '#E8E8E8',
   N: '#3A6FD8',
+  // Generic metal center (Lewis-acidic cation, isolated surface atom, etc.)
+  // — for diagrams that need a real bonded/pivot atom drawn, but where the
+  // underlying mode is deliberately metal-generic rather than tied to one
+  // specific element.
+  M: '#8C8C94',
 };
 
 const DEFAULT_ELEMENT_COLOR = '#9B6B3D';
@@ -16,12 +21,16 @@ export function colorForElement(element: string): string {
 }
 
 // Single-bond covalent radii (pm) — real relative atom sizes, not arbitrary.
-// H is here now for when a molecule with hydrogens is added.
+// H's value is nudged down slightly from its literature covalent radius
+// (31pm) — even at the true proportion it still reads as visually too
+// prominent at this rendering scale, sitting right next to its own text
+// label.
 export const ELEMENT_RADIUS_PM: Record<string, number> = {
   C: 70,
   N: 65,
   O: 60,
-  H: 31,
+  H: 38,
+  M: 135,
 };
 
 const DEFAULT_RADIUS_PM = 65;
