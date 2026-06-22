@@ -28,9 +28,31 @@
   let notationOpen = false;
 
   $: molecule = orderedMolecules.find(m => m.id === selectedMoleculeId) ?? null;
+  $: selectedTopology = molecule?.topologies.find(t => t.id === selectedTopologyId) ?? null;
   $: geometry = molecule ? geometryFor(molecule.id, selectedTopologyId) : null;
+
+  // A molecule's full modes[] may hold several topology-specific entries for
+  // "the same" conceptual vibration (see VibrationMode.topology) — keep only
+  // the ones that apply to whichever topology is currently selected, then
+  // sort by Herzberg index (ν₁, ν₂, ν₃…; modes with none sort last, stable
+  // otherwise) — sorting explicitly rather than relying on authoring order,
+  // since interleaving topology-specific entries makes "just author them in
+  // the right order" unreliable once a molecule has more than one topology.
+  const SUB_DIGITS: Record<string, string> = { '₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9' };
+  function herzbergNumber(m: VibrationMode): number {
+    if (!m.herzberg_notation) return Infinity;
+    const digits = [...m.herzberg_notation].map(c => SUB_DIGITS[c] ?? '').join('');
+    return digits ? parseInt(digits, 10) : Infinity;
+  }
+  $: filteredModes = molecule
+    ? molecule.modes
+        .filter(m => m.topology === null || m.topology === selectedTopologyId)
+        .slice()
+        .sort((a, b) => herzbergNumber(a) - herzbergNumber(b))
+    : [];
+
   // Static at rest — only animate while a mode is actually hovered/focused.
-  $: activeMode = previewModeId ? molecule?.modes.find(m => m.id === previewModeId) ?? null : null;
+  $: activeMode = previewModeId ? filteredModes.find(m => m.id === previewModeId) ?? null : null;
   $: activeVectors = (geometry && activeMode) ? geometry.modes[activeMode.id] ?? null : null;
 
   // mode.bands is a flat, fully-resolved list of band ids — already computed
@@ -42,16 +64,14 @@
     return bands.filter(b => wanted.has(b.id));
   }
 
-  $: bandsByMode = molecule
-    ? Object.fromEntries(molecule.modes.map(m => [m.id, bandsForMode(m)]))
-    : {};
+  $: bandsByMode = Object.fromEntries(filteredModes.map(m => [m.id, bandsForMode(m)]));
 
-  $: openMode = molecule?.modes.find(m => m.id === openModeId) ?? null;
+  $: openMode = filteredModes.find(m => m.id === openModeId) ?? null;
 
   $: modeCount = (molecule && geometry) ? fundamentalModeCount(molecule.shape, geometry.atoms.length) : null;
   $: modeCountStatus = (() => {
     if (!molecule || !modeCount) return '';
-    const diff = modeCount.max - molecule.modes.length;
+    const diff = modeCount.max - filteredModes.length;
     if (diff === 0) return 'all fundamental modes complete';
     if (diff > 0) return `${diff} fundamental mode${diff !== 1 ? 's' : ''} missing`;
     return `${-diff} extra mode${-diff !== 1 ? 's' : ''} listed beyond the fundamental count`;
@@ -62,6 +82,17 @@
     selectedTopologyId = orderedMolecules.find(m => m.id === id)?.topologies[0]?.id ?? '';
     previewModeId = null;
     openModeId = null;
+  }
+
+  // Switching topology can make the currently-open mode (a topology-specific
+  // entry) no longer applicable — close the panel rather than keep showing
+  // a mode that doesn't belong to what's now selected.
+  function selectTopology(id: string) {
+    if (openMode && openMode.topology !== null && openMode.topology !== id) {
+      openModeId = null;
+    }
+    selectedTopologyId = id;
+    previewModeId = null;
   }
 
   function handleOpen(e: CustomEvent<{ id: string }>) {
@@ -123,6 +154,21 @@
         every non-stretching mode δ without distinguishing ρ/ω/τ/γ; we try
         to keep them separate where the data supports it.
       </p>
+      <p class="notation-note">
+        Where a mode's Herzberg index (ν₁, ν₂, ν₃…) is shown alongside its
+        localized label, this page always assigns it by the standard
+        convention: normal modes of a given molecule are numbered
+        consecutively, by <em>decreasing</em> frequency within each symmetry
+        species, starting from the totally symmetric species and moving to
+        the non-totally-symmetric ones last. Real papers don't always follow
+        this strictly — Solis et al.'s own published figure for monodentate
+        carbonate, the physical source for that topology's modes below,
+        numbers them in a different order (their own ν₁ is actually its
+        lowest-frequency mode, not its highest) — but this page re-assigns
+        the index to the standard convention rather than reproducing a
+        source's own non-standard numbering, so the index here can differ
+        from what a cited figure itself prints.
+      </p>
     {/if}
   </div>
 
@@ -135,6 +181,14 @@
       on:select={(e) => selectMolecule(e.detail.id)}
     />
 
+    {#if molecule}
+      <TopologySelector
+        topologies={molecule.topologies}
+        selectedId={selectedTopologyId}
+        on:select={(e) => selectTopology(e.detail.id)}
+      />
+    {/if}
+
     {#if molecule && geometry}
       <div class="content-row">
         <div class="main-col">
@@ -143,19 +197,17 @@
             {#if modeCount}
               <div class="mode-count-line">
                 {molecule.shape === 'linear' ? 'Linear' : 'Non-linear'}: {modeCount.formulaLabel} → {modeCountStatus}
+                {#if selectedTopology?.point_group}
+                  <span class="point-group">· Point group {@html selectedTopology.point_group}</span>
+                {/if}
               </div>
             {/if}
             <div class="viewer-inner">
               <div class="diagram-col">
-                <TopologySelector
-                  topologies={molecule.topologies}
-                  selectedId={selectedTopologyId}
-                  on:select={(e) => (selectedTopologyId = e.detail.id)}
-                />
                 <MoleculeViewer {geometry} {activeVectors} />
               </div>
               <ModeList
-                modes={molecule.modes}
+                modes={filteredModes}
                 {openModeId}
                 on:preview={(e) => (previewModeId = e.detail.id)}
                 on:open={handleOpen}
@@ -356,6 +408,11 @@
     padding-bottom: 10px;
     border-bottom: 1px solid #E5E5E5;
   }
+
+  .point-group {
+    color: #999;
+  }
+  .point-group :global(sub) { font-size: 0.75em; }
 
   .viewer-inner {
     display: flex;

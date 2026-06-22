@@ -354,11 +354,16 @@ def _parse_mode(raw: dict) -> VibrationMode:
         category=raw.get("category"),
         subtype=raw.get("subtype"),
         atoms=raw.get("atoms"),
+        topology=raw.get("topology"),
+        herzberg_notation=raw.get("herzberg_notation"),
+        symmetry=raw.get("symmetry"),
+        wn_start=raw.get("wn_start"),
+        wn_end=raw.get("wn_end"),
     )
 
 
 def _parse_topology(raw: dict) -> Topology:
-    return Topology(id=raw["id"], short=raw["short"], long=raw["long"])
+    return Topology(id=raw["id"], short=raw["short"], long=raw["long"], point_group=raw.get("point_group"))
 
 
 def _parse_molecule(raw: dict) -> Molecule:
@@ -517,6 +522,12 @@ def validate_vibrations(
                 errors.append(f"Duplicate mode id {mode.id!r}")
             else:
                 seen_modes[mode.id] = mol.id
+
+            if mode.topology is not None and mode.topology not in seen_topologies:
+                errors.append(
+                    f"Molecule {mol.id}, mode {mode.id}: topology={mode.topology!r} "
+                    f"is not one of this molecule's topologies {sorted(seen_topologies)}"
+                )
 
             if references is not None:
                 for key in mode.reference:

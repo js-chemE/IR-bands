@@ -27,21 +27,54 @@ export interface ModeVector {
   // symbolized by the atom growing/shrinking instead — peak fractional
   // radius change at the oscillation's extreme (e.g. 0.35 = ±35%).
   scale?: number;
-  // Peak rotation (degrees) about the molecule's local origin — i.e.
-  // wherever the fixed/pivot atom sits, by convention always (0, 0). When
-  // set, dx/dy are ignored for this atom: its position is the rest position
-  // genuinely rotated, which preserves its distance from the pivot (bond
-  // length) exactly, and keeps the mutual angle between two atoms that
-  // share the same rotateDeg exactly constant too (they rotate together as
-  // one rigid unit) — unlike a dx/dy translation, which only approximates
-  // that for small amplitudes.
+  // Peak rotation (degrees) about `pivot` (defaults to (0, 0) if omitted —
+  // only correct when the actual pivot atom's rest position really is the
+  // origin). When set, dx/dy are ignored for this atom: its position is the
+  // rest position genuinely rotated about the pivot, which preserves its
+  // distance from the pivot (bond length) exactly, and keeps the mutual
+  // angle between two atoms that share the same rotateDeg exactly constant
+  // too (they rotate together as one rigid unit) — unlike a dx/dy
+  // translation, which only approximates that for small amplitudes.
   rotateDeg?: number;
+  // The rotation center for rotateDeg above — almost always the position of
+  // whichever atom is the actual fixed pivot in this mode (e.g. the central
+  // C a free O swings around). Required whenever that atom's rest position
+  // isn't (0, 0) — every geometry in this file now positions atoms relative
+  // to a shared surface line rather than always putting the pivot at the
+  // origin, so this needs to be supplied explicitly per use.
+  pivot?: { x: number; y: number };
+}
+
+export interface SurfaceAnchor {
+  atomIndex: number; // index into atoms[] that is bonded to the surface
+  // One connector line per offset, each drawn from this atom's CURRENT
+  // (animated) position down to the FIXED point (atoms[atomIndex].x +
+  // offset, surface.y) — i.e. the offset is measured from the atom's own
+  // rest x, not its animated x, since it represents a real, immobile metal
+  // atom's location. A single offset of 0 (on-top/mono-coordinate) draws
+  // one line straight down; multiple offsets fan out to represent multiple
+  // real metal neighbors (e.g. [-8, 8] for a 2-fold bridge site, three or
+  // four evenly spaced for a hollow site) — this is what actually
+  // distinguishes a bridged/hollow diagram from a linear one, since the
+  // adsorbate's own atoms otherwise look identical across binding sites.
+  offsets: number[];
 }
 
 export interface SurfaceSpec {
-  y: number; // where the horizontal "surface" line is drawn
-  boundAtoms: number[]; // indices into atoms[] that are bonded to it (dotted line, and never displaced by any mode)
+  y: number; // where the horizontal "surface" line is drawn — SURFACE_Y for every topology that has one, see that constant below
+  boundAtoms: SurfaceAnchor[];
 }
+
+// Single shared surface-line position for every surface-bound topology in
+// this file (formate, carbonate, methoxy, and CO's linear/bridged/hollow) —
+// so switching molecules never makes the "ground" jump. Each molecule's own
+// atoms are shifted up/down as a rigid block so its bound atom always sits
+// BOUND_ATOM_GAP above this line, regardless of how tall that molecule's own
+// free-floating atoms are above the bound one — keeping that gap constant
+// keeps every surface-bond connector line the same rest length too.
+export const SURFACE_Y = 30;
+const BOUND_ATOM_GAP = 16;
+export const BOUND_ATOM_Y = SURFACE_Y - BOUND_ATOM_GAP;
 
 export interface MoleculeGeometry {
   atoms: AtomSpec[];
@@ -108,19 +141,202 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
         ],
       },
     },
+    // Adsorbed topologies all share the same vertical C-O layout — C
+    // (bonded to the metal in real life via its C end) sits just above the
+    // surface line, O points away from it. CO itself is only ever 2 atoms
+    // regardless of how many metal neighbors it's coordinated to, so unlike
+    // carbonate/formate's differently-shaped topologies, what distinguishes
+    // linear/bridged/hollow here is which modes move which way, the
+    // mode-list content, and the topology/point-group labels — not the
+    // diagram's silhouette. C is in `boundAtoms` (drawn with a connector
+    // down to the surface), but — unlike every other molecule's bound
+    // atoms, which always stay exactly fixed — the M-C stretch mode below
+    // deliberately gives C its own nonzero vector: the connector is drawn
+    // from C's current (animated) position to the fixed surface line, so a
+    // moving "bound" atom there reads correctly as the M-C bond itself
+    // stretching, not as a rendering bug.
+    linear: {
+      atoms: [
+        { element: 'C', x: 0, y: BOUND_ATOM_Y },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y - 28 },
+      ],
+      bonds: [[0, 1]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 0, offsets: [0] }] },
+      modes: {
+        // C fixed, O moves along the bond — same motion as gas-phase
+        // co_stretch, just relabeled per topology.
+        co_stretch_linear: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+        ],
+        // The whole C-O unit translates rigidly toward/away from the metal
+        // — the M-C bond itself stretching, exactly preserving the C-O
+        // bond length (both atoms move by the same vector).
+        co_mstretch_linear: [
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: -1 },
+        ],
+        // Frustrated rotation: O swings sideways about the fixed C, a
+        // genuine rotation (rotateDeg) that preserves the C-O bond length
+        // exactly — the whole axis tilting away from perpendicular.
+        co_frustrated_tilt_linear: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 25, pivot: { x: 0, y: BOUND_ATOM_Y } },
+        ],
+        // Frustrated translation: the whole C-O unit slides sideways,
+        // rigidly, both atoms by the same vector — distinct from the
+        // M-C stretch above (which slides along the surface normal,
+        // not parallel to it).
+        co_frustrated_translate_linear: [
+          { dx: 1, dy: 0 },
+          { dx: 1, dy: 0 },
+        ],
+      },
+    },
+    // Same 2-atom C-O geometry as linear above — what actually shows the
+    // 2-fold coordination is the surface itself: two connector lines fan
+    // out from C to two separate fixed points on the surface line (the two
+    // real metal neighbors), instead of linear's single straight-down one.
+    bridged: {
+      atoms: [
+        { element: 'C', x: 0, y: BOUND_ATOM_Y },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y - 28 },
+      ],
+      bonds: [[0, 1]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 0, offsets: [-9, 9] }] },
+      modes: {
+        co_stretch_bridged: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+        ],
+        co_mstretch_bridged: [
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: -1 },
+        ],
+        // Shearing: C (and O rigidly with it) shifts sideways along the
+        // bridge axis — one fixed metal-contact connector visibly shortens
+        // as the other lengthens, rather than both stretching together as
+        // in the symmetric M-C stretch above.
+        co_mstretch_asym_bridged: [
+          { dx: 1, dy: 0 },
+          { dx: 1, dy: 0 },
+        ],
+      },
+    },
+    // Same again, but three fanned-out connectors — representing either a
+    // real 3-fold (fcc/hcp) or 4-fold hollow site, combined into one
+    // generic "more than 2 neighbors" picture per this topology's own note.
+    hollow: {
+      atoms: [
+        { element: 'C', x: 0, y: BOUND_ATOM_Y },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y - 28 },
+      ],
+      bonds: [[0, 1]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 0, offsets: [-11, 0, 11] }] },
+      modes: {
+        co_stretch_hollow: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+        ],
+      },
+    },
+  },
+  // M(CO)2 geminal dicarbonyl — a genuinely separate molecule from "co"
+  // above (not just another topology of it): twice the CO content, and a
+  // bent (nonlinear) C2v shape rather than CO's own linear one, so it needs
+  // its own `shape` and its own atom count for the fundamental-mode count to
+  // make sense. The metal center IS drawn here (a generic "M" atom, unlike
+  // every surface topology elsewhere in this file) since it's the literal
+  // shared pivot both CO ligands bond to and rotate around, not an
+  // off-diagram anchor — centered in the bounding box like a free/gas
+  // species since this is a localized, isolated complex, not bound to an
+  // extended surface.
+  co_geminal: {
+    geminal: {
+      atoms: [
+        { element: 'M', x: 0, y: 22 },
+        { element: 'C', x: -14, y: 4 },
+        { element: 'O', x: -28, y: -14 },
+        { element: 'C', x: 14, y: 4 },
+        { element: 'O', x: 28, y: -14 },
+      ],
+      bonds: [[0, 1], [1, 2], [0, 3], [3, 4]],
+      modes: {
+        // Both C-O bonds stretch outward together, in phase — M and both
+        // C's stay fixed, only the O's move, along their own bond
+        // directions (same convention as every other symmetric stretch in
+        // this file).
+        co_geminal_stretch_symmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: 0, dy: 0 },
+          { dx: 0.614, dy: -0.789 },
+        ],
+        // One C-O bond stretches outward while the other compresses inward
+        // — the same pair of O's, just out of phase with each other.
+        co_geminal_stretch_asymmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: 0, dy: 0 },
+          { dx: -0.614, dy: 0.789 },
+        ],
+        // Both rigid C-O ligands (C+O moving together as one unit) translate
+        // away from the fixed M, in phase — the M-C bonds stretching
+        // together rather than the internal C-O bonds above.
+        co_geminal_mstretch_symmetric: [
+          { dx: 0, dy: 0 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: 0.614, dy: -0.789 },
+          { dx: 0.614, dy: -0.789 },
+        ],
+        // One rigid C-O ligand translates away from M while the other
+        // translates toward it — the two M-C bonds stretching in antiphase.
+        co_geminal_mstretch_asymmetric: [
+          { dx: 0, dy: 0 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: -0.614, dy: -0.789 },
+          { dx: -0.614, dy: 0.789 },
+          { dx: -0.614, dy: 0.789 },
+        ],
+        // Scissoring: both rigid ligands rotate about the fixed M by equal
+        // and opposite angles, so the C-M-C angle genuinely opens/closes
+        // while every M-C (and C-O) bond length stays exact.
+        co_geminal_scissoring: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: 22 } },
+        ],
+        // Rocking: both rigid ligands rotate about the fixed M by the SAME
+        // angle and sense this time — like a pair of windshield wipers —
+        // so the C-M-C angle itself stays constant, only its orientation
+        // relative to the rest of the diagram changes.
+        co_geminal_rocking: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: 22 } },
+        ],
+      },
+    },
   },
   // HCOO* — only bidentate is offered (no monodentate content yet). Both
   // O's are bonded to the surface, H points away from it.
   formate: {
     bidentate: {
       atoms: [
-        { element: 'C', x: 0, y: 0 },
-        { element: 'O', x: -19, y: 10 },
-        { element: 'O', x: 19, y: 10 },
-        { element: 'H', x: 0, y: -22 },
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 10 },
+        { element: 'O', x: -19, y: BOUND_ATOM_Y },
+        { element: 'O', x: 19, y: BOUND_ATOM_Y },
+        { element: 'H', x: 0, y: BOUND_ATOM_Y - 32 },
       ],
       bonds: [[0, 1], [0, 2], [0, 3]],
-      surface: { y: 26, boundAtoms: [1, 2] },
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }, { atomIndex: 2, offsets: [0] }] },
       modes: {
         // Both O's are bound to the surface, so they can't move — instead C
         // moves along the O1-O2 perpendicular bisector (straight toward/away
@@ -160,7 +376,7 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 20 },
+          { dx: 0, dy: 0, rotateDeg: 20, pivot: { x: 0, y: BOUND_ATOM_Y - 10 } },
         ],
       },
     },
@@ -171,91 +387,227 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
   carbonate: {
     bidentate: {
       atoms: [
-        { element: 'C', x: 0, y: 0 },
-        { element: 'O', x: -15, y: 16 },
-        { element: 'O', x: 15, y: 16 },
-        { element: 'O', x: 0, y: -22 },
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 16 },
+        { element: 'O', x: -15, y: BOUND_ATOM_Y },
+        { element: 'O', x: 15, y: BOUND_ATOM_Y },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y - 38 },
       ],
       bonds: [[0, 1], [0, 2], [0, 3]],
-      surface: { y: 32, boundAtoms: [1, 2] },
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }, { atomIndex: 2, offsets: [0] }] },
       modes: {
         // Same "breathing" trick as formate's bidentate stretch: both bound
-        // O's are fixed, so C moves along their perpendicular bisector.
-        carbonate_stretch_symmetric: [
+        // O's are fixed, so C moves along their perpendicular bisector,
+        // expanding/contracting both C-Ob bonds in unison — with the free O
+        // drifting slightly the opposite way as a small counter-motion.
+        carbonate_stretch_symmetric_bidentate: [
           { dx: 0, dy: 1 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
+          { dx: 0, dy: -0.3 },
         ],
         // C slides sideways between the two fixed, bound O's — one bond
-        // shortens as the other lengthens.
-        carbonate_stretch_asymmetric: [
+        // shortens as the other lengthens — while the free O leans slightly
+        // the opposite way.
+        carbonate_stretch_asymmetric_bidentate: [
           { dx: 1, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
+          { dx: -0.3, dy: 0 },
         ],
-        // The free (unbound) O rotates about C — C and both bound O's stay
-        // fixed, so every bond length is exactly preserved; only the angle
-        // the free O makes with the bound pair changes.
-        carbonate_scissoring: [
+        // Ring flattening: C and the free O draw apart from each other
+        // symmetrically along their shared axis — both bound O's, which
+        // define the ring and can't move, stay exactly fixed either way.
+        // Distinct from the symmetric stretch above (C alone moves there;
+        // here both C and the free O move, equally, apart).
+        carbonate_scissoring_bidentate: [
+          { dx: 0, dy: 0.5 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 20 },
+          { dx: 0, dy: -0.5 },
         ],
-        // Out-of-plane: the central C moves out of the O-C-O plane —
-        // symbolized by C pulsing in size, with every O (bound or not) fixed.
-        carbonate_wagging: [
-          { dx: 0, dy: 0, scale: 0.4 },
+        // The odd-one-out stretch: the free O is the one oxygen NOT bound to
+        // the surface, so unlike the other two stretches (which move C
+        // relative to the fixed bound pair) this one moves the free O along
+        // its own bond direction, with C recoiling slightly the other way —
+        // both bound O's stay fixed regardless.
+        carbonate_stretch_anchor_bidentate: [
+          { dx: 0, dy: 0.3 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+        ],
+        // Rocking: C and the free O tilt sideways together, in phase, as
+        // the whole non-anchored part of the structure swings relative to
+        // the two fixed bound O's — distinct from scissoring above, where
+        // they instead move apart from each other along their shared axis.
+        carbonate_rocking_bidentate: [
+          { dx: 0.4, dy: 0 },
           { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 0 },
+        ],
+        // Out-of-plane: the free (unbound) O pushes out of the plane while C
+        // recoils the opposite way — same antisymmetric out-of-plane pattern
+        // as co2_bend_wagging above, just with one O instead of two. Both
+        // bound O's, which anchor the plane itself, stay fixed.
+        carbonate_wagging_bidentate: [
+          { dx: 0, dy: 0, scale: -0.4 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, scale: 0.3 },
         ],
       },
     },
     monodentate: {
       atoms: [
-        { element: 'C', x: 0, y: 0 },
-        { element: 'O', x: 0, y: 18 },
-        { element: 'O', x: -19, y: -11 },
-        { element: 'O', x: 19, y: -11 },
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 18 },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y },
+        { element: 'O', x: -19, y: BOUND_ATOM_Y - 29 },
+        { element: 'O', x: 19, y: BOUND_ATOM_Y - 29 },
       ],
       bonds: [[0, 1], [0, 2], [0, 3]],
-      surface: { y: 34, boundAtoms: [1] },
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }] },
       modes: {
-        // Only one O is bound (fixed); C stays fixed too, and the two free
-        // O's move outward along their own bond directions, in phase.
-        carbonate_stretch_symmetric: [
-          { dx: 0, dy: 0 },
+        // Only one O is bound; the two free O's move outward along their
+        // own bond directions, in phase, while C itself dips slightly
+        // toward the bound O — a small extra motion Solis et al.'s figure
+        // shows alongside the breathing terminal pair.
+        carbonate_stretch_symmetric_monodentate: [
+          { dx: 0, dy: 0.3 },
           { dx: 0, dy: 0 },
           { dx: -0.866, dy: -0.501 },
           { dx: 0.866, dy: -0.501 },
         ],
-        // One free O moves outward while the other moves inward — C and the
-        // bound O stay fixed.
-        carbonate_stretch_asymmetric: [
-          { dx: 0, dy: 0 },
+        // One free O moves outward while the other moves inward — and C
+        // itself leans slightly toward whichever free O is moving inward
+        // toward it, purely horizontally (Solis et al.'s figure shows a
+        // small horizontal C arrow pointing at that same oxygen, not a
+        // diagonal one). The bound O stays fixed regardless.
+        carbonate_stretch_asymmetric_monodentate: [
+          { dx: 0.3, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: -0.866, dy: -0.501 },
           { dx: -0.866, dy: 0.501 },
         ],
         // The two free O's rotate by equal and opposite angles about C, so
         // their mutual angle genuinely changes while every bond length stays
-        // exact. The bound O and C stay fixed.
-        carbonate_scissoring: [
+        // exact — and C itself dips slightly toward the bound O at the same
+        // time, per Solis et al.'s figure. The bound O alone stays fixed.
+        carbonate_scissoring_monodentate: [
+          { dx: 0, dy: 0.3 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 15 },
-          { dx: 0, dy: 0, rotateDeg: -15 },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
         ],
-        // Out-of-plane: the central C moves out of the O-C-O plane —
-        // symbolized by C pulsing in size, with every O (bound or not) fixed.
-        carbonate_wagging: [
-          { dx: 0, dy: 0, scale: 0.4 },
+        // The odd-one-out stretch: Os is the one oxygen bound to the
+        // surface, so it can't move — C translates away from it (stretching
+        // the C-Os bond), while the two free O's lean slightly toward C
+        // rather than just rigidly following it (the coupled ν(C-Os)+ν(C-O)
+        // character the figure's label calls out).
+        carbonate_stretch_anchor_monodentate: [
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: 0 },
+          { dx: 0.4, dy: -0.6 },
+          { dx: -0.4, dy: -0.6 },
+        ],
+        // Rocking: C shifts one way (a modest amount) while both free O's
+        // genuinely ROTATE about C's rest position, by the same angle and
+        // sense — not a sideways slide, so each O-C bond length and the
+        // O-C-O angle between them both stay exactly constant throughout,
+        // only their shared orientation relative to the fixed bound O
+        // changes. Since they share one pivot and rotate together, the pair
+        // swings as a rigid unit toward the opposite side from C, like a
+        // seesaw — per Solis et al.'s figure, where the free O arrows point
+        // opposite the C arrow.
+        carbonate_rocking_monodentate: [
+          { dx: -0.6, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0, dy: 0, rotateDeg: 12, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+        ],
+        // Out-of-plane: both free O's push out of the plane together while C
+        // recoils the opposite way — same antisymmetric out-of-plane pattern
+        // as co2_bend_wagging above, just with two O's instead of two on
+        // either side of a center. The bound O, which anchors the plane
+        // itself, stays fixed.
+        carbonate_wagging_monodentate: [
+          { dx: 0, dy: 0, scale: -0.4 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, scale: 0.3 },
+          { dx: 0, dy: 0, scale: 0.3 },
+        ],
+      },
+    },
+  },
+  // CH3O* — C bonded to O (bound to the surface) and 3 H's fanning away from
+  // it. Only one real topology, conventionally called monodentate (the
+  // dominant binding mode): the bound O is always the single anchor, mono-
+  // vs bidentate (one M-O bond vs. O bridging two M's) doesn't change which
+  // atoms move or how, only the C-O bond's frequency — so unlike carbonate
+  // there's nothing for a second topology to actually animate differently.
+  methoxy: {
+    monodentate: {
+      atoms: [
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 24 },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y },
+        { element: 'H', x: -15, y: BOUND_ATOM_Y - 40 },
+        { element: 'H', x: 15, y: BOUND_ATOM_Y - 40 },
+        { element: 'H', x: 0, y: BOUND_ATOM_Y - 52 },
+      ],
+      bonds: [[0, 1], [0, 2], [0, 3], [0, 4]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }] },
+      modes: {
+        // O is bound (fixed); each H moves outward along its own C-H bond
+        // direction, in phase — C stays fixed too, same convention as the
+        // other molecules' symmetric stretches.
+        methoxy_stretch_symmetric: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
+          { dx: -0.684, dy: -0.73 },
+          { dx: 0.684, dy: -0.73 },
+          { dx: 0, dy: -1 },
+        ],
+        // One H moves outward while a second moves inward (along its own
+        // bond direction, negated) — the third H is the spectator.
+        methoxy_stretch_asymmetric: [
           { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.684, dy: -0.73 },
+          { dx: -0.684, dy: 0.73 },
+          { dx: 0, dy: 0 },
+        ],
+        // Umbrella deformation: all three H's swing away from (or toward)
+        // the C-O axis together. A true 3-fold-symmetric cone-angle motion
+        // can't be drawn as a single 2D in-plane displacement without
+        // breaking that symmetry, so — same trick as the other molecules'
+        // genuinely out-of-plane bends — it's shown as the three H's
+        // pulsing in size together instead.
+        methoxy_bend_symmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, scale: 0.3 },
+          { dx: 0, dy: 0, scale: 0.3 },
+          { dx: 0, dy: 0, scale: 0.3 },
+        ],
+        // Two H's rock in antiphase (one toward the surface, one away)
+        // while the third stays put — breaks the 3-fold symmetry, so unlike
+        // the symmetric version above this one IS a real in-plane motion.
+        methoxy_bend_asymmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0.4 },
+          { dx: 0, dy: -0.4 },
+          { dx: 0, dy: 0 },
+        ],
+        // O is bound (fixed); the whole CH3 group (C plus all three H's)
+        // translates together along the C-O axis, away from the fixed O —
+        // a rigid-body shift that exactly preserves every C-H bond length.
+        methoxy_co_stretch: [
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: -1 },
         ],
       },
     },

@@ -29,6 +29,7 @@ export const ATOMS_PALETTE: Record<string, string> = {
   'O=C=O':   '#E84940',
   'M-H':     '#D9A036',
   'M-O':     '#5C5C5C',
+  'M-C':     '#4A7AB5',
   'diverse': GREY,
 };
 

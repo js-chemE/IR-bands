@@ -85,6 +85,23 @@ export interface VibrationMode {
   atoms: string;
   tags: string[];
   reference: string[];
+  // Which Topology.id (on the owning Molecule) this specific mode entry
+  // represents, or null if it applies regardless of binding geometry. When
+  // a vibration genuinely differs by topology (point group, Mulliken label,
+  // frequency...), it gets two separate VibrationMode entries instead of
+  // one shared one — see schema.py's VibrationMode docstring. The frontend
+  // filters a molecule's mode list to topology===null || topology===selected.
+  topology: string | null;
+  // Herzberg's classic normal-mode index/Mulliken symmetry label for this
+  // mode (e.g. "ν₁", "Σg⁺") — unset for now on most modes, rendered only
+  // when present. symmetry uses literal <sub> tags where it needs a letter
+  // subscript, rendered with {@html}.
+  herzberg_notation: string | null;
+  symmetry: string | null;
+  // This mode's own characteristic wavenumber — independent of `bands`
+  // below, can legitimately differ from any one linked band's position.
+  wn_start: number | null;
+  wn_end: number | null;
   // Computed by loader.py from Band.vibration_modes (+ a based_on chase for
   // combinations/overtones) — see vibrations.jsonc's own preamble.
   bands: string[];
@@ -96,6 +113,11 @@ export interface Topology {
   id: string;
   short: string;
   long: string;
+  // This topology's own symmetry point group (e.g. "D<sub>∞h</sub>",
+  // rendered with {@html}) — binding geometry changes the point group, same
+  // reason VibrationMode.symmetry can differ between topology-specific
+  // mode entries. Mostly unset.
+  point_group: string | null;
 }
 
 export interface Molecule {

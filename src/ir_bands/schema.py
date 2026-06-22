@@ -128,6 +128,43 @@ class VibrationMode:
     own lane/sub_lane.
 
     reference entries are citekeys, validated against references.bib.
+
+    topology is which Topology.id (on the owning Molecule) this specific
+    mode entry represents, or None if it applies regardless of binding
+    geometry. Binding geometry can genuinely change a mode's point group —
+    and therefore its Mulliken symmetry label, its characteristic frequency,
+    even its category/subtype in extreme cases — so when a "conceptually
+    similar" vibration actually differs meaningfully between, say,
+    monodentate and bidentate coordination, author TWO separate
+    VibrationMode entries (one per topology, e.g.
+    "carbonate_scissoring_bidentate" / "..._monodentate") rather than one
+    shared entry trying to hold both stories — there's no requirement that
+    every topology get its own entry if the physical picture genuinely is
+    the same throughout (most molecules only have one topology anyway, so
+    this rarely comes up). The frontend filters a molecule's mode list to
+    whichever entries have topology=None or topology=<selected> before
+    displaying it.
+
+    herzberg_notation is the textbook normal-mode index (e.g. "ν₁") under
+    Herzberg's classic labeling convention; symmetry is this specific mode's
+    Mulliken symmetry label (the irreducible representation it transforms
+    as under the molecule's point group, e.g. "Σg⁺", "A1'") — both distinct
+    from category/subtype above (this page's own, deliberately non-numbered
+    ν/δ/ρ/ω/τ/γ notation). Mostly unset right now (only a few modes have
+    values filled in); the frontend only ever shows them when present, so
+    leaving them empty is always safe. symmetry is written with literal
+    <sub>/<sup> HTML tags where it needs a letter subscript (e.g.
+    "Σ<sub>g</sub>⁺") — same convention as Topology.point_group;
+    herzberg_notation doesn't need this since its subscripts are always
+    digits, which already have real Unicode subscript characters (ν₁, ν₂...).
+
+    wn_start/wn_end are this mode's own characteristic wavenumber — a single
+    representative value (wn_end omitted) or a range (both set) — completely
+    independent of whatever the linked bands' own positions are. Deliberately
+    NOT derived/validated against `bands` the way category/atoms are: real
+    DRIFTS-observed positions are support/condition-dependent and shift
+    around, while this is meant to be a more canonical reference value, so
+    the two are allowed to disagree.
     """
     id: str
     label: str = ""
@@ -139,6 +176,11 @@ class VibrationMode:
     category: Optional[VibCategory] = None
     subtype: Optional[VibSubtype] = None
     atoms: Optional[str] = None
+    topology: Optional[str] = None
+    herzberg_notation: Optional[str] = None
+    symmetry: Optional[str] = None
+    wn_start: Optional[float] = None
+    wn_end: Optional[float] = None
     bands: list[str] = field(default_factory=list, init=False)
 
     def __post_init__(self):
@@ -146,6 +188,10 @@ class VibrationMode:
             raise ValueError(f"mode {self.id}: category={self.category!r} not in {VALID_CATEGORIES}")
         if self.subtype is not None and self.subtype not in VALID_SUBTYPES:
             raise ValueError(f"mode {self.id}: subtype={self.subtype!r} not in {VALID_SUBTYPES}")
+        if self.wn_end is not None and self.wn_start is None:
+            raise ValueError(f"mode {self.id}: wn_end set without wn_start")
+        if self.wn_start is not None and self.wn_end is not None and self.wn_end < self.wn_start:
+            raise ValueError(f"mode {self.id}: wn_end < wn_start")
         if self.category == "combination" and self.subtype is not None:
             raise ValueError(f"mode {self.id}: category=combination cannot have subtype")
 
@@ -162,10 +208,22 @@ class Topology:
     option) selector pill, long for its tooltip. id is what the frontend's
     moleculeGeometry.ts keys its per-topology pixel geometry by, alongside
     the molecule's own id.
+
+    point_group is this topology's own symmetry point group (e.g.
+    "D<sub>∞h</sub>", "C<sub>s</sub>", "C<sub>2v</sub>") — binding geometry
+    genuinely changes the point group (that's the entire reason
+    ModeTopologyInfo.symmetry is topology-keyed rather than living flat on
+    VibrationMode — see its docstring), so this lives on the Topology that
+    actually has one, not on the Molecule as a whole. Optional; mostly unset
+    for now. Written with literal <sub>/<sup> HTML tags, same convention as
+    Band.short/description in bands.jsonc — the frontend renders it with
+    {@html}, so the order/reflection-type letter actually renders subscript
+    instead of sitting on the baseline like a typo.
     """
     id: str
     short: str
     long: str
+    point_group: Optional[str] = None
 
 
 @dataclass
@@ -184,10 +242,10 @@ class Molecule:
 
     topologies lists every binding geometry this molecule's diagram can show
     (e.g. mono-/bidentate for a surface species, or just one "gas phase"
-    entry for a gas molecule) — every molecule needs at least one. The mode
-    list itself doesn't vary by topology (the same mode can have band
-    references for several topologies at once); only the animated diagram
-    does, via the frontend's own per-(molecule, topology) geometry table.
+    entry for a gas molecule) — every molecule needs at least one. The
+    animated diagram is keyed per-(molecule, topology) in the frontend's own
+    geometry table; the mode list is filtered to whichever of `modes` have
+    topology=None or topology=<selected> — see VibrationMode.topology.
     """
     id: str
     label: str

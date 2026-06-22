@@ -9,19 +9,19 @@
 </script>
 
 <!-- Always rendered, even for a single-topology molecule (gas-phase CO2/CO
-     just shows one "gas" pill, formate just shows one "b" pill) — it's a
-     small, factual label of what's being shown, not just a picker.
-     Deliberately understated (tiny, low-contrast) since it only changes the
-     animation, not the mode list — the detail panel still covers every
-     topology's bands at once. -->
+     just shows one "free-gas" pill, formate just shows one "bidentate"
+     pill) — it's a small, factual label of what's being shown, not just a
+     picker. Shows the long form (not the short abbreviation) since it now
+     picks between genuinely separate VibrationMode entries — which modes
+     are even listed, not just the animation — so it needs to read clearly
+     on its own, not just as a tooltip-backed abbreviation. -->
 <div class="topology-selector">
   {#each topologies as t (t.id)}
     <button
       class="topo-btn"
       class:active={t.id === selectedId}
-      title={t.long}
       on:click={() => dispatch('select', { id: t.id })}
-    >{t.short}</button>
+    >{t.long}</button>
   {/each}
 </div>
 
@@ -29,16 +29,16 @@
   .topology-selector {
     display: flex;
     gap: 3px;
-    margin-bottom: 6px;
+    margin: 6px 0 16px;
   }
 
   .topo-btn {
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 9px;
-    padding: 0 7px;
-    font-size: 10px;
-    line-height: 16px;
+    padding: 0 9px;
+    font-size: 11px;
+    line-height: 18px;
     color: #999;
     cursor: pointer;
   }
