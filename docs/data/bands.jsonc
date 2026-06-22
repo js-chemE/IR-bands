@@ -12,11 +12,24 @@
 // Cross-file links — the keys that actually connect the three data files.
 // Everything else below is this file's own, self-contained schema.
 // -----------------------------------------------------------------------------
-//   id, branch_group  → a mode in data/vibrations.jsonc points back at a
-//                        specific band or a whole branch_group via its own
-//                        per-mode `band_reference` list. id is append-only:
-//                        renaming one breaks based_on/fermi_partner/
-//                        branch_group references in THIS file too.
+//   id                 — append-only: renaming one breaks based_on/
+//                        fermi_partner/branch_group references in THIS file.
+//   vibration_modes    — optional list of VibrationMode `id`s (from
+//                        data/vibrations.jsonc) this band documents. This is
+//                        the ONLY place that link is authored — a mode does
+//                        NOT list its own bands; see vibrations.jsonc's own
+//                        preamble for why (short version: category/subtype/
+//                        atoms would otherwise have to be typed twice and
+//                        kept in sync by hand). Usually 0 or 1 entries; 2
+//                        only when this exact band is frequency-coincident
+//                        with another mode (a real degenerate pair — see
+//                        co2_bend_700_R below, shared by co2_bend AND
+//                        co2_bend_wagging). A combination/overtone band
+//                        built from a fundamental doesn't need its own entry
+//                        here at all — leave it empty and point `based_on`
+//                        at the fundamental instead; loader.py chases that
+//                        one level to include it under the fundamental's
+//                        mode automatically.
 //   group              → must be a key in the "groups" table below; also
 //                        what data/vibrations.jsonc's `band_groups` list
 //                        points at (validated against this file's groups,
@@ -116,6 +129,8 @@
 //                 "rotational-branches" to all of them. A key used by only
 //                 one band raises a build warning (likely a typo or a
 //                 forgotten sibling), not an error.
+//   vibration_modes — see "Cross-file links" above. Omit/[] if this band
+//                 isn't documented on the vibration-modes page.
 //   intensity   — signal strength: vs | s | m | w | vw  (omit if unknown)
 //   width       — spectral linewidth: sharp | medium | broad | very_broad  (omit if unknown)
 //   confidence  — assignment confidence: confirmed | likely | tentative | speculative  (omit if unknown)
@@ -250,6 +265,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu3_branches",
+      "vibration_modes": ["co2_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -288,6 +304,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu3_branches",
+      "vibration_modes": ["co2_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -315,6 +332,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu3_branches",
+      "vibration_modes": ["co2_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -344,6 +362,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu2_branches",
+      "vibration_modes": ["co2_bend", "co2_bend_wagging"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -373,6 +392,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu2_branches",
+      "vibration_modes": ["co2_bend", "co2_bend_wagging"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -402,6 +422,7 @@
       "group": "co2",
       "pair": 0,
       "branch_group": "co2_nu2_branches",
+      "vibration_modes": ["co2_bend", "co2_bend_wagging"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -620,6 +641,7 @@
       "species": "CO₂",
       "group": "co2",
       "pair": 0,
+      "vibration_modes": ["co2_stretch_symmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -654,6 +676,7 @@
       "group": "co",
       "pair": 1,
       "branch_group": "co_nu1_branches",
+      "vibration_modes": ["co_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -686,6 +709,7 @@
       "group": "co",
       "pair": 1,
       "branch_group": "co_nu1_branches",
+      "vibration_modes": ["co_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -713,6 +737,7 @@
       "group": "co",
       "pair": 1,
       "branch_group": "co_nu1_branches",
+      "vibration_modes": ["co_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -1247,6 +1272,7 @@
       "species": "Bidentate carbonate*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -1283,6 +1309,7 @@
       "species": "Bidentate carbonate*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_stretch_symmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -1343,6 +1370,7 @@
       "species": "Monodentate carbonate*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -1372,6 +1400,7 @@
       "species": "Monodentate carbonate*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_stretch_symmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -1425,6 +1454,7 @@
       "species": "Carbonates*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_wagging"],
       "vibration": {
         "category": "bend",
         "subtype": "wagging",
@@ -1444,6 +1474,7 @@
       "species": "Carbonates*",
       "group": "carbonate",
       "pair": 5,
+      "vibration_modes": ["carbonate_scissoring"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -1560,6 +1591,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
+      "vibration_modes": ["formate_ch_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -1602,6 +1634,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
+      "vibration_modes": ["formate_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -1648,6 +1681,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
+      "vibration_modes": ["formate_stretch_symmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -1694,6 +1728,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
+      "vibration_modes": ["formate_och_scissoring"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",

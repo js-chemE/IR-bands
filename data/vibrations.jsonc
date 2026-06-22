@@ -12,21 +12,33 @@
 // Cross-file links — the keys that actually connect this file to bands.jsonc
 // and references.bib. Everything else below is this file's own schema.
 // -----------------------------------------------------------------------------
-//   band_groups        → must be real Group keys from bands.jsonc's "groups"
-//                         table (the same keys bands.jsonc's own `group`
-//                         field uses) — not validated against any one band.
-//   modes[].band_reference → each entry is a Band `id` or `branch_group` from
-//                         bands.jsonc. Validated in validate_vibrations
-//                         (src/ir_bands/loader.py) to actually resolve, AND
-//                         to share the mode's own `category` — but NOT its
-//                         `subtype`, since degenerate sub-modes (e.g.
-//                         bend/scissoring + bend/wagging) can legitimately
-//                         point at the same observed band.
-//   modes[].reference  → citekeys, resolved against references.bib.
-//   modes[].atoms      → mirrors the same field on the real bands a mode
-//                         points to, and uses bands.jsonc's exact same atoms
-//                         vocabulary (e.g. "O=C=O", "O-C-O") so the page
-//                         colors it identically to the band chart.
+//   band_groups → must be real Group keys from bands.jsonc's "groups" table
+//                 (the same keys bands.jsonc's own `group` field uses) — not
+//                 validated against any one band.
+//   modes[].reference → citekeys, resolved against references.bib.
+//
+// IMPORTANT — this file does NOT point at bands.jsonc at all; the link runs
+// the other way. A Band in bands.jsonc optionally lists its own
+// `vibration_modes: [mode id, ...]` — this is the ONLY place that connection
+// is authored. Why: a mode's category/subtype/atoms would otherwise have to
+// be typed out twice (once on the band, once again here) and kept in sync by
+// hand. Instead, _link_modes_to_bands() in src/ir_bands/loader.py resolves
+// the link FROM bands.jsonc and uses it to:
+//   1. Build each mode's `bands` list (which real bands document it) —
+//      computed, not part of this file's schema at all. See modes[].bands
+//      below.
+//   2. Overwrite modes[].category/atoms with whatever the linked band(s)
+//      say (erroring if more than one linked band disagrees). modes[].
+//      subtype gets the same treatment UNLESS the linked band is itself
+//      shared with another mode (see modes[].subtype below) — that's the
+//      one case where this file must still author it by hand.
+// A combination/overtone band doesn't need its own vibration_modes entry at
+// all: if it has none, but its `based_on` points (one level) at a band that
+// DOES link to a mode, it's automatically included in that mode's `bands`
+// list too — e.g. CO₂'s νₛ+νₐₛ combination band is based_on co2_sym_1388
+// (which links to co2_stretch_symmetric) and the ν₃ branch_group (which
+// links to co2_stretch_asymmetric), so it shows up under both fundamentals'
+// "Bands" sections without being listed here at all.
 //
 // Pixel geometry/displacement vectors for the animated diagrams live in the
 // frontend (frontend/src/lib/moleculeGeometry.ts), keyed by molecule.id and
@@ -91,11 +103,6 @@
 // VibrationMode fields:
 //   id          — unique (see note above); matches a key in this molecule's
 //                 entry in moleculeGeometry.ts's `modes` map.
-//   category, subtype — same enums as bands.jsonc's vibration.category/
-//                 subtype (stretch|bend|combination|lattice and
-//                 symmetric|asymmetric|scissoring|rocking|wagging|twisting).
-//                 Drives the vibration-color chip and the chart isolate-link
-//                 (see modes[].band_reference above).
 //   label       — this MODE's own short notation label, e.g. "νₐₛ(OCO)" —
 //                 distinct from the MOLECULE's label above (the page shows
 //                 both: molecule label as the card title, mode label as
@@ -118,11 +125,32 @@
 //                 either (an "inactive" mode isn't a notable fact worth
 //                 flagging at a glance; the full active/inactive state is
 //                 always shown once the mode is opened).
-//   atoms       — see "Cross-file links" above.
 //   tags        — free-form, mirrors the real bands' tags vocabulary;
 //                 "ir-active"/"raman-active" are auto-added by the loader,
 //                 don't write them here.
-//   band_reference, reference — see "Cross-file links" above.
+//   reference   — see "Cross-file links" above.
+//   category, subtype, atoms — same enums/vocabulary as bands.jsonc's own
+//                 vibration.category/subtype and atoms field. ALL THREE are
+//                 omittable: whenever at least one bands.jsonc band links
+//                 here (directly or via a based_on chase — see "Cross-file
+//                 links" above), _link_modes_to_bands() overwrites whatever
+//                 is written here with what the linked band(s) say, so for
+//                 most modes just leave them out entirely. The one exception
+//                 is subtype on a mode whose linked band is ITSELF shared
+//                 with a sibling mode — a real degenerate pair, where one
+//                 observed band is frequency-coincident for two distinct
+//                 motions (e.g. co2_bend/co2_bend_wagging below both resolve
+//                 to the co2_nu2_branches bands). The band can't supply two
+//                 different subtypes for the two modes sharing it, so those
+//                 modes keep `subtype` written here by hand — everything
+//                 else (category, atoms) still derives normally since those
+//                 never differ between the two. A mode with NO linked band
+//                 at all (none authored yet) must set category and atoms by
+//                 hand or the build fails — there's nothing else to derive
+//                 them from.
+//   bands       — NOT authored here; computed by _link_modes_to_bands() and
+//                 added to the emitted JSON for the frontend, same as
+//                 bands.jsonc's own lane/sub_lane. See "Cross-file links".
 // =============================================================================
 {
   "molecules": [
@@ -138,54 +166,40 @@
       "modes": [
         {
           "id": "co2_stretch_symmetric",
-          "category": "stretch",
-          "subtype": "symmetric",
           "label": "νₛ(OCO)",
           "note": "Both C=O bonds stretch in phase while C stays put — the totally symmetric stretch, conventionally ν₁. Centrosymmetric, so by the mutual exclusion rule it's IR-inactive but Raman-active.",
           "ir_active": false,
           "raman_active": true,
-          "atoms": "O=C=O",
           "tags": ["gas-phase"],
-          "band_reference": ["co2_sym_1388"],
           "reference": []
         },
         {
           "id": "co2_stretch_asymmetric",
-          "category": "stretch",
-          "subtype": "asymmetric",
           "label": "νₐₛ(OCO)",
           "note": "One C=O bond lengthens as the other shortens, in antiphase — the asymmetric stretch, conventionally ν₃. Breaks the molecule's center of symmetry, making it IR-active (and, by the mutual exclusion rule, Raman-inactive).",
           "ir_active": true,
           "raman_active": false,
-          "atoms": "O=C=O",
           "tags": ["gas-phase"],
-          "band_reference": ["co2_nu3_branches"],
           "reference": []
         },
         {
           "id": "co2_bend",
-          "category": "bend",
           "subtype": "scissoring",
           "label": "δ(OCO)",
           "note": "Both O's swing the same way in-plane while C recoils oppositely, closing and opening the O-C-O angle — the in-plane component of the doubly-degenerate bend, conventionally ν₂. Degenerate with the out-of-plane wagging component below; together the pair is why ν₂ is IR-active.",
           "ir_active": true,
           "raman_active": false,
-          "atoms": "O=C=O",
           "tags": ["gas-phase", "degenerated"],
-          "band_reference": ["co2_nu2_branches"],
           "reference": []
         },
         {
           "id": "co2_bend_wagging",
-          "category": "bend",
           "subtype": "wagging",
           "label": "ω(OCO)",
           "note": "The same ν₂ bending motion as above, but out of the molecular plane — shown here as the atoms pulsing in size rather than a real 2D displacement, since a flat diagram can't otherwise depict out-of-plane motion. Frequency-coincident with the in-plane scissoring component, so it has no separately resolved band of its own.",
           "ir_active": true,
           "raman_active": false,
-          "atoms": "O=C=O",
           "tags": ["gas-phase", "degenerated"],
-          "band_reference": ["co2_nu2_branches"],
           "reference": []
         }
       ]
@@ -202,15 +216,11 @@
       "modes": [
         {
           "id": "co_stretch",
-          "category": "stretch",
-          "subtype": null,
           "label": "ν(CO)",
           "note": "C and O move apart and together along the single bond — the only vibration a two-atom molecule can have, so there's no symmetric/asymmetric pair and nothing to number ν₁/ν₂/ν₃-style.",
           "ir_active": true,
           "raman_active": true,
-          "atoms": "C-O",
           "tags": ["gas-phase"],
-          "band_reference": ["co_nu1_branches"],
           "reference": []
         }
       ]
@@ -227,54 +237,38 @@
       "modes": [
         {
           "id": "formate_ch_stretch",
-          "category": "stretch",
-          "subtype": null,
           "label": "ν(CH)",
           "note": "The C-H bond stretches — the key HCOO* marker band, since no other common surface species shares this exact C-H environment. In Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band on some supports (e.g. CeO₂), splitting into a doublet. The free formate ion has its own conventional ν-numbering in the vibrational-spectroscopy literature (this mode is commonly cited as ν₁), though the exact assignment order varies by source more than CO₂'s does.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "C-H",
           "tags": [],
-          "band_reference": ["formate_ch_stretch_2885"],
           "reference": []
         },
         {
           "id": "formate_stretch_asymmetric",
-          "category": "stretch",
-          "subtype": "asymmetric",
           "label": "νₐₛ(OCO)",
           "note": "One C-O bond lengthens as the other shortens, in antiphase — often cited as ν₄ of the free formate ion. Independent of surface binding topology: position is support-dependent, so both monodentate and bidentate coordination are listed below.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": ["site-sensitive"],
-          "band_reference": ["formate_asym_1585"],
           "reference": []
         },
         {
           "id": "formate_stretch_symmetric",
-          "category": "stretch",
-          "subtype": "symmetric",
           "label": "νₛ(OCO)",
           "note": "Both C-O bonds stretch in phase — often cited as ν₂ of the free formate ion. Paired with νₐₛ(OCO) above; the splitting between the two (Δν) is itself diagnostic of binding geometry. Independent of surface binding topology, so both monodentate and bidentate coordination are listed below.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": ["site-sensitive"],
-          "band_reference": ["formate_sym_1365"],
           "reference": []
         },
         {
           "id": "formate_och_scissoring",
-          "category": "bend",
-          "subtype": "scissoring",
           "label": "δ(OCH)",
           "note": "The C-H bond rocks relative to the O-C-O frame, changing the O-C-H angle — often cited as ν₃ of the free formate ion. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-H",
           "tags": [],
-          "band_reference": ["formate_och_bend_1390"],
           "reference": []
         }
       ]
@@ -292,54 +286,38 @@
       "modes": [
         {
           "id": "carbonate_stretch_asymmetric",
-          "category": "stretch",
-          "subtype": "asymmetric",
           "label": "νₐₛ(OCO)",
           "note": "Two of the three C-O bonds stretch oppositely (one lengthens, one shortens) while the third stays put — one component of the doubly-degenerate asymmetric stretch, ν₃ of the free CO₃²⁻ ion (D₃h symmetry); surface binding splits that degenerate pair into two resolved frequencies. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign the higher-frequency resolved component as their ν₆ (asymmetric stretch ν(C-O)), 1450–1490 cm⁻¹ — close to this mode's own monodentate band (1480–1520 cm⁻¹). Independent of surface binding topology — listed for both monodentate (smaller splitting from νₛ) and bidentate (larger splitting) coordination, since the splitting itself is diagnostic of which one it is.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": ["site-sensitive"],
-          "band_reference": ["carbonate_monodentate_asym_1500", "carbonate_bidentate_asym_1645"],
           "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_stretch_symmetric",
-          "category": "stretch",
-          "subtype": "symmetric",
           "label": "νₛ(OCO)",
           "note": "The two non-surface-bound C-O bonds stretch in phase — the other resolved component of the same doubly-degenerate ν₃ pair (paired with νₐₛ(OCO) above), not the free ion's true totally-symmetric stretch ν₁ (which stays IR-inactive and isn't separately resolved here). For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this lower-frequency component as their ν₅ (symmetric stretch ν(C-O)+ν(C-Os), where Os is the surface oxygen), 1350–1370 cm⁻¹ — close to this mode's own monodentate band (1380–1420 cm⁻¹). Independent of surface binding topology — listed for both monodentate and bidentate coordination.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": ["site-sensitive"],
-          "band_reference": ["carbonate_monodentate_sym_1400", "carbonate_bidentate_sym_1300"],
           "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_scissoring",
-          "category": "bend",
-          "subtype": "scissoring",
           "label": "δ(OCO)",
           "note": "Two of the three O's swing toward/apart in-plane while the third stays fixed — one component of the doubly-degenerate in-plane bend, ν₄ of the free ion, again resolved into two frequencies by surface binding. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this resolved component as their ν₁ (asymmetric bending δ(OsCO), Os = surface oxygen), 680–700 cm⁻¹ — close to this band's own 650–715 cm⁻¹ range. Generic surface carbonate, not specific to a binding mode; the bidentate case isn't separately diagrammed in that source, but is assumed analogous.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": [],
-          "band_reference": ["carbonate_scissoring_680"],
           "reference": ["Solis.InitialStagesCO2.2017"]
         },
         {
           "id": "carbonate_wagging",
-          "category": "bend",
-          "subtype": "wagging",
           "label": "γ(OCO)",
           "note": "The central C moves out of the O-C-O plane while the O's stay put — the out-of-plane bend, ν₂ of the free ion, non-degenerate so it doesn't split on binding. For monodentate carbonate on CaO, Solis et al. (Fig. 5) assign this as their ν₃ (out-of-plane deformation π), 850–860 cm⁻¹ — close to this band's own 860–890 cm⁻¹ range.",
           "ir_active": true,
           "raman_active": null,
-          "atoms": "O-C-O",
           "tags": [],
-          "band_reference": ["carbonate_wagging_875"],
           "reference": ["Solis.InitialStagesCO2.2017"]
         }
       ]

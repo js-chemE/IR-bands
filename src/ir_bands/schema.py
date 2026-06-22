@@ -104,27 +104,45 @@ class Reference:
 class VibrationMode:
     """One named vibrational mode of a Molecule, for the vibration-modes page.
 
-    band_reference entries (band ids or branch_group keys) are validated
-    against the real dataset in validate_vibrations — both that they resolve
-    and that the resolved band(s) share this mode's category (subtype isn't
-    required to match, since degenerate sub-modes can legitimately share one
-    observed band). reference entries are citekeys, validated against
-    references.bib.
+    category/subtype/atoms are written here as a *manual fallback* only.
+    Bands point UP at modes (Band.vibration_modes, in bands.jsonc) rather
+    than modes listing bands — see that field's docstring — so whenever a
+    mode has at least one linked band, _link_modes_to_bands() in loader.py
+    overwrites category/atoms with whatever the linked band(s) themselves
+    say (and errors if multiple linked bands disagree). subtype is the one
+    exception: it's only auto-derived when every linked band points at just
+    this one mode. A band shared by more than one mode (the degenerate-pair
+    case — e.g. CO2's ν₂ scissoring and wagging components are frequency-
+    coincident and share one observed band) can't supply a single correct
+    subtype for both, so subtype must stay manually authored for those modes.
+    The common case (one band <-> one mode) still gets every field derived
+    for free.
+
+    bands is computed by the same function: every band id whose
+    vibration_modes list contains this mode's id directly, PLUS every band
+    with no vibration_modes of its own whose based_on entries resolve (one
+    level) to a band that itself directly links to this mode — so an
+    overtone/combination band built from a fundamental automatically shows up
+    under that fundamental's mode page without needing its own link. Not
+    part of the authored JSONC — set in place after loading, same as Band's
+    own lane/sub_lane.
+
+    reference entries are citekeys, validated against references.bib.
     """
     id: str
-    category: VibCategory
-    subtype: Optional[VibSubtype] = None
     label: str = ""
     note: str = ""
     ir_active: Optional[bool] = None
     raman_active: Optional[bool] = None
-    atoms: str = ""
     tags: list[str] = field(default_factory=list)
-    band_reference: list[str] = field(default_factory=list)
     reference: list[str] = field(default_factory=list)
+    category: Optional[VibCategory] = None
+    subtype: Optional[VibSubtype] = None
+    atoms: Optional[str] = None
+    bands: list[str] = field(default_factory=list, init=False)
 
     def __post_init__(self):
-        if self.category not in VALID_CATEGORIES:
+        if self.category is not None and self.category not in VALID_CATEGORIES:
             raise ValueError(f"mode {self.id}: category={self.category!r} not in {VALID_CATEGORIES}")
         if self.subtype is not None and self.subtype not in VALID_SUBTYPES:
             raise ValueError(f"mode {self.id}: subtype={self.subtype!r} not in {VALID_SUBTYPES}")
@@ -232,6 +250,17 @@ class Band:
     # Legacy field kept until the loader is rewritten to use group-based lanes.
     # Used by layout.assign_lanes() for now.
     pair: Optional[int] = None
+
+    # Optional, manually-authored link(s) to VibrationMode.id in
+    # vibrations.jsonc — this band documents that mode on the vibration-modes
+    # page. Almost always 0 or 1 entries; 2 only for the rare case of a band
+    # frequency-coincident with another mode (a real degenerate pair, e.g.
+    # CO2's ν₂ scissoring + wagging components share one observed band).
+    # Bands point at modes rather than the reverse (modes no longer list
+    # their bands) so there's exactly one place this fact gets authored;
+    # loader.py's _link_modes_to_bands() resolves it into each mode's
+    # computed `bands` list and derives category/subtype/atoms from it.
+    vibration_modes: list[str] = field(default_factory=list)
 
     # Computed at load time
     lane: int = 0
