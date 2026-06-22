@@ -846,7 +846,9 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "ch4_stretch_asymmetric"
+      ],
       "lane": 1,
       "sub_lane": 0,
       "wn_min": 2980,
@@ -885,7 +887,9 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "ch4_bend_t2"
+      ],
       "lane": 1,
       "sub_lane": 0,
       "wn_min": 1280,
@@ -917,11 +921,55 @@
       "intensity": null,
       "width": null,
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "ch4_bend_e"
+      ],
       "lane": 1,
       "sub_lane": 0,
       "wn_min": 1528,
       "wn_max": 1540
+    },
+    {
+      "id": "ch4g_sym_2917",
+      "species": "CH₄",
+      "group": "ch4",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2900,
+      "wn_end": 2930,
+      "short": "νₛ(HCH) CH₄(g)",
+      "description": "Gas methane symmetric C-H stretch (νₛ, A₁ mode) at ~2917 cm⁻¹. IR-forbidden by symmetry (A₁ in Td has no T₂/dipole component); observed only in Raman spectroscopy.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Nishimura.VibrationalExcitationsCH4.2002",
+          "wn": 2920,
+          "site": null,
+          "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table.",
+          "tags": []
+        }
+      ],
+      "tags": [
+        "gas-phase",
+        "ir-inactive"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "ch4_stretch_symmetric"
+      ],
+      "lane": 1,
+      "sub_lane": 0,
+      "wn_min": 2900,
+      "wn_max": 2930
     },
     {
       "id": "ch4g_combo_4220",

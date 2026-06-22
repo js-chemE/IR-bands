@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Band, RefMap, Vibrations, VibrationMode } from '../lib/types';
-  import { geometryFor, fundamentalModeCount } from '../lib/moleculeGeometry';
+  import { geometryFor, VIBRATIONAL_SYMMETRY, mullikenDegeneracy, vibrationalModeTotal } from '../lib/moleculeGeometry';
   import MoleculeSelector from './vibration/MoleculeSelector.svelte';
   import TopologySelector from './vibration/TopologySelector.svelte';
   import MoleculeViewer from './vibration/MoleculeViewer.svelte';
@@ -68,13 +68,55 @@
 
   $: openMode = filteredModes.find(m => m.id === openModeId) ?? null;
 
-  $: modeCount = (molecule && geometry) ? fundamentalModeCount(molecule.shape, geometry.atoms.length) : null;
-  $: modeCountStatus = (() => {
-    if (!molecule || !modeCount) return '';
-    const diff = modeCount.max - filteredModes.length;
-    if (diff === 0) return 'all fundamental modes complete';
-    if (diff > 0) return `${diff} fundamental mode${diff !== 1 ? 's' : ''} missing`;
-    return `${-diff} extra mode${-diff !== 1 ? 's' : ''} listed beyond the fundamental count`;
+  // Hand-derived Γvib for whichever topology is selected — see
+  // moleculeGeometry.ts for why this isn't just the generic 3N-5/3N-6
+  // atom-counting formula. Absent entirely for topologies no one has
+  // worked through the character table for yet.
+  $: symmetryAnalysis = molecule ? VIBRATIONAL_SYMMETRY[molecule.id]?.[selectedTopologyId] ?? null : null;
+
+  // Γvib written out as a sum, e.g. "A₁ + E + 2T₂".
+  $: symmetryFormula = symmetryAnalysis
+    ? symmetryAnalysis.terms.map(t => `${t.count > 1 ? t.count : ''}${t.symbol}`).join(' + ')
+    : '';
+
+  // The same sum, but with each term's degeneracy multiplier spelled out
+  // arithmetically (E always ×2, T/F always ×3, ...) rather than left
+  // implicit in the symbol — e.g. "1×A₁ + 1×E(×2) + 2×T₂(×3) = 1+2+6 = 9".
+  $: symmetryArithmetic = (() => {
+    if (!symmetryAnalysis) return '';
+    const pieces = symmetryAnalysis.terms.map(t => {
+      const deg = mullikenDegeneracy(t.symbol);
+      return deg > 1 ? `${t.count}×${t.symbol}(×${deg})` : `${t.count}×${t.symbol}`;
+    });
+    const products = symmetryAnalysis.terms.map(t => t.count * mullikenDegeneracy(t.symbol));
+    const total = vibrationalModeTotal(symmetryAnalysis);
+    return `${pieces.join(' + ')} = ${products.join('+')} = ${total} fundamental mode${total !== 1 ? 's' : ''}`;
+  })();
+
+  // Tally the dataset's own authored modes (for the selected topology) by
+  // their symmetry label, and compare each against how many Γvib actually
+  // calls for — a plain-text "is everything here" check, species by
+  // species, rather than a single pass/fail count.
+  interface SymmetryCoverage { symbol: string; expected: number; actual: number; ok: boolean; }
+  $: symmetryCoverage = ((): SymmetryCoverage[] => {
+    if (!symmetryAnalysis) return [];
+    const actualCounts = new Map<string, number>();
+    for (const m of filteredModes) {
+      if (!m.symmetry) continue;
+      actualCounts.set(m.symmetry, (actualCounts.get(m.symmetry) ?? 0) + 1);
+    }
+    return symmetryAnalysis.terms.map(t => {
+      const actual = actualCounts.get(t.symbol) ?? 0;
+      // A degenerate species can legitimately be authored either as one
+      // entry per representation (e.g. CH4's E/T₂ modes) or as one entry
+      // per individual degenerate component (e.g. CO2's Πᵤ bend, split
+      // into in-plane + out-of-plane entries so each gets its own drawn
+      // animation) — both count as "fully listed", just two different
+      // authoring conventions for the same physical content.
+      const deg = mullikenDegeneracy(t.symbol);
+      const ok = actual === t.count || actual === t.count * deg;
+      return { symbol: t.symbol, expected: t.count, actual, ok };
+    });
   })();
 
   function selectMolecule(id: string) {
@@ -194,13 +236,32 @@
         <div class="main-col">
           <div class="viewer-row">
             <h2 class="molecule-title">{molecule.label}</h2>
-            {#if modeCount}
-              <div class="mode-count-line">
-                {molecule.shape === 'linear' ? 'Linear' : 'Non-linear'}: {modeCount.formulaLabel} → {modeCountStatus}
-                {#if selectedTopology?.point_group}
-                  <span class="point-group">· Point group {@html selectedTopology.point_group}</span>
-                {/if}
+            {#if symmetryAnalysis}
+              <div class="symmetry-block">
+                <p class="symmetry-line">
+                  {symmetryAnalysis.pointCloud}
+                  {#if selectedTopology?.point_group}
+                    <span class="point-group">Point group {@html selectedTopology.point_group}.</span>
+                  {/if}
+                </p>
+                <p class="symmetry-line">
+                  Γ<sub>vib</sub> = {symmetryFormula} → {symmetryArithmetic}.
+                </p>
+                <p class="symmetry-line symmetry-coverage">
+                  {#each symmetryCoverage as c, i}
+                    {c.symbol} {c.ok ? '✓' : '✗'} ({c.actual}/{c.expected} listed){i < symmetryCoverage.length - 1 ? ', ' : ''}
+                  {/each}
+                  {#if symmetryCoverage.every(c => c.ok)}
+                    — every Mulliken species accounted for.
+                  {:else}
+                    — not yet fully accounted for.
+                  {/if}
+                </p>
               </div>
+            {:else if selectedTopology?.point_group}
+              <p class="symmetry-line">
+                <span class="point-group">Point group {@html selectedTopology.point_group}.</span>
+              </p>
             {/if}
             <div class="viewer-inner">
               <div class="diagram-col">
@@ -401,16 +462,29 @@
     margin: 0 0 6px;
   }
 
-  .mode-count-line {
-    font-size: 12px;
-    color: #777;
+  .symmetry-block {
     margin-bottom: 14px;
     padding-bottom: 10px;
     border-bottom: 1px solid #E5E5E5;
   }
 
+  .symmetry-line {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.5;
+    margin: 0 0 4px;
+  }
+  .symmetry-line:last-child { margin-bottom: 0; }
+  .symmetry-line :global(sub) { font-size: 0.75em; }
+
+  .symmetry-coverage {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+  }
+
   .point-group {
     color: #999;
+    margin-left: 4px;
   }
   .point-group :global(sub) { font-size: 0.75em; }
 

@@ -61,7 +61,7 @@
   $: positions = geometry.atoms.map((atom, i) => {
     const v = activeVectors?.[i] ?? { dx: 0, dy: 0 };
     const scale = v.scale ?? 0;
-    const restR = radiusForElement(atom.element) * PX_PER_PM;
+    const restR = (atom.radiusOverride ?? radiusForElement(atom.element)) * PX_PER_PM;
     let x: number, y: number;
     if (v.rotateDeg) {
       // Genuine rotation about `pivot` (defaulting to the origin) —
@@ -100,11 +100,11 @@
     {/each}
   {/if}
   {#each geometry.bonds as [a, b]}
-    {@const buried = geometry.surface?.buriedAtoms ?? []}
+    {@const dashed = [...(geometry.surface?.buriedAtoms ?? []), ...(geometry.dashedBondAtoms ?? [])]}
     <line
       x1={positions[a].x} y1={positions[a].y}
       x2={positions[b].x} y2={positions[b].y}
-      class={buried.includes(a) || buried.includes(b) ? 'surface-bond' : 'bond'}
+      class={dashed.includes(a) || dashed.includes(b) ? 'surface-bond' : 'bond'}
     />
   {/each}
   {#each positions as p}

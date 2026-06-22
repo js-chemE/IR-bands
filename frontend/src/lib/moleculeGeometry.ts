@@ -18,6 +18,11 @@ export interface AtomSpec {
   element: string;
   x: number;
   y: number;
+  // Overrides radiusForElement(element) (pm) for this one atom — used
+  // sparingly, to suggest an atom sits closer to the viewer in an
+  // otherwise-2D diagram (e.g. one C-H bond of a tetrahedral molecule drawn
+  // coming out of the page) without a real 3D perspective renderer.
+  radiusOverride?: number;
 }
 
 export interface ModeVector {
@@ -92,6 +97,14 @@ export interface MoleculeGeometry {
   bonds: [number, number][];
   modes: Record<string, ModeVector[]>; // mode id -> one vector per atom, same order as atoms[]
   surface?: SurfaceSpec; // omitted for gas-phase topologies
+  // Atom indices whose bond(s) render with the same dashed style as a
+  // surface-crossing connector — independent of `surface` above, since this
+  // is for a different reason: indicating a bond going INTO the page (away
+  // from the viewer) in an otherwise flat 2D diagram, not a surface
+  // boundary. (surface.buriedAtoms also triggers this same dashed style,
+  // for its own, surface-crossing reason — the two causes are unrelated but
+  // share the rendering.)
+  dashedBondAtoms?: number[];
 }
 
 // moleculeId -> topologyId -> geometry
@@ -132,6 +145,60 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: 0, dy: 0, scale: 0.35 },
           { dx: 0, dy: 0, scale: -0.2 },
           { dx: 0, dy: 0, scale: 0.35 },
+        ],
+      },
+    },
+  },
+  // CH4 — 
+  ch4: {
+    gas: {
+      atoms: [
+        { element: 'C', x: 0, y: 0 },
+        { element: 'H', x: 12.3, y: 16.9 },
+        { element: 'H', x: -27, y: 12.8 },
+        { element: 'H', x: 0, y: -30 },
+        { element: 'H', x: 25.2, y: 11.4 },
+      ],
+      bonds: [[0, 1], [0, 2], [0, 3], [0, 4]],
+      modes: {
+        // All four C-H bonds stretch outward together, in phase — C stays
+        // fixed, each H moves along its own (projected) bond direction.
+        ch4_stretch_symmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0.472, dy: 0.882 },
+          { dx: -0.942, dy: 0.336 },
+          { dx: 0, dy: 1 },
+          { dx: 0.916, dy: 0.401 },
+        ],
+        // One representative component of the doubly-degenerate E bend: the
+        // two lower-right H's scissor toward/apart from each other (equal
+        // and opposite rotation about the fixed C), the other two untouched.
+        ch4_bend_e: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 15 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -15 },
+        ],
+        // One representative component of the triply-degenerate asymmetric
+        // stretch: the upper-left H stretches outward while the top H
+        // compresses inward, the other two untouched.
+        ch4_stretch_asymmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.942, dy: 0.336 },
+          { dx: 0, dy: 1 },
+          { dx: 0, dy: 0 },
+        ],
+        // One representative component of the triply-degenerate T2 bend:
+        // the lower-right and upper-right H's rock sideways together, in
+        // phase, the other two untouched.
+        ch4_bend_t2: [
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 0 },
         ],
       },
     },
@@ -639,19 +706,118 @@ export function geometryFor(moleculeId: string, topologyId: string): MoleculeGeo
   return MOLECULE_GEOMETRY[moleculeId]?.[topologyId] ?? null;
 }
 
-export interface FundamentalModeCount {
-  formulaLabel: string; // "3N − 5" or "3N − 6", N already substituted in
-  max: number;
-  atomCount: number;
+// Reducible-representation decomposition of Γvib, hand-derived per molecule
+// per textbook group theory (character table reduction, translations and
+// rotations already subtracted) — deliberately NOT the generic 3N-5/3N-6
+// atom-counting formula, which only gives a bare number and says nothing
+// about which symmetry species are actually present. `symbol` matches
+// VibrationMode.symmetry exactly (same HTML-subscript convention) so the
+// dataset's own authored modes can be cross-checked against this term by
+// term; `count` is how many representations of that symmetry Γvib contains
+// (e.g. count=2 for the "2T₂" term of CH4) — NOT multiplied by degeneracy,
+// which mullikenDegeneracy() below derives from the symbol itself.
+export interface MullikenTerm {
+  symbol: string;
+  count: number;
 }
 
-// Standard normal-mode-counting formula: linear molecules have 3N-5
-// vibrational degrees of freedom, non-linear ones 3N-6 (the difference is
-// that a linear molecule only has 2 rotational degrees of freedom, not 3).
-export function fundamentalModeCount(shape: 'linear' | 'nonlinear', atomCount: number): FundamentalModeCount {
-  const max = shape === 'linear' ? 3 * atomCount - 5 : 3 * atomCount - 6;
-  const formulaLabel = shape === 'linear'
-    ? `3(${atomCount}) − 5 = ${max}`
-    : `3(${atomCount}) − 6 = ${max}`;
-  return { formulaLabel, max, atomCount };
+export interface PointCloudSymmetry {
+  // Plain-text description of the atomic arrangement itself — the "point
+  // cloud" — and why it has the point group it does, written out before
+  // any group-theory machinery, not asserted as a bare label.
+  pointCloud: string;
+  terms: MullikenTerm[];
+}
+
+// Degeneracy implied by a Mulliken/Herzberg symbol's own letter, inferred
+// from the label text rather than stored redundantly alongside each term:
+// A/B (and Σ) are non-degenerate, E/Π/Δ/Φ doubly, T/F triply. Strips HTML
+// sub/sup tags and trailing +/-/digit decorations first so e.g.
+// "Σ<sub>g</sub>⁺" and "T₂" both resolve to their bare leading letter.
+export function mullikenDegeneracy(symbol: string): number {
+  const bare = symbol.replace(/<[^>]+>/g, '').replace(/[⁺⁻'″₀₁₂₃₄₅₆₇₈₉]/g, '');
+  const letter = bare.charAt(0);
+  if (letter === 'E' || letter === 'Π' || letter === 'Δ' || letter === 'Φ') return 2;
+  if (letter === 'T' || letter === 'F') return 3;
+  return 1;
+}
+
+// moleculeId -> topologyId -> Γvib decomposition. Only populated for
+// topologies where the full character-table derivation has actually been
+// worked out by hand; VibrationModesPage falls back to omitting the
+// symmetry-analysis block entirely when a topology has no entry here.
+export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymmetry>> = {
+  co2: {
+    gas: {
+      pointCloud: '3 atoms in a straight line, O-C-O, with C at the centroid and the two O\'s equivalent through it — a center of inversion, giving the full linear D∞h point group (not just C∞v, which a heteronuclear linear molecule like CO is limited to).',
+      terms: [
+        { symbol: 'Σ<sub>g</sub>⁺', count: 1 },
+        { symbol: 'Σ<sub>u</sub>⁺', count: 1 },
+        { symbol: 'Π<sub>u</sub>', count: 1 },
+      ],
+    },
+  },
+  co: {
+    gas: {
+      pointCloud: '2 atoms, necessarily collinear — a C∞ axis along the bond plus an infinite set of mirror planes containing it, but no inversion center (the two atoms are different elements), giving C∞v rather than D∞h.',
+      terms: [
+        { symbol: 'Σ⁺', count: 1 },
+      ],
+    },
+  },
+  ch4: {
+    gas: {
+      pointCloud: '5 atoms: C at the centroid, 4 H\'s at the corners of a regular tetrahedron around it. Every C-H bond is equivalent and every H-C-H angle is the same 109.47°, the defining point cloud of the Td point group.',
+      terms: [
+        { symbol: 'A₁', count: 1 },
+        { symbol: 'E', count: 1 },
+        { symbol: 'T₂', count: 2 },
+      ],
+    },
+  },
+  formate: {
+    bidentate: {
+      pointCloud: '4 atoms in one plane: C at the centroid, H on one side along the symmetry axis, and the two O\'s equivalent to each other across that same axis on the other side — one C2 axis (through C and H) plus the molecular plane itself as a mirror, giving C2v.',
+      terms: [
+        { symbol: 'A₁', count: 3 },
+        { symbol: 'B₁', count: 1 },
+        { symbol: 'B₂', count: 2 },
+      ],
+    },
+  },
+  carbonate: {
+    bidentate: {
+      pointCloud: '4 atoms in one plane: C at the centroid, one free O along the symmetry axis, and the two surface-bound O\'s equivalent to each other across that same axis — the same C2v point cloud as formate, with the free O playing the role formate\'s H plays.',
+      terms: [
+        { symbol: 'A₁', count: 3 },
+        { symbol: 'B₁', count: 1 },
+        { symbol: 'B₂', count: 2 },
+      ],
+    },
+    monodentate: {
+      pointCloud: '4 atoms in one plane: C at the centroid, one surface-bound O along the would-be symmetry axis, and the two free O\'s equivalent to each other across it — but unlike bidentate\'s pair, here it\'s the *anchor* atom alone on the axis, with nothing on the other side to make a true C2 axis, leaving only the molecular plane itself as a mirror — Cs, not C2v.',
+      terms: [
+        { symbol: "A′", count: 5 },
+        { symbol: "A″", count: 1 },
+      ],
+    },
+  },
+  methoxy: {
+    monodentate: {
+      pointCloud: '5 atoms: O and C both on the 3-fold axis (O bound to the surface on one end, C on the other), 3 equivalent H\'s arranged around C — the same local point cloud as a CH₃X molecule, giving C3v.',
+      terms: [
+        { symbol: 'A₁', count: 3 },
+        { symbol: 'E', count: 3 },
+      ],
+    },
+  },
+};
+
+// Sum of count × mullikenDegeneracy(symbol) across every term — the total
+// number of fundamental vibrational modes Γvib actually contains, written
+// out as an explicit term-by-term sum rather than the bare 3N-5/3N-6
+// formula result (which gives the same number with none of the species
+// breakdown).
+export function vibrationalModeTotal(sym: PointCloudSymmetry): number {
+  return sym.terms.reduce((total, t) => total + t.count * mullikenDegeneracy(t.symbol), 0);
 }

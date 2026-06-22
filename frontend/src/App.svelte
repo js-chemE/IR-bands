@@ -356,6 +356,7 @@
           bands={dataset.bands}
           groups={dataset.groups}
           {refs}
+          {vibrations}
           {sortedGroupKeys}
           viewMode={refViewMode}
         />
