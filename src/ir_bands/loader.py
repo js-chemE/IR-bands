@@ -126,6 +126,7 @@ def _parse_band(raw: dict) -> Band:
         fermi_partner=raw.get("fermi_partner"),
         fermi_partner_group=raw.get("fermi_partner_group"),
         branch_group=raw.get("branch_group"),
+        vibration_modes=list(raw.get("vibration_modes", [])),
     )
 
 
@@ -342,16 +343,17 @@ def _parse_mode(raw: dict) -> VibrationMode:
 
     return VibrationMode(
         id=raw["id"],
-        category=raw["category"],
-        subtype=raw.get("subtype"),
         label=raw.get("label", ""),
         note=raw.get("note", ""),
         ir_active=ir_active,
         raman_active=raman_active,
-        atoms=raw.get("atoms", ""),
         tags=tags,
-        band_reference=list(raw.get("band_reference", [])),
         reference=list(raw.get("reference", [])),
+        # Manual fallback only — see VibrationMode's docstring.
+        # _link_modes_to_bands() overwrites these once a band links here.
+        category=raw.get("category"),
+        subtype=raw.get("subtype"),
+        atoms=raw.get("atoms"),
     )
 
 
@@ -377,6 +379,105 @@ def load_vibrations(path: str | Path) -> Vibrations:
     return Vibrations(molecules=[_parse_molecule(m) for m in raw.get("molecules", [])])
 
 
+def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
+    """Resolve Band.vibration_modes (bands.jsonc) into each mode's computed
+    `bands` list, and derive category/subtype/atoms from the linked bands.
+
+    Two kinds of link, combined:
+      - direct: a band whose own vibration_modes list names this mode.
+      - derived: a band with NO vibration_modes of its own, whose based_on
+        entries resolve (one level — band_id or branch_group) to a band that
+        directly links to this mode. This is how an overtone/combination
+        band automatically shows up under its parent fundamental's mode
+        without needing its own link.
+
+    category/atoms are always overwritten from the direct bands (erroring if
+    they disagree with each other) — both are real properties of the band
+    itself, so they can never legitimately differ from what a linked band
+    says. subtype is only overwritten when every direct band links to ONLY
+    this one mode; a band shared by more than one mode (a real degenerate
+    pair) keeps each mode's manually-authored subtype, since the band itself
+    can't supply a single correct answer for both. derived bands never
+    contribute to category/subtype/atoms (a combination's own category is
+    legitimately different from its parent's).
+
+    Returns a list of error strings (doesn't raise) so the caller can fold
+    them into one combined validation error alongside its own checks.
+    """
+    errors: list[str] = []
+
+    all_mode_ids = {m.id for mol in vib.molecules for m in mol.modes}
+    band_ids = {b.id for b in dataset.bands}
+    branch_group_members: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            branch_group_members.setdefault(b.branch_group, []).append(b)
+
+    for b in dataset.bands:
+        for mid in b.vibration_modes:
+            if mid not in all_mode_ids:
+                errors.append(f"Band {b.id}: vibration_modes entry {mid!r} is not a known mode id")
+
+    def based_on_parents(b: Band) -> list[Band]:
+        parents: list[Band] = []
+        for bo in b.based_on:
+            if bo.band_id is not None and bo.band_id in band_ids:
+                parents.append(dataset.band_by_id(bo.band_id))
+            elif bo.branch_group is not None:
+                parents.extend(branch_group_members.get(bo.branch_group, []))
+        return parents
+
+    direct_members: dict[str, list[Band]] = {mid: [] for mid in all_mode_ids}
+    for b in dataset.bands:
+        for mid in b.vibration_modes:
+            if mid in direct_members:
+                direct_members[mid].append(b)
+
+    derived_members: dict[str, list[Band]] = {mid: [] for mid in all_mode_ids}
+    for b in dataset.bands:
+        if b.vibration_modes:
+            continue
+        parent_modes = {mid for parent in based_on_parents(b) for mid in parent.vibration_modes}
+        for mid in parent_modes:
+            if mid in derived_members:
+                derived_members[mid].append(b)
+
+    for mol in vib.molecules:
+        for mode in mol.modes:
+            direct = direct_members.get(mode.id, [])
+            derived = derived_members.get(mode.id, [])
+            mode.bands = [b.id for b in direct] + [b.id for b in derived]
+
+            if direct:
+                categories = {b.vibration.category for b in direct}
+                if len(categories) > 1:
+                    errors.append(f"Mode {mode.id}: linked bands disagree on category: {sorted(categories)}")
+                else:
+                    mode.category = next(iter(categories))
+
+                atoms_vals = {b.atoms for b in direct}
+                if len(atoms_vals) > 1:
+                    errors.append(f"Mode {mode.id}: linked bands disagree on atoms: {sorted(atoms_vals)}")
+                else:
+                    mode.atoms = next(iter(atoms_vals))
+
+                # Only safe to auto-derive subtype when none of the direct
+                # bands are shared with a sibling mode (see docstring).
+                if all(len(b.vibration_modes) == 1 for b in direct):
+                    subtypes = {b.vibration.subtype for b in direct}
+                    if len(subtypes) > 1:
+                        errors.append(f"Mode {mode.id}: linked bands disagree on subtype: {sorted(subtypes)}")
+                    else:
+                        mode.subtype = next(iter(subtypes))
+
+            if mode.category is None:
+                errors.append(f"Mode {mode.id}: no linked bands and no manual category given")
+            if not mode.atoms:
+                errors.append(f"Mode {mode.id}: no linked bands and no manual atoms given")
+
+    return errors
+
+
 def validate_vibrations(
     vib: Vibrations,
     dataset: Dataset,
@@ -384,23 +485,12 @@ def validate_vibrations(
 ) -> None:
     """Raise ValueError on any structural problem in the vibrations data.
 
-    Tightly coupled to the real band dataset: every band_groups entry must be
-    a real Group key, every band_reference entry must resolve to a real band
-    id or branch_group, and every band resolved that way must share the
-    mode's category (e.g. a mode can't claim a "bend" band as a "stretch").
-    subtype is intentionally NOT required to match: degenerate sub-modes
-    (e.g. bend/scissoring and bend/wagging for CO2's doubly-degenerate v2)
-    legitimately share one observed band, since the underlying transition is
-    frequency-coincident and unresolved between the two. references
-    (citekeys) resolve against references.bib if given.
+    Tightly coupled to the real band dataset via _link_modes_to_bands() (see
+    its docstring) — every band_groups entry must also be a real Group key,
+    every topology id must be unique per molecule, and every mode.reference
+    citekey resolves against references.bib if given.
     """
-    errors: list[str] = []
-
-    band_ids = {b.id for b in dataset.bands}
-    branch_group_members: dict[str, list[Band]] = {}
-    for b in dataset.bands:
-        if b.branch_group:
-            branch_group_members.setdefault(b.branch_group, []).append(b)
+    errors = _link_modes_to_bands(vib, dataset)
 
     seen_molecules: dict[str, int] = {}
     seen_modes: dict[str, str] = {}  # mode id -> molecule id
@@ -427,27 +517,6 @@ def validate_vibrations(
                 errors.append(f"Duplicate mode id {mode.id!r}")
             else:
                 seen_modes[mode.id] = mol.id
-
-            for ref in mode.band_reference:
-                resolved: list[Band] = []
-                if ref in band_ids:
-                    resolved = [dataset.band_by_id(ref)]
-                elif ref in branch_group_members:
-                    resolved = branch_group_members[ref]
-                else:
-                    errors.append(
-                        f"Molecule {mol.id}, mode {mode.id}: band_reference {ref!r} "
-                        "is not a known band id or branch_group"
-                    )
-                    continue
-
-                for b in resolved:
-                    if b.vibration.category != mode.category:
-                        errors.append(
-                            f"Molecule {mol.id}, mode {mode.id}: band_reference {ref!r} "
-                            f"resolves to band {b.id} with category {b.vibration.category!r} "
-                            f"but the mode declares category {mode.category!r}"
-                        )
 
             if references is not None:
                 for key in mode.reference:

@@ -33,12 +33,13 @@
   $: activeMode = previewModeId ? molecule?.modes.find(m => m.id === previewModeId) ?? null : null;
   $: activeVectors = (geometry && activeMode) ? geometry.modes[activeMode.id] ?? null : null;
 
-  // Explicit, validated linking: a mode's band_reference entries are band
-  // ids or branch_group keys, already checked against bands.jsonc at build
-  // time — no need to re-derive the match via species/category/subtype.
+  // mode.bands is a flat, fully-resolved list of band ids — already computed
+  // by loader.py from each band's own vibration_modes link (plus a based_on
+  // chase for combinations/overtones), so no branch_group indirection is
+  // needed here at all.
   function bandsForMode(mode: VibrationMode): Band[] {
-    const wanted = new Set(mode.band_reference);
-    return bands.filter(b => wanted.has(b.id) || (b.branch_group !== null && wanted.has(b.branch_group)));
+    const wanted = new Set(mode.bands);
+    return bands.filter(b => wanted.has(b.id));
   }
 
   $: bandsByMode = molecule
