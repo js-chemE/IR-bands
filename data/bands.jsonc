@@ -1076,6 +1076,12 @@
           "wn": 2158,
           "site": "Cu⁺",
           "note": "Monocarbonyl Cu⁺-CO in a Cu-exchanged zeolite, resolved by self-supporting-pellet transmission FTIR (100 K) into 4 distinct Cu⁺ site sub-families: 2166 cm⁻¹ (most electrophilic cationic site, preferentially covered by co-adsorbed H₂O), 2158 cm⁻¹ (principal/dominant cationic site), 2141 cm⁻¹ (a more highly-coordinated, oxide-like Cu⁺ site), and 2139 cm⁻¹ (Cu⁺(H₂O)(CO) mixed-ligand complex, nearly coincident with the oxide-like site). Site assignment supported by selective monocarbonyl→dicarbonyl→tricarbonyl conversion as CO coverage increases/temperature decreases — see co_gemdi_asym_2095/co_gemdi_sym_2035 for the dicarbonyl stage."
+        },
+        {
+          "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "site": ["Li⁺", "Na⁺", "K⁺", "Rb⁺", "Cs⁺", "H⁺ (Brønsted)"],
+          "tags": ["computational"],
+          "note": "C-bonded (X⁺···CO) carbon monoxide on alkali-exchanged and protonic ZSM-5 zeolites (Si/Al = 14), assigned by transmission FTIR at 77 K. Position correlates linearly with 1/(R_M+R_CO)² (R_M = cation ionic radius), confirming a purely electrostatic, non-backdonating interaction — unlike the π-backdonating metallic-surface picture elsewhere in this dataset. High-frequency (HF) band positions at low CO coverage: Li⁺ 2188, Na⁺ 2178, K⁺ 2166, Rb⁺ 2162, Cs⁺ 2157, H⁺ (Brønsted) 2172 cm⁻¹ — frequency decreases monotonically with increasing cation radius/decreasing Lewis acidity. Each cation's HF band is accompanied by a much weaker low-frequency (LF) shoulder assigned to the O-bonded isomer of the same adduct, in thermodynamic equilibrium with this C-bonded form — see co_isocarbonyl_2220."
         }
       ],
       "intensity": "s",
@@ -1094,13 +1100,23 @@
         "branch": null
       },
       "atoms": "C-O",
-      "wn_start": 2200,
-      "wn_end": 2240,
+      "wn_start": 2105,
+      "wn_end": 2125,
       "short": "ν(CO) iso (M-OC)",
-      "description": "Isocarbonyl species with CO coordinated through its oxygen end rather than carbon (M-OC) — the reverse orientation from every other CO-adsorption band in this dataset. A comparatively rare bonding mode, favored by strongly electrophilic/highly oxidized sites, since O-bonding donates less effectively than the usual C-bonding and so is only competitive when backdonation into CO is already heavily suppressed. Typically exhibits a higher ν(CO) frequency than conventional C-bound carbonyls, consistent with that weaker donation.",
+      "description": "Isocarbonyl species with CO coordinated through its oxygen end rather than carbon (M-OC) — the reverse orientation from every other CO-adsorption band in this dataset. On a purely electrostatic (non-backdonating) cation site, field-induced bond polarization runs opposite to C-bonding: O-bonding red-shifts ν(CO) below the free-gas value, paired with C-bonding's blue shift on the very same site, the two orientations coexisting as comparatively close-lying isomers in thermodynamic equilibrium rather than mutually exclusive species. Markedly weaker than the C-bonded band on the same site, since the C-bonded orientation is consistently the thermodynamically preferred one.",
       "based_on": [],
-      "references": [],
-      "tags": []
+      "references": [
+        {
+          "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "site": ["Li⁺", "Na⁺", "K⁺", "Rb⁺", "Cs⁺", "H⁺ (Brønsted)"],
+          "tags": ["computational"],
+          "note": "O-bonded (X⁺···OC) isocarbonyl species on the same alkali-exchanged and protonic ZSM-5 zeolites as co_cation_stretch_2175's HF band, in thermodynamic equilibrium with it: B3-LYP calculations on naked cations predict O-bonding is only slightly less stable than C-bonding, the energy gap narrowing from Li⁺ to Cs⁺, and a red-shifted shoulder consistent with that prediction is observed for every cation. Low-frequency (LF) band positions: Li⁺ 2108, Na⁺ 2113, K⁺ 2117, Rb⁺ 2119, Cs⁺ 2122, H⁺ (Brønsted) 2115 cm⁻¹ — frequency rises (shifts less below the free-gas 2143 cm⁻¹ value) with increasing cation radius, mirroring the HF band's opposite trend. Relative intensity of this band to the HF band (A_HF/A_LF) drops markedly from Li⁺ to Cs⁺, consistent with the two states' energies converging."
+        }
+      ],
+      "intensity": "w",
+      "confidence": "confirmed",
+      "tags": [],
+      "vibration_modes": ["co_iso_stretch"]
     },
     {
       "id": "co_gemdi_asym_2095",

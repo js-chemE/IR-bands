@@ -284,7 +284,7 @@
             {refs}
             on:close={() => (openModeId = null)}
             on:navigateRef
-            on:navigateMode
+            on:navigateBand
           />
         {/if}
       </div>
