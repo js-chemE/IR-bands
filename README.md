@@ -4,7 +4,7 @@ Interactive IR spectroscopy band map for CO₂ hydrogenation, published as a sta
 
 ## Live site
 
-[https://juliussommer.github.io/IR-bands/](https://juliussommer.github.io/IR-bands/) *(update URL if different)*
+[https://js-cheme.github.io/IR-bands/](https://js-cheme.github.io/IR-bands/) 
 
 ## What it does
 
