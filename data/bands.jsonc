@@ -1603,9 +1603,10 @@
     // ---------------------------------------------------------------------------
     {
       "id": "bicarbonate_asym_1630",
-      "species": "Bicarbonate*",
+      "species": "Bicarbonate bidentate (HCO₃⁻*)",
       "group": "bicarbonate",
       "pair": 6,
+      "vibration_modes": ["bicarbonate_stretch_asymmetric_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -1615,7 +1616,7 @@
       "wn_start": 1610,
       "wn_end": 1650,
       "short": "νₐₛ(OCO) HCO₃⁻*",
-      "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*).",
+      "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*). Isotope-labeling (D, ¹⁸O) and DFT comparison to five candidate cluster structures identify this as a bridged bidentate structure spanning two neighboring metal sites via both non-protonated oxygens, rather than a monodentate one.",
       "based_on": [],
       "references": [
         {
@@ -1623,6 +1624,12 @@
           "wn": 1650,
           "site": "Al₂O₃",
           "note": "Table 3: δ(–OH) at 1650 cm⁻¹; formed by CO₂ interaction with surface OH groups; suppressed by La modification and Ni-Ce-Fe loading."
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1649,
+          "site": ["Fe₂O₃", "Al₂O₃"],
+          "note": "Table 2: ν₂(OCO)ₐ at 1622 cm⁻¹ (nano-Fe₂O₃) / 1649 cm⁻¹ (Al₂O₃ avg). Best-fit DFT cluster model (root-mean-square deviation across 3 isotopologues) identifies the bonding geometry as bridged/bidentate, not monodentate."
         }
       ],
       "intensity": "s",
@@ -1632,9 +1639,10 @@
     },
     {
       "id": "bicarbonate_sym_1425",
-      "species": "Bicarbonate*",
+      "species": "Bicarbonate bidentate (HCO₃⁻*)",
       "group": "bicarbonate",
       "pair": 6,
+      "vibration_modes": ["bicarbonate_stretch_symmetric_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -1644,7 +1652,7 @@
       "wn_start": 1410,
       "wn_end": 1440,
       "short": "νₛ(OCO) HCO₃⁻*",
-      "description": "Bicarbonate symmetric OCO stretch (HCO₃⁻*).",
+      "description": "Bicarbonate symmetric OCO stretch (HCO₃⁻*). Shifts together with νₐₛ(OCO) above; the gap between the two (Δν) is itself diagnostic of binding geometry, with this bridged/bidentate structure giving a smaller split than a monodentate one would.",
       "based_on": [],
       "references": [
         {
@@ -1652,6 +1660,12 @@
           "wn": 1434,
           "site": "Al₂O₃",
           "note": "Table 3: νₛ(-C-O) at 1434 cm⁻¹; intense band confirming bicarbonate as the dominant CO₂ species on Al₂O₃."
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1435,
+          "site": ["Fe₂O₃", "Al₂O₃"],
+          "note": "Table 2: ν₃(OCO)ₛ at 1410 cm⁻¹ (nano-Fe₂O₃) / 1435 cm⁻¹ (Al₂O₃ avg); ν₂-ν₃ splitting of 210-217 cm⁻¹ across all three oxides, consistent with the same bridged structure on every surface tested."
         }
       ],
       "intensity": "s",
@@ -1661,9 +1675,10 @@
     },
     {
       "id": "bicarbonate_coh_bend_1220",
-      "species": "Bicarbonate*",
+      "species": "Bicarbonate bidentate (HCO₃⁻*)",
       "group": "bicarbonate",
       "pair": 6,
+      "vibration_modes": ["bicarbonate_bend_coh_bidentate"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",
@@ -1673,7 +1688,7 @@
       "wn_start": 1210,
       "wn_end": 1230,
       "short": "δ(COH) HCO₃⁻*",
-      "description": "Bicarbonate COH bending (HCO₃⁻*); distinguishing feature vs. carbonate.",
+      "description": "Bicarbonate COH bending (HCO₃⁻*); distinguishing feature vs. carbonate, which has no O-H and therefore no analogous band at all.",
       "based_on": [],
       "references": [
         {
@@ -1681,6 +1696,12 @@
           "wn": 1220,
           "site": "Al₂O₃",
           "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹."
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1231,
+          "site": ["Fe₂O₃", "Al₂O₃"],
+          "note": "Table 2: δ₄(COH) at 1220 cm⁻¹ (nano-Fe₂O₃) / 1231 cm⁻¹ (Al₂O₃ avg); literature range 1220-1269 cm⁻¹."
         }
       ],
       "intensity": "m",
@@ -2037,17 +2058,17 @@
       "species": "Methoxy (CH₃O*)",
       "group": "methoxy",
       "pair": 8,
-      "vibration_modes": ["methoxy_bend_asymmetric"],
+      "vibration_modes": ["methoxy_bend_symmetric"],
       "vibration": {
         "category": "bend",
-        "subtype": "asymmetric",
+        "subtype": "symmetric",
         "branch": null
       },
       "atoms": "H-C-H",
       "wn_start": 1430,
       "wn_end": 1455,
-      "short": "δₐₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ asymmetric deformation (CH₃O*). Usually appears as a single resolved band rather than splitting into separately resolved symmetric/asymmetric components the way some related alkoxy species do. Position is comparatively insensitive to binding geometry, unlike the stretches above.",
+      "short": "δₛ(CH₃) CH₃O*",
+      "description": "Methoxy CH₃ symmetric deformation (CH₃O*) — the methyl \"umbrella\" mode. Usually the only CH₃-deformation-region band resolved at all, since it's the sole totally-symmetric (A₁) one and therefore the only one with a surface-normal dipole derivative on an ideally perpendicular adsorbate; on real, less rigidly-oriented oxide-supported catalysts it can be unusually weak. Position is comparatively insensitive to binding geometry, unlike the stretches above.",
       "based_on": [],
       "references": [
         {
@@ -2067,24 +2088,27 @@
       "confidence": "confirmed",
       "tags": []
     },
-      // δ_s(CH₃) is not always resolved as a separate band — Wu 2000 reports only
-      // δ_as on TiO₂. Kept here as a tentative entry for supports where it is.
+      // Tentative, low-confidence entry: Mudalige (2000) computes the genuine
+      // asymmetric (E) deformation well above the symmetric one (~1534 vs
+      // ~1433 cm⁻¹ for CH3O/Cu(100)), so a band this close to the symmetric
+      // mode's own position is unlikely to actually be the asymmetric one —
+      // kept here as-is pending a real citation that resolves it.
     {
       "id": "methoxy_bend_1375",
       "species": "Methoxy (CH₃O*)",
       "group": "methoxy",
       "pair": 8,
-      "vibration_modes": ["methoxy_bend_symmetric"],
+      "vibration_modes": ["methoxy_bend_asymmetric"],
       "vibration": {
         "category": "bend",
-        "subtype": "symmetric",
+        "subtype": "asymmetric",
         "branch": null
       },
       "atoms": "H-C-H",
       "wn_start": 1360,
       "wn_end": 1390,
-      "short": "δₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric deformation (CH₃O*). Not always separately resolved from δₐₛ(CH₃) above — some spectra show only the asymmetric component. May overlap with formate νₛ(OCO) at ~1365 cm⁻¹, so a band here doesn't necessarily rule out formate also being present.",
+      "short": "δₐₛ(CH₃) CH₃O*",
+      "description": "Tentatively assigned methoxy CH₃ asymmetric deformation (CH₃O*). Not always separately resolved from δₛ(CH₃) above — some spectra show only the symmetric component. May overlap with formate νₛ(OCO) at ~1365 cm⁻¹, so a band here doesn't necessarily rule out formate also being present.",
       "based_on": [],
       "references": [],
       "intensity": "w",
@@ -2313,6 +2337,96 @@
       "based_on": [],
       "references": [],
       "tags": []
+    },
+
+    // ---------------------------------------------------------------------------
+    // GAS-PHASE WATER
+    // Free H₂O(g) fundamentals (C2v) — RWGS byproduct before it condenses/adsorbs;
+    // see ADSORBED WATER below for the broadened, merged surface-phase bands.
+    // ---------------------------------------------------------------------------
+    {
+      "id": "h2og_sym_3657",
+      "species": "H₂O",
+      "group": "water",
+      "pair": 11,
+      "vibration_modes": ["h2o_stretch_symmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-O-H",
+      "wn_start": 3650,
+      "wn_end": 3660,
+      "short": "νₛ(HOH) H₂O(g)",
+      "description": "Gas-phase water symmetric O-H stretch (ν₁, A₁) — both O-H bonds lengthening and shortening together, in phase. Sharp and well-resolved in the gas phase, in contrast to the broad, merged envelope this band collapses into once adsorbed/condensed (see h2o_stretch_3400).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "wn": 3657
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "h2og_bend_1595",
+      "species": "H₂O",
+      "group": "water",
+      "pair": 11,
+      "vibration_modes": ["h2o_bend"],
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "H-O-H",
+      "wn_start": 1590,
+      "wn_end": 1600,
+      "short": "δ(HOH) H₂O(g)",
+      "description": "Gas-phase water H-O-H angle bend (ν₂, A₁) — the only bending mode this 3-atom molecule has. The strongest of the three gas-phase fundamentals.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "wn": 1595
+        }
+      ],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
+    },
+    {
+      "id": "h2og_asym_3756",
+      "species": "H₂O",
+      "group": "water",
+      "pair": 11,
+      "vibration_modes": ["h2o_stretch_asymmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-O-H",
+      "wn_start": 3750,
+      "wn_end": 3760,
+      "short": "νₐₛ(HOH) H₂O(g)",
+      "description": "Gas-phase water asymmetric O-H stretch (ν₃, B₂) — one O-H bond lengthening while the other shortens, out of phase. Sits just above the symmetric stretch, and the two are usually only cleanly resolved in the gas phase.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "wn": 3756
+        }
+      ],
+      "intensity": "s",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["gas-phase"]
     },
 
     // ---------------------------------------------------------------------------
