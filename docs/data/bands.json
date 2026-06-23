@@ -2145,7 +2145,7 @@
       "width": "sharp",
       "confidence": "confirmed",
       "vibration_modes": [
-        "formate_ch_stretch"
+        "formate_ch_stretch_bidentate"
       ],
       "lane": 7,
       "sub_lane": 0,
@@ -2213,7 +2213,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "formate_stretch_asymmetric"
+        "formate_stretch_asymmetric_bidentate"
       ],
       "lane": 7,
       "sub_lane": 0,
@@ -2281,7 +2281,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "formate_stretch_symmetric"
+        "formate_stretch_symmetric_bidentate"
       ],
       "lane": 7,
       "sub_lane": 0,
@@ -2320,7 +2320,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [
-        "formate_och_scissoring"
+        "formate_och_scissoring_bidentate"
       ],
       "lane": 7,
       "sub_lane": 1,
