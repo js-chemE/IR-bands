@@ -245,11 +245,11 @@
                   {/if}
                 </p>
                 <p class="symmetry-line">
-                  Γ<sub>vib</sub> = {symmetryFormula} → {symmetryArithmetic}.
+                  Γ<sub>vib</sub> = {@html symmetryFormula} → {@html symmetryArithmetic}.
                 </p>
                 <p class="symmetry-line symmetry-coverage">
                   {#each symmetryCoverage as c, i}
-                    {c.symbol} {c.ok ? '✓' : '✗'} ({c.actual}/{c.expected} listed){i < symmetryCoverage.length - 1 ? ', ' : ''}
+                    {@html c.symbol} {c.ok ? '✓' : '✗'} ({c.actual}/{c.expected} listed){i < symmetryCoverage.length - 1 ? ', ' : ''}
                   {/each}
                   {#if symmetryCoverage.every(c => c.ok)}
                     — every Mulliken species accounted for.
