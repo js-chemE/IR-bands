@@ -25,6 +25,7 @@ export const ATOMS_PALETTE: Record<string, string> = {
   'H-C-H':   '#3D7C36',
   'O-C-H':   '#9CCB91',
   'C-O':     '#E07856',
+  'C=O':     '#E2624A',
   'O-C-O':   '#C03B36',
   'O=C=O':   '#E84940',
   'M-H':     '#D9A036',

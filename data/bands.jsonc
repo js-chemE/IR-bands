@@ -1698,7 +1698,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
-      "vibration_modes": ["formate_ch_stretch"],
+      "vibration_modes": ["formate_ch_stretch_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -1741,7 +1741,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
-      "vibration_modes": ["formate_stretch_asymmetric"],
+      "vibration_modes": ["formate_stretch_asymmetric_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
@@ -1788,7 +1788,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
-      "vibration_modes": ["formate_stretch_symmetric"],
+      "vibration_modes": ["formate_stretch_symmetric_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -1835,7 +1835,7 @@
       "species": "Formate*",
       "group": "formate",
       "pair": 7,
-      "vibration_modes": ["formate_och_scissoring"],
+      "vibration_modes": ["formate_och_scissoring_bidentate"],
       "vibration": {
         "category": "bend",
         "subtype": "scissoring",

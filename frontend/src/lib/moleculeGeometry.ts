@@ -433,9 +433,107 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
       },
     },
   },
-  // HCOO* — only bidentate is offered (no monodentate content yet). Both
-  // O's are bonded to the surface, H points away from it.
+  // HCOO* — bidentate has both O's bonded to the surface, H pointing away;
+  // monodentate has only one bound O, with the free O and H both pointing
+  // away from it (drawn at mirrored x-positions purely for layout clarity —
+  // unlike carbonate's two free O's, formate's free O and H are NOT
+  // physically equivalent, so this left-right symmetry is a stylization,
+  // not a real symmetry element).
   formate: {
+    monodentate: {
+      atoms: [
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 18 },
+        { element: 'O', x: 0, y: BOUND_ATOM_Y },
+        { element: 'O', x: -19, y: BOUND_ATOM_Y - 29 },
+        { element: 'H', x: 19, y: BOUND_ATOM_Y - 29 },
+      ],
+      bonds: [[0, 1], [0, 2], [0, 3]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }] },
+      // Every mode below gives every atom — including the surface-bound O —
+      // some real motion, even where it's only small. This is a deliberate
+      // departure from this file's usual "bound atom stays exactly fixed"
+      // simplification: a real M-O bond isn't infinitely rigid, just much
+      // stiffer than the rest of the molecule, so the bound O still moves
+      // a little — it just moves LESS than its unbound neighbors do. The
+      // existing surface-connector rendering (MoleculeViewer.svelte) already
+      // handles a moving bound atom correctly (see `linear` CO's own M-C
+      // stretch for the precedent), so animating that small motion here is
+      // just a more faithful picture, not a rendering workaround.
+      modes: {
+        // H moves with most of the amplitude, away from C along the C-H
+        // bond; C recoils slightly the opposite way along that same axis to
+        // keep the pair's combined motion balanced. The bound O, free O, and
+        // (implicitly) the metal stay essentially still — this mode is
+        // localized almost entirely on the light H atom.
+        formate_ch_stretch_monodentate: [
+          { dx: -0.15, dy: 0.09 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0.866, dy: -0.501 },
+        ],
+        // The free O moves strongly along its own C=O bond direction; C
+        // reciprocates along that exact same axis (not just sideways) since
+        // the two are directly bonded. H and the bound O each pick up a
+        // small compensating swing in the plane — not part of the C=O bond
+        // itself, just the rest of the frame absorbing the shifting center
+        // of mass.
+        formate_stretch_asymmetric_monodentate: [
+          { dx: 0.26, dy: 0.15 },
+          { dx: 0.05, dy: -0.05 },
+          { dx: -0.866, dy: -0.501 },
+          { dx: 0.05, dy: 0.03 },
+        ],
+        // H genuinely rotates about C's fixed rest position — a true arc,
+        // perpendicular to the C-H bond, that keeps the C-H bond length
+        // exactly constant. C wiggles slightly sideways, opposite to H's
+        // swing, and both oxygens tilt by a small counter-rotation of their
+        // own (same rotation trick, much smaller angle) — every bond length
+        // in the molecule stays exact throughout, only the angles change.
+        formate_och_scissoring_monodentate: [
+          { dx: -0.15, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -3, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0, dy: 0, rotateDeg: -3, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0, dy: 0, rotateDeg: 20, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+        ],
+        // The C-Obound bond itself stretches: C and the bound O move apart
+        // along their shared (vertical) axis, the bound O by a visibly
+        // smaller amount since it's anchored to the heavy surface metal —
+        // stiffer, not immovable. The free O and H translate rigidly along
+        // with C (the same vector, not a fraction of it), since they aren't
+        // part of the bond that's actually stretching here.
+        formate_stretch_symmetric_monodentate: [
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: 0.3 },
+          { dx: 0, dy: -1 },
+          { dx: 0, dy: -1 },
+        ],
+        // Both oxygens now move, genuinely rotating about C's fixed rest
+        // position by equal and opposite angles, so the Obound-C-Ofree angle
+        // itself opens and closes while every bond length stays exact — the
+        // bound O is no longer the odd one out the way it is in every other
+        // mode here. C and H both shift outward together along the angle's
+        // bisector (which happens to point roughly toward H's own rest
+        // position), in the opposite sense from the oxygens, to keep the
+        // frame's overall motion balanced.
+        formate_bend_monodentate: [
+          { dx: 0.26, dy: -0.15 },
+          { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0, dy: 0, rotateDeg: -15, pivot: { x: 0, y: BOUND_ATOM_Y - 18 } },
+          { dx: 0.26, dy: -0.15 },
+        ],
+        // Out-of-plane: H pushes out of the plane while C recoils the
+        // opposite way, same antisymmetric pattern as the bidentate γ(CH)
+        // below — but here both oxygens also push slightly the same
+        // direction as H, a small extra counterweight against the heavier
+        // C's larger swing the other way.
+        formate_ch_wagging_monodentate: [
+          { dx: 0, dy: 0, scale: -0.4 },
+          { dx: 0, dy: 0, scale: 0.15 },
+          { dx: 0, dy: 0, scale: 0.15 },
+          { dx: 0, dy: 0, scale: 0.3 },
+        ],
+      },
+    },
     bidentate: {
       atoms: [
         { element: 'C', x: 0, y: BOUND_ATOM_Y - 10 },
@@ -445,46 +543,73 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
       ],
       bonds: [[0, 1], [0, 2], [0, 3]],
       surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }, { atomIndex: 2, offsets: [0] }] },
+      // As with monodentate above, both bound O's now get some real motion
+      // of their own in every mode below, rather than sitting perfectly
+      // rigid — anchored to two separate heavy surface metal atoms makes
+      // their own bonds stiffer than the rest of the molecule, not
+      // infinitely fixed.
       modes: {
-        // Both O's are bound to the surface, so they can't move — instead C
-        // moves along the O1-O2 perpendicular bisector (straight toward/away
-        // from the surface). Since C stays equidistant from both fixed O's
-        // along this line, both C-O bond lengths grow/shrink together — the
-        // "breathing" symmetric stretch.
-        formate_stretch_symmetric: [
-          { dx: 0, dy: 1 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-        ],
-        // C slides sideways, parallel to the O1-O2 line — moving closer to
-        // one fixed O (shortening that bond) and farther from the other
-        // (lengthening it). The natural asymmetric counterpart of the
-        // symmetric "breathing" motion above, with the same two O's pinned.
-        formate_stretch_asymmetric: [
-          { dx: 1, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-        ],
-        // H moves along the C-H bond axis, center fixed — the bound O's
-        // aren't involved in this local mode.
-        formate_ch_stretch: [
-          { dx: 0, dy: 0 },
+        // H moves with most of the amplitude, away from C along the C-H
+        // bond; C recoils slightly the opposite way. Both bound O's, on the
+        // far side of C from this motion, stay essentially still.
+        formate_ch_stretch_bidentate: [
+          { dx: 0, dy: 0.15 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: -1 },
         ],
-        // O-C-H bending: C and both bound O's stay completely fixed (so the
-        // O-C-O angle and every C-O bond length are exactly unchanged), and
-        // only H rotates about C — a genuine rotation, not a translation, so
-        // the C-H bond length stays exactly constant too. The changing thing
-        // is purely the O-C-H angle, which is what this mode actually is.
-        formate_och_scissoring: [
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
+        // Both O's pull outward along their own C-O bond directions, in
+        // phase — the "breathing" symmetric stretch. C plunges further down
+        // into the pocket between them as they retreat, and H rides along
+        // rigidly with C (the same vector), since the C-H bond itself isn't
+        // what's stretching here.
+        formate_stretch_symmetric_bidentate: [
+          { dx: 0, dy: 1 },
+          { dx: -0.31, dy: 0.16 },
+          { dx: 0.31, dy: 0.16 },
+          { dx: 0, dy: 1 },
+        ],
+        // O-C-O scissor: both O's swing toward each other along x, genuinely
+        // narrowing their separation, while C and H both retreat together
+        // (the same vector) away from the closing pocket — two compounding
+        // effects on the same angle, rather than one atom alone faking it.
+        formate_bend_bidentate: [
+          { dx: 0, dy: -0.5 },
+          { dx: 0.3, dy: 0 },
+          { dx: -0.3, dy: 0 },
+          { dx: 0, dy: -0.5 },
+        ],
+        // Asymmetric stretch: one O moves toward C (shortening that bond)
+        // while the other moves away (lengthening it) — and C itself shifts
+        // sideways toward whichever O is shortening, establishing a more
+        // localized, double-bond-like character on that side. H shears
+        // sideways the opposite way from C, a smaller coupled motion.
+        formate_stretch_asymmetric_bidentate: [
+          { dx: -1, dy: 0 },
+          { dx: 0.27, dy: -0.14 },
+          { dx: 0.27, dy: 0.14 },
+          { dx: 0.3, dy: 0 },
+        ],
+        // O-C-H bending: H genuinely rotates about C's fixed rest position —
+        // a true arc that keeps the C-H bond length exactly constant. C
+        // wiggles slightly sideways, opposite to H's swing, and both O's
+        // tilt by a small counter-rotation of their own (same trick, much
+        // smaller angle) rather than staying perfectly inert.
+        formate_och_scissoring_bidentate: [
+          { dx: -0.15, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -3, pivot: { x: 0, y: BOUND_ATOM_Y - 10 } },
+          { dx: 0, dy: 0, rotateDeg: -3, pivot: { x: 0, y: BOUND_ATOM_Y - 10 } },
           { dx: 0, dy: 0, rotateDeg: 20, pivot: { x: 0, y: BOUND_ATOM_Y - 10 } },
+        ],
+        // Out-of-plane: H pushes out of the plane while C recoils the
+        // opposite way — but now both O's also push slightly the same
+        // direction as H, in unison, a small extra counterweight against
+        // the heavier C's larger swing the other way.
+        formate_ch_wagging_bidentate: [
+          { dx: 0, dy: 0, scale: -0.4 },
+          { dx: 0, dy: 0, scale: 0.15 },
+          { dx: 0, dy: 0, scale: 0.15 },
+          { dx: 0, dy: 0, scale: 0.3 },
         ],
       },
     },
@@ -802,12 +927,19 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
     },
   },
   formate: {
+    monodentate: {
+      pointCloud: '4 atoms in one plane: C at the centroid, with three genuinely distinct substituents — one surface-bound O, one free O, and H — no two of them equivalent to any other. Unlike carbonate\'s monodentate (whose two free O\'s are still equivalent to each other), there\'s no axis left at all here, only the molecular plane itself as a mirror — Cs.',
+      terms: [
+        { symbol: "A′", count: 5 },
+        { symbol: "A″", count: 1 },
+      ],
+    },
     bidentate: {
       pointCloud: '4 atoms in one plane: C at the centroid, H on one side along the symmetry axis, and the two O\'s equivalent to each other across that same axis on the other side — one C2 axis (through C and H) plus the molecular plane itself as a mirror, giving C2v.',
       terms: [
         { symbol: 'A₁', count: 3 },
-        { symbol: 'B₁', count: 1 },
-        { symbol: 'B₂', count: 2 },
+        { symbol: 'B₁', count: 2 },
+        { symbol: 'B₂', count: 1 },
       ],
     },
   },
