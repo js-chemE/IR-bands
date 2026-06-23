@@ -14,7 +14,7 @@
   const dispatch = createEventDispatcher<{
     close: void;
     navigateRef: { key: string };
-    navigateMode: { category: string; subtype: string | null };
+    navigateBand: { id: string };
   }>();
 
   $: vibKey = mode.subtype ? `${mode.category}.${mode.subtype}` : mode.category;
@@ -99,20 +99,14 @@
     </div>
   {/if}
 
-  <button
-    class="band-link"
-    disabled={bands.length === 0}
-    on:click={() => dispatch('navigateMode', { category: mode.category, subtype: mode.subtype })}
-  >View {bands.length} band{bands.length !== 1 ? 's' : ''} in chart →</button>
-
   <div class="bands-section">
     <div class="section-header">Bands</div>
     {#each bands as b (b.id)}
       {@const bTags = getBandTags(b)}
       {@const cTags = [...new Set(b.references.flatMap(r => r.tags))]}
-      <div class="band-box">
+      <button class="band-box" on:click={() => dispatch('navigateBand', { id: b.id })} title="View in band chart">
         <div class="band-box-line">
-          <span class="band-name">{b.short || b.id}</span>
+          <span class="band-name">{b.short || b.id} <span class="band-box-arrow">↗</span></span>
           <span class="badge-wn">{b.wn_min}–{b.wn_max} cm⁻¹</span>
         </div>
         {#if b.description}
@@ -131,7 +125,7 @@
             {#each cTags as t (t)}<span class="pill">{t}</span>{/each}
           </div>
         {/if}
-      </div>
+      </button>
     {/each}
     {#if bands.length === 0}
       <p class="no-bands">No separately observed band — see the note above.</p>
@@ -245,21 +239,6 @@
     white-space: nowrap;
   }
 
-  .band-link {
-    display: block;
-    margin: 4px 0 14px;
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 12.5px;
-    color: #1a3a8f;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .band-link:hover { text-decoration: underline; }
-  .band-link:disabled { color: #B0B0B0; cursor: default; text-decoration: none; }
-
   .section-header {
     font-size: 10.5px;
     font-weight: 700;
@@ -272,13 +251,26 @@
   .bands-section { margin-bottom: 14px; }
 
   .band-box {
+    display: block;
+    width: 100%;
     background: #f8f6f1;
     border: 1px solid #e2d9c9;
     border-left: 3px solid #c4a86e;
     border-radius: 4px;
     padding: 7px 9px;
     margin-top: 6px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s, border-left-color 0.1s;
   }
+
+  .band-box:hover {
+    background: #f0ece4;
+    border-left-color: #a08050;
+  }
+  .band-box:hover .band-box-arrow { opacity: 1; }
 
   .band-box-line {
     display: flex;
@@ -291,6 +283,13 @@
     font-size: 12.5px;
     font-weight: 600;
     color: #222;
+  }
+
+  .band-box-arrow {
+    font-size: 10px;
+    color: #a08050;
+    opacity: 0;
+    transition: opacity 0.1s;
   }
 
   .badge-wn {

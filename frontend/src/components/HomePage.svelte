@@ -14,6 +14,24 @@
   </div>
 
   <div class="cards">
+    <!-- Vibration Modes -->
+    <button class="card" on:click={() => dispatch('navigate', { page: 'vibration' })}>
+      <div class="card-icon" style="background:#d8f2ec; color:#27745e">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
+          <path d="M3 12 C5 6 7 6 9 12 C11 18 13 18 15 12 C17 6 19 6 21 12"/>
+          <circle cx="3" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+          <circle cx="21" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <h2 class="card-title">Vibration Modes</h2>
+      <p class="card-desc">
+        Reference guide to vibrational mode types, symmetry labels, and spectroscopic
+        notation used throughout this atlas.
+      </p>
+      <span class="card-cta" style="color:#27745e">Open modes →</span>
+    </button>
+
     <!-- Band Chart -->
     <button class="card" on:click={() => dispatch('navigate', { page: 'chart' })}>
       <div class="card-icon" style="background:#dbe9fd; color:#2c4a6e">
@@ -48,24 +66,6 @@
         source or by spectral group, with expandable per-band notes and site tags.
       </p>
       <span class="card-cta" style="color:#996a20">Open references →</span>
-    </button>
-
-    <!-- Vibration Modes -->
-    <button class="card" on:click={() => dispatch('navigate', { page: 'vibration' })}>
-      <div class="card-icon" style="background:#d8f2ec; color:#27745e">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <path d="M3 12 C5 6 7 6 9 12 C11 18 13 18 15 12 C17 6 19 6 21 12"/>
-          <circle cx="3" cy="12" r="1.8" fill="currentColor" stroke="none"/>
-          <circle cx="21" cy="12" r="1.8" fill="currentColor" stroke="none"/>
-        </svg>
-      </div>
-      <h2 class="card-title">Vibration Modes</h2>
-      <p class="card-desc">
-        Reference guide to vibrational mode types, symmetry labels, and spectroscopic
-        notation used throughout this atlas.
-      </p>
-      <span class="card-cta" style="color:#27745e">Open modes →</span>
     </button>
   </div>
 </main>

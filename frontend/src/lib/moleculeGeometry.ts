@@ -412,6 +412,26 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
         ],
       },
     },
+    // Same vertical C-O layout as `linear`, but flipped end-for-end: O is
+    // the bound atom here, C points away from the surface, since this
+    // topology is specifically CO coordinated through its oxygen end.
+    isocarbonyl: {
+      atoms: [
+        { element: 'O', x: 0, y: BOUND_ATOM_Y },
+        { element: 'C', x: 0, y: BOUND_ATOM_Y - 28 },
+      ],
+      bonds: [[0, 1]],
+      surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 0, offsets: [0] }] },
+      modes: {
+        // O fixed, C moves along the bond — same single-bond motion as
+        // every other CO stretch in this file, just with the bound atom
+        // swapped.
+        co_iso_stretch: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: -1 },
+        ],
+      },
+    },
   },
   // HCOO* — only bidentate is offered (no monodentate content yet). Both
   // O's are bonded to the surface, H points away from it.
@@ -760,6 +780,12 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
   co: {
     gas: {
       pointCloud: '2 atoms, necessarily collinear — a C∞ axis along the bond plus an infinite set of mirror planes containing it, but no inversion center (the two atoms are different elements), giving C∞v rather than D∞h.',
+      terms: [
+        { symbol: 'Σ⁺', count: 1 },
+      ],
+    },
+    isocarbonyl: {
+      pointCloud: 'Still just 2 atoms — the same C∞v point cloud as gas-phase CO, just bound through the other end. Flipping which atom faces the surface doesn\'t add a particle or remove a symmetry element, so the molecule itself has exactly the same single Σ⁺ stretch.',
       terms: [
         { symbol: 'Σ⁺', count: 1 },
       ],

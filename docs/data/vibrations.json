@@ -285,6 +285,12 @@
           "short": "gem",
           "long": "geminal (M(CO)₂)",
           "point_group": "C<sub>2v</sub>"
+        },
+        {
+          "id": "isocarbonyl",
+          "short": "iso",
+          "long": "isocarbonyl (M-OC)",
+          "point_group": "C<sub>∞v</sub>"
         }
       ],
       "modes": [
@@ -631,6 +637,30 @@
           "wn_start": 300,
           "wn_end": 500,
           "bands": []
+        },
+        {
+          "id": "co_iso_stretch",
+          "label": "ν(CO)",
+          "note": "C and O move apart and together along the bond, exactly as in the linear (μ₁) topology — but here the molecule is flipped end-for-end, binding the metal/cation through its oxygen rather than its carbon. On a purely electrostatic cation site, this reversed orientation polarizes the bond the opposite way from C-bonding, red-shifting ν(CO) below the free-gas value instead of blue-shifting it, even though both orientations occupy the very same site simultaneously, in equilibrium with one another. Σ⁺, 2105–2125 cm⁻¹.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [
+            "ir-active"
+          ],
+          "reference": [
+            "Ugliengo.QuantumChemicalCalculations.1999"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "C-O",
+          "topology": "isocarbonyl",
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ⁺",
+          "wn_start": 2105,
+          "wn_end": 2125,
+          "bands": [
+            "co_isocarbonyl_2220"
+          ]
         }
       ]
     },

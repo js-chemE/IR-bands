@@ -21,7 +21,7 @@
   type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
   let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
-  let sidebarOpen = true;
+  let sidebarOpen = false;
   let showColorMenu = false;
   let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -157,18 +157,21 @@
     }, 80);
   }
 
-  function handleNavigateMode(e: CustomEvent<{ category: string; subtype: string | null }>) {
+  let focusBand: { id: string; nonce: number } | null = null;
+  let focusNonce = 0;
+
+  function handleNavigateBand(e: CustomEvent<{ id: string }>) {
     if (!dataset) return;
-    const { category, subtype } = e.detail;
-    const cat = subtype ? `${category}.${subtype}` : category;
-    colorDim = 'vibration';
-    // Compute the isolate set directly for 'vibration' rather than reusing
-    // the legendCats reactive value — it's still derived from the *old*
-    // colorDim at this point in the synchronous handler.
-    const allKeys = getLegendCategories(dataset.bands, dataset.groups, enabledGroups, 'vibration')
-      .map(c => c.key);
-    hiddenCats = new Set(allKeys.filter(k => k !== cat));
+    const band = dataset.bands.find(b => b.id === e.detail.id);
+    if (!band) return;
+    setColorDim('vibration');
+    // Make sure the band's own group is actually enabled — otherwise it
+    // would be selected but invisible if the user had toggled that group
+    // off via the sidebar at some point.
+    enabledGroups = new Set(enabledGroups).add(band.group);
     page = 'chart';
+    focusNonce += 1;
+    focusBand = { id: band.id, nonce: focusNonce };
   }
 
   const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
@@ -231,6 +234,8 @@
         <div class="collapsed-page-nav">
           <button class="page-mini-btn" class:active={page === 'home'}
             on:click={() => page = 'home'} title="Home">H</button>
+          <button class="page-mini-btn" class:active={page === 'vibration'}
+            on:click={() => page = 'vibration'} title="Vibration modes">V</button>
           <!-- B button: click = go to chart; hover = color quick-switch -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="mini-btn-wrap"
@@ -253,8 +258,6 @@
           </div>
           <button class="page-mini-btn" class:active={page === 'references'}
             on:click={() => page = 'references'} title="References">R</button>
-          <button class="page-mini-btn" class:active={page === 'vibration'}
-            on:click={() => page = 'vibration'} title="Vibration modes">V</button>
           <button class="page-mini-btn" class:active={page === 'impressum'}
             on:click={() => page = 'impressum'} title="Impressum">I</button>
         </div>
@@ -265,9 +268,9 @@
         <!-- Page selector -->
         <nav class="page-nav">
           <button class:active={page === 'home'}       on:click={() => page = 'home'}>Home</button>
+          <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
           <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
           <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
-          <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
           <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
         </nav>
 
@@ -330,6 +333,7 @@
           {axisUnit}
           hoveredCat={legendHoveredCat}
           hoveredTag={legendHoveredTag}
+          {focusBand}
           on:navigateRef={handleNavigateRef}
         />
         <div class="legend-box">
@@ -367,7 +371,7 @@
           {vibrations}
           {sortedGroupKeys}
           on:navigateRef={handleNavigateRef}
-          on:navigateMode={handleNavigateMode}
+          on:navigateBand={handleNavigateBand}
         />
       {:else if page === 'impressum'}
         <ImpressumPage />

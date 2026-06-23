@@ -25,6 +25,11 @@
   export let axisUnit: string;
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
+  // Set by a parent that wants to jump straight to one band (e.g. clicking
+  // a band card on the Vibration Modes page) — `nonce` forces re-application
+  // even if the same band is focused twice in a row, since plain reactivity
+  // wouldn't notice an unchanged id.
+  export let focusBand: { id: string; nonce: number } | null = null;
 
   const HIT_PAD = 3; // must match chart.ts
 
@@ -262,6 +267,52 @@
     observer.observe(container);
     return () => observer.disconnect();
   });
+
+  // External focus request (e.g. clicking a band card on the Vibration
+  // Modes page) — select that one band exactly as a real click would,
+  // just without a PointerEvent to read tip coordinates from, and make
+  // sure it's actually scrolled into view first.
+  let appliedFocusNonce = -1;
+  $: if (focusBand && focusBand.nonce !== appliedFocusNonce && container && hitBands.length) {
+    appliedFocusNonce = focusBand.nonce;
+    focusOnBand(focusBand.id);
+  }
+
+  function focusOnBand(id: string) {
+    const found = findHitOrSynthetic(id);
+    if (!found) return;
+    selected = found.real ? found.hit : null;
+    selectedId = id;
+    requestAnimationFrame(() => {
+      const x = (found.hit.px1 + found.hit.px2) / 2;
+      const y = (found.hit.py1 + found.hit.py2) / 2;
+      const place = () => {
+        const rect = container.getBoundingClientRect();
+        selectedTipX = rect.left + x;
+        selectedTipY = rect.top + y;
+      };
+      const scrollParent = container.closest('.main-area') as HTMLElement | null;
+      if (scrollParent) {
+        const containerRect = container.getBoundingClientRect();
+        const parentRect = scrollParent.getBoundingClientRect();
+        const bandAbsX = containerRect.left + x;
+        const bandAbsY = containerRect.top + y;
+        const needsScroll =
+          bandAbsY < parentRect.top + 60 || bandAbsY > parentRect.bottom - 60 ||
+          bandAbsX < parentRect.left + 60 || bandAbsX > parentRect.right - 60;
+        if (needsScroll) {
+          scrollParent.scrollTo({
+            top: Math.max(0, scrollParent.scrollTop + (bandAbsY - parentRect.top) - parentRect.height / 2),
+            left: Math.max(0, scrollParent.scrollLeft + (bandAbsX - parentRect.left) - parentRect.width / 2),
+            behavior: 'smooth',
+          });
+          setTimeout(place, 350);
+          return;
+        }
+      }
+      place();
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Tooltip / hover / select state
