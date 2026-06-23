@@ -806,12 +806,15 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
   // 9 normal modes aren't authored yet.
   bicarbonate: {
     bidentate: {
+      // The O-H bond is drawn at a real 120° angle to the C-OH bond (not a
+      // straight continuation of it) — same convention as the monodentate
+      // diagram's own H placement.
       atoms: [
         { element: 'C', x: 0, y: BOUND_ATOM_Y - 16 },
         { element: 'O', x: -15, y: BOUND_ATOM_Y },
         { element: 'O', x: 15, y: BOUND_ATOM_Y },
         { element: 'O', x: 0, y: BOUND_ATOM_Y - 38 },
-        { element: 'H', x: 0, y: BOUND_ATOM_Y - 52 },
+        { element: 'H', x: 12, y: BOUND_ATOM_Y - 45 },
       ],
       bonds: [[0, 1], [0, 2], [0, 3], [3, 4]],
       surface: { y: SURFACE_Y, boundAtoms: [{ atomIndex: 1, offsets: [0] }, { atomIndex: 2, offsets: [0] }] },
@@ -847,14 +850,14 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0, rotateDeg: 15, pivot: { x: 0, y: BOUND_ATOM_Y - 38 } },
         ],
-        // The O-H proton stretches outward along its own (vertical) bond;
-        // the oxygen it's attached to makes a small compensating recoil.
+        // The O-H proton stretches outward along its own bond; the oxygen
+        // it's attached to makes a small compensating recoil.
         bicarbonate_stretch_oh_bidentate: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0.06 },
-          { dx: 0, dy: -1 },
+          { dx: -0.05, dy: 0.03 },
+          { dx: 0.866, dy: -0.5 },
         ],
         // The O-H group (O plus its H, moving together as a rigid unit)
         // stretches away from C along the single C-OH bond; C recoils
@@ -866,16 +869,17 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: 0, dy: -1 },
           { dx: 0, dy: -1 },
         ],
-        // Ring flattening: C and the O-H group draw apart from each other
-        // along their shared axis — same trick as carbonate's own
-        // scissoring — while the two bound O's, which define the ring,
-        // stay fixed.
+        // The C-OH group (C plus the O-H, rigidly together — the C-OH bond
+        // itself never changes length here) shifts toward the surface,
+        // while the two bound O's spread slightly apart, away from each
+        // other, to exaggerate the same scissoring opening — a small extra
+        // motion on top of the main one, not the main one itself.
         bicarbonate_bend_oco_bidentate: [
           { dx: 0, dy: 0.5 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: 0 },
-          { dx: 0, dy: -0.5 },
-          { dx: 0, dy: -0.5 },
+          { dx: -0.15, dy: 0 },
+          { dx: 0.15, dy: 0 },
+          { dx: 0, dy: 0.5 },
+          { dx: 0, dy: 0.5 },
         ],
         // The C-OH group (C itself plus the O-H, in phase) tilts sideways
         // together, swinging relative to the two fixed bound O's — same
@@ -898,14 +902,17 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: 0, dy: 0, scale: 0.3 },
           { dx: 0, dy: 0, scale: 0.3 },
         ],
-        // The O-H proton alone twists out of the plane around the C-OH
-        // bond — localized to the H, same out-of-plane pulsing trick.
+        // The O-H proton keeps the same out-of-plane pulsing as the wagging
+        // above, localized to the H alone, but now also pulls slightly
+        // inward along its own bond at the same time — a small, genuine
+        // shortening superimposed on the depth cue, in both directions of
+        // the cycle.
         bicarbonate_torsion_bidentate: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, scale: 0.4 },
+          { dx: -0.13, dy: 0.075, scale: 0.4 },
         ],
       },
     },
