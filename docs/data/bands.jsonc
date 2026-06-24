@@ -958,7 +958,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_stretch_linear"]
     },
     {
@@ -995,7 +995,7 @@
       "intensity": "m",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_stretch_bridged"]
     },
     {
@@ -1023,7 +1023,7 @@
           "tags": ["computational"]
         }
       ],
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_stretch_hollow"]
     },
     {
@@ -1043,7 +1043,7 @@
       "description": "Four-fold hollow CO coordinated to four metal atoms at once — a comparatively rare coordination geometry, since it needs a specific square arrangement of surface atoms to form. Exhibits the lowest ν(CO) frequencies among metal-CO adsorption modes, since backdonation from four neighbors at once weakens the C-O bond more than any other coordination geometry.",
       "based_on": [],
       "references": [],
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_stretch_hollow"]
     },
 
@@ -1087,7 +1087,7 @@
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["site-sensitive"]
     },
     {
       "id": "co_isocarbonyl_2220",
@@ -1115,7 +1115,7 @@
       ],
       "intensity": "w",
       "confidence": "confirmed",
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_iso_stretch"]
     },
     {
@@ -1143,7 +1143,7 @@
           "tags": ["isotopic-shift"]
         }
       ],
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_geminal_stretch_asymmetric"]
     },
     {
@@ -1171,7 +1171,7 @@
           "tags": ["isotopic-shift"]
         }
       ],
-      "tags": [],
+      "tags": ["site-sensitive"],
       "vibration_modes": ["co_geminal_stretch_symmetric"]
     },
 

@@ -1057,7 +1057,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1105,7 +1107,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1146,7 +1150,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1177,7 +1183,9 @@
       "description": "Four-fold hollow CO coordinated to four metal atoms at once — a comparatively rare coordination geometry, since it needs a specific square arrangement of surface atoms to form. Exhibits the lowest ν(CO) frequencies among metal-CO adsorption modes, since backdonation from four neighbors at once weakens the C-O bond more than any other coordination geometry.",
       "based_on": [],
       "references": [],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1239,7 +1247,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1285,7 +1295,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1326,7 +1338,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
@@ -1367,7 +1381,9 @@
           ]
         }
       ],
-      "tags": [],
+      "tags": [
+        "site-sensitive"
+      ],
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
