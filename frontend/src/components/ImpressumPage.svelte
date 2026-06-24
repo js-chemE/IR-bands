@@ -52,31 +52,71 @@
   <section class="section">
     <h2>Download Data</h2>
     <p class="dl-intro">The underlying dataset is available in several formats:</p>
-    <div class="dl-cards">
-      <a class="dl-card" href="data/bands.jsonc" download="bands.jsonc">
-        <div class="dl-icon">↓</div>
-        <div class="dl-body">
-          <div class="dl-name">JSONC source</div>
-          <div class="dl-desc">Annotated band data with inline comments</div>
-          <code class="dl-file">bands.jsonc</code>
-        </div>
-      </a>
-      <a class="dl-card" href="data/bands.json" download="bands.json">
-        <div class="dl-icon">↓</div>
-        <div class="dl-body">
-          <div class="dl-name">JSON data</div>
-          <div class="dl-desc">Clean, processed JSON for programmatic use</div>
-          <code class="dl-file">bands.json</code>
-        </div>
-      </a>
-      <a class="dl-card" href="data/references.bib" download="references.bib">
-        <div class="dl-icon">↓</div>
-        <div class="dl-body">
-          <div class="dl-name">BibTeX references</div>
-          <div class="dl-desc">All cited literature entries</div>
-          <code class="dl-file">references.bib</code>
-        </div>
-      </a>
+
+    <div class="dl-row">
+      <div class="dl-row-label">Vibrations</div>
+      <div class="dl-cards">
+        <a class="dl-card" href="data/vibrations.jsonc" download="vibrations.jsonc">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">JSONC source</div>
+            <div class="dl-desc">Annotated vibration-mode data with inline comments</div>
+            <code class="dl-file">vibrations.jsonc</code>
+          </div>
+        </a>
+        <a class="dl-card" href="data/vibrations.json" download="vibrations.json">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">JSON data</div>
+            <div class="dl-desc">Clean, processed JSON for programmatic use</div>
+            <code class="dl-file">vibrations.json</code>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="dl-row">
+      <div class="dl-row-label">Bands</div>
+      <div class="dl-cards">
+        <a class="dl-card" href="data/bands.jsonc" download="bands.jsonc">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">JSONC source</div>
+            <div class="dl-desc">Annotated band data with inline comments</div>
+            <code class="dl-file">bands.jsonc</code>
+          </div>
+        </a>
+        <a class="dl-card" href="data/bands.json" download="bands.json">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">JSON data</div>
+            <div class="dl-desc">Clean, processed JSON for programmatic use</div>
+            <code class="dl-file">bands.json</code>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="dl-row">
+      <div class="dl-row-label">References</div>
+      <div class="dl-cards">
+        <a class="dl-card" href="data/references.bib" download="references.bib">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">BibTeX source</div>
+            <div class="dl-desc">All cited literature entries</div>
+            <code class="dl-file">references.bib</code>
+          </div>
+        </a>
+        <a class="dl-card" href="data/references.json" download="references.json">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">JSON data</div>
+            <div class="dl-desc">Clean, processed JSON for programmatic use</div>
+            <code class="dl-file">references.json</code>
+          </div>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -97,12 +137,12 @@
     padding: 28px 48px 48px;
     max-width: 760px;
     box-sizing: border-box;
-    font-size: 13.5px;
+    font-size: 14.5px;
     line-height: 1.6;
   }
 
   .page-title {
-    font-size: 26px;
+    font-size: 27px;
     font-weight: 800;
     color: #1a3055;
     margin: 0 0 32px;
@@ -114,7 +154,7 @@
   }
 
   .section h2 {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
@@ -139,7 +179,7 @@
   .info-row {
     display: flex;
     gap: 16px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
   }
 
@@ -159,6 +199,22 @@
   .dl-intro {
     color: #556;
     margin-bottom: 14px !important;
+  }
+
+  .dl-row {
+    margin-bottom: 16px;
+  }
+  .dl-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .dl-row-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a93a3;
+    margin-bottom: 6px;
   }
 
   .dl-cards {
@@ -189,7 +245,7 @@
   }
 
   .dl-icon {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
     color: #c4a86e;
     line-height: 1;
@@ -198,21 +254,21 @@
   }
 
   .dl-name {
-    font-size: 13.5px;
+    font-size: 14.5px;
     font-weight: 700;
     color: #1a2a3a;
     margin-bottom: 3px;
   }
 
   .dl-desc {
-    font-size: 12px;
+    font-size: 13px;
     color: #667;
     line-height: 1.4;
     margin-bottom: 6px;
   }
 
   .dl-file {
-    font-size: 11px;
+    font-size: 12px;
     font-family: ui-monospace, 'Courier New', monospace;
     background: #ede8de;
     color: #7a6040;

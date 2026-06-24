@@ -302,7 +302,7 @@
     background: #FFF3CD;
     border: 1px solid #E6C86A;
     color: #7A5A00;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -312,7 +312,7 @@
   }
 
   h1 {
-    font-size: 22px;
+    font-size: 23px;
     font-weight: 700;
     color: #222;
     margin: 0 0 8px 0;
@@ -320,7 +320,7 @@
 
   .intro {
     margin: 0 0 16px 0;
-    font-size: 13.5px;
+    font-size: 14.5px;
     color: #666;
     line-height: 1.6;
     max-width: 760px;
@@ -336,7 +336,7 @@
     border: 1px solid #D0D0D0;
     border-radius: 5px;
     padding: 5px 12px;
-    font-size: 12.5px;
+    font-size: 13.5px;
     color: #444;
     cursor: pointer;
   }
@@ -345,7 +345,7 @@
 
   .chevron {
     display: inline-block;
-    font-size: 9px;
+    font-size: 10px;
     transition: transform 0.15s ease;
   }
 
@@ -357,11 +357,11 @@
     background: #FAFAFA;
     border: 1px solid #E5E5E5;
     border-radius: 6px;
-    font-size: 12.5px;
+    font-size: 13.5px;
   }
 
   .notation-header {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -371,7 +371,7 @@
 
   .notation-subheader {
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
     color: #333;
     margin: 4px 0;
   }
@@ -393,7 +393,7 @@
   .notation-table {
     display: grid;
     gap: 3px 16px;
-    font-size: 12.5px;
+    font-size: 13.5px;
   }
 
   .stretch-table, .rest-table { grid-template-columns: max-content 1fr; }
@@ -422,14 +422,14 @@
   .notation-note {
     margin: 10px 0 0;
     padding: 0 18px;
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: #777;
     line-height: 1.55;
     max-width: 760px;
   }
 
   .empty {
-    font-size: 14px;
+    font-size: 15px;
     color: #888;
   }
 
@@ -456,7 +456,7 @@
   }
 
   .molecule-title {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
     color: #222;
     margin: 0 0 6px;
@@ -469,7 +469,7 @@
   }
 
   .symmetry-line {
-    font-size: 12px;
+    font-size: 13px;
     color: #777;
     line-height: 1.5;
     margin: 0 0 4px;
@@ -479,7 +479,7 @@
 
   .symmetry-coverage {
     font-family: 'Courier New', monospace;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .point-group {

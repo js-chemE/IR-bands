@@ -652,7 +652,11 @@ def main() -> int:
     print(f"✓ Wrote {VIBRATIONS_OUT.relative_to(ROOT)} ({VIBRATIONS_OUT.stat().st_size:,} bytes)")
 
     # Copy source files so the frontend can offer them as downloads.
-    for src, dst in [(BANDS_SRC, DOCS_DATA / "bands.jsonc"), (REFS_SRC, DOCS_DATA / "references.bib")]:
+    for src, dst in [
+        (BANDS_SRC, DOCS_DATA / "bands.jsonc"),
+        (VIBRATIONS_SRC, DOCS_DATA / "vibrations.jsonc"),
+        (REFS_SRC, DOCS_DATA / "references.bib"),
+    ]:
         shutil.copy(src, dst)
         print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
 

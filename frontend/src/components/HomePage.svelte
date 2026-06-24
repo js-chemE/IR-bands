@@ -89,7 +89,7 @@
   }
 
   .hero-title {
-    font-size: 36px;
+    font-size: 37px;
     font-weight: 800;
     font-style: italic;
     color: #1a3055;
@@ -98,7 +98,7 @@
   }
 
   .hero-tagline {
-    font-size: 14px;
+    font-size: 15px;
     color: #7a8a9f;
     font-style: italic;
     margin: 0 0 16px;
@@ -106,7 +106,7 @@
   }
 
   .hero-desc {
-    font-size: 13.5px;
+    font-size: 14.5px;
     color: #445566;
     line-height: 1.65;
     margin: 0;
@@ -162,14 +162,14 @@
   }
 
   .card-title {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
     color: #1a2a3a;
     margin: 0;
   }
 
   .card-desc {
-    font-size: 13px;
+    font-size: 14px;
     color: #556677;
     line-height: 1.58;
     margin: 0;
@@ -177,7 +177,7 @@
   }
 
   .card-cta {
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 600;
   }
 </style>

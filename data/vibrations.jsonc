@@ -50,7 +50,10 @@
 // list too — e.g. CO₂'s νₛ+νₐₛ combination band is based_on co2_sym_1388
 // (which links to co2_stretch_symmetric) and the ν₃ branch_group (which
 // links to co2_stretch_asymmetric), so it shows up under both fundamentals'
-// "Bands" sections without being listed here at all.
+// "Bands" sections without being listed here at all. The same resolution
+// also writes the inherited mode id(s) back onto that band's own
+// vibration_modes field in the emitted bands.json (still empty in this
+// source file) — see bands.jsonc's own preamble.
 //
 // Pixel geometry/displacement vectors for the animated diagrams live in the
 // frontend (frontend/src/lib/moleculeGeometry.ts), keyed by molecule.id and
@@ -388,8 +391,8 @@
           "herzberg_notation": "ν₁",
           "symmetry": "Σ⁺",
           "wn_start": 2000,
-          "wn_end": 2130,
-          "note": "C and O move apart and together along the bond, bonded end-on to a single metal atom. Metal→CO π-backdonation into the antibonding 2π* orbital weakens the C-O bond, red-shifting this stretch well below the free CO value (2143 cm⁻¹) — though it's still the highest-frequency mode of the adsorption complex.",
+          "wn_end": 2230,
+          "note": "C and O move apart and together along the bond, bonded end-on to a single metal atom or cation. On a reduced metal, backdonation into the antibonding 2π* orbital weakens the C-O bond, red-shifting this stretch below the free CO value (2143 cm⁻¹); on a Lewis-acidic cation site with little or no backdonation, the opposite — blue-shifted above it instead. Still the highest-frequency mode of the adsorption complex either way.",
           "ir_active": true,
           "raman_active": null,
           "tags": [],

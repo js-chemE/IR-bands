@@ -338,7 +338,7 @@
     padding: 24px 40px;
     max-width: 900px;
     box-sizing: border-box;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.55;
   }
 
@@ -349,7 +349,7 @@
     color: #1d4ed8;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-family: 'Courier New', monospace;
     white-space: nowrap;
     flex-shrink: 0;
@@ -361,7 +361,7 @@
     color: #78350f;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10.5px;
+    font-size: 11.5px;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -371,7 +371,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 3px;
     padding: 1px 5px;
-    font-size: 10px;
+    font-size: 11px;
     color: #555;
     white-space: nowrap;
     flex-shrink: 0;
@@ -381,7 +381,7 @@
     border: 1px solid;
     border-radius: 3px;
     padding: 1px 5px;
-    font-size: 10px;
+    font-size: 11px;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -403,7 +403,7 @@
   }
 
   .band-name {
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #222;
     margin-right: 2px;
@@ -411,7 +411,7 @@
   .band-name :global(sub), .band-name :global(sup) { font-size: 0.75em; }
 
   .expand-arrow {
-    font-size: 9px;
+    font-size: 10px;
     color: #aaa;
     margin-left: auto;
     flex-shrink: 0;
@@ -425,14 +425,14 @@
   }
 
   .expand-desc {
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: #555;
     line-height: 1.4;
   }
   .expand-desc :global(sub), .expand-desc :global(sup) { font-size: 0.75em; }
 
   .expand-note {
-    font-size: 11px;
+    font-size: 12px;
     color: #8a7a4a;
     font-style: italic;
     margin-top: 2px;
@@ -451,20 +451,20 @@
   }
 
   .ref-card-citation {
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #222;
     line-height: 1.55;
     margin-bottom: 8px;
   }
   .ref-card-citation :global(em) { font-style: italic; }
-  .ref-card-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 11px; }
+  .ref-card-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 12px; }
   .ref-card-citation :global(a.ext:hover) { color: #5a3e1b; }
 
   .group-section { margin-top: 7px; }
 
   .group-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
@@ -489,7 +489,7 @@
   }
 
   .group-card-header {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -508,13 +508,13 @@
   }
 
   .ref-sub-citation {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #222;
     line-height: 1.5;
     margin-bottom: 6px;
   }
   .ref-sub-citation :global(em) { font-style: italic; }
-  .ref-sub-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 11px; }
+  .ref-sub-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 12px; }
   .ref-sub-citation :global(a.ext:hover) { color: #5a3e1b; }
 </style>

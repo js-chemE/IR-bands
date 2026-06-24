@@ -1,0 +1,1508 @@
+// =============================================================================
+// Content for the "Vibration modes" page: molecules and their named modes.
+// -----------------------------------------------------------------------------
+// This file is JSONC (JSON with Comments). The build step strips // and /* */
+// comments before shipping clean JSON to the browser.
+//
+// IMPORTANT — keep this preamble in sync: whenever a key below is added,
+// removed, renamed, or its meaning changes (in schema.py, loader.py, or this
+// file), update this comment block in the same change. See CLAUDE.md.
+//
+// HTML in text fields: topologies[].point_group and modes[].symmetry use
+// literal <sub>/<sup> tags for proper subscript/superscript rendering (e.g.
+// "D<sub>∞h</sub>", "Σ<sub>g</sub>⁺") — same convention as Band.short/
+// description in bands.jsonc. The frontend renders both with {@html}, not
+// plain text interpolation. Every OTHER text field (topologies[].long/short,
+// modes[].label/note) uses plain Unicode super/subscript characters instead
+// (ν₁, η¹, μ₂, Oₛ...) — HTML is reserved for point_group/symmetry
+// specifically because point-group labels need letter subscripts (2v, ∞h)
+// that Unicode has no equivalent for, unlike digits. herzberg_notation
+// doesn't need HTML either — its subscripts are always digits, which
+// already have real Unicode subscript characters (ν₁, ν₂...).
+//
+// -----------------------------------------------------------------------------
+// Cross-file links — the keys that actually connect this file to bands.jsonc
+// and references.bib. Everything else below is this file's own schema.
+// -----------------------------------------------------------------------------
+//   band_groups → must be real Group keys from bands.jsonc's "groups" table
+//                 (the same keys bands.jsonc's own `group` field uses) — not
+//                 validated against any one band.
+//   modes[].reference → citekeys, resolved against references.bib.
+//
+// IMPORTANT — this file does NOT point at bands.jsonc at all; the link runs
+// the other way. A Band in bands.jsonc optionally lists its own
+// `vibration_modes: [mode id, ...]` — this is the ONLY place that connection
+// is authored. Why: a mode's category/subtype/atoms would otherwise have to
+// be typed out twice (once on the band, once again here) and kept in sync by
+// hand. Instead, _link_modes_to_bands() in src/ir_bands/loader.py resolves
+// the link FROM bands.jsonc and uses it to:
+//   1. Build each mode's `bands` list (which real bands document it) —
+//      computed, not part of this file's schema at all. See modes[].bands
+//      below.
+//   2. Overwrite modes[].category/atoms with whatever the linked band(s)
+//      say (erroring if more than one linked band disagrees). modes[].
+//      subtype gets the same treatment UNLESS the linked band is itself
+//      shared with another mode (see modes[].subtype below) — that's the
+//      one case where this file must still author it by hand.
+// A combination/overtone band doesn't need its own vibration_modes entry at
+// all: if it has none, but its `based_on` points (one level) at a band that
+// DOES link to a mode, it's automatically included in that mode's `bands`
+// list too — e.g. CO₂'s νₛ+νₐₛ combination band is based_on co2_sym_1388
+// (which links to co2_stretch_symmetric) and the ν₃ branch_group (which
+// links to co2_stretch_asymmetric), so it shows up under both fundamentals'
+// "Bands" sections without being listed here at all. The same resolution
+// also writes the inherited mode id(s) back onto that band's own
+// vibration_modes field in the emitted bands.json (still empty in this
+// source file) — see bands.jsonc's own preamble.
+//
+// Pixel geometry/displacement vectors for the animated diagrams live in the
+// frontend (frontend/src/lib/moleculeGeometry.ts), keyed by molecule.id and
+// mode.id — NOT in this file, which is editorial content only.
+//
+// -----------------------------------------------------------------------------
+// Top-level shape: { "molecules": [ Molecule, ... ] } — one entry per
+// molecule, each carrying its own self-contained list of modes. A mode's id
+// only needs to be unique within its molecule's `modes` array, but in
+// practice every id in this file is globally unique (prefixed with the
+// molecule id) to make bands.jsonc's vibration_modes/reference debugging
+// easier — including telling apart topology-split entries at a glance, e.g.
+// carbonate_wagging_bidentate vs carbonate_wagging_monodentate.
+// -----------------------------------------------------------------------------
+//
+// Molecule fields:
+//   id          — unique snake_case, matches the key used in
+//                 moleculeGeometry.ts's MOLECULE_GEOMETRY table.
+//   label       — SHORT, common display name, e.g. "Formate", "Carbonate".
+//                 This is what's shown prominently in the UI: the molecule
+//                 selector's pill buttons and the big title at the top of
+//                 the molecule card. Optimized for being compact/readable at
+//                 a glance, not for chemical precision.
+//   species     — LONG form: the actual chemical formula, e.g. "HCOO*",
+//                 "CO₃²⁻" (the asterisk marks a surface-bound species, same
+//                 convention as bands.jsonc). More explicit than `label`,
+//                 used in the one-line subtitle under a mode's title. For
+//                 small molecules whose formula is already maximally short
+//                 (CO, CO₂), label and species are identical — there's no
+//                 separate "common name" worth showing.
+//                 Neither label nor species is used to resolve any
+//                 cross-reference — they're both purely descriptive. (Note
+//                 species here is NOT required to equal bands.jsonc's own
+//                 `species` field for the same chemical — that one follows
+//                 its own short-common-name convention, e.g. "Formate*".)
+//   shape       — "linear" | "nonlinear", the textbook geometry
+//                 classification. Combined with the atom count from this
+//                 molecule's own entry in moleculeGeometry.ts, the frontend
+//                 computes the standard 3N-5 (linear) / 3N-6 (non-linear)
+//                 fundamental-mode count and shows how many of those are
+//                 actually listed below (e.g. "2 fundamental modes
+//                 missing") — an honest, self-updating completeness signal,
+//                 not something to edit by hand.
+//   band_groups — see "Cross-file links" above.
+//   topologies  — list of {id, short, long, point_group}: every binding
+//                 geometry this molecule's animated diagram can show. Every
+//                 molecule needs at least one. id matches a key in this
+//                 molecule's entry in moleculeGeometry.ts's MOLECULE_GEOMETRY
+//                 table (which has its own, separate pixel geometry per
+//                 topology — different atoms are fixed/bound for, say,
+//                 monodentate vs bidentate) AND must match whatever
+//                 modes[].topology entries reference (see below). short is
+//                 currently unused in the UI (the selector shows `long` in
+//                 full — see VibrationMode.topology for why); kept for any
+//                 future spot that needs a compact abbreviation. long is the
+//                 selector's button text, e.g. {"id": "monodentate",
+//                 "short": "m", "long": "monodentate"}. A gas-phase molecule
+//                 still needs exactly one entry, conventionally {"id":
+//                 "gas", "short": "gas", "long": "free-gas"}. A surface
+//                 species with only one real binding geometry still gets the
+//                 matching real id/long even though there's no second
+//                 topology to contrast it with — e.g. methoxy is
+//                 "monodentate" rather than some generic "bound"/
+//                 "surface-bound" placeholder, same convention as
+//                 carbonate's two. The selector is always shown, even for a
+//                 single-topology molecule — it's a small, factual label of
+//                 what's being shown, not just a picker — and changes which
+//                 diagram/animation is shown AND which of modes[] (see
+//                 VibrationMode.topology) the page even lists. point_group
+//                 is this topology's own symmetry point group, written with
+//                 literal <sub> tags (e.g. "C<sub>2v</sub>") — see "HTML in
+//                 text fields" above. Binding geometry genuinely changes the
+//                 point group (the same reason VibrationMode.symmetry can
+//                 differ between topology-specific mode entries), so it
+//                 lives here, not on the molecule as a whole. Optional;
+//                 mostly unset.
+//   modes       — list of VibrationMode (below).
+//
+// VibrationMode fields:
+//   id          — unique (see note above); matches a key in this molecule's
+//                 entry in moleculeGeometry.ts's `modes` map.
+//   label       — this MODE's own short notation label, e.g. "νₐₛ(OCO)" —
+//                 distinct from the MOLECULE's label above (the page shows
+//                 both: molecule label as the card title, mode label as
+//                 each row's title). Follows the localized ν/δ/ρ/ω/τ/γ
+//                 notation explained in the page's own in-app "Notation"
+//                 box, not the normal-mode-numbered (ν₁, ν₂, ν₃…) form.
+//   note        — one or two sentences: what is physically happening (which
+//                 atoms move, how — not just a restatement of category/
+//                 subtype), and, where one exists, a cross-reference to this
+//                 mode's name in the OTHER notation system (the normal-mode-
+//                 numbered ν₁/ν₂/ν₃… convention this page deliberately
+//                 doesn't use as the primary label — see the in-app
+//                 "Notation" box). E.g. "Both C=O bonds stretch in phase
+//                 while C stays put — the totally symmetric stretch,
+//                 conventionally ν₁." Keep it that short. Don't name
+//                 specific papers/authors here, compare numbers across
+//                 sources, or restate the symmetry/wavenumber that's already
+//                 shown as its own badge — citations are tracked structurally
+//                 via `reference` (below) and rendered separately in the UI,
+//                 so repeating "Author et al. found..." in prose just bloats
+//                 the note without adding anything the reference list and
+//                 wn_start/wn_end fields don't already provide.
+//   ir_active, raman_active — true | false | null (unknown/undocumented).
+//                 When true, the loader auto-adds "ir-active"/"raman-active"
+//                 to this mode's `tags` (see below) — don't add those tags
+//                 by hand, and don't bother adding the false case as a tag
+//                 either (an "inactive" mode isn't a notable fact worth
+//                 flagging at a glance; the full active/inactive state is
+//                 always shown once the mode is opened).
+//   tags        — free-form, mirrors the real bands' tags vocabulary;
+//                 "ir-active"/"raman-active" are auto-added by the loader,
+//                 don't write them here.
+//   reference   — see "Cross-file links" above.
+//   topology    — which Topology.id (on the owning Molecule) this specific
+//                 mode entry represents, or omit/null if it applies
+//                 regardless of binding geometry (the common case — most
+//                 molecules only have one topology anyway, so this is unset
+//                 throughout CO2/CO/formate/methoxy's modes below). When a
+//                 vibration genuinely differs between topologies — point
+//                 group, Mulliken label, frequency, sometimes even category/
+//                 subtype — author TWO separate VibrationMode entries
+//                 instead of cramming both stories into one (carbonate's 6
+//                 conceptual modes below are each split into a "_bidentate"
+//                 and a "_monodentate" entry this way, 12 total). There's no
+//                 requirement to split when the physical picture genuinely
+//                 doesn't differ; don't split just because a molecule has
+//                 multiple topologies if nothing here actually changes. The
+//                 frontend filters a molecule's mode list to topology===null
+//                 || topology===<selected>, then sorts by herzberg_notation.
+//   category, subtype, atoms — same enums/vocabulary as bands.jsonc's own
+//                 vibration.category/subtype and atoms field. ALL THREE are
+//                 omittable: whenever at least one bands.jsonc band links
+//                 here (directly or via a based_on chase — see "Cross-file
+//                 links" above), _link_modes_to_bands() overwrites whatever
+//                 is written here with what the linked band(s) say, so for
+//                 most modes just leave them out entirely. The one exception
+//                 is subtype on a mode whose linked band is ITSELF shared
+//                 with a sibling mode — either a real degenerate pair (one
+//                 observed band frequency-coincident for two distinct
+//                 motions, e.g. co2_bend/co2_bend_wagging both resolving to
+//                 the co2_nu2_branches bands) or a generic band shared across
+//                 a molecule's topology-split modes (e.g.
+//                 carbonate_wagging_875 backing both carbonate_wagging_
+//                 bidentate AND carbonate_wagging_monodentate). The band
+//                 can't supply two different subtypes for the two modes
+//                 sharing it, so those modes keep `subtype` written here by
+//                 hand — everything else (category, atoms) still derives
+//                 normally since those never differ between the two. A mode
+//                 with NO linked band at all (none authored yet) must set
+//                 category and atoms by hand or the build fails — there's
+//                 nothing else to derive them from.
+//   bands       — NOT authored here; computed by _link_modes_to_bands() and
+//                 added to the emitted JSON for the frontend, same as
+//                 bands.jsonc's own lane/sub_lane. See "Cross-file links".
+//   herzberg_notation — this mode's textbook normal-mode index (e.g. "ν₆"),
+//                 under Herzberg's classic labeling convention — distinct
+//                 from category/subtype above (this page's own, deliberately
+//                 non-numbered ν/δ/ρ/ω/τ/γ notation; see the in-app
+//                 "Notation" box). Mostly unset — only a few modes have a
+//                 value — rendered (as a small tag next to the mode's name
+//                 in the collapsed card, and spelled out in a sentence at
+//                 the top of the expanded detail panel) only when present.
+//   symmetry    — this mode's MULLIKEN SYMMETRY LABEL: the irreducible
+//                 representation it transforms as under the molecule's
+//                 point group (e.g. "Σ<sub>g</sub>⁺", "A1'") — not a
+//                 free-form description of "the symmetry", specifically the
+//                 Mulliken-convention species label paired with
+//                 herzberg_notation in the textbook/literature tables this
+//                 is sourced from. Written with literal <sub> tags where it
+//                 needs a letter subscript — see "HTML in text fields" above.
+//   wn_start, wn_end — this mode's own characteristic wavenumber: a single
+//                 representative value (omit wn_end) or a range (set both).
+//                 Deliberately independent of `bands` above — real DRIFTS-
+//                 observed positions are support/condition-dependent and
+//                 shift around, so this can and often will read differently
+//                 from any one linked band's own wn_start/wn_end.
+// =============================================================================
+{
+  "molecules": [
+    {
+      "id": "co2",
+      "label": "CO₂",
+      "species": "CO₂",
+      "shape": "linear",
+      "band_groups": ["co2"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "D<sub>∞h</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "co2_stretch_symmetric",
+          "label": "νₛ(OCO)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 1388,
+          "note": "Both C=O bonds stretch in phase while C stays put — the totally symmetric stretch, conventionally ν₁. Centrosymmetric, so by the mutual exclusion rule it's IR-inactive but Raman-active.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "co2_bend",
+          "subtype": "scissoring",
+          "label": "δ(OCO)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "Π<sub>u</sub>",
+          "wn_start": 667,
+          "note": "Both O's swing the same way in-plane while C recoils oppositely, closing and opening the O-C-O angle — the in-plane component of the doubly-degenerate bend, conventionally ν₂. Degenerate with the out-of-plane wagging component below; together the pair is why ν₂ is IR-active.",
+          "ir_active": true,
+          "raman_active": false,
+          "tags": ["degenerated"],
+          "reference": []
+        },
+        {
+          "id": "co2_bend_wagging",
+          "subtype": "wagging",
+          "label": "ω(OCO)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "Π<sub>u</sub>",
+          "wn_start": 667,
+          "note": "The same ν₂ bending motion as above, but out of the molecular plane — shown here as the atoms pulsing in size rather than a real 2D displacement, since a flat diagram can't otherwise depict out-of-plane motion. Frequency-coincident with the in-plane scissoring component, so it has no separately resolved band of its own.",
+          "ir_active": true,
+          "raman_active": false,
+          "tags": ["degenerated"],
+          "reference": []
+        },
+        {
+          "id": "co2_stretch_asymmetric",
+          "label": "νₐₛ(OCO)",
+          "herzberg_notation": "ν₃",
+          "symmetry": "Σ<sub>u</sub>⁺",
+          "wn_start": 2349,
+          "note": "One C=O bond lengthens as the other shortens, in antiphase — the asymmetric stretch, conventionally ν₃. Breaks the molecule's center of symmetry, making it IR-active (and, by the mutual exclusion rule, Raman-inactive).",
+          "ir_active": true,
+          "raman_active": false,
+          "tags": [],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "ch4",
+      "label": "CH₄",
+      "species": "CH₄",
+      "shape": "nonlinear",
+      "band_groups": ["ch4"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "T<sub>d</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "ch4_stretch_symmetric",
+          "label": "νₛ(CH₄)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2917,
+          "note": "All four C-H bonds stretch in phase, lengthening and shortening together — the totally symmetric stretch of this tetrahedral molecule. Doesn't change the dipole moment at all (it stays exactly zero by symmetry), so it's IR-forbidden — observed only in Raman.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_bend_e",
+          "label": "δ(HCH)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "E",
+          "wn_start": 1534,
+          "note": "Two H-C-H angles open while the other two close, in a complementary pattern — one component of the doubly-degenerate bend (a second, equivalent component sits at the same frequency, not separately drawn). Doesn't change the dipole moment, so it's IR-forbidden — Raman-active only.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_stretch_asymmetric",
+          "label": "νₐₛ(CH₄)",
+          "herzberg_notation": "ν₃",
+          "symmetry": "T₂",
+          "wn_start": 3019,
+          "note": "One C-H bond stretches while the others adjust to compensate — one component of the triply-degenerate asymmetric stretch (the other two sit at the same frequency, not separately drawn). Changes the dipole moment, making it IR-active — the dominant C-H stretching band in methane's spectrum.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        },
+        {
+          "id": "ch4_bend_t2",
+          "label": "δ(HCH)",
+          "herzberg_notation": "ν₄",
+          "symmetry": "T₂",
+          "wn_start": 1306,
+          "note": "The H atoms rock back and forth relative to the central carbon — one component of the triply-degenerate bend (same caveat as ν₃ above). Also IR-active, changing the dipole moment too — together with ν₃, these are why methane absorbs so strongly in the thermal-infrared.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["degenerated"],
+          "reference": ["Nishimura.VibrationalExcitationsCH4.2002"]
+        }
+      ]
+    },
+    {
+      "id": "co",
+      "label": "CO",
+      "species": "CO",
+      "shape": "linear",
+      "band_groups": ["co", "co_metal", "co_cation"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "C<sub>∞v</sub>"},
+        {"id": "linear", "short": "lin", "long": "linear (μ₁)", "point_group": "C<sub>∞v</sub>"},
+        {"id": "bridged", "short": "br", "long": "bridged (μ₂)", "point_group": "C<sub>2v</sub>"},
+        {"id": "hollow", "short": "hol", "long": "hollow (μ₃/μ₄)"},
+        {"id": "geminal", "short": "gem", "long": "geminal (M(CO)₂)", "point_group": "C<sub>2v</sub>"},
+        {"id": "isocarbonyl", "short": "iso", "long": "isocarbonyl (M-OC)", "point_group": "C<sub>∞v</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "co_stretch",
+          "label": "ν(CO)",
+          "topology": "gas",
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ⁺",
+          "wn_start": 2143,
+          "note": "C and O move apart and together along the single bond — the only vibration a two-atom molecule can have, so there's no symmetric/asymmetric pair and nothing to number ν₁/ν₂/ν₃-style.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "co_stretch_linear",
+          "label": "ν(CO)",
+          "topology": "linear",
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ⁺",
+          "wn_start": 2000,
+          "wn_end": 2230,
+          "note": "C and O move apart and together along the bond, bonded end-on to a single metal atom or cation. On a reduced metal, backdonation into the antibonding 2π* orbital weakens the C-O bond, red-shifting this stretch below the free CO value (2143 cm⁻¹); on a Lewis-acidic cation site with little or no backdonation, the opposite — blue-shifted above it instead. Still the highest-frequency mode of the adsorption complex either way.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_mstretch_linear",
+          "label": "ν(M-C)",
+          "category": "stretch",
+          "atoms": "M-C",
+          "topology": "linear",
+          "herzberg_notation": "ν₂",
+          "symmetry": "Σ⁺",
+          "wn_start": 400,
+          "wn_end": 480,
+          "note": "The whole C-O unit translates rigidly toward and away from the metal atom — the metal-carbon bond itself stretching, distinct from the much stiffer C-O stretch above. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_frustrated_tilt_linear",
+          "label": "Frustrated rotation",
+          "category": "bend",
+          "atoms": "C-O",
+          "topology": "linear",
+          "herzberg_notation": "ν₃",
+          "symmetry": "Π",
+          "wn_start": 400,
+          "wn_end": 600,
+          "note": "In the gas phase this would be a free molecular rotation; tethered to the surface, it becomes a soft restoring-force vibration instead — the C-O axis tilting away from perpendicular and back, doubly degenerate since it can tilt in any direction. Purely lateral, so its dipole change is canceled by the surface's image charge — formally IR-inactive in reflection geometry despite being a real vibration.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": ["frustrated-mode"],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_frustrated_translate_linear",
+          "label": "Frustrated translation",
+          "category": "bend",
+          "atoms": "C-O",
+          "topology": "linear",
+          "herzberg_notation": "ν₄",
+          "symmetry": "Π",
+          "wn_start": 40,
+          "wn_end": 80,
+          "note": "What would be free lateral diffusion across the surface becomes, once trapped in the adsorption well, the lowest-frequency vibration of the complex — the whole C-O unit sliding sideways and back, doubly degenerate like the frustrated rotation above. Also IR-inactive in reflection geometry, by the same lateral-dipole cancellation.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": ["frustrated-mode"],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_stretch_bridged",
+          "label": "ν(CO)",
+          "topology": "bridged",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 1850,
+          "wn_end": 2000,
+          "note": "C and O move apart and together along the bond — now bridging two metal atoms instead of one. The extra metal neighbor enhances π-backdonation further, red-shifting ν(CO) well below the linear/on-top value.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_mstretch_bridged",
+          "label": "νₛ(M-C)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "M-C",
+          "topology": "bridged",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 350,
+          "wn_end": 420,
+          "note": "Both metal-carbon bonds of the bridge stretch together, in phase — C (with O rigidly along for the ride) moving directly away from the line joining its two metal neighbors. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_mstretch_asym_bridged",
+          "label": "νₐₛ(M-C)",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "M-C",
+          "topology": "bridged",
+          "herzberg_notation": "ν₃",
+          "symmetry": "B₁",
+          "note": "The two metal-carbon bonds of the bridge shear instead — C shifts sideways along the bridge axis, one M-C bond shortening as the other lengthens. Lateral, so canceled by the surface's image dipole — formally IR-inactive in reflection geometry. No wavenumber is reported, and the B₁/B₂ axis convention for this shearing direction is ambiguous in the source.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_stretch_hollow",
+          "label": "ν(CO)",
+          "topology": "hollow",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 1600,
+          "wn_end": 1880,
+          "note": "C and O move apart and together along the bond, now coordinated to either three metal atoms (3-fold hollow) or four (4-fold) — combined into one simplified topology here since both share the same C-O stretch character. The extra metal neighbors drive the strongest π-backdonation of any coordination geometry, red-shifting ν(CO) below both linear and bridged values — lower still for 4-fold than 3-fold.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Yudanov.COAdsorptionPd.2026"]
+        },
+        {
+          "id": "co_geminal_stretch_symmetric",
+          "label": "νₛ(CO)",
+          "topology": "geminal",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2020,
+          "wn_end": 2200,
+          "note": "Both C-O bonds stretch in phase, outward and inward together. The oscillating dipole points straight along the C₂ axis, making this totally-symmetric mode both IR- and Raman-active.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_geminal_mstretch_symmetric",
+          "label": "νₛ(M-C)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "M-C",
+          "topology": "geminal",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 350,
+          "wn_end": 550,
+          "note": "Both C-O units (each treated as one rigid ligand) translate together toward and away from the shared metal center — the two M-C bonds stretching in unison rather than the internal C-O bonds. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_geminal_scissoring",
+          "label": "δ(C-M-C)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "C-M-C",
+          "topology": "geminal",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A₁",
+          "wn_start": 250,
+          "wn_end": 400,
+          "note": "The two rigid C-O ligands rotate toward and apart from each other about the fixed metal center, opening and closing the C-M-C angle while both M-C bond lengths stay exact. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_geminal_rocking",
+          "label": "ρ(CO)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "C-M-C",
+          "topology": "geminal",
+          "herzberg_notation": "ν₄",
+          "symmetry": "B₁",
+          "wn_start": 400,
+          "wn_end": 600,
+          "note": "The two rigid C-O ligands swing the same way together, like a pair of windshield wipers — the C-M-C angle stays constant, only its orientation changes. Same rotation mechanism as the scissoring mode above, just same-sign instead of opposite-sign.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_geminal_stretch_asymmetric",
+          "label": "νₐₛ(CO)",
+          "topology": "geminal",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₂",
+          "wn_start": 1980,
+          "wn_end": 2150,
+          "note": "One C-O bond stretches outward while the other compresses inward, out of phase. The resulting dipole change is perpendicular to the C₂ axis but still in-plane, making this mode strongly IR-active.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_geminal_mstretch_asymmetric",
+          "label": "νₐₛ(M-C)",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "M-C",
+          "topology": "geminal",
+          "herzberg_notation": "ν₆",
+          "symmetry": "B₂",
+          "wn_start": 300,
+          "wn_end": 500,
+          "note": "One rigid C-O ligand translates toward the metal center while the other translates away, out of phase — the two M-C bonds stretching in antiphase rather than together. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Zdravkova.SurprisingCoordinationChemistry.2015"]
+        },
+        {
+          "id": "co_iso_stretch",
+          "label": "ν(CO)",
+          "topology": "isocarbonyl",
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ⁺",
+          "wn_start": 2105,
+          "wn_end": 2125,
+          "note": "C and O move apart and together along the bond, exactly as in the linear topology — but flipped end-for-end, binding the cation through oxygen rather than carbon. On a purely electrostatic site this polarizes the bond the opposite way from C-bonding, red-shifting ν(CO) below the free-gas value instead of blue-shifting it, even though both orientations occupy the same site in equilibrium.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Ugliengo.QuantumChemicalCalculations.1999"]
+        }
+      ]
+    },
+    {
+      "id": "formate",
+      "label": "Formate",
+      "species": "HCOO*",
+      "shape": "nonlinear",
+      "band_groups": ["formate"],
+      "topologies": [
+        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>s</sub>"},
+        {"id": "bidentate", "short": "b", "long": "bidentate", "point_group": "C<sub>2v</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "formate_ch_stretch_monodentate",
+          "label": "ν(CH)",
+          "category": "stretch",
+          "atoms": "C-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A′",
+          "note": "The C-H bond stretches — same local motion as the bidentate ν(CH) below, just relabeled A′ since the C₂ axis is gone once formate binds through only one oxygen. No wavenumber is reported for this mode in the monodentate structure specifically.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_stretch_asymmetric_monodentate",
+          "label": "ν(C=O)",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "C=O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A′",
+          "wn_start": 1657,
+          "wn_end": 1758,
+          "note": "Losing the C₂ axis under one-oxygen coordination splits the two oxygens into a localized carbonyl-like C=O (the free oxygen) and a single-bond-like C-O (the bound one) — so the delocalized νₐₛ(OCO) becomes, here, mostly a double-bond stretch on the free oxygen alone. Its frequency runs far higher than the bidentate equivalent, which is the basis for ruling out this binding mode on the surfaces studied here.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_och_scissoring_monodentate",
+          "label": "δ(OCH)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "O-C-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A′",
+          "wn_start": 1386,
+          "wn_end": 1409,
+          "note": "The angle between the bound O, C, and H changes as the C-H bond rocks in-plane relative to the O-C-O frame — same motion as the bidentate δ(OCH) below. Unlike the two stretches above, this mode's frequency doesn't shift much between binding geometries.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_stretch_symmetric_monodentate",
+          "label": "ν(C-O)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A′",
+          "wn_start": 1228,
+          "wn_end": 1360,
+          "note": "The single-bond-like C-O stretches, localized on the surface-bound oxygen's own bond — what would be the delocalized νₛ(OCO) collapses, here, to mostly this one bond. Paired with ν(C=O) above for the large frequency splitting that's diagnostic of this binding mode.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_bend_monodentate",
+          "label": "δ(OCO)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A′",
+          "note": "The O-C-O angle opens and closes — same motion as the bidentate δ(OCO) below, now in-plane A′ rather than A₁ since the C₂ axis is gone. No wavenumber is reported for this mode in the monodentate structure specifically.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_ch_wagging_monodentate",
+          "label": "γ(CH)",
+          "category": "bend",
+          "subtype": "wagging",
+          "atoms": "C-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "A″",
+          "note": "The C-H bond wags out of the O-C-O plane — the only out-of-plane mode, hence A″ and numbered last under the standard convention (see the Notation box). No wavenumber is reported for this mode in the monodentate structure specifically.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_ch_stretch_bidentate",
+          "label": "ν(CH)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2800,
+          "wn_end": 2890,
+          "note": "The C-H bond stretches while both surface-bound oxygens and the carbon stay essentially fixed — the key HCOO* marker band, since no other common surface species shares this exact C-H environment. Can fall into Fermi resonance with the δ(OCH)+νₐₛ(OCO) combination band, splitting into a doublet.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Sterk.CorrelatingVibrationalSpectra.2026"]
+        },
+        {
+          "id": "formate_stretch_symmetric_bidentate",
+          "label": "νₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 1340,
+          "wn_end": 1400,
+          "note": "Both C-O bonds stretch in phase — both bound oxygens move together, the bridging analogue of CO₂'s symmetric stretch. Paired with νₐₛ(OCO) below; the splitting between the two is the standard diagnostic for carboxylate binding geometry.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_bend_bidentate",
+          "label": "δ(OCO)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A₁",
+          "wn_start": 750,
+          "wn_end": 780,
+          "note": "The O-C-O angle itself opens and closes — an in-plane scissoring of the whole OCO frame rather than either C-O bond changing length. Lowest-frequency of the three A₁ modes; not resolved as a separate surface band in this dataset yet.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_stretch_asymmetric_bidentate",
+          "label": "νₐₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "B₁",
+          "wn_start": 1528,
+          "wn_end": 1610,
+          "note": "One C-O bond lengthens as the other shortens, in antiphase. Paired with νₛ(OCO) above — the splitting between the two is the standard empirical diagnostic for carboxylate binding geometry, and the comparatively small value seen here is consistent with this bridging structure rather than a monodentate one.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_och_scissoring_bidentate",
+          "label": "δ(OCH)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₁",
+          "wn_start": 1360,
+          "wn_end": 1400,
+          "note": "The angle between either bound O, C, and H changes as the C-H bond rocks in-plane relative to the O-C-O frame, while every bond length stays fixed. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Rotzinger.StructureVibrationalSpectrum.2004"]
+        },
+        {
+          "id": "formate_ch_wagging_bidentate",
+          "label": "γ(CH)",
+          "category": "bend",
+          "subtype": "wagging",
+          "atoms": "C-H",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "B₂",
+          "wn_start": 1060,
+          "wn_end": 1085,
+          "note": "The C-H bond wags out of the O-C-O plane — the lone out-of-plane mode, so it's numbered last under the standard convention (see the Notation box). Not resolved as a separate surface band in this dataset yet.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Ito.VibrationalSpectraFormate.1956", "Rotzinger.StructureVibrationalSpectrum.2004"]
+        }
+      ]
+    },
+    {
+      "id": "carbonate",
+      "label": "Carbonate",
+      "species": "CO₃²⁻",
+      "shape": "nonlinear",
+      "band_groups": ["carbonate"],
+      "topologies": [
+        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>s</sub>"},
+        {"id": "bidentate", "short": "b", "long": "bidentate", "point_group": "C<sub>2v</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "carbonate_stretch_asymmetric_monodentate",
+          "label": "νₐₛ(OCO)",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A′",
+          "wn_start": 1450,
+          "wn_end": 1490,
+          "note": "One terminal (non-anchored) oxygen pulls in toward the carbon while the other pushes away, and the carbon itself leans slightly toward the oxygen moving in toward it — the anchor oxygen (Oₛ) stays put. This large, asymmetric dipole change makes it typically the highest-frequency, most intense band in the spectrum.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_stretch_symmetric_monodentate",
+          "label": "νₛ(OCO)",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A′",
+          "wn_start": 1350,
+          "wn_end": 1370,
+          "note": "Both terminal oxygens stretch outward and inward together, in phase, while the carbon dips slightly toward the anchor oxygen (Oₛ), which otherwise stays put.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_stretch_anchor_monodentate",
+          "label": "ν(C-O)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A′",
+          "wn_start": 1050,
+          "wn_end": 1070,
+          "note": "The free ion's true totally-symmetric stretch — IR-inactive there, but resolved and IR-active once surface binding breaks that symmetry. Mainly the C-Oₛ single-bond stretch to the anchor oxygen, with the two terminal oxygens also leaning slightly toward the carbon as it moves.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_wagging_monodentate",
+          "label": "γ(OCO)",
+          "subtype": "wagging",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "A″",
+          "wn_start": 850,
+          "wn_end": 860,
+          "note": "Both terminal oxygens push straight out of the molecular plane together while the carbon buckles back the opposite way — the only out-of-plane mode of the six, hence A″ and numbered last. The anchor oxygen (Oₛ), which the plane is defined relative to, doesn't move.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_scissoring_monodentate",
+          "label": "δ(OCO)",
+          "subtype": "scissoring",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A′",
+          "wn_start": 740,
+          "wn_end": 780,
+          "note": "The two terminal oxygens open and close their shared angle relative to each other, like a pair of scissors, while the carbon dips slightly toward the anchor oxygen (Oₛ) — which itself stays put either way.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_rocking_monodentate",
+          "label": "ρ(OCO)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A′",
+          "wn_start": 680,
+          "wn_end": 700,
+          "note": "A seesaw about the fixed anchor oxygen (Oₛ): the carbon tilts one way while both terminal oxygens swing slightly the opposite way, rather than changing their own mutual angle the way scissoring above does.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Solis.InitialStagesCO2.2017"]
+        },
+        {
+          "id": "carbonate_stretch_anchor_bidentate",
+          "label": "ν(C-O)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 1600,
+          "wn_end": 1650,
+          "note": "The free ion's true totally-symmetric stretch — IR-inactive there, but resolved and IR-active once surface binding breaks that symmetry. The free, non-coordinated oxygen's own terminal stretch, pushing and pulling along its own bond axis while the carbon recoils slightly the opposite way.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_stretch_asymmetric_bidentate",
+          "label": "νₐₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "B₂",
+          "wn_start": 1250,
+          "wn_end": 1320,
+          "note": "The two surface-bound C-O bonds engage in an out-of-phase tug-of-war — one stretches as the other compresses — with the free oxygen leaning slightly the opposite way. One component of the doubly-degenerate asymmetric stretch of the free ion, which surface binding splits in two.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": []
+        },
+        {
+          "id": "carbonate_stretch_symmetric_bidentate",
+          "label": "νₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 1000,
+          "wn_end": 1070,
+          "note": "The two surface-bound C-O bonds stretch in phase, expanding and contracting in unison, while the free oxygen drifts slightly the opposite way as a small counter-motion — the other resolved component of the same degenerate pair as νₐₛ(OCO) above.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": []
+        },
+        {
+          "id": "carbonate_wagging_bidentate",
+          "label": "γ(OCO)",
+          "subtype": "wagging",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "B₁",
+          "wn_start": 830,
+          "wn_end": 850,
+          "note": "The carbon buckles out of the O-C-O plane toward the viewer while the free oxygen recoils the opposite way, back into the page. Both surface-bound oxygens, which anchor the plane itself, stay fixed.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_scissoring_bidentate",
+          "label": "δ(OCO)",
+          "subtype": "scissoring",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A₁",
+          "wn_start": 750,
+          "wn_end": 800,
+          "note": "Ring flattening: the inner bound-O-C-bound-O angle opens and pinches like a pair of scissors, entirely in-plane — shown here as the carbon and the free oxygen drawing apart from each other, since the two surface-bound oxygens that define the ring can't themselves move.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        },
+        {
+          "id": "carbonate_rocking_bidentate",
+          "label": "ρ(OCO)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₂",
+          "wn_start": 550,
+          "note": "The carbon and the free oxygen tilt left and right together, rhythmically, rather than swinging toward or apart from each other — the other resolved component of the same degenerate pair as δ(OCO) above. The two surface-bound oxygens, the fixed pivot this tilts relative to, don't move.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": []
+        }
+      ]
+    },
+    {
+      "id": "bicarbonate",
+      "label": "Bicarbonate",
+      "species": "HCO₃⁻",
+      "shape": "nonlinear",
+      "band_groups": ["bicarbonate"],
+      "topologies": [
+        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>s</sub>"},
+        {"id": "bidentate", "short": "b", "long": "bidentate (bridged)", "point_group": "C<sub>s</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "bicarbonate_stretch_asymmetric_bidentate",
+          "label": "νₐₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A′",
+          "wn_start": 1610,
+          "wn_end": 1670,
+          "note": "The two surface-bound oxygens, one bridging to each of a pair of neighboring metal sites, stretch out of phase — one lengthening as the other shortens — while C leans toward whichever one is shortening.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_symmetric_bidentate",
+          "label": "νₛ(OCO)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A′",
+          "wn_start": 1396,
+          "wn_end": 1500,
+          "note": "The two surface-bound oxygens stretch in phase together, both lengthening or both shortening at once, while C shifts along their shared bisector to compensate.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["site-sensitive"],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_bend_coh_bidentate",
+          "label": "δ(COH)",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A′",
+          "wn_start": 1220,
+          "wn_end": 1269,
+          "note": "The O-H proton bends in-plane against the C-O framework, the O it's attached to staying otherwise fixed. This is the fingerprint that distinguishes bicarbonate from a plain surface carbonate, which has no O-H and therefore no analogous mode at all.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_oh_bidentate",
+          "label": "ν(OH)",
+          "category": "stretch",
+          "atoms": "O-H",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A′",
+          "wn_start": 3600,
+          "wn_end": 3627,
+          "note": "The O-H proton stretches along its own bond, away from the oxygen it's attached to, which makes a small compensating recoil. Sharp and well-resolved, barely shifted from the free, unbound ion's own O-H stretch.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_coh_bidentate",
+          "label": "ν(C-OH)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A′",
+          "wn_start": 1010,
+          "note": "The hydroxyl oxygen, its H riding rigidly along, stretches away from C along the single C-OH bond, C recoiling slightly the other way. A weak band, easily lost under overlapping features.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_bend_oco_bidentate",
+          "label": "δ(OCO)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "A′",
+          "wn_start": 712,
+          "note": "The bound-O-C-bound-O angle opens and closes like a pair of scissors: the C-OH group (C and the O-H, rigidly together) shifts toward the surface, while the two bound oxygens spread slightly apart to exaggerate the same opening. Falls below the oxide substrate's own lattice absorption, so it isn't resolved as a separate band in this dataset.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_rock_coh_bidentate",
+          "label": "ρ(C-OH)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₇",
+          "symmetry": "A′",
+          "wn_start": 579,
+          "note": "The C-OH group rocks sideways relative to the two fixed, surface-bound oxygens. Falls below the oxide substrate's own lattice absorption, so it isn't resolved as a separate band in this dataset.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_wagging_bidentate",
+          "label": "γ(OCO)",
+          "category": "bend",
+          "subtype": "wagging",
+          "atoms": "O-C-O",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₈",
+          "symmetry": "A″",
+          "wn_start": 820,
+          "note": "The bound-O-C-bound-O framework buckles out of the molecular plane, the O-H group recoiling the opposite way — the higher-frequency of the two out-of-plane modes, hence A″ and numbered after every A′ mode. A weak band, not always resolved separately.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_torsion_bidentate",
+          "label": "τ(OH)",
+          "category": "bend",
+          "subtype": "twisting",
+          "atoms": "O-H",
+          "topology": "bidentate",
+          "herzberg_notation": "ν₉",
+          "symmetry": "A″",
+          "wn_start": 660,
+          "note": "The O-H proton twists out of the molecular plane, around the C-OH bond, pulling slightly inward along its own bond at the same time — the lowest-frequency of the nine modes. Falls below the oxide substrate's own lattice absorption, so it isn't resolved as a separate band in this dataset.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_asymmetric_monodentate",
+          "label": "νₐₛ(OCO)",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A′",
+          "wn_start": 1627,
+          "note": "Genuine antiphase: C moves toward the bound oxygen, compressing that bond, while the free terminal oxygen stretches outward along its own bond, lengthening C-Ot — one bond shortening as the other grows. The O-H group sits this one out, uninvolved. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_symmetric_monodentate",
+          "label": "νₛ(OCO)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A′",
+          "wn_start": 1390,
+          "note": "The bound oxygen can't itself move, so the in-phase version shows up as C lifting away from it — dragging the whole rest of the molecule (the free terminal oxygen, the O-H group) along rigidly — while the free terminal oxygen also stretches further out from C on top of that shared lift. Both bonds end up lengthening (or both shortening) together: genuinely symmetric, just expressed through C's own motion since the bound oxygen itself is pinned. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_bend_coh_monodentate",
+          "label": "δ(COH)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "C-O-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A′",
+          "wn_start": 1195,
+          "note": "The O-H proton bends in-plane against the C-O framework, the same motion as the bridged structure's own δ(COH). No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_oh_monodentate",
+          "label": "ν(OH)",
+          "category": "stretch",
+          "atoms": "O-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A′",
+          "wn_start": 3600,
+          "wn_end": 3627,
+          "note": "The O-H proton stretches along its own bond, the oxygen it's attached to recoiling slightly — essentially the same motion regardless of binding geometry.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_stretch_coh_monodentate",
+          "label": "ν(C-OH)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A′",
+          "wn_start": 960,
+          "note": "The hydroxyl oxygen, its H riding rigidly along, stretches away from C along the single C-OH bond, C recoiling slightly the other way. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_bend_oco_monodentate",
+          "label": "δ(OCO)",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₆",
+          "symmetry": "A′",
+          "wn_start": 712,
+          "note": "C stays rather fixed, just a slight horizontal shift; the free terminal oxygen and the whole O-H group instead rotate together, by the same angle, about C's own rest position — so the angle between them stays constant, while their angles to the fixed bound oxygen both change. When the two swing one way, C's own small shift goes the other way. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_rock_coh_monodentate",
+          "label": "ρ(C-OH)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₇",
+          "symmetry": "A′",
+          "wn_start": 579,
+          "note": "C moves only slightly, perpendicular to the C-OH bond's own resting direction, while the O-H group genuinely rotates about C's rest position, swinging as a rigid unit — a seesaw, not a simple slide. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_wagging_monodentate",
+          "label": "γ(OCO)",
+          "category": "bend",
+          "subtype": "wagging",
+          "atoms": "O-C-O",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₈",
+          "symmetry": "A″",
+          "wn_start": 835,
+          "note": "Both the bound and free oxygens — the two atoms that actually make up the \"OCO\" framework this mode names — push out of the molecular plane together while C recoils the opposite way; the O-H group, not part of that framework, sits this one out. The higher-frequency of the two out-of-plane modes, hence A″ and numbered after every A′ mode. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        },
+        {
+          "id": "bicarbonate_torsion_monodentate",
+          "label": "τ(OH)",
+          "category": "bend",
+          "subtype": "twisting",
+          "atoms": "O-H",
+          "topology": "monodentate",
+          "herzberg_notation": "ν₉",
+          "symmetry": "A″",
+          "wn_start": 660,
+          "note": "The O-H proton keeps doing the same out-of-plane motion as γ(OCO)'s wagging above, but now also genuinely swings to one side — a combined rotation-plus-shortening, rather than a simple flap — so the cycle reads as a twist around the C-OH bond. The lowest-frequency of the nine modes. No band in this dataset separately resolves it.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Baltrusaitis.FTIRSpectroscopyCombined.2006"]
+        }
+      ]
+    },
+    {
+      "id": "methoxy",
+      "label": "Methoxy",
+      "species": "CH₃O*",
+      "shape": "nonlinear",
+      "band_groups": ["methoxy"],
+      "topologies": [
+        {"id": "monodentate", "short": "m", "long": "monodentate", "point_group": "C<sub>3v</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "methoxy_stretch_symmetric",
+          "label": "νₛ(CH₃)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 2795,
+          "wn_end": 2800,
+          "note": "All three C-H bonds stretch in phase while C makes a small compensating recoil along the C-O axis — that recoil is genuinely allowed here, unlike in CH₄, since z transforms as A₁ in C3v rather than being symmetry-forbidden.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_bend_symmetric",
+          "label": "δₛ(CH₃)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 1430,
+          "wn_end": 1436,
+          "note": "All three H's swing toward or away from the C-O axis together — the methyl \"umbrella\" deformation — with C recoiling oppositely along the axis. Its intensity collapses almost to zero for the all-H isotopomer specifically, since this mode's coupling to the C-O stretch coordinate is unusually small.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_co_stretch",
+          "label": "ν(CO)",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A₁",
+          "wn_start": 1005,
+          "wn_end": 1015,
+          "note": "The CH₃ group (C plus all three H's, moving together as a rigid unit) stretches away from the fixed, surface-bound O. Frequency is the diagnostic for binding geometry: monodentate (one M-O bond) sits above ~1100 cm⁻¹, bidentate below it.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000", "Sterk.CorrelatingVibrationalSpectra.2026"]
+        },
+        {
+          "id": "methoxy_mo_stretch",
+          "label": "ν(MO)",
+          "category": "stretch",
+          "atoms": "M-O",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A₁",
+          "wn_start": 285,
+          "wn_end": 310,
+          "note": "The entire intact CH₃O unit, O included, stretches rigidly away from the surface — the metal-oxygen bond itself, distinct from the much stiffer internal C-O stretch above.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_torsion",
+          "label": "τ(CH₃)",
+          "category": "bend",
+          "subtype": "twisting",
+          "atoms": "C-H",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A₂",
+          "wn_start": 118,
+          "note": "A hindered rotation of the whole methyl cap about the C-O axis — the lone mode outside A₁ and E, numbered last under the standard convention. Genuinely IR-inactive under any orientation: A₂ doesn't transform like x, y, or z, so it carries no dipole derivative at all.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_stretch_asymmetric",
+          "label": "νₐₛ(CH₃)",
+          "herzberg_notation": "ν₆",
+          "symmetry": "E",
+          "wn_start": 2910,
+          "wn_end": 2970,
+          "note": "One C-H bond stretches outward while another contracts inward, in antiphase, the third untouched — one component of the methyl group's doubly-degenerate asymmetric stretch. Formally forbidden by the strict surface selection rule for an ideally perpendicular adsorbate, though resolved via DRIFTS on real catalytic surfaces — and easily confused with Fermi resonance against the symmetric stretch's own overtones.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": ["site-sensitive"],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000", "Uvdal.VibrationalSpectrumMethoxy.1997"]
+        },
+        {
+          "id": "methoxy_bend_asymmetric",
+          "label": "δₐₛ(CH₃)",
+          "herzberg_notation": "ν₇",
+          "symmetry": "E",
+          "wn_start": 1450,
+          "wn_end": 1470,
+          "note": "Two H's rock in antiphase relative to the C-O axis while the third shears outward — one component of the doubly-degenerate asymmetric deformation. Calculated well above the symmetric umbrella mode above, so a band much closer to that mode's own position is unlikely to actually be this one.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_rock",
+          "label": "ρ(CH₃)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "C-H",
+          "herzberg_notation": "ν₈",
+          "symmetry": "E",
+          "wn_start": 1140,
+          "wn_end": 1180,
+          "note": "The whole CH₃ cap tilts and rocks side-to-side as one rigid block relative to the fixed O — one component of the doubly-degenerate methyl rock. Same formal surface-selection-rule restriction as the other E modes above; not yet linked to an observed band in this dataset.",
+          "ir_active": true,
+          "raman_active": null,
+          "tags": [],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_frustrated_rotation",
+          "label": "Frustrated rotation",
+          "category": "bend",
+          "atoms": "C-O",
+          "herzberg_notation": "ν₉",
+          "symmetry": "E",
+          "wn_start": 250,
+          "wn_end": 350,
+          "note": "The C-O bond axis pivots off the surface normal — the whole adsorbed unit wobbling against its own anchor point, the same frustrated-rotation character as linearly-bound CO. Purely lateral in its dipole change, so canceled by the surface's image dipole — formally IR-inactive in reflection geometry.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": ["frustrated-mode"],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        },
+        {
+          "id": "methoxy_frustrated_translation",
+          "label": "Frustrated translation",
+          "category": "bend",
+          "atoms": "C-O",
+          "herzberg_notation": "ν₁₀",
+          "symmetry": "E",
+          "wn_start": 70,
+          "wn_end": 170,
+          "note": "The entire adsorbed unit shears laterally across the binding site — the lowest-frequency mode of the ten, and, like the frustrated rotation above, formally IR-inactive in reflection geometry by the same lateral-dipole cancellation.",
+          "ir_active": false,
+          "raman_active": null,
+          "tags": ["frustrated-mode"],
+          "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
+        }
+      ]
+    },
+    {
+      "id": "water",
+      "label": "Water",
+      "species": "H₂O",
+      "shape": "nonlinear",
+      "band_groups": ["water"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "C<sub>2v</sub>"}
+      ],
+      "modes": [
+        {
+          "id": "h2o_stretch_symmetric",
+          "label": "νₛ(HOH)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 3657,
+          "note": "Both O-H bonds stretch in phase while O makes a small compensating recoil along the molecule's own C2 axis — the totally symmetric stretch, the highest-frequency of the three.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+        },
+        {
+          "id": "h2o_bend",
+          "label": "δ(HOH)",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 1595,
+          "note": "The H-O-H angle opens and closes — both H's swing together while O recoils slightly along the axis. This is the only bend a 3-atom molecule can have, so there's no separate asymmetric counterpart to distinguish it from.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+        },
+        {
+          "id": "h2o_stretch_asymmetric",
+          "label": "νₐₛ(HOH)",
+          "herzberg_notation": "ν₃",
+          "symmetry": "B₂",
+          "wn_start": 3756,
+          "note": "One O-H bond stretches while the other compresses, out of phase — O recoils sideways, perpendicular to its own axis, to compensate. Sits just above the symmetric stretch, the highest-frequency fundamental of the three.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+        }
+      ]
+    }
+  ]
+}

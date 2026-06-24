@@ -322,7 +322,7 @@
         {
           "id": "co_stretch_linear",
           "label": "ν(CO)",
-          "note": "C and O move apart and together along the bond, bonded end-on to a single metal atom. Metal→CO π-backdonation into the antibonding 2π* orbital weakens the C-O bond, red-shifting this stretch well below the free CO value (2143 cm⁻¹) — though it's still the highest-frequency mode of the adsorption complex.",
+          "note": "C and O move apart and together along the bond, bonded end-on to a single metal atom or cation. On a reduced metal, backdonation into the antibonding 2π* orbital weakens the C-O bond, red-shifting this stretch below the free CO value (2143 cm⁻¹); on a Lewis-acidic cation site with little or no backdonation, the opposite — blue-shifted above it instead. Still the highest-frequency mode of the adsorption complex either way.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -338,9 +338,10 @@
           "herzberg_notation": "ν₁",
           "symmetry": "Σ⁺",
           "wn_start": 2000,
-          "wn_end": 2130,
+          "wn_end": 2230,
           "bands": [
-            "co_linear_mu1_2060"
+            "co_linear_mu1_2060",
+            "co_cation_stretch_2175"
           ]
         },
         {

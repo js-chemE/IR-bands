@@ -433,7 +433,10 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co2_stretch_asymmetric",
+        "co2_stretch_symmetric"
+      ],
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3725,
@@ -487,7 +490,10 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co2_stretch_asymmetric",
+        "co2_stretch_symmetric"
+      ],
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3695,
@@ -542,7 +548,11 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co2_bend",
+        "co2_bend_wagging",
+        "co2_stretch_asymmetric"
+      ],
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3622,
@@ -597,7 +607,11 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co2_bend",
+        "co2_bend_wagging",
+        "co2_stretch_asymmetric"
+      ],
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 3592,
@@ -1009,7 +1023,10 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "ch4_bend_e",
+        "ch4_stretch_asymmetric"
+      ],
       "lane": 1,
       "sub_lane": 0,
       "wn_min": 4180,
@@ -1256,7 +1273,9 @@
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co_stretch_linear"
+      ],
       "lane": 3,
       "sub_lane": 0,
       "wn_min": 2120,
@@ -1798,7 +1817,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "carbonate_stretch_asymmetric_monodentate"
+      ],
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 2900,
@@ -1932,7 +1953,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "carbonate_stretch_asymmetric_bidentate"
+      ],
       "lane": 5,
       "sub_lane": 1,
       "wn_min": 2900,
@@ -2432,7 +2455,10 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "formate_och_scissoring_bidentate",
+        "formate_stretch_asymmetric_bidentate"
+      ],
       "lane": 7,
       "sub_lane": 0,
       "wn_min": 2940,
@@ -2474,7 +2500,9 @@
       "intensity": null,
       "width": null,
       "confidence": null,
-      "vibration_modes": [],
+      "vibration_modes": [
+        "formate_stretch_asymmetric_bidentate"
+      ],
       "lane": 7,
       "sub_lane": 0,
       "wn_min": 3250,

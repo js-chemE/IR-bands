@@ -394,7 +394,10 @@ def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
         entries resolve (one level — band_id or branch_group) to a band that
         directly links to this mode. This is how an overtone/combination
         band automatically shows up under its parent fundamental's mode
-        without needing its own link.
+        without needing its own link. As a side effect, this function also
+        back-fills that band's own Band.vibration_modes in place with the
+        resolved parent mode id(s) — so the band's *own* field reflects the
+        inherited link too, not just the mode's computed `bands` list.
 
     category/atoms are always overwritten from the direct bands (erroring if
     they disagree with each other) — both are real properties of the band
@@ -443,6 +446,13 @@ def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
         if b.vibration_modes:
             continue
         parent_modes = {mid for parent in based_on_parents(b) for mid in parent.vibration_modes}
+        if parent_modes:
+            # Inherit in place: a combination/overtone band never authors its
+            # own vibration_modes (see Band.vibration_modes' docstring), but
+            # the frontend's band-chart tooltip reads this field directly, so
+            # it needs the real, resolved list here rather than staying empty
+            # — sorted for a deterministic emitted order.
+            b.vibration_modes = sorted(parent_modes)
         for mid in parent_modes:
             if mid in derived_members:
                 derived_members[mid].append(b)

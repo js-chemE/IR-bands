@@ -41,7 +41,7 @@
 <style>
   h3 {
     margin: 0 0 10px 0;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -60,7 +60,7 @@
     border: 1px solid #D0D0D0;
     border-radius: 4px;
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     color: #333;
   }

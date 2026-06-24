@@ -5,6 +5,10 @@
 
   export let geometry: MoleculeGeometry;
   export let activeVectors: ModeVector[] | null = null;
+  // Rendered width in px (height follows the viewBox's own 100:104 aspect
+  // ratio) — defaults to the page's full-size diagram; the band-chart
+  // tooltip's mini cards pass a smaller value to stay compact.
+  export let size = 180;
 
   // Bonds need their real endpoint positions recomputed every frame — a pure
   // CSS transform on a <line> can only translate/scale/rotate it as a rigid
@@ -84,6 +88,7 @@
 <svg
   class="molecule-viewer"
   viewBox="-50 -52 100 104"
+  style="width:{size}px; height:{size * 1.04}px;"
   role="img"
   aria-label="Molecule diagram{activeVectors ? ', vibrating' : ''}"
 >
@@ -129,8 +134,6 @@
 
 <style>
   .molecule-viewer {
-    width: 180px;
-    height: 187px;
     flex: 0 0 auto;
   }
 
@@ -163,7 +166,7 @@
   }
 
   .atom-label {
-    font-size: 7px;
+    font-size: 8px;
     font-weight: 700;
     text-anchor: middle;
     dominant-baseline: central;
