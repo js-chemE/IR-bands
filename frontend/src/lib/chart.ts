@@ -184,6 +184,10 @@ export interface TipData {
   // whole group of branch siblings to one "center" anchor point when drawing
   // based_on arcs, rather than fanning out to every individual branch.
   branchGroup: string | null;
+  // VibrationMode ids this band documents (Band.vibration_modes, verbatim) —
+  // lets BandChart.svelte look up and render each linked mode's own mini
+  // animated diagram alongside the tooltip.
+  vibrationModeIds: string[];
 }
 
 export interface PlotBandHit {
@@ -390,6 +394,7 @@ export function buildChart(
         refs: tipRefs,
         partners: getPartners(b),
         branchGroup: b.branch_group ?? null,
+        vibrationModeIds: b.vibration_modes,
       },
     });
   }

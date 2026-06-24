@@ -125,7 +125,7 @@
   }
 
   .mode-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
   }
 
@@ -137,7 +137,7 @@
   }
 
   .mode-subtitle {
-    font-size: 11px;
+    font-size: 12px;
     color: #888;
     margin-top: 1px;
   }
@@ -148,7 +148,7 @@
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10px;
+    font-size: 11px;
     color: #fff;
     white-space: nowrap;
     flex-shrink: 0;
@@ -161,7 +161,7 @@
     border: 1px solid;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10px;
+    font-size: 11px;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -183,7 +183,7 @@
     color: #1d4ed8;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10px;
+    font-size: 11px;
     font-family: 'Courier New', monospace;
     white-space: nowrap;
     flex-shrink: 0;

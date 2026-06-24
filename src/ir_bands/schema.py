@@ -317,7 +317,12 @@ class Band:
     # Bands point at modes rather than the reverse (modes no longer list
     # their bands) so there's exactly one place this fact gets authored;
     # loader.py's _link_modes_to_bands() resolves it into each mode's
-    # computed `bands` list and derives category/subtype/atoms from it.
+    # computed `bands` list and derives category/subtype/atoms from it. Left
+    # empty on a combination/overtone band (which points `based_on` at its
+    # parent instead) — _link_modes_to_bands() back-fills this field itself,
+    # in place, with the union of that parent's own vibration_modes, so this
+    # may legitimately differ between the authored JSONC and what actually
+    # ends up in the emitted bands.json.
     vibration_modes: list[str] = field(default_factory=list)
 
     # Computed at load time

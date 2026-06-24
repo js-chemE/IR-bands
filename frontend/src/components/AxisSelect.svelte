@@ -43,7 +43,7 @@
 <style>
   h3 {
     margin: 0 0 8px 0;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -58,7 +58,7 @@
   select {
     flex: 1;
     padding: 4px 6px;
-    font-size: 12px;
+    font-size: 13px;
     border: 1px solid #D0D0D0;
     border-radius: 4px;
     background: white;

@@ -40,7 +40,7 @@
     align-items: center;
     gap: 2px 4px;
     padding: 5px 12px 7px;
-    font-size: 12px;
+    font-size: 13px;
     color: #555;
   }
 

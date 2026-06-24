@@ -166,7 +166,7 @@
     right: 12px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 21px;
     line-height: 1;
     color: #aaa;
     cursor: pointer;
@@ -182,19 +182,19 @@
   }
 
   .panel-title {
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 700;
     line-height: 1.2;
   }
 
   .panel-subtitle {
-    font-size: 12px;
+    font-size: 13px;
     color: #777;
     margin-top: 2px;
   }
 
   .panel-herzberg {
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-style: italic;
     color: #888;
     margin: 6px 0 0;
@@ -202,7 +202,7 @@
   .panel-herzberg :global(sub) { font-size: 0.75em; }
 
   .panel-note {
-    font-size: 12.5px;
+    font-size: 13.5px;
     color: #555;
     line-height: 1.5;
     margin: 0 0 10px;
@@ -219,7 +219,7 @@
   }
 
   .tag-section-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -234,13 +234,13 @@
     border: 1px solid #e5e7eb;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10px;
+    font-size: 11px;
     color: #555;
     white-space: nowrap;
   }
 
   .section-header {
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -280,13 +280,13 @@
   }
 
   .band-name {
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #222;
   }
 
   .band-box-arrow {
-    font-size: 10px;
+    font-size: 11px;
     color: #a08050;
     opacity: 0;
     transition: opacity 0.1s;
@@ -298,13 +298,13 @@
     color: #1d4ed8;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-family: 'Courier New', monospace;
     white-space: nowrap;
   }
 
   .band-desc {
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: #555;
     line-height: 1.45;
     margin-top: 5px;
@@ -319,13 +319,13 @@
   }
 
   .citation-line {
-    font-size: 11px;
+    font-size: 12px;
     color: #8a7a4a;
     margin-top: 5px;
   }
 
   .no-bands {
-    font-size: 12px;
+    font-size: 13px;
     color: #888;
     font-style: italic;
   }
@@ -343,7 +343,7 @@
     background: none;
     border: none;
     padding: 0;
-    font-size: 12px;
+    font-size: 13px;
     color: #555;
     cursor: pointer;
     text-align: left;

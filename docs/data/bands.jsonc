@@ -34,9 +34,14 @@
 //                        preamble). A combination/overtone band built from a
 //                        fundamental doesn't need its own entry here at all
 //                        — leave it empty and point `based_on` at the
-//                        fundamental instead; loader.py chases that one
-//                        level to include it under the fundamental's mode(s)
-//                        automatically.
+//                        fundamental instead; loader.py chases that one level
+//                        and BACK-FILLS this field at build time with the
+//                        union of its based_on parents' own vibration_modes
+//                        (so the emitted bands.json a combination band ships
+//                        with is never actually empty when a parent links to
+//                        something — this is what lets the band-chart
+//                        tooltip show a combination's inherited vibration(s)
+//                        too, not just a fundamental's own).
 //   group              → must be a key in the "groups" table below; also
 //                        what data/vibrations.jsonc's `band_groups` list
 //                        points at (validated against this file's groups,
@@ -1058,6 +1063,7 @@
       "species": "CO/cation site",
       "group": "co_cation",
       "pair": 3,
+      "vibration_modes": ["co_stretch_linear"],
       "vibration": {
         "category": "stretch",
         "subtype": null,

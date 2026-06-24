@@ -30,7 +30,7 @@
     background: white;
     border: 1px solid #D0D0D0;
     border-radius: 16px;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
     color: #444;
   }

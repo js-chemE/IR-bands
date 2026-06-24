@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap } from '../lib/types';
+  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode } from '../lib/types';
   import { buildChart } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
+  import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
+  import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
 
   const dispatch = createEventDispatcher<{ navigateRef: { key: string } }>();
 
@@ -17,6 +19,7 @@
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
+  export let vibrations: Vibrations;
   export let enabledGroups: ReadonlySet<string>;
   export let hiddenCats: ReadonlySet<string>;
   export let hiddenTags: ReadonlySet<string>;
@@ -67,6 +70,7 @@
         id: band.id, name: '', vib: '', wnRange: '', group: '', color: '#999',
         noteLines: [], tags: [], description: '', refs: [], partners: [],
         branchGroup: band.branch_group ?? null,
+        vibrationModeIds: [],
       },
     };
     return { hit: synthetic, real: false };
@@ -283,6 +287,7 @@
     if (!found) return;
     selected = found.real ? found.hit : null;
     selectedId = id;
+    playNonce++;
     requestAnimationFrame(() => {
       const x = (found.hit.px1 + found.hit.px2) / 2;
       const y = (found.hit.py1 + found.hit.py2) / 2;
@@ -329,14 +334,77 @@
 
   $: shown = selected ?? hovered;
 
+  // ---------------------------------------------------------------------------
+  // Linked vibration mini-cards — resolves each of the shown band's own
+  // vibration_modes ids to its full VibrationMode plus the matching animated
+  // diagram geometry (mode.topology if the mode is topology-specific,
+  // otherwise the molecule's first/only topology). Computed before the
+  // tooltip's own position below, since whether there's a linked-vibrations
+  // panel at all changes how much horizontal room the flip check needs.
+  // ---------------------------------------------------------------------------
+  function resolveMode(modeId: string): { mode: VibrationMode; geometry: MoleculeGeometry | null } | null {
+    for (const molecule of vibrations.molecules) {
+      const mode = molecule.modes.find(m => m.id === modeId);
+      if (mode) {
+        const topologyId = mode.topology ?? molecule.topologies[0]?.id ?? null;
+        return { mode, geometry: topologyId ? geometryFor(molecule.id, topologyId) : null };
+      }
+    }
+    return null;
+  }
+
+  $: linkedModes = shown
+    ? shown.tipData.vibrationModeIds
+        .map(resolveMode)
+        .filter((m): m is { mode: VibrationMode; geometry: MoleculeGeometry | null } => m !== null)
+    : [];
+
   // Selected tooltip stays at click position; hover tooltip follows the mouse.
   const TIP_W = 300;
+  // .band-tooltip's CSS `width` is its content box only — its actual
+  // rendered (and translateX(-100%)-shifted) box is wider by its own
+  // padding (8px 10px) + border (1px, except the 3px overridden top) on
+  // left/right: 2×10 + 2×1 = 22px. Using bare TIP_W for the flip/placement
+  // math would be 22px short of the tooltip's real edge.
+  const TIP_OUTER_W = TIP_W + 22;
+  // Linked-vibrations panel: a narrow column to the OUTER side of the main
+  // tooltip (same side it flipped to, so the two never overlap), top-aligned
+  // with it rather than stacked below.
+  const VIB_W = Math.round(TIP_W * 0.55); // a bit over half the tooltip's own width
+  const VIB_GAP = 6; // small, purely aesthetic separation from the tooltip
+  const VIB_OUTER_W = VIB_W + 14; // padding (6px×2) + border (1px×2)
+
   $: _anchorX = selected ? selectedTipX : mouseX;
   $: _anchorY = selected ? selectedTipY : mouseY;
-  $: flipLeft = _anchorX + 18 + TIP_W > (typeof window !== 'undefined' ? window.innerWidth : 1200);
+  // Reserve room for the vibrations panel too whenever one will actually be
+  // shown — otherwise the flip threshold only knows about the tooltip's own
+  // width, and a panel attached further out can clip off the right edge of
+  // the screen even though the tooltip itself still fit fine.
+  $: roomNeeded = TIP_OUTER_W + (linkedModes.length ? VIB_GAP + VIB_OUTER_W : 0);
+  $: flipLeft = _anchorX + 18 + roomNeeded > (typeof window !== 'undefined' ? window.innerWidth : 1200);
   $: tipX = flipLeft ? _anchorX - 16 : _anchorX + 18;
   $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
   $: tipY = Math.max(10, Math.min(_anchorY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
+
+  $: vibX = flipLeft ? tipX - TIP_OUTER_W - VIB_GAP : tipX + TIP_OUTER_W + VIB_GAP;
+  $: vibTransform = flipLeft ? 'translateX(-100%)' : 'none';
+  // Leaves the panel free to grow until it would run off the bottom of the
+  // viewport, then scrolls internally instead — same idea as the tooltip's
+  // own refs section, just sized against whatever room is actually left
+  // below its (shared) top edge rather than a fixed pixel cap.
+  $: vibPanelMaxH = Math.max(80, (typeof window !== 'undefined' ? window.innerHeight : 800) - tipY - 10);
+
+  // Bumped to retrigger every linked mini-card's 3-second auto-play: once
+  // whenever a *new* band starts being hovered, and once per real click
+  // (the click branch in onPointerUp increments it directly, since clicking
+  // the same already-hovered band wouldn't otherwise look like a "change").
+  let playNonce = 0;
+  let lastHoveredId: string | null = null;
+  $: {
+    const hid = hovered?.tipData.id ?? null;
+    if (hid && hid !== lastHoveredId) playNonce++;
+    lastHoveredId = hid;
+  }
 
   // ---------------------------------------------------------------------------
   // Chart layout constants (must match chart.ts)
@@ -488,6 +556,7 @@
         selectedId = hit.tipData.id;
         selectedTipX = e.clientX;
         selectedTipY = e.clientY;
+        playNonce++;
       } else {
         selected = null;
         selectedId = null;
@@ -709,6 +778,17 @@
         <div class="tip-lock-hint">click ref ↗ to open · click band to switch · click empty to dismiss</div>
       {/if}
     </div>
+
+    {#if linkedModes.length}
+      <div
+        class="vib-panel"
+        style="left:{vibX}px; top:{tipY}px; transform:{vibTransform}; max-height:{vibPanelMaxH}px; pointer-events:{selected ? 'auto' : 'none'};"
+      >
+        {#each linkedModes as lm (lm.mode.id)}
+          <VibrationMiniCard mode={lm.mode} geometry={lm.geometry} triggerNonce={playNonce} interactive={!!selected} />
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -732,7 +812,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 3px 10px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     color: #444;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
@@ -757,7 +837,7 @@
     padding: 8px 10px;
     width: 300px;
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
     box-shadow: 0 4px 16px rgba(0,0,0,0.13);
   }
@@ -772,24 +852,24 @@
     margin-bottom: 6px;
   }
   .tip-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: #111;
     line-height: 1.2;
   }
   .tip-vib {
-    font-size: 10.5px;
+    font-size: 11.5px;
     color: #777;
     margin-top: 1px;
   }
   .tip-wn {
-    font-size: 11px;
+    font-size: 12px;
     color: #333;
     font-family: 'Courier New', monospace;
     margin-top: 1px;
   }
   .tip-group {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -807,7 +887,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 3px;
     padding: 1px 5px;
-    font-size: 10px;
+    font-size: 11px;
     color: #555;
   }
   .tip-tag-extra {
@@ -817,7 +897,7 @@
   }
 
   .tip-desc {
-    font-size: 11px;
+    font-size: 12px;
     color: #555;
     line-height: 1.4;
     margin-bottom: 6px;
@@ -828,7 +908,7 @@
   .tip-refs-section { margin-top: 2px; }
 
   .tip-refs-header {
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -840,7 +920,7 @@
   }
 
   .tip-refs-overflow {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
@@ -882,7 +962,7 @@
   .tip-ref-btn:hover .tip-ref-arrow { opacity: 1; }
 
   .tip-ref-arrow {
-    font-size: 9px;
+    font-size: 10px;
     color: #a08050;
     opacity: 0;
     transition: opacity 0.1s;
@@ -890,7 +970,7 @@
   }
 
   .tip-ref-title {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: #222;
   }
@@ -908,7 +988,7 @@
     color: #1d4ed8;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-family: 'Courier New', monospace;
     white-space: nowrap;
   }
@@ -919,7 +999,7 @@
     color: #78350f;
     border-radius: 3px;
     padding: 1px 6px;
-    font-size: 10.5px;
+    font-size: 11.5px;
     white-space: nowrap;
   }
 
@@ -934,11 +1014,11 @@
     border: 1px solid;
     border-radius: 3px;
     padding: 1px 5px;
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .tip-ref-note {
-    font-size: 10.5px;
+    font-size: 11.5px;
     color: #6b7280;
     font-style: italic;
     margin-top: 4px;
@@ -949,8 +1029,29 @@
     margin-top: 6px;
     padding-top: 5px;
     border-top: 1px solid #eee;
-    font-size: 9.5px;
+    font-size: 10.5px;
     color: #aaa;
     text-align: center;
   }
+
+  /* ── Linked vibrations panel — a separate, narrow box attached to the
+     outer side of the band tooltip (top-aligned with it), one mini-card per
+     linked mode stacked vertically when there's more than one. ── */
+  .vib-panel {
+    position: fixed;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 165px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  }
+  .vib-panel::-webkit-scrollbar { width: 4px; }
+  .vib-panel::-webkit-scrollbar-thumb { background: #d0c9bc; border-radius: 2px; }
 </style>

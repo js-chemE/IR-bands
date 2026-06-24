@@ -325,6 +325,7 @@
           bands={dataset.bands}
           groups={dataset.groups}
           {refs}
+          {vibrations}
           {enabledGroups}
           {colorDim}
           {hiddenCats}
@@ -440,7 +441,7 @@
     padding: 0;
     cursor: pointer;
     font-family: inherit;
-    font-size: 28px;
+    font-size: 29px;
     font-weight: 800;
     font-style: italic;
     letter-spacing: -0.01em;
@@ -449,7 +450,7 @@
   .header-title-btn:hover { color: rgba(255,255,255,0.82); }
 
   .header-subtitle {
-    font-size: 14px;
+    font-size: 15px;
     color: rgba(255,255,255,0.55);
     font-style: italic;
   }
@@ -457,19 +458,19 @@
   .header-right { text-align: right; }
 
   .header-authors {
-    font-size: 13.5px;
+    font-size: 14.5px;
     color: rgba(255,255,255,0.88);
     line-height: 1.4;
   }
-  .header-authors :global(sup) { font-size: 9px; vertical-align: super; }
+  .header-authors :global(sup) { font-size: 10px; vertical-align: super; }
 
   .header-affil {
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: rgba(255,255,255,0.55);
     font-style: italic;
     margin-top: 1px;
   }
-  .header-affil :global(sup) { font-size: 8px; vertical-align: super; }
+  .header-affil :global(sup) { font-size: 9px; vertical-align: super; }
 
   /* ── Hint banner (footer) — always visible as the last flex item ── */
   .hint-banner {
@@ -477,7 +478,7 @@
     background: #FFF8E1;
     border-top: 1px solid #F0DDA0;
     color: #3A3A3A;
-    font-size: 13px;
+    font-size: 14px;
     padding: 6px 18px;
   }
 
@@ -493,7 +494,7 @@
     border: 1px solid #D0D0D0;
     border-radius: 3px;
     padding: 1px 5px;
-    font-size: 12px;
+    font-size: 13px;
     font-family: ui-monospace, monospace;
   }
 
@@ -508,7 +509,7 @@
     background: #FAFAFA;
     overflow-y: auto;
     overflow-x: hidden;
-    font-size: 13px;
+    font-size: 14px;
     transition: width 0.18s ease, flex-basis 0.18s ease, padding 0.18s ease;
   }
 
@@ -535,7 +536,7 @@
     background: none;
     border: 1px solid #D0D0D0;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: #888;
     cursor: pointer;
@@ -573,7 +574,7 @@
     padding: 5px 10px;
     background: none;
     border: none;
-    font-size: 11.5px;
+    font-size: 12.5px;
     color: #444;
     cursor: pointer;
     text-align: left;
@@ -596,7 +597,7 @@
     border: 1px solid #D0D0D0;
     border-radius: 4px;
     padding: 5px 0;
-    font-size: 9px;
+    font-size: 10px;
     color: #777;
     cursor: pointer;
     margin-bottom: 10px;
@@ -607,7 +608,7 @@
 
   .sidebar :global(h3) {
     margin: 0 0 8px 0;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -617,7 +618,7 @@
   .sidebar :global(select) {
     width: 100%;
     padding: 4px 6px;
-    font-size: 12px;
+    font-size: 13px;
     border: 1px solid #D0D0D0;
     border-radius: 4px;
     background: white;
@@ -662,7 +663,7 @@
 
   .state-msg {
     padding: 40px;
-    font-size: 14px;
+    font-size: 15px;
     color: #666;
   }
   .state-msg.error { color: #c00; }
@@ -681,7 +682,7 @@
     background: white;
     border: 1px solid #D0D0D0;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     color: #444;
     text-align: left;
