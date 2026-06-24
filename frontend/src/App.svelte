@@ -21,7 +21,7 @@
   type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
   let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
-  let sidebarOpen = false;
+  let sidebarOpen = true;
   let showColorMenu = false;
   let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
