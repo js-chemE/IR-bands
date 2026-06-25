@@ -19,6 +19,11 @@
     dispatch('navigateRef', { key });
   }
 
+  function wnList(wn: number | number[] | null): number[] {
+    if (wn == null) return [];
+    return Array.isArray(wn) ? wn : [wn];
+  }
+
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
@@ -725,9 +730,9 @@
                   <div class="tip-ref-title">{ref.short} <span class="tip-ref-arrow">↗</span></div>
                   {#if ref.wn != null || ref.site}
                     <div class="tip-ref-badges">
-                      {#if ref.wn != null}
-                        <span class="badge-wn">{ref.wn} cm⁻¹</span>
-                      {/if}
+                      {#each wnList(ref.wn) as w}
+                        <span class="badge-wn">{w} cm⁻¹</span>
+                      {/each}
                       {#if ref.site}
                         {#if Array.isArray(ref.site)}
                           {#each ref.site as s}
@@ -760,9 +765,9 @@
                 <div class="tip-ref-title">{ref.short}</div>
                 {#if ref.wn != null || ref.site}
                   <div class="tip-ref-badges">
-                    {#if ref.wn != null}
-                      <span class="badge-wn">{ref.wn} cm⁻¹</span>
-                    {/if}
+                    {#each wnList(ref.wn) as w}
+                      <span class="badge-wn">{w} cm⁻¹</span>
+                    {/each}
                     {#if ref.site}
                       {#if Array.isArray(ref.site)}
                         {#each ref.site as s}

@@ -98,7 +98,7 @@ export function getLegendCategories(
 export interface TipRef {
   key: string;
   short: string;       // "Fehr & Krossing, 2020"
-  wn: number | null;
+  wn: number | number[] | null;
   site: string | string[] | null;
   note: string | null;
   tags: string[];

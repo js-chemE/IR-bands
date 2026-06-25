@@ -22,7 +22,7 @@ export interface BasedOn {
 
 export interface BandReference {
   key: string;
-  wn: number | null;
+  wn: number | number[] | null;
   site: string | string[] | null;
   note: string | null;
   tags: string[];
