@@ -31,6 +31,11 @@ export const ATOMS_PALETTE: Record<string, string> = {
   'M-H':     '#D9A036',
   'M-O':     '#5C5C5C',
   'M-C':     '#4A7AB5',
+  // The whole metal-oxygen-carbon chain moving as one unit (frustrated
+  // rotation/translation of a surface-bound -O-C, methoxy's M-O-C wobble) —
+  // a steel blue-grey that sits between M-O's neutral grey and M-C's blue,
+  // keeping it visually part of the same M-* metal family.
+  'M-O-C':   '#6B8299',
   'diverse': GREY,
 };
 
@@ -43,6 +48,10 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   'ir-active':    { background: '#FDE9DD', border: '#F0A876', color: '#9A4A12' },
   // Cool violet — evokes the laser excitation line used in Raman scattering.
   'raman-active': { background: '#EEE3FB', border: '#C3A0EA', color: '#5B2E91' },
+  // Teal — a third hue distinct from both of the above, for the
+  // translation/rotation a free adsorbate would have but can't anymore once
+  // trapped in the adsorption well (CO's and methoxy's frustrated modes).
+  'frustrated-mode': { background: '#DCF3F0', border: '#7EC8BE', color: '#1F6B5C' },
   // Example (uncomment to activate):
   // 'overtone': { background: '#ede9fe', border: '#c4b5fd', color: '#5b21b6' },
 };

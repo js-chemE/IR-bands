@@ -418,7 +418,8 @@
           "id": "co_frustrated_tilt_linear",
           "label": "Frustrated rotation",
           "category": "bend",
-          "atoms": "C-O",
+          "subtype": "rocking",
+          "atoms": "M-O-C",
           "topology": "linear",
           "herzberg_notation": "ν₃",
           "symmetry": "Π",
@@ -433,8 +434,8 @@
         {
           "id": "co_frustrated_translate_linear",
           "label": "Frustrated translation",
-          "category": "bend",
-          "atoms": "C-O",
+          "category": "stretch",
+          "atoms": "M-O-C",
           "topology": "linear",
           "herzberg_notation": "ν₄",
           "symmetry": "Π",
@@ -1392,7 +1393,7 @@
           "note": "One C-H bond stretches outward while another contracts inward, in antiphase, the third untouched — one component of the methyl group's doubly-degenerate asymmetric stretch. Formally forbidden by the strict surface selection rule for an ideally perpendicular adsorbate, though resolved via DRIFTS on real catalytic surfaces — and easily confused with Fermi resonance against the symmetric stretch's own overtones.",
           "ir_active": true,
           "raman_active": null,
-          "tags": ["site-sensitive"],
+          "tags": ["site-sensitive", "degenerated"],
           "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000", "Uvdal.VibrationalSpectrumMethoxy.1997"]
         },
         {
@@ -1405,7 +1406,7 @@
           "note": "Two H's rock in antiphase relative to the C-O axis while the third shears outward — one component of the doubly-degenerate asymmetric deformation. Calculated well above the symmetric umbrella mode above, so a band much closer to that mode's own position is unlikely to actually be this one.",
           "ir_active": true,
           "raman_active": null,
-          "tags": [],
+          "tags": ["degenerated"],
           "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
         },
         {
@@ -1421,14 +1422,15 @@
           "note": "The whole CH₃ cap tilts and rocks side-to-side as one rigid block relative to the fixed O — one component of the doubly-degenerate methyl rock. Same formal surface-selection-rule restriction as the other E modes above; not yet linked to an observed band in this dataset.",
           "ir_active": true,
           "raman_active": null,
-          "tags": [],
+          "tags": ["degenerated"],
           "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
         },
         {
           "id": "methoxy_frustrated_rotation",
-          "label": "Frustrated rotation",
+          "label": "ρ(MOC)",
           "category": "bend",
-          "atoms": "C-O",
+          "subtype": "rocking",
+          "atoms": "M-O-C",
           "herzberg_notation": "ν₉",
           "symmetry": "E",
           "wn_start": 250,
@@ -1436,14 +1438,14 @@
           "note": "The C-O bond axis pivots off the surface normal — the whole adsorbed unit wobbling against its own anchor point, the same frustrated-rotation character as linearly-bound CO. Purely lateral in its dipole change, so canceled by the surface's image dipole — formally IR-inactive in reflection geometry.",
           "ir_active": false,
           "raman_active": null,
-          "tags": ["frustrated-mode"],
+          "tags": ["frustrated-mode", "degenerated"],
           "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
         },
         {
           "id": "methoxy_frustrated_translation",
-          "label": "Frustrated translation",
-          "category": "bend",
-          "atoms": "C-O",
+          "label": "νₜ(MOC)",
+          "category": "stretch",
+          "atoms": "M-O-C",
           "herzberg_notation": "ν₁₀",
           "symmetry": "E",
           "wn_start": 70,
@@ -1451,7 +1453,7 @@
           "note": "The entire adsorbed unit shears laterally across the binding site — the lowest-frequency mode of the ten, and, like the frustrated rotation above, formally IR-inactive in reflection geometry by the same lateral-dipole cancellation.",
           "ir_active": false,
           "raman_active": null,
-          "tags": ["frustrated-mode"],
+          "tags": ["frustrated-mode", "degenerated"],
           "reference": ["Mudalige.VibrationalAnalysisChemisorbed.2000"]
         }
       ]
