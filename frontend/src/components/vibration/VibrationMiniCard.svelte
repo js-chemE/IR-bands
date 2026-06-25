@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, createEventDispatcher } from 'svelte';
   import type { VibrationMode } from '../../lib/types';
   import type { MoleculeGeometry } from '../../lib/moleculeGeometry';
-  import { VIBRATION_PALETTE } from '../../lib/colors';
+  import { VIBRATION_PALETTE, ATOMS_PALETTE } from '../../lib/colors';
   import MoleculeViewer from './MoleculeViewer.svelte';
+
+  const dispatch = createEventDispatcher<{ navigate: void }>();
 
   export let mode: VibrationMode;
   export let geometry: MoleculeGeometry | null;
@@ -27,10 +29,6 @@
   $: herzbergTag = mode.herzberg_notation && mode.symmetry
     ? `${mode.herzberg_notation} (${mode.symmetry})`
     : mode.herzberg_notation || mode.symmetry || null;
-
-  $: wnLabel = mode.wn_start == null
-    ? null
-    : mode.wn_end == null ? `~${mode.wn_start} cm⁻¹` : `${mode.wn_start}–${mode.wn_end} cm⁻¹`;
 
   $: vectors = geometry?.modes[mode.id] ?? null;
 
@@ -60,12 +58,17 @@
 
 <div class="mini-card" style="border-left-color:{color}">
   <div class="mini-top">
-    <span class="mini-name" style="color:{color}">{mode.label}</span>
+    <button
+      class="mini-name"
+      style="color:{color}"
+      on:click={() => dispatch('navigate')}
+      title="Open this mode on the Vibration modes page"
+    >{mode.label}</button>
     {#if herzbergTag}
       <span class="mini-herzberg">{@html herzbergTag}</span>
     {/if}
-    {#if wnLabel}
-      <span class="mini-wn">{wnLabel}</span>
+    {#if mode.atoms}
+      <span class="mini-atoms" style="background:{ATOMS_PALETTE[mode.atoms] ?? GREY}">{mode.atoms}</span>
     {/if}
   </div>
   {#if geometry}
@@ -96,10 +99,20 @@
     flex-wrap: wrap;
   }
 
+  /* Clickable — same quiet hover darkening as the references page's own
+     expandable band rows, rather than looking like a normal button. */
   .mini-name {
+    font: inherit;
     font-size: 13px;
     font-weight: 700;
+    border: none;
+    background: none;
+    border-radius: 3px;
+    padding: 0 3px;
+    margin: 0 -3px;
+    cursor: pointer;
   }
+  .mini-name:hover { background: rgba(0, 0, 0, 0.04); }
 
   .mini-herzberg {
     font-size: 10.5px;
@@ -111,10 +124,17 @@
   }
   .mini-herzberg :global(sub) { font-size: 0.75em; }
 
-  .mini-wn {
-    font-size: 11px;
-    color: #1d4ed8;
-    font-family: 'Courier New', monospace;
+  /* Same pill metrics as .mini-herzberg right next to it — same row, same
+     size — just with the atoms palette's own color instead of the
+     herzberg pill's neutral fill. Purely decorative; the name button above
+     is the actual link to the Vibration modes page. */
+  .mini-atoms {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 10.5px;
+    color: #fff;
+    white-space: nowrap;
   }
 
   .mini-diagram {

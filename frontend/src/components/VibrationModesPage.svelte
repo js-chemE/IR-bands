@@ -11,6 +11,12 @@
   export let refs: RefMap;
   export let vibrations: Vibrations;
   export let sortedGroupKeys: string[];
+  // Set by a parent that wants to jump straight to one mode's detail panel
+  // (e.g. clicking a linked vibration's atoms tag in the band chart's own
+  // tooltip) — `nonce` forces re-application even if the same mode is
+  // focused twice in a row, since plain reactivity wouldn't notice an
+  // unchanged id.
+  export let focusMode: { moleculeId: string; topologyId: string; modeId: string; nonce: number } | null = null;
 
   // Same group order the band chart and references page use (by first lane
   // appearance), so a molecule lines up with where its species sits there —
@@ -26,6 +32,15 @@
   let previewModeId: string | null = null;
   let openModeId: string | null = null;
   let notationOpen = false;
+
+  let appliedFocusModeNonce = -1;
+  $: if (focusMode && focusMode.nonce !== appliedFocusModeNonce) {
+    appliedFocusModeNonce = focusMode.nonce;
+    selectedMoleculeId = focusMode.moleculeId;
+    selectedTopologyId = focusMode.topologyId;
+    openModeId = focusMode.modeId;
+    previewModeId = null;
+  }
 
   $: molecule = orderedMolecules.find(m => m.id === selectedMoleculeId) ?? null;
   $: selectedTopology = molecule?.topologies.find(t => t.id === selectedTopologyId) ?? null;

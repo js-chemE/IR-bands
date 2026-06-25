@@ -174,6 +174,18 @@
     focusBand = { id: band.id, nonce: focusNonce };
   }
 
+  // Reverse direction: clicking a linked vibration's atoms tag in the band
+  // chart's own tooltip jumps to the Vibration modes page with that exact
+  // molecule/topology/mode selected and its detail panel already open.
+  let focusMode: { moleculeId: string; topologyId: string; modeId: string; nonce: number } | null = null;
+  let focusModeNonce = 0;
+
+  function handleNavigateMode(e: CustomEvent<{ moleculeId: string; topologyId: string; modeId: string }>) {
+    page = 'vibration';
+    focusModeNonce += 1;
+    focusMode = { ...e.detail, nonce: focusModeNonce };
+  }
+
   const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
     { dim: 'group',      label: 'Group' },
     { dim: 'vibration',  label: 'Vibration' },
@@ -336,6 +348,7 @@
           hoveredTag={legendHoveredTag}
           {focusBand}
           on:navigateRef={handleNavigateRef}
+          on:navigateMode={handleNavigateMode}
         />
         <div class="legend-box">
           <ColorLegend
@@ -371,6 +384,7 @@
           {refs}
           {vibrations}
           {sortedGroupKeys}
+          {focusMode}
           on:navigateRef={handleNavigateRef}
           on:navigateBand={handleNavigateBand}
         />
