@@ -140,14 +140,18 @@
           "wn": 2360,
           "site": null,
           "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); 2360 here is the R-branch envelope maximum, not a single measured line.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
           "wn": 2373,
           "site": null,
           "note": "Gas-phase CO₂ R-branch observed at 2373 cm⁻¹ during DRM at 600°C (Table 3); reactant concentration marker.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -232,7 +236,9 @@
           "wn": 2335,
           "site": null,
           "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2); 2335 here is the P-branch envelope maximum, not a single measured line.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -274,7 +280,9 @@
           "wn": 700,
           "site": null,
           "note": "Reports the δ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~700 here is the R-branch envelope maximum.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -318,7 +326,9 @@
           "wn": 667,
           "site": null,
           "note": "Q-branch coincides with the reported δ band origin (01101←00001) at 667 cm⁻¹ (Table 2) — the fundamental bending mode.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -362,7 +372,9 @@
           "wn": 660,
           "site": null,
           "note": "Reports the δ band origin (01101←00001) at 667 cm⁻¹ (Table 2); ~660 here is the P-branch envelope maximum.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -592,7 +604,9 @@
           "wn": 3613,
           "site": null,
           "note": "Reports the 2δ+νₐₛ band origin (10012←00001) at ~3613 cm⁻¹ (Table 2, lower Fermi-resonance pair); ~3597 here is the P-branch envelope maximum.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -638,7 +652,9 @@
           "wn": 2077,
           "site": null,
           "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -774,7 +790,9 @@
           "wn": 2176,
           "site": null,
           "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -815,7 +833,7 @@
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2143,
           "site": null,
-          "note": "Not an observed line in this source — the forbidden Q-branch position sits at the CO fundamental band origin (~2143 cm⁻¹), consistent with the midpoint of their observed P (2114 cm⁻¹) and R (2176 cm⁻¹) branch maxima (Fig. 4).",
+          "note": "The forbidden Q-branch position sits at the CO fundamental band origin (~2143 cm⁻¹), consistent with the midpoint of their observed P (2114 cm⁻¹) and R (2176 cm⁻¹) branch maxima (Fig. 4).",
           "tags": []
         }
       ],
@@ -859,7 +877,9 @@
           "wn": 2114,
           "site": null,
           "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e).",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -1102,6 +1122,20 @@
       "based_on": [],
       "references": [
         {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": [
+            2098,
+            2065,
+            2030
+          ],
+          "site": "Cu⁰",
+          "note": "Three linear Cu⁰-CO components (Fig. 3a; −160 °C, 0.15 mbar CO, static vacuum); the 2065/2030 cm⁻¹ pair (very unsaturated centers) loses intensity with Ga loading, attributed to Ga₂O₃ diffusing to the Cu particle edge.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ]
+        },
+        {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2041,
           "site": "Co⁰",
@@ -1123,7 +1157,8 @@
           "site": "Pd⁰",
           "note": "On-top (linear, μ₁) CO on Pd nanoparticles typically observed at 2080–2090 cm⁻¹ (Introduction, citing prior SFG work), distinct from this same paper's own focus on bridge-site coverage dependence (see co_bridge_mu2_1900).",
           "tags": [
-            "computational"
+            "computational",
+            "direct-dosing"
           ]
         }
       ],
@@ -1165,7 +1200,10 @@
           "wn": null,
           "site": "Co⁰",
           "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature.",
-          "tags": []
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ]
         },
         {
           "key": "Yudanov.COAdsorptionPd.2026",
@@ -1173,7 +1211,18 @@
           "site": "Pd⁰",
           "note": "DFT-calculated (scaled) frequency of bridge-bound CO at the edges of Pd nanoparticles, growing from ~1886 cm⁻¹ for an isolated bridge CO up to ~1989 cm⁻¹ once the edge bridge sites are fully occupied by coadsorbed CO (Table 1) — matching the experimentally observed 1980–1990 cm⁻¹ band and implying particles ≥3 nm to host the necessary 10–12-CO edge ensemble.",
           "tags": [
-            "computational"
+            "computational",
+            "direct-dosing"
+          ]
+        },
+        {
+          "key": "Gomez.InterdependenceExtentGa.2024",
+          "wn": 1890,
+          "site": "Cu⁰",
+          "note": "Bridge-bound (Cu⁰)₂-CO (Fig. 3a; −160 °C, 0.15 mbar CO, static vacuum).",
+          "tags": [
+            "direct-dosing",
+            "drifts"
           ]
         }
       ],
@@ -1216,7 +1265,8 @@
           "site": "Pd⁰",
           "note": "DFT-calculated (scaled) frequencies of 3-fold hollow CO on Pd(111)-type facets/nanoparticles range from ~1802–1815 cm⁻¹ at low coverage up to ~1902 cm⁻¹ at the high-coverage (2×2)-3CO structure (0.75 ML), tracking the same coverage-dependent blue shift seen for bridge-bound CO.",
           "tags": [
-            "computational"
+            "computational",
+            "direct-dosing"
           ]
         }
       ],
@@ -1288,17 +1338,22 @@
       "references": [
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
-          "wn": null,
-          "site": null,
-          "note": null,
-          "tags": []
+          "wn": 2125,
+          "site": "Cu⁺",
+          "note": "New Cu⁺-CO feature appearing only after Ga loading (Fig. 3a; −160 °C, 0.15 mbar CO, static vacuum); peak area scales with Ga₂O₃ content and correlates with TOF_MeOH — assigned to Cu⁺ at the Cu-Ga₂O₃ interface, the proposed methanol active site.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ]
         },
         {
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
           "wn": 2158,
           "site": "Cu⁺",
           "note": "Monocarbonyl Cu⁺-CO in a Cu-exchanged zeolite, resolved by self-supporting-pellet transmission FTIR (100 K) into 4 distinct Cu⁺ site sub-families: 2166 cm⁻¹ (most electrophilic cationic site, preferentially covered by co-adsorbed H₂O), 2158 cm⁻¹ (principal/dominant cationic site), 2141 cm⁻¹ (a more highly-coordinated, oxide-like Cu⁺ site), and 2139 cm⁻¹ (Cu⁺(H₂O)(CO) mixed-ligand complex, nearly coincident with the oxide-like site). Site assignment supported by selective monocarbonyl→dicarbonyl→tricarbonyl conversion as CO coverage increases/temperature decreases — see co_gemdi_asym_2095/co_gemdi_sym_2035 for the dicarbonyl stage.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
@@ -1313,7 +1368,8 @@
           ],
           "note": "C-bonded (X⁺···CO) carbon monoxide on alkali-exchanged and protonic ZSM-5 zeolites (Si/Al = 14), assigned by transmission FTIR at 77 K. Position correlates linearly with 1/(R_M+R_CO)² (R_M = cation ionic radius), confirming a purely electrostatic, non-backdonating interaction — unlike the π-backdonating metallic-surface picture elsewhere in this dataset. High-frequency (HF) band positions at low CO coverage: Li⁺ 2188, Na⁺ 2178, K⁺ 2166, Rb⁺ 2162, Cs⁺ 2157, H⁺ (Brønsted) 2172 cm⁻¹ — frequency decreases monotonically with increasing cation radius/decreasing Lewis acidity. Each cation's HF band is accompanied by a much weaker low-frequency (LF) shoulder assigned to the O-bonded isomer of the same adduct, in thermodynamic equilibrium with this C-bonded form — see co_isocarbonyl_2220.",
           "tags": [
-            "computational"
+            "computational",
+            "direct-dosing"
           ]
         }
       ],
@@ -1363,7 +1419,8 @@
           ],
           "note": "O-bonded (X⁺···OC) isocarbonyl species on the same alkali-exchanged and protonic ZSM-5 zeolites as co_cation_stretch_2175's HF band, in thermodynamic equilibrium with it: B3-LYP calculations on naked cations predict O-bonding is only slightly less stable than C-bonding, the energy gap narrowing from Li⁺ to Cs⁺, and a red-shifted shoulder consistent with that prediction is observed for every cation. Low-frequency (LF) band positions: Li⁺ 2108, Na⁺ 2113, K⁺ 2117, Rb⁺ 2119, Cs⁺ 2122, H⁺ (Brønsted) 2115 cm⁻¹ — frequency rises (shifts less below the free-gas 2143 cm⁻¹ value) with increasing cation radius, mirroring the HF band's opposite trend. Relative intensity of this band to the HF band (A_HF/A_LF) drops markedly from Li⁺ to Cs⁺, consistent with the two states' energies converging.",
           "tags": [
-            "computational"
+            "computational",
+            "direct-dosing"
           ]
         }
       ],
@@ -1406,7 +1463,8 @@
           "site": "Cu⁺",
           "note": "νₐₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2151 cm⁻¹ (paired with νₛ at 2180, see co_gemdi_sym_2035), forming from the monocarbonyl with increasing CO coverage. The geminal (one-cation-two-CO) assignment was proven unambiguously by adsorbing a 1:1 ¹²CO+¹³CO isotopic mixture: a force-field calculation from the pure-¹²CO dicarbonyl frequencies predicted mixed-isotope Cu⁺(¹²CO)(¹³CO) bands at 2169/2113 cm⁻¹ and Cu⁺(¹³CO)₂ bands at 2131/2103 cm⁻¹, and both were observed exactly as calculated — only explainable if two CO ligands genuinely share one cation and vibrationally couple, ruling out two coincidentally-overlapping monocarbonyl bands from different sites.",
           "tags": [
-            "isotopic-shift"
+            "isotopic-shift",
+            "direct-dosing"
           ]
         }
       ],
@@ -1449,7 +1507,8 @@
           "site": "Cu⁺",
           "note": "νₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2180 cm⁻¹ (paired with νₐₛ at 2151, see co_gemdi_asym_2095 for the ¹²CO/¹³CO isotopic-mixture proof of the geminal assignment). At low temperature, a further conversion to Cu⁺(CO)₃ tricarbonyl was observed (bands at 2190/2164/2140 cm⁻¹, not separately modeled in this dataset).",
           "tags": [
-            "isotopic-shift"
+            "isotopic-shift",
+            "direct-dosing"
           ]
         }
       ],
@@ -2197,7 +2256,9 @@
           "wn": 1220,
           "site": "Al₂O₃",
           "note": "Table 3: δ(O-C-O) at 1200–1220 cm⁻¹.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
@@ -2207,7 +2268,9 @@
             "Al₂O₃"
           ],
           "note": "Table 2: δ₄(COH) at 1220 cm⁻¹ (nano-Fe₂O₃) / 1231 cm⁻¹ (Al₂O₃ avg); literature range 1220-1269 cm⁻¹.",
-          "tags": []
+          "tags": [
+            "ftir"
+          ]
         }
       ],
       "tags": [],
@@ -2246,14 +2309,18 @@
           "wn": 2890,
           "site": "Cu⁺",
           "note": "ν(CH) HCOO* on Cu⁺ at Cu–Ga₂O₃.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2876,
           "site": "CuGaZrOx",
           "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
@@ -2304,14 +2371,18 @@
             "Ru/\"Na₂O\"/Al₂O₃"
           ],
           "note": "Table 2/Fig. 1a (Ru/Al₂O₃) and Fig. 3a (Ru–6.1%\"Na₂O\"/Al₂O₃ DFM): νas(OCO) HCOO* at 1520 cm⁻¹ on both surfaces, appearing at the onset of H₂ reduction (methanation step, 320 °C, 20% H₂/N₂). On Ru/Al₂O₃, formate forms via spillover of bicarbonates (adsorbed on Al₂O₃ OH groups); on Ru–Na₂O/Al₂O₃, it forms after bidentate carbonates (on Al-O⁻-Na⁺ sites) spill over to the Ru–support interface — same position despite the different CO₂ adsorption pathway. Confirmed reaction intermediate en route to CH₄.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1600,
           "site": "CuGaZrOx",
           "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -2328,7 +2399,9 @@
             "Fe₃O₄(111)"
           ],
           "note": "Table 1, Fig. 6b–d: νas(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (Fano line shape, UHV, room temperature). On Fe₃O₄(001) (Fig. 6c): two bidentate-bridging components, 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe) — paired νₛ(OCO) at 1369/1377 cm⁻¹ (tet/int); distinction only possible with polarized light due to Fano overlap in unpolarized spectra. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νₛ at 1335 cm⁻¹, positive inverted Fano sign — TDM parallel to surface) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νₛ at 1380 cm⁻¹); bidentate-bridging excluded here (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -2382,14 +2455,18 @@
             "Fe₃O₄(111)"
           ],
           "note": "Table 1, Fig. 6a–d: νₛ(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (negative Fano profiles, TDM perpendicular to surface; dissociative HCOOH adsorption, room temperature, UHV). On Fe₃O₄(001) (Fig. 6a/c): bidentate-bridging, two components — 1369 cm⁻¹ (tet site) and 1377 cm⁻¹ (int site), Epn coupling; paired νas(OCO) at 1555/1548 cm⁻¹ (tet/int); δ(CH) at 1373/1385 cm⁻¹ also observed with inverted Fano shape. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1335 cm⁻¹ (paired νas at 1588 cm⁻¹) and chelating at 1380 cm⁻¹ (paired νas at 1548 cm⁻¹); no bidentate-bridging here (Fe-tet spacing 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1350,
           "site": "CuGaZrOx",
           "note": "νₛ(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -2437,7 +2514,9 @@
           "wn": null,
           "site": "CuGaZrOx",
           "note": "Formate C-H bending overlaps with νₛ(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νₛ in this study.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -2489,14 +2568,18 @@
           "wn": 2956,
           "site": "Cu⁺",
           "note": "Formate combination band on Cu⁺ at Cu–Ga₂O₃.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 2945,
           "site": "CeO₂",
           "note": "Upper arm of the formate ν(CH) Fermi resonance doublet at 2945 cm⁻¹ on CeO₂ (lower arm at 2910 cm⁻¹). The ~35 cm⁻¹ doublet splitting is characteristic of HCOO* Fermi coupling between ν(CH) and 2δ(CH) or δ(OCH)+νₐₛ(OCO).",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2582,21 +2665,27 @@
           "wn": 2929,
           "site": "TiO₂",
           "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2919,
           "site": "Cu⁺",
           "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2970,
           "site": "Zr⁴⁺",
           "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2637,21 +2726,27 @@
           "wn": 2828,
           "site": "TiO₂",
           "note": null,
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2836,
           "site": "Cu⁺",
           "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2819,
           "site": "Zr⁴⁺",
           "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2692,7 +2787,9 @@
           "wn": 1441,
           "site": "TiO₂",
           "note": null,
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -2772,14 +2869,18 @@
           "wn": 1126,
           "site": "TiO₂",
           "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1152,
           "site": "Zr⁴⁺",
           "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹.",
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -2818,14 +2919,9 @@
           "wn": 1045,
           "site": "TiO₂",
           "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate.",
-          "tags": []
-        },
-        {
-          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-          "wn": null,
-          "site": null,
-          "note": null,
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [],
@@ -2893,7 +2989,9 @@
           "wn": 2948,
           "site": "TiO₂",
           "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface.",
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -2932,7 +3030,9 @@
           "wn": 2844,
           "site": "TiO₂",
           "note": null,
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [
@@ -2971,14 +3071,18 @@
           "wn": null,
           "site": null,
           "note": null,
-          "tags": []
+          "tags": [
+            "drifts"
+          ]
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
           "wn": null,
           "site": null,
           "note": null,
-          "tags": []
+          "tags": [
+            "direct-dosing"
+          ]
         }
       ],
       "tags": [],
@@ -3254,7 +3358,10 @@
           "wn": 1976,
           "site": "Ga",
           "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion.",
-          "tags": []
+          "tags": [
+            "drifts",
+            "isotope-shift"
+          ]
         }
       ],
       "tags": [

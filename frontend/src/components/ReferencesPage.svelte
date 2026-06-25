@@ -32,6 +32,11 @@
     return Array.isArray(ref.site) ? ref.site : [ref.site];
   }
 
+  function wnList(ref: BandReference): number[] {
+    if (ref.wn == null) return [];
+    return Array.isArray(ref.wn) ? ref.wn : [ref.wn];
+  }
+
   function qualityTags(b: Band): string[] {
     return [
       b.intensity  && b.intensity,
@@ -178,14 +183,16 @@
         {#each item.groupBands as g (g.key)}
           <div class="group-section">
             <div class="group-label" style="color:{g.color}">{g.label}</div>
-            {#each g.entries as e (`${e.band.id}|${e.ref.wn ?? ''}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
-              {@const id = `r-${item.refKey}-${e.band.id}-${e.ref.wn ?? ''}`}
+            {#each g.entries as e (`${e.band.id}|${wnList(e.ref).join(',')}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
+              {@const id = `r-${item.refKey}-${e.band.id}-${wnList(e.ref).join(',')}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
                   <span class="band-name">{@html bandNameHtml(e.band)}</span>
                   {#if e.ref.wn != null}
-                    <span class="badge-wn">{e.ref.wn} cm⁻¹</span>
+                    {#each wnList(e.ref) as w}
+                      <span class="badge-wn">{w} cm⁻¹</span>
+                    {/each}
                   {:else}
                     <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
                   {/if}
@@ -258,14 +265,16 @@
         {#each g.refs as r (r.refKey)}
           <div class="ref-sub-card">
             <div class="ref-sub-citation">{@html r.html}</div>
-            {#each r.entries as e (`${e.band.id}|${e.ref.wn ?? ''}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
-              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}-${e.ref.wn ?? ''}`}
+            {#each r.entries as e (`${e.band.id}|${wnList(e.ref).join(',')}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
+              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}-${wnList(e.ref).join(',')}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
                   <span class="band-name">{@html bandNameHtml(e.band)}</span>
                   {#if e.ref.wn != null}
-                    <span class="badge-wn">{e.ref.wn} cm⁻¹</span>
+                    {#each wnList(e.ref) as w}
+                      <span class="badge-wn">{w} cm⁻¹</span>
+                    {/each}
                   {:else}
                     <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
                   {/if}

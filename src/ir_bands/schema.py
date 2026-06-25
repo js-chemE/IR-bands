@@ -89,12 +89,15 @@ class Reference:
     describes the band — e.g. a different exact wavenumber or assumed surface
     site — for cases where sources disagree and collapsing to one
     interpretation (or the band's general description) would lose information.
+    wn is a single value normally, or a list when this one source reports
+    multiple distinct resolved components under the same band (e.g. separate
+    p-/s-polarized peaks) — same array-or-scalar convention as site.
     tags are free-form, scoped to this one citation rather than the whole
     band (e.g. one source's claim is a "misassignment-warning" while another
     source's isn't) — styled the same as band-level tags in the frontend.
     """
     key: str
-    wn: Optional[int] = None
+    wn: Optional[Union[int, list[int]]] = None
     site: Optional[Union[str, list[str]]] = None
     note: Optional[str] = None
     tags: list[str] = field(default_factory=list)
