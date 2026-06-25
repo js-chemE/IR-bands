@@ -7,9 +7,34 @@
 
   const dispatch = createEventDispatcher<{
     catToggle:   { cat: string; visible: boolean };
-    catDblClick: { cat: string; visible: boolean };
+    catDblClick: { cat: string };
     catHover:    { cat: string | null };
   }>();
+
+  // A native <button> fires click, click, THEN dblclick for one double-click
+  // gesture — so the single-click handler below would otherwise always run
+  // twice (toggling on, then off again) before the dblclick handler ever
+  // sees it, and a *second* double-click on an already-isolated item would
+  // have its first click already mutate state out from under the dblclick
+  // handler's own logic. Debouncing the single click — deferring it just
+  // long enough to cancel if a second click (dblclick) follows — makes
+  // single- and double-click mutually exclusive at the source, the way a
+  // user actually intends them.
+  const DBLCLICK_WINDOW_MS = 280;
+  let pendingClick: ReturnType<typeof setTimeout> | null = null;
+
+  function onClick(cat: string, visible: boolean) {
+    if (pendingClick) clearTimeout(pendingClick);
+    pendingClick = setTimeout(() => {
+      pendingClick = null;
+      dispatch('catToggle', { cat, visible: !visible });
+    }, DBLCLICK_WINDOW_MS);
+  }
+
+  function onDblClick(cat: string) {
+    if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+    dispatch('catDblClick', { cat });
+  }
 </script>
 
 {#if categories.length > 0}
@@ -20,8 +45,8 @@
         class="item"
         class:dimmed={!visible}
         title="{c.count} band{c.count !== 1 ? 's' : ''}"
-        on:click={() => dispatch('catToggle',   { cat: c.key, visible: !visible })}
-        on:dblclick={() => dispatch('catDblClick', { cat: c.key, visible })}
+        on:click={() => onClick(c.key, visible)}
+        on:dblclick={() => onDblClick(c.key)}
         on:mouseenter={() => dispatch('catHover', { cat: c.key })}
         on:mouseleave={() => dispatch('catHover', { cat: null })}
       >

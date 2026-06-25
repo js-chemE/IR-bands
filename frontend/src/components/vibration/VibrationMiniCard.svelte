@@ -2,7 +2,7 @@
   import { onDestroy, createEventDispatcher } from 'svelte';
   import type { VibrationMode } from '../../lib/types';
   import type { MoleculeGeometry } from '../../lib/moleculeGeometry';
-  import { VIBRATION_PALETTE, ATOMS_PALETTE } from '../../lib/colors';
+  import { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES } from '../../lib/colors';
   import MoleculeViewer from './MoleculeViewer.svelte';
 
   const dispatch = createEventDispatcher<{ navigate: void }>();
@@ -67,6 +67,10 @@
     {#if herzbergTag}
       <span class="mini-herzberg">{@html herzbergTag}</span>
     {/if}
+    {#if mode.tags.includes('frustrated-mode')}
+      {@const style = TAG_STYLES['frustrated-mode']}
+      <span class="mini-frustrated" style="background:{style.background};border-color:{style.border};color:{style.color}">frustrated-mode</span>
+    {/if}
     {#if mode.atoms}
       <span class="mini-atoms" style="background:{ATOMS_PALETTE[mode.atoms] ?? GREY}">{mode.atoms}</span>
     {/if}
@@ -123,6 +127,18 @@
     padding: 0 4px;
   }
   .mini-herzberg :global(sub) { font-size: 0.75em; }
+
+  /* Same pill metrics as .mini-herzberg, colored via TAG_STYLES instead of
+     the herzberg pill's neutral fill — a frustrated mode (CO's/methoxy's
+     tethered translation/rotation) is worth flagging at a glance here too,
+     not just on the Vibration modes page's own mode list. */
+  .mini-frustrated {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
 
   /* Same pill metrics as .mini-herzberg right next to it — same row, same
      size — just with the atoms palette's own color instead of the

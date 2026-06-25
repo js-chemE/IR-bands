@@ -26,6 +26,7 @@
   export let enabledGroups: ReadonlySet<string>;
   export let hiddenCats: ReadonlySet<string>;
   export let hiddenTags: ReadonlySet<string>;
+  export let tagIsolate: string | null = null;
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
@@ -253,6 +254,7 @@
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,
+      tagIsolate,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;

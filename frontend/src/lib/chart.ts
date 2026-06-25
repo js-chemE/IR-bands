@@ -279,6 +279,13 @@ export function buildChart(
   refs: RefMap,
   width = 1100,
   xDomainOverride?: [number, number],
+  // Tag "isolate" (double-click): show ONLY bands carrying this one tag,
+  // bypassing hiddenTags entirely. A real, separate filter rather than
+  // "hide every other tag" — unlike the category legend, a band can carry
+  // several tags at once, so "hide every tag except T" combined with the
+  // hide-if-ANY-hidden-tag rule below would also hide T's own bands
+  // whenever they carry a second tag too (in practice, often ALL of them).
+  tagIsolate: string | null = null,
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
 
@@ -346,7 +353,10 @@ export function buildChart(
     allPositionsData.set(b.id, { x: (x1 + x2) / 2, y: (y0 + y1) / 2 });
 
     if (hiddenCats.has(getCat(b, colorDim))) continue;
-    if (hiddenTags.size > 0) {
+    if (tagIsolate) {
+      const bt = getBandTags(b);
+      if (bt.length === 0 ? tagIsolate !== UNTAGGED_KEY : !bt.includes(tagIsolate)) continue;
+    } else if (hiddenTags.size > 0) {
       const bt = getBandTags(b);
       if (bt.length === 0 ? hiddenTags.has(UNTAGGED_KEY) : bt.some(t => hiddenTags.has(t))) continue;
     }

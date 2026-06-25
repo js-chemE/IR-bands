@@ -14,7 +14,7 @@
   // list is always shown there; an "inactive" ir/raman state in particular
   // isn't a notable-enough fact for a badge at a glance). Add to this list
   // to show more.
-  const SHOWN_TAGS = ['ir-active', 'raman-active', 'degenerated'];
+  const SHOWN_TAGS = ['ir-active', 'raman-active', 'degenerated', 'frustrated-mode'];
 
   const dispatch = createEventDispatcher<{
     preview: { id: string | null };

@@ -39,6 +39,7 @@
   let colorDim: ColorDim = 'group';
   let hiddenCats: ReadonlySet<string> = new Set();
   let hiddenTags: ReadonlySet<string> = new Set();
+  let tagIsolate: string | null = null;
   let legendHoveredCat: string | null = null;
   let legendHoveredTag: string | null = null;
   let axisProperty: AxisProperty = 'wavenumber';
@@ -94,15 +95,14 @@
     hiddenCats = next;
   }
 
-  function handleCatDblClick(e: CustomEvent<{ cat: string; visible: boolean }>) {
+  function handleCatDblClick(e: CustomEvent<{ cat: string }>) {
+    // Checked directly against current hiddenCats rather than trusting a
+    // "was it visible" flag carried on the event — same fix as the tag
+    // legend's debounce, just inspecting live state instead since
+    // categories are single-valued and don't need a separate isolate var.
     const allKeys = legendCats.map(c => c.key);
-    if (e.detail.visible) {
-      // isolate: hide everything except this cat
-      hiddenCats = new Set(allKeys.filter(k => k !== e.detail.cat));
-    } else {
-      // restore: show everything
-      hiddenCats = new Set();
-    }
+    const isolatedToThis = hiddenCats.size === allKeys.length - 1 && !hiddenCats.has(e.detail.cat);
+    hiddenCats = isolatedToThis ? new Set() : new Set(allKeys.filter(k => k !== e.detail.cat));
   }
 
   function handleCatHover(e: CustomEvent<{ cat: string | null }>) {
@@ -110,18 +110,30 @@
   }
 
   function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
+    // A single click always exits isolate mode first and applies the
+    // toggle from a clean (all-visible) slate, rather than against
+    // whatever hiddenTags isolate left behind — guarantees the individual
+    // toggle is never left stuck in an inconsistent state.
+    if (tagIsolate) {
+      tagIsolate = null;
+      hiddenTags = new Set([e.detail.tag]);
+      return;
+    }
     const next = new Set(hiddenTags);
     if (!e.detail.visible) next.add(e.detail.tag); else next.delete(e.detail.tag);
     hiddenTags = next;
   }
 
-  function handleTagDblClick(e: CustomEvent<{ tag: string; visible: boolean }>) {
-    const allKeys = legendTags.map((t: { key: string }) => t.key);
-    if (e.detail.visible) {
-      hiddenTags = new Set(allKeys.filter((k: string) => k !== e.detail.tag));
-    } else {
-      hiddenTags = new Set();
-    }
+  // Isolate: show ONLY bands carrying this one tag. Unlike the category
+  // legend (handleCatDblClick), a band can carry several tags at once, so
+  // "hide every tag except this one" doesn't work here — combined with the
+  // hide-if-ANY-hidden-tag rule the chart otherwise uses, that would also
+  // hide this tag's own bands whenever they carry a second tag too (often
+  // all of them). tagIsolate is a separate filter the chart applies
+  // instead of hiddenTags entirely while it's set — see chart.ts.
+  function handleTagDblClick(e: CustomEvent<{ tag: string }>) {
+    tagIsolate = tagIsolate === e.detail.tag ? null : e.detail.tag;
+    hiddenTags = new Set();
   }
 
   function handleTagHover(e: CustomEvent<{ tag: string | null }>) {
@@ -342,6 +354,7 @@
           {colorDim}
           {hiddenCats}
           {hiddenTags}
+          {tagIsolate}
           {axisProperty}
           {axisUnit}
           hoveredCat={legendHoveredCat}
@@ -363,6 +376,7 @@
             <TagLegend
               tags={legendTags}
               {hiddenTags}
+              {tagIsolate}
               on:tagToggle={handleTagToggle}
               on:tagDblClick={handleTagDblClick}
               on:tagHover={handleTagHover}

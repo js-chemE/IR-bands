@@ -4,24 +4,55 @@
 
   export let tags: LegendTag[];
   export let hiddenTags: ReadonlySet<string>;
+  // Double-click "isolate": which one tag (if any) is the sole active
+  // filter right now. Drives visibility on its own, independent of
+  // hiddenTags — see App.svelte's handleTagDblClick for why isolating a
+  // multi-valued tag can't just be "hide every other tag".
+  export let tagIsolate: string | null = null;
 
   const dispatch = createEventDispatcher<{
     tagToggle:   { tag: string; visible: boolean };
-    tagDblClick: { tag: string; visible: boolean };
+    tagDblClick: { tag: string };
     tagHover:    { tag: string | null };
   }>();
+
+  // A native <button> fires click, click, THEN dblclick for one double-click
+  // gesture — so the single-click handler below would otherwise always run
+  // twice (toggling on, then off again) before the dblclick handler ever
+  // sees it, and a *second* double-click on an already-isolated item would
+  // have its first click already mutate state out from under the dblclick
+  // handler's own logic. Debouncing the single click — deferring it just
+  // long enough to cancel if a second click (dblclick) follows — makes
+  // single- and double-click mutually exclusive at the source, the way a
+  // user actually intends them.
+  const DBLCLICK_WINDOW_MS = 280;
+  let pendingClick: ReturnType<typeof setTimeout> | null = null;
+
+  function onClick(tag: string, visible: boolean) {
+    if (pendingClick) clearTimeout(pendingClick);
+    pendingClick = setTimeout(() => {
+      pendingClick = null;
+      dispatch('tagToggle', { tag, visible: !visible });
+    }, DBLCLICK_WINDOW_MS);
+  }
+
+  function onDblClick(tag: string) {
+    if (pendingClick) { clearTimeout(pendingClick); pendingClick = null; }
+    dispatch('tagDblClick', { tag });
+  }
 </script>
 
 {#if tags.length > 0}
   <div class="legend">
     {#each tags as t (t.key)}
-      {@const visible = !hiddenTags.has(t.key)}
+      {@const visible = tagIsolate ? t.key === tagIsolate : !hiddenTags.has(t.key)}
       <button
         class="item"
         class:dimmed={!visible}
+        class:isolated={t.key === tagIsolate}
         title="{t.count} band{t.count !== 1 ? 's' : ''}"
-        on:click={() => dispatch('tagToggle',   { tag: t.key, visible: !visible })}
-        on:dblclick={() => dispatch('tagDblClick', { tag: t.key, visible })}
+        on:click={() => onClick(t.key, visible)}
+        on:dblclick={() => onDblClick(t.key)}
         on:mouseenter={() => dispatch('tagHover', { tag: t.key })}
         on:mouseleave={() => dispatch('tagHover', { tag: null })}
       >
@@ -74,4 +105,7 @@
 
   .dimmed .label { color: #C0C0C0 !important; text-decoration: line-through; }
   .dimmed .swatch { opacity: 0.3; }
+
+  .isolated { background: #EAF1FC; }
+  .isolated:hover { background: #DEEAFB; }
 </style>

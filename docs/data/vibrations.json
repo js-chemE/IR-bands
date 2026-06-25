@@ -381,8 +381,8 @@
             "Yudanov.COAdsorptionPd.2026"
           ],
           "category": "bend",
-          "subtype": null,
-          "atoms": "C-O",
+          "subtype": "rocking",
+          "atoms": "M-O-C",
           "topology": "linear",
           "herzberg_notation": "ν₃",
           "symmetry": "Π",
@@ -402,9 +402,9 @@
           "reference": [
             "Yudanov.COAdsorptionPd.2026"
           ],
-          "category": "bend",
+          "category": "stretch",
           "subtype": null,
-          "atoms": "C-O",
+          "atoms": "M-O-C",
           "topology": "linear",
           "herzberg_notation": "ν₄",
           "symmetry": "Π",
@@ -1877,6 +1877,7 @@
           "raman_active": null,
           "tags": [
             "site-sensitive",
+            "degenerated",
             "ir-active"
           ],
           "reference": [
@@ -1902,6 +1903,7 @@
           "ir_active": true,
           "raman_active": null,
           "tags": [
+            "degenerated",
             "ir-active"
           ],
           "reference": [
@@ -1926,6 +1928,7 @@
           "ir_active": true,
           "raman_active": null,
           "tags": [
+            "degenerated",
             "ir-active"
           ],
           "reference": [
@@ -1943,19 +1946,20 @@
         },
         {
           "id": "methoxy_frustrated_rotation",
-          "label": "Frustrated rotation",
+          "label": "ρ(MOC)",
           "note": "The C-O bond axis pivots off the surface normal — the whole adsorbed unit wobbling against its own anchor point, the same frustrated-rotation character as linearly-bound CO. Purely lateral in its dipole change, so canceled by the surface's image dipole — formally IR-inactive in reflection geometry.",
           "ir_active": false,
           "raman_active": null,
           "tags": [
-            "frustrated-mode"
+            "frustrated-mode",
+            "degenerated"
           ],
           "reference": [
             "Mudalige.VibrationalAnalysisChemisorbed.2000"
           ],
           "category": "bend",
-          "subtype": null,
-          "atoms": "C-O",
+          "subtype": "rocking",
+          "atoms": "M-O-C",
           "topology": null,
           "herzberg_notation": "ν₉",
           "symmetry": "E",
@@ -1965,19 +1969,20 @@
         },
         {
           "id": "methoxy_frustrated_translation",
-          "label": "Frustrated translation",
+          "label": "νₜ(MOC)",
           "note": "The entire adsorbed unit shears laterally across the binding site — the lowest-frequency mode of the ten, and, like the frustrated rotation above, formally IR-inactive in reflection geometry by the same lateral-dipole cancellation.",
           "ir_active": false,
           "raman_active": null,
           "tags": [
-            "frustrated-mode"
+            "frustrated-mode",
+            "degenerated"
           ],
           "reference": [
             "Mudalige.VibrationalAnalysisChemisorbed.2000"
           ],
-          "category": "bend",
+          "category": "stretch",
           "subtype": null,
-          "atoms": "C-O",
+          "atoms": "M-O-C",
           "topology": null,
           "herzberg_notation": "ν₁₀",
           "symmetry": "E",
