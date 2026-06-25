@@ -398,7 +398,7 @@
       "wn_start": 3725,
       "wn_end": 3735,
       "short": "νₛ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (νₛ + νₐₛ) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates.",
+      "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (νₛ + νₐₛ) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates. Genuinely Fermi-coupled to the 2δ+νₐₛ doublet below (~3600 cm⁻¹), not just two coincidentally nearby combination bands — see co2_sym_1388 for why the resonance between νₛ and 2δ carries through into both bands' own +νₐₛ combination levels.",
       "based_on": [
         {
           "band_id": "co2_sym_1388",
@@ -455,7 +455,7 @@
       "wn_start": 3695,
       "wn_end": 3705,
       "short": "νₛ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (νₛ + νₐₛ) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730.",
+      "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (νₛ + νₐₛ) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730. See co2_sym_1388 for why this combination doublet is genuinely Fermi-coupled to the 2δ+νₐₛ one below, not just nearby.",
       "based_on": [
         {
           "band_id": "co2_sym_1388",
@@ -512,7 +512,7 @@
       "wn_start": 3622,
       "wn_end": 3632,
       "short": "2δ+νₐₛ(OCO) CO₂ (R)",
-      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2δ + νₐₛ) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed.",
+      "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2δ + νₐₛ) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed. See co2_bend_overtone_1285 for why this combination doublet is genuinely Fermi-coupled to the νₛ+νₐₛ one above, not just nearby.",
       "based_on": [
         {
           "band_id": null,
@@ -571,7 +571,7 @@
       "wn_start": 3592,
       "wn_end": 3602,
       "short": "2δ+νₐₛ(OCO) CO₂ (P)",
-      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2δ + νₐₛ) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627.",
+      "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2δ + νₐₛ) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627. See co2_bend_overtone_1285 for why this combination doublet is genuinely Fermi-coupled to the νₛ+νₐₛ one above, not just nearby.",
       "based_on": [
         {
           "band_id": null,
@@ -671,7 +671,7 @@
       "wn_start": 1383,
       "wn_end": 1395,
       "short": "νₛ(OCO) CO₂",
-      "description": "Gas CO₂ symmetric stretch (νₛ) band origin at ~1388 cm⁻¹. Strictly IR-forbidden by symmetry (Σg⁺ — centrosymmetric, no dipole moment change); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the νₛ+νₐₛ combination band (~3715 cm⁻¹) and as the Fermi-resonance partner of 2δ (~1334 cm⁻¹).",
+      "description": "Gas CO₂ symmetric stretch (νₛ) band origin at ~1388 cm⁻¹. Strictly IR-forbidden by symmetry (Σg⁺ — centrosymmetric, no dipole moment change); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the νₛ+νₐₛ combination band (~3715 cm⁻¹) and as the Fermi-resonance partner of 2δ (see co2_bend_overtone_1285) — the same cubic anharmonic term (coupling q₁ and q₂² directly) that mixes this pair also mixes their +νₐₛ combination levels above, since that term doesn't involve q₃ at all; that's why the νₛ+νₐₛ / 2δ+νₐₛ combination doublets further up are themselves marked as a Fermi-resonance pair too — same underlying coupling, carried up by one shared νₐₛ quantum on each side.",
       "based_on": [],
       "references": [
         {
@@ -684,9 +684,10 @@
       ],
       "tags": [
         "gas-phase",
-        "ir-inactive"
+        "ir-inactive",
+        "fermi-resonance"
       ],
-      "fermi_partner": null,
+      "fermi_partner": "co2_bend_overtone_1285",
       "fermi_partner_group": null,
       "branch_group": null,
       "intensity": null,
@@ -699,6 +700,58 @@
       "sub_lane": 0,
       "wn_min": 1383,
       "wn_max": 1395
+    },
+    {
+      "id": "co2_bend_overtone_1285",
+      "species": "CO₂",
+      "group": "co2",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1280,
+      "wn_end": 1290,
+      "short": "2δ(OCO) CO₂",
+      "description": "Gas CO₂ bending overtone (2δ, the l=0 / Σg⁺ component of two bending quanta) at ~1285 cm⁻¹ — like νₛ, strictly IR-forbidden by symmetry; observed only in Raman spectroscopy. In genuine Fermi resonance with νₛ (~1388 cm⁻¹, see co2_sym_1388): the cubic anharmonic coupling between them pushes both away from their naive, uncoupled positions (~1334 and ~1388) to the observed ~1285/1388 split. The same coupling carries through into the νₛ+νₐₛ / 2δ+νₐₛ combination bands further up (~3700/3600 cm⁻¹), which is why those two combination doublets are themselves marked as a Fermi-resonance pair.",
+      "based_on": [
+        {
+          "band_id": null,
+          "branch_group": "co2_nu2_branches",
+          "multiplier": 2,
+          "label": null
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 1285,
+          "site": null,
+          "note": "2δ (l=0) band origin (Table 2); IR-inactive (Σg⁺) — the Raman-observed, Fermi-resonance-shifted position, well below the naive uncoupled estimate of ~1334 cm⁻¹ (2×667).",
+          "tags": []
+        }
+      ],
+      "tags": [
+        "gas-phase",
+        "ir-inactive",
+        "overtone",
+        "fermi-resonance"
+      ],
+      "fermi_partner": "co2_sym_1388",
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "co2_bend",
+        "co2_bend_wagging"
+      ],
+      "lane": 0,
+      "sub_lane": 0,
+      "wn_min": 1280,
+      "wn_max": 1290
     },
     {
       "id": "co_stretch_2170_R",

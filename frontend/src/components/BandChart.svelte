@@ -8,7 +8,10 @@
   import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
 
-  const dispatch = createEventDispatcher<{ navigateRef: { key: string } }>();
+  const dispatch = createEventDispatcher<{
+    navigateRef: { key: string };
+    navigateMode: { moleculeId: string; topologyId: string; modeId: string };
+  }>();
 
   function goToRef(key: string) {
     selected = null;
@@ -342,12 +345,24 @@
   // tooltip's own position below, since whether there's a linked-vibrations
   // panel at all changes how much horizontal room the flip check needs.
   // ---------------------------------------------------------------------------
-  function resolveMode(modeId: string): { mode: VibrationMode; geometry: MoleculeGeometry | null } | null {
+  interface LinkedMode {
+    mode: VibrationMode;
+    geometry: MoleculeGeometry | null;
+    moleculeId: string;
+    topologyId: string;
+  }
+
+  function resolveMode(modeId: string): LinkedMode | null {
     for (const molecule of vibrations.molecules) {
       const mode = molecule.modes.find(m => m.id === modeId);
       if (mode) {
-        const topologyId = mode.topology ?? molecule.topologies[0]?.id ?? null;
-        return { mode, geometry: topologyId ? geometryFor(molecule.id, topologyId) : null };
+        const topologyId = mode.topology ?? molecule.topologies[0]?.id ?? '';
+        return {
+          mode,
+          geometry: topologyId ? geometryFor(molecule.id, topologyId) : null,
+          moleculeId: molecule.id,
+          topologyId,
+        };
       }
     }
     return null;
@@ -356,7 +371,7 @@
   $: linkedModes = shown
     ? shown.tipData.vibrationModeIds
         .map(resolveMode)
-        .filter((m): m is { mode: VibrationMode; geometry: MoleculeGeometry | null } => m !== null)
+        .filter((m): m is LinkedMode => m !== null)
     : [];
 
   // Selected tooltip stays at click position; hover tooltip follows the mouse.
@@ -785,7 +800,13 @@
         style="left:{vibX}px; top:{tipY}px; transform:{vibTransform}; max-height:{vibPanelMaxH}px; pointer-events:{selected ? 'auto' : 'none'};"
       >
         {#each linkedModes as lm (lm.mode.id)}
-          <VibrationMiniCard mode={lm.mode} geometry={lm.geometry} triggerNonce={playNonce} interactive={!!selected} />
+          <VibrationMiniCard
+            mode={lm.mode}
+            geometry={lm.geometry}
+            triggerNonce={playNonce}
+            interactive={!!selected}
+            on:navigate={() => dispatch('navigateMode', { moleculeId: lm.moleculeId, topologyId: lm.topologyId, modeId: lm.mode.id })}
+          />
         {/each}
       </div>
     {/if}
