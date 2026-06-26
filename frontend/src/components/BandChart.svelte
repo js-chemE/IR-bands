@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode } from '../lib/types';
-  import { buildChart } from '../lib/chart';
+  import { buildChart, buildAxisStrip } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
@@ -252,6 +252,14 @@
   let laneHeightPx = 0;
   let allPositions: Record<string, { px: number; py: number }> = {};
 
+  // Sticky axis strip — mirrors the main chart's own x-axis so it stays
+  // visible while the (potentially much taller than the viewport) lane
+  // stack scrolls underneath it. See buildAxisStrip's own docstring.
+  let axisContainer: HTMLDivElement;
+  $: if (axisContainer) {
+    axisContainer.replaceChildren(buildAxisStrip(axisProperty, axisUnit, containerWidth, xDomainForChart));
+  }
+
   $: if (container) {
     hovered = null;
     const result = buildChart(
@@ -306,21 +314,33 @@
         selectedTipX = rect.left + x;
         selectedTipY = rect.top + y;
       };
-      const scrollParent = container.closest('.main-area') as HTMLElement | null;
-      if (scrollParent) {
+      // Vertical scroll now happens inside .chart-scroll (so the sticky
+      // axis-strip/legend stay put — see App.svelte), while horizontal
+      // scroll still happens on .main-area — two different ancestors now,
+      // scrolled independently.
+      const vScrollParent = container.closest('.chart-scroll') as HTMLElement | null;
+      const hScrollParent = container.closest('.main-area') as HTMLElement | null;
+      if (vScrollParent || hScrollParent) {
         const containerRect = container.getBoundingClientRect();
-        const parentRect = scrollParent.getBoundingClientRect();
         const bandAbsX = containerRect.left + x;
         const bandAbsY = containerRect.top + y;
-        const needsScroll =
-          bandAbsY < parentRect.top + 60 || bandAbsY > parentRect.bottom - 60 ||
-          bandAbsX < parentRect.left + 60 || bandAbsX > parentRect.right - 60;
-        if (needsScroll) {
-          scrollParent.scrollTo({
-            top: Math.max(0, scrollParent.scrollTop + (bandAbsY - parentRect.top) - parentRect.height / 2),
-            left: Math.max(0, scrollParent.scrollLeft + (bandAbsX - parentRect.left) - parentRect.width / 2),
-            behavior: 'smooth',
-          });
+        const vRect = vScrollParent?.getBoundingClientRect();
+        const hRect = hScrollParent?.getBoundingClientRect();
+        const needsVScroll = !!vRect && (bandAbsY < vRect.top + 60 || bandAbsY > vRect.bottom - 60);
+        const needsHScroll = !!hRect && (bandAbsX < hRect.left + 60 || bandAbsX > hRect.right - 60);
+        if (needsVScroll || needsHScroll) {
+          if (needsVScroll && vScrollParent && vRect) {
+            vScrollParent.scrollTo({
+              top: Math.max(0, vScrollParent.scrollTop + (bandAbsY - vRect.top) - vRect.height / 2),
+              behavior: 'smooth',
+            });
+          }
+          if (needsHScroll && hScrollParent && hRect) {
+            hScrollParent.scrollTo({
+              left: Math.max(0, hScrollParent.scrollLeft + (bandAbsX - hRect.left) - hRect.width / 2),
+              behavior: 'smooth',
+            });
+          }
           setTimeout(place, 350);
           return;
         }
@@ -343,6 +363,23 @@
   let tipH = 0;
 
   $: shown = selected ?? hovered;
+
+  // Per-reference expand/collapse, scoped to whichever band's tooltip is
+  // currently shown (collapsed-by-default whenever a band cites more than
+  // one reference — see the references-section markup below). Keyed by
+  // index rather than ref.key since one band can cite the same paper twice.
+  let expandedRefs = new Set<number>();
+  let expandedForBandId: string | null = null;
+  $: shownBandId = shown?.tipData.id ?? null;
+  $: if (shownBandId !== expandedForBandId) {
+    expandedRefs = new Set();
+    expandedForBandId = shownBandId;
+  }
+  function toggleRefExpand(i: number) {
+    const next = new Set(expandedRefs);
+    if (next.has(i)) next.delete(i); else next.add(i);
+    expandedRefs = next;
+  }
 
   // ---------------------------------------------------------------------------
   // Linked vibration mini-cards — resolves each of the shown band's own
@@ -482,7 +519,9 @@
   function detectZone(svgX: number, svgY: number): Zone {
     const innerW = containerWidth - ML - MR;
     const inXBand = svgX >= ML && svgX <= ML + innerW;
-    if (inXBand && svgY >= chartSvgHeight - MB - 8) return 'axis';
+    // No 'axis' branch here — the chart's own axis is hidden (drawn instead
+    // by the always-visible buildAxisStrip()), so dragging-to-zoom now
+    // starts from that separate strip; see onAxisPointerDown below.
     if (inXBand && svgY >= MT && svgY < chartSvgHeight - MB) {
       return hitTest(svgX, svgY) ? 'band' : 'plot';
     }
@@ -597,6 +636,53 @@
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Axis-strip interaction — the strip (.axis-strip below) is a separate,
+  // always-visible element rendered via buildAxisStrip(), but shares
+  // container's ML/MR margins, so its horizontal pixel math reuses
+  // container's own bounding rect. Pointer
+  // capture is taken on `container` (not the strip) so the drag is then
+  // driven by the same onPointerMove/onPointerUp already bound there.
+  // ---------------------------------------------------------------------------
+  function axisSvgX(e: PointerEvent): number {
+    return e.clientX - container.getBoundingClientRect().left;
+  }
+
+  function onAxisPointerMove(e: PointerEvent) {
+    if (isPanning || isScaling) return; // drag in progress; container's own handler is driving
+    const svgX = axisSvgX(e);
+    const innerW = containerWidth - ML - MR;
+    zone = (svgX >= ML && svgX <= ML + innerW) ? 'axis' : 'none';
+  }
+
+  function onAxisPointerLeave() {
+    if (!isPanning && !isScaling) zone = 'none';
+  }
+
+  function onAxisPointerDown(e: PointerEvent) {
+    if (e.button !== 0 && e.button !== 1) return;
+    const svgX = axisSvgX(e);
+    const innerW = containerWidth - ML - MR;
+    if (svgX < ML || svgX > ML + innerW) return;
+
+    downPos = { x: e.clientX, y: e.clientY };
+    e.preventDefault();
+    container.setPointerCapture(e.pointerId);
+
+    if (e.button === 0) {
+      const domain = currentDomain();
+      const t = Math.max(0, Math.min(1, (svgX - ML) / innerW));
+      scalePivot = domain[0] + t * (domain[1] - domain[0]);
+      scaleStartClientX = e.clientX;
+      scaleStartDomain = domain;
+      isScaling = true;
+    } else {
+      isPanning = true;
+      panStartClientX = e.clientX;
+      panStartDomain = currentDomain();
+    }
+  }
+
   function resetZoom() { wnOverride = null; }
 
   function onDblClick(e: MouseEvent) {
@@ -607,75 +693,86 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrap">
-  {#if wnOverride}
-    <button class="reset-btn" on:click={resetZoom} title="Reset zoom (or double-click empty area)">
-      ↩ Reset zoom
-    </button>
-  {/if}
+  <div class="chart-area">
+    {#if wnOverride}
+      <button class="reset-btn" on:click={resetZoom} title="Reset zoom (or double-click empty area)">
+        ↩ Reset zoom
+      </button>
+    {/if}
+
+    <div
+      bind:this={container}
+      class="chart"
+      style="cursor: {activeCursor}"
+      on:pointerdown={onPointerDown}
+      on:pointermove={onPointerMove}
+      on:pointerup={onPointerUp}
+      on:pointerleave={onPointerLeave}
+      on:dblclick={onDblClick}
+    ></div>
+
+    <!-- highlight overlay: glowing rects for hovered/selected band, legend category, or partner links -->
+    {#if glowHits.length > 0}
+      <svg class="highlight-overlay"
+           width={containerWidth}
+           height={chartSvgHeight}
+           style="pointer-events:none;">
+        <defs>
+          <!-- dark outer shadow -->
+          <filter id="shadow-blur" x="-120%" y="-300%" width="340%" height="700%">
+            <feGaussianBlur stdDeviation="9"/>
+          </filter>
+          <!-- soft coloured inner glow -->
+          <filter id="glow-blur" x="-80%" y="-200%" width="260%" height="500%">
+            <feGaussianBlur stdDeviation="5"/>
+          </filter>
+        </defs>
+        {#each connectors as c}
+          {#if c.kind === 'branch'}
+            <line x1={c.xA} y1={c.y} x2={c.xB} y2={c.y}
+                  stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+          {:else if c.kind === 'fermi'}
+            <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
+                  fill="none" stroke="#555" stroke-width="1.5"
+                  stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
+            <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
+                  text-anchor="middle" font-style="italic" font-size="10"
+                  fill="#777" opacity="0.85">fermi</text>
+          {:else}
+            <path d="M {c.xA} {c.yA} Q {c.midX} {c.controlY} {c.xB} {c.yB}"
+                  fill="none" stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+          {/if}
+        {/each}
+        {#each glowHits as hit}
+          {@const x = hit.px1}
+          {@const y = hit.py1 + HIT_PAD}
+          {@const w = Math.max(1, hit.px2 - hit.px1)}
+          {@const h = Math.max(1, hit.py2 - hit.py1 - HIT_PAD * 2)}
+          <!-- dark shadow ring (outermost) -->
+          <rect {x} {y} width={w} height={h}
+                fill="rgba(0,0,0,0.32)"
+                filter="url(#shadow-blur)"/>
+          <!-- coloured glow halo -->
+          <rect {x} {y} width={w} height={h}
+                fill={hit.color} opacity="0.75"
+                filter="url(#glow-blur)"/>
+          <!-- solid band on top with white rim -->
+          <rect {x} {y} width={w} height={h}
+                fill={hit.color} opacity="1"
+                stroke="white" stroke-width="1.5" rx="0.5"/>
+        {/each}
+      </svg>
+    {/if}
+  </div>
 
   <div
-    bind:this={container}
-    class="chart"
+    bind:this={axisContainer}
+    class="axis-strip"
     style="cursor: {activeCursor}"
-    on:pointerdown={onPointerDown}
-    on:pointermove={onPointerMove}
-    on:pointerup={onPointerUp}
-    on:pointerleave={onPointerLeave}
-    on:dblclick={onDblClick}
+    on:pointerdown={onAxisPointerDown}
+    on:pointermove={onAxisPointerMove}
+    on:pointerleave={onAxisPointerLeave}
   ></div>
-
-  <!-- highlight overlay: glowing rects for hovered/selected band, legend category, or partner links -->
-  {#if glowHits.length > 0}
-    <svg class="highlight-overlay"
-         width={containerWidth}
-         height={chartSvgHeight}
-         style="pointer-events:none;">
-      <defs>
-        <!-- dark outer shadow -->
-        <filter id="shadow-blur" x="-120%" y="-300%" width="340%" height="700%">
-          <feGaussianBlur stdDeviation="9"/>
-        </filter>
-        <!-- soft coloured inner glow -->
-        <filter id="glow-blur" x="-80%" y="-200%" width="260%" height="500%">
-          <feGaussianBlur stdDeviation="5"/>
-        </filter>
-      </defs>
-      {#each connectors as c}
-        {#if c.kind === 'branch'}
-          <line x1={c.xA} y1={c.y} x2={c.xB} y2={c.y}
-                stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
-        {:else if c.kind === 'fermi'}
-          <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
-                fill="none" stroke="#555" stroke-width="1.5"
-                stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
-          <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
-                text-anchor="middle" font-style="italic" font-size="10"
-                fill="#777" opacity="0.85">fermi</text>
-        {:else}
-          <path d="M {c.xA} {c.yA} Q {c.midX} {c.controlY} {c.xB} {c.yB}"
-                fill="none" stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
-        {/if}
-      {/each}
-      {#each glowHits as hit}
-        {@const x = hit.px1}
-        {@const y = hit.py1 + HIT_PAD}
-        {@const w = Math.max(1, hit.px2 - hit.px1)}
-        {@const h = Math.max(1, hit.py2 - hit.py1 - HIT_PAD * 2)}
-        <!-- dark shadow ring (outermost) -->
-        <rect {x} {y} width={w} height={h}
-              fill="rgba(0,0,0,0.32)"
-              filter="url(#shadow-blur)"/>
-        <!-- coloured glow halo -->
-        <rect {x} {y} width={w} height={h}
-              fill={hit.color} opacity="0.75"
-              filter="url(#glow-blur)"/>
-        <!-- solid band on top with white rim -->
-        <rect {x} {y} width={w} height={h}
-              fill={hit.color} opacity="1"
-              stroke="white" stroke-width="1.5" rx="0.5"/>
-      {/each}
-    </svg>
-  {/if}
 
   {#if shown}
     {@const td = shown.tipData}
@@ -714,6 +811,9 @@
 
       <!-- Per-reference boxes -->
       {#if td.refs.length}
+        {@const isCollapsible = td.refs.length > 1}
+        {@const useScroll = selected && td.refs.length > 3}
+        {@const refsToShow = selected ? td.refs : td.refs.slice(0, 3)}
         <div class="tip-refs-section">
           <div class="tip-refs-header">
             References
@@ -722,47 +822,27 @@
             {/if}
           </div>
 
-          {#if selected}
-            <!-- Frozen: all refs, scrollable, each clickable to jump to ref page -->
-            <div class="tip-refs-scroll">
-              {#each td.refs as ref}
-                <button class="tip-ref-box tip-ref-btn" on:click={() => goToRef(ref.key)} title="Open in References page">
-                  <div class="tip-ref-title">{ref.short} <span class="tip-ref-arrow">↗</span></div>
-                  {#if ref.wn != null || ref.site}
-                    <div class="tip-ref-badges">
-                      {#each wnList(ref.wn) as w}
-                        <span class="badge-wn">{w} cm⁻¹</span>
-                      {/each}
-                      {#if ref.site}
-                        {#if Array.isArray(ref.site)}
-                          {#each ref.site as s}
-                            <span class="badge-site">{s}</span>
-                          {/each}
-                        {:else}
-                          <span class="badge-site">{ref.site}</span>
-                        {/if}
-                      {/if}
-                    </div>
+          <div class:tip-refs-scroll={useScroll}>
+            {#each refsToShow as ref, i}
+              {@const expanded = !isCollapsible || expandedRefs.has(i)}
+              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+              <div
+                class="tip-ref-box"
+                class:tip-ref-btn={isCollapsible}
+                on:click={isCollapsible ? () => toggleRefExpand(i) : null}
+                title={isCollapsible ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
+              >
+                <button
+                  class="tip-ref-goto-btn"
+                  on:click|stopPropagation={() => goToRef(ref.key)}
+                  title="Open in References page"
+                >↗</button>
+                <div class="tip-ref-title">
+                  {ref.short}
+                  {#if isCollapsible}
+                    <span class="tip-ref-chevron" class:open={expanded}>▸</span>
                   {/if}
-                  {#if ref.tags.length}
-                    <div class="tip-ref-tags">
-                      {#each ref.tags as tag}
-                        {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
-                        <span class="tip-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if ref.note}
-                    <div class="tip-ref-note">{ref.note}</div>
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {:else}
-            <!-- Hover: first 3 refs only, not clickable -->
-            {#each td.refs.slice(0, 3) as ref}
-              <div class="tip-ref-box">
-                <div class="tip-ref-title">{ref.short}</div>
+                </div>
                 {#if ref.wn != null || ref.site}
                   <div class="tip-ref-badges">
                     {#each wnList(ref.wn) as w}
@@ -787,17 +867,17 @@
                     {/each}
                   </div>
                 {/if}
-                {#if ref.note}
+                {#if expanded && ref.note}
                   <div class="tip-ref-note">{ref.note}</div>
                 {/if}
               </div>
             {/each}
-          {/if}
+          </div>
         </div>
       {/if}
 
       {#if selected}
-        <div class="tip-lock-hint">click ref ↗ to open · click band to switch · click empty to dismiss</div>
+        <div class="tip-lock-hint">click ref to expand · ↗ for ref page · click band to switch · click empty to dismiss</div>
       {/if}
     </div>
 
@@ -822,6 +902,22 @@
 
 <style>
   .wrap { position: relative; width: 100%; }
+
+  /* Pinned x-axis — sticks to the bottom of the chart's scroll container
+     (App.svelte's .chart-scroll) so it stays readable regardless of how
+     far down the lane stack the user has scrolled; the lane stack scrolls
+     underneath it. The main chart's own axis is disabled (see buildChart's
+     x.axis: null) so this is the only one ever drawn. */
+  .axis-strip {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+  }
+  .axis-strip :global(svg) { display: block; max-width: 100%; overflow: visible; }
+
+  .chart-area { position: relative; }
 
   .highlight-overlay {
     position: absolute;
@@ -965,42 +1061,68 @@
   .tip-refs-scroll::-webkit-scrollbar-thumb { background: #d0c9bc; border-radius: 2px; }
 
   .tip-ref-box {
+    position: relative;
     background: #f8f6f1;
     border: 1px solid #e2d9c9;
     border-left: 3px solid #c4a86e;
     border-radius: 4px;
-    padding: 5px 7px;
+    padding: 5px 26px 5px 7px; /* right padding clears .tip-ref-goto-btn */
     margin-top: 4px;
   }
 
-  /* Clickable ref box (selected mode) */
+  /* Clickable ref box — toggles its own note/badges open or closed
+     (2+ references only; a band with a single reference always shows it
+     fully, never collapsed — see isCollapsible in the markup above).
+     The jump-to-reference-page button below is a separate nested control
+     (stopPropagation'd) so it doesn't also trigger this toggle. */
   .tip-ref-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
     cursor: pointer;
-    font: inherit;
-    color: inherit;
     transition: background 0.1s, border-left-color 0.1s;
   }
   .tip-ref-btn:hover {
     background: #f0ece4;
     border-left-color: #a08050;
   }
-  .tip-ref-btn:hover .tip-ref-arrow { opacity: 1; }
 
-  .tip-ref-arrow {
-    font-size: 10px;
+  .tip-ref-chevron {
+    display: inline-block;
+    font-size: 9px;
     color: #a08050;
-    opacity: 0;
-    transition: opacity 0.1s;
-    margin-left: 3px;
+    margin-left: 4px;
+    transition: transform 0.15s;
   }
+  .tip-ref-chevron.open { transform: rotate(90deg); }
 
   .tip-ref-title {
     font-size: 12px;
     font-weight: 600;
     color: #222;
+  }
+
+  /* Per-reference corner button — jumps straight to this one citation on
+     the References page; separate from the box's own expand/collapse click. */
+  .tip-ref-goto-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #e2d9c9;
+    border-radius: 4px;
+    color: #a08050;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .tip-ref-goto-btn:hover {
+    background: #f0ece4;
+    border-color: #a08050;
+    color: #8a6d00;
   }
 
   .tip-ref-badges {

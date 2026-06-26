@@ -809,7 +809,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 2165,
       "wn_max": 2185
     },
@@ -852,7 +852,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 2139,
       "wn_max": 2147
     },
@@ -896,7 +896,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 2105,
       "wn_max": 2125
     },
@@ -2701,7 +2701,7 @@
         "methoxy_stretch_asymmetric"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 2910,
       "wn_max": 2950
     },
@@ -2762,7 +2762,7 @@
         "methoxy_stretch_symmetric"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 2815,
       "wn_max": 2850
     },
@@ -2813,7 +2813,7 @@
         "methoxy_bend_symmetric"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 1430,
       "wn_max": 1455
     },
@@ -2844,7 +2844,7 @@
         "methoxy_bend_asymmetric"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 1360,
       "wn_max": 1390
     },
@@ -2894,7 +2894,7 @@
         "methoxy_co_stretch"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 1100,
       "wn_max": 1170
     },
@@ -2935,7 +2935,7 @@
         "methoxy_co_stretch"
       ],
       "lane": 8,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 1030,
       "wn_max": 1090
     },
@@ -2949,12 +2949,23 @@
         "branch": null
       },
       "atoms": "O-H",
-      "wn_start": 3200,
-      "wn_end": 3600,
+      "wn_start": 3300,
+      "wn_end": 3700,
       "short": "ν(OH) MeOH",
       "description": "Methanol O-H stretch (MeOH*/MeOH(g)) — broad and hydrogen-bonding-sensitive like most O-H stretches, so its exact shape depends heavily on the local hydrogen-bonding environment. Often obscured by adsorbed water and surface hydroxyl groups absorbing in the same broad region.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 3681,
+          "site": null,
+          "note": "Table 3, gas phase: ν₁(A′) νOH at 3681 (Shimanouchi) / 3681.5 (Serrallach) cm⁻¹ — the sharp, unbroadened monomer position.",
+          "tags": [
+            "ftir",
+            "isotopic-shift"
+          ]
+        }
+      ],
       "tags": [],
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -2962,11 +2973,55 @@
       "intensity": "m",
       "width": "broad",
       "confidence": "likely",
-      "vibration_modes": [],
-      "lane": 9,
+      "vibration_modes": [
+        "methanol_oh_stretch"
+      ],
+      "lane": 8,
       "sub_lane": 0,
-      "wn_min": 3200,
-      "wn_max": 3600
+      "wn_min": 3300,
+      "wn_max": 3700
+    },
+    {
+      "id": "meoh_stretch_a_3000",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2985,
+      "wn_end": 3010,
+      "short": "νₛ(CH₃) MeOH (a)",
+      "description": "One of methanol's two symmetric-species CH₃ stretches (see the vibration-modes page for why this isn't \"the asymmetric one\") — sits close enough to the O-H stretch's low-wavenumber tail that the two can blur together in a broad surface spectrum.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 3000,
+          "site": null,
+          "note": "Table 3, gas phase: ν₂(A′) νsCH₃ at 3000 (Shimanouchi) / 2999.0 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir",
+            "isotopic-shift"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_stretch_a"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2985,
+      "wn_max": 3010
     },
     {
       "id": "meoh_asym_2948",
@@ -2981,7 +3036,7 @@
       "wn_start": 2935,
       "wn_end": 2965,
       "short": "νₐₛ(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy νₐₛ(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy.",
+      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy νₐₛ(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy. In the isolated gas-phase molecule this region is strongly resonance-mixed with overtones/combinations of the δCH₃ modes (see the vibration-modes page) rather than a single clean fundamental — worth keeping in mind even though that fine structure washes out on a real catalyst surface.",
       "based_on": [],
       "references": [
         {
@@ -2991,6 +3046,17 @@
           "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface.",
           "tags": [
             "direct-dosing"
+          ]
+        },
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2960,
+          "site": null,
+          "note": "Table 3, gas phase: ν₉(A″) νasCH₂ ≈2960 cm⁻¹ (Shimanouchi); Serrallach resolves it into 3 resonance-split components instead of one band — not uniquely assignable.",
+          "tags": [
+            "ftir",
+            "isotopic-shift",
+            "misassignment-warning"
           ]
         }
       ],
@@ -3003,8 +3069,10 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
-      "lane": 9,
+      "vibration_modes": [
+        "methanol_stretch_antisym"
+      ],
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2935,
       "wn_max": 2965
@@ -3033,6 +3101,16 @@
           "tags": [
             "direct-dosing"
           ]
+        },
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2844,
+          "site": null,
+          "note": "Table 3, gas phase: ν₃(A′) νsCH₃ at 2844 (Shimanouchi) / 2844.2 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir",
+            "isotopic-shift"
+          ]
         }
       ],
       "tags": [
@@ -3044,11 +3122,319 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
-      "lane": 9,
+      "vibration_modes": [
+        "methanol_stretch_symmetric"
+      ],
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2830,
       "wn_max": 2860
+    },
+    {
+      "id": "meoh_ch_scissor_1477",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1473,
+      "wn_end": 1480,
+      "short": "δ(CH₃) scissor MeOH",
+      "description": "Methanol CH₃ scissor deformation (MeOH*/MeOH(g)) — frequency-coincident with the rocking mode just below it; the two are rarely resolved separately in catalytic DRIFTS.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1477,
+          "site": null,
+          "note": "Table 3, gas phase: ν₄(A′) δsCH₃ scissor at 1477 (Shimanouchi) / 1477.2 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [
+        "degenerated"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_ch_scissor"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1473,
+      "wn_max": 1480
+    },
+    {
+      "id": "meoh_ch_scissor_overtone_2956",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2950,
+      "wn_end": 2962,
+      "short": "2δ(CH₃) scissor MeOH",
+      "description": "First overtone of the methanol CH₃ scissor deformation — weak, and falls right in the middle of the C-H stretching region, where it resonance-mixes with the genuine stretch fundamentals (see νₐₛ(CH₂) above).",
+      "based_on": [
+        {
+          "band_id": "meoh_ch_scissor_1477",
+          "branch_group": null,
+          "multiplier": 2,
+          "label": null
+        }
+      ],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2956,
+          "site": null,
+          "note": "Section 2.3(c): VCI calculation gives a unique assignment for 2ν₄ at 2955 cm⁻¹ in gas-phase CH₃OH.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [
+        "overtone"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "vw",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_ch_scissor"
+      ],
+      "lane": 8,
+      "sub_lane": 1,
+      "wn_min": 2950,
+      "wn_max": 2962
+    },
+    {
+      "id": "meoh_ch_rock_1465",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "rocking",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1462,
+      "wn_end": 1469,
+      "short": "ρ(CH₂) MeOH",
+      "description": "Methanol CH₂ rocking deformation (MeOH*/MeOH(g)) — only the two out-of-plane H's participate (see the vibration-modes page); sits just below the scissor mode above, close enough that the two rarely resolve separately in catalytic DRIFTS.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1465,
+          "site": null,
+          "note": "Table 3, gas phase: ν₁₀(A″) δasCH₂ rock at 1477 (Shimanouchi, coincident with ν₄) / 1465±3 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [
+        "degenerated"
+      ],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_ch_rock"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1462,
+      "wn_max": 1469
+    },
+    {
+      "id": "meoh_ch_umbrella_1455",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1450,
+      "wn_end": 1458,
+      "short": "δₛ(CH₃) umbrella MeOH",
+      "description": "Methanol CH₃ umbrella deformation (MeOH*/MeOH(g)) — sits just below the scissor/rock pair above; all three of these δCH₃-region fundamentals cluster within ~25 cm⁻¹ of each other.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1455,
+          "site": null,
+          "note": "Table 3, gas phase: ν₅(A′) δsCH₃ umbrella at 1455 (Shimanouchi) / 1454.5 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_bend_symmetric"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1450,
+      "wn_max": 1458
+    },
+    {
+      "id": "meoh_oh_bend_1330",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O-H",
+      "wn_start": 1310,
+      "wn_end": 1350,
+      "short": "δ(COH) MeOH",
+      "description": "Methanol C-O-H in-plane bend (MeOH*/MeOH(g)) — weak, and sits at the low-wavenumber edge of the formate νₛ(OCO) region, so it's easy to miss against a stronger neighboring band.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": [
+            1345,
+            1332
+          ],
+          "site": null,
+          "note": "Table 3, gas phase: ν₆(A′) δipOH at 1345 (Shimanouchi) / 1332.0 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_oh_bend"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1310,
+      "wn_max": 1350
+    },
+    {
+      "id": "meoh_twist_1145",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "twisting",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1141,
+      "wn_end": 1149,
+      "short": "δₐₛ(CH₃) twist MeOH",
+      "description": "Methanol CH₃ twisting deformation (MeOH*/MeOH(g)) — only the two out-of-plane H's participate, one swinging toward the C-O axis and the other away (see the vibration-modes page).",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1145,
+          "site": null,
+          "note": "Table 3, gas phase: ν₁₁(A″) δasCH₃ twist at 1145±4 cm⁻¹ (Serrallach only — no Shimanouchi value).",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_twist"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1141,
+      "wn_max": 1149
+    },
+    {
+      "id": "meoh_co_scaffold_1070",
+      "species": "Methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1060,
+      "wn_end": 1080,
+      "short": "ν(CO) MeOH (scaffold)",
+      "description": "Methanol's second, more delocalized C-O-region fundamental (MeOH*/MeOH(g)) — mixes C-O stretching with C-O-H/O-C-H angle bending rather than being a clean bond stretch like the band below; distinguishing the two in practice relies on the C-H stretching region markers, not position alone.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": [
+            1060,
+            1074.5
+          ],
+          "site": null,
+          "note": "Table 3, gas phase: ν₇(A′) νCO \"scaffold\" at 1060 (Shimanouchi) / 1074.5 (Serrallach) cm⁻¹.",
+          "tags": [
+            "ftir"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_co_scaffold"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1060,
+      "wn_max": 1080
     },
     {
       "id": "meoh_co_stretch_1030",
@@ -3083,6 +3469,18 @@
           "tags": [
             "direct-dosing"
           ]
+        },
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": [
+            1033,
+            1033.5
+          ],
+          "site": null,
+          "note": "Table 3, gas phase: ν₈(A′) νCO at 1033 (Shimanouchi) / 1033.5 (Serrallach) cm⁻¹ — the cleaner of methanol's two C-O-region fundamentals.",
+          "tags": [
+            "ftir"
+          ]
         }
       ],
       "tags": [],
@@ -3092,8 +3490,10 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "vibration_modes": [],
-      "lane": 9,
+      "vibration_modes": [
+        "methanol_co_stretch"
+      ],
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1020,
       "wn_max": 1050
@@ -3122,7 +3522,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 10,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3700,
       "wn_max": 3750
@@ -3151,7 +3551,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 10,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3400,
       "wn_max": 3650
@@ -3192,7 +3592,7 @@
       "vibration_modes": [
         "h2o_stretch_symmetric"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3650,
       "wn_max": 3660
@@ -3233,7 +3633,7 @@
       "vibration_modes": [
         "h2o_bend"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 1590,
       "wn_max": 1600
@@ -3274,7 +3674,7 @@
       "vibration_modes": [
         "h2o_stretch_asymmetric"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3750,
       "wn_max": 3760
@@ -3303,7 +3703,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3200,
       "wn_max": 3600
@@ -3332,7 +3732,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 1620,
       "wn_max": 1650
@@ -3360,7 +3760,7 @@
           "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion.",
           "tags": [
             "drifts",
-            "isotope-shift"
+            "isotopic-shift"
           ]
         }
       ],
@@ -3374,7 +3774,7 @@
       "width": "sharp",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 12,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 1960,
       "wn_max": 2000

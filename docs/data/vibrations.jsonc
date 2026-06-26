@@ -1459,6 +1459,203 @@
       ]
     },
     {
+      "id": "methanol",
+      "label": "Methanol",
+      "species": "CH₃OH",
+      "shape": "nonlinear",
+      "band_groups": ["methanol_product"],
+      "topologies": [
+        {"id": "gas", "short": "gas", "long": "free-gas", "point_group": "C<sub>s</sub>"}
+      ],
+      // Mode characters below follow Dinu et al.'s potential-energy-
+      // distribution (PED) analysis rather than a naive carry-over from
+      // methoxy's C3v picture: in real Cs methanol, two of the three
+      // methyl C-H stretches (ν₂, ν₃) are BOTH symmetric-species (A′)
+      // mixtures of the same internal coordinates, just in different
+      // ratios — neither is "the asymmetric one." Only ν₉ is genuinely
+      // antisymmetric, and it involves just the two H's related by the
+      // mirror plane (Hε), not the third, in-plane H (Hσ) — hence "CH₂"
+      // rather than "CH₃" for that one. The same A′/A″ split tracks
+      // symmetric/antisymmetric character throughout: every A′ mode here
+      // is some kind of symmetric motion, every A″ mode some kind of
+      // antisymmetric one.
+      "modes": [
+        {
+          "id": "methanol_oh_stretch",
+          "label": "ν(OH)",
+          "herzberg_notation": "ν₁",
+          "symmetry": "A′",
+          "wn_start": 3681,
+          "note": "The O-H bond stretches along its own axis while O makes a small compensating recoil — the highest-frequency fundamental, broadened and red-shifted in condensed phases by hydrogen bonding. Essentially a pure O-H coordinate, undiluted by any other motion.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_stretch_a",
+          "label": "νₛ(CH₃)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₂",
+          "symmetry": "A′",
+          "wn_start": 3000,
+          "note": "A symmetric-species C-H stretch dominated by the in-plane H, with a smaller contribution from the other two H's moving together — not the methyl group's \"asymmetric\" stretch (that one's ν₉ below); it just happens to share the trivial name νₛCH₃ with ν₃, the other symmetric-species C-H stretch, since both are mixtures of the same two coordinates in different proportions.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_stretch_symmetric",
+          "label": "νₛ(CH₃)",
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₃",
+          "symmetry": "A′",
+          "wn_start": 2844,
+          "note": "The other symmetric-species C-H stretch, dominated this time by the two equivalent out-of-plane H's moving in phase, with a smaller in-plane-H contribution — the mirror image mixing ratio of ν₂ above.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_ch_scissor",
+          "label": "δ(CH₃) scissor",
+          "category": "bend",
+          "subtype": "scissoring",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₄",
+          "symmetry": "A′",
+          "wn_start": 1477,
+          "note": "The two out-of-plane H's move toward each other, closing the angle between them — a genuine scissoring motion — while the in-plane H makes a small, separate rotation toward the C-O axis. Frequency-coincident with the rocking mode below.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["degenerated"],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_ch_rock",
+          "label": "ρ(CH₂)",
+          "category": "bend",
+          "subtype": "rocking",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₁₀",
+          "symmetry": "A″",
+          "wn_start": 1466,
+          "note": "The two out-of-plane H's swing together in the same rotational sense — a genuine rock, distinct in character from the scissoring motion above — while the in-plane H stays put, as required for an antisymmetric-species mode. Frequency-coincident with the scissor above.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": ["degenerated"],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_bend_symmetric",
+          "label": "δₛ(CH₃)",
+          "category": "bend",
+          "subtype": "symmetric",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₅",
+          "symmetry": "A′",
+          "wn_start": 1455,
+          "note": "All three methyl H's rise or fall together relative to the C-O axis — the methyl umbrella deformation, delocalized somewhat onto the O-C-H angles rather than a pure H-C-H motion.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_oh_bend",
+          "label": "δ(COH)",
+          "category": "bend",
+          "atoms": "C-O-H",
+          "herzberg_notation": "ν₆",
+          "symmetry": "A′",
+          "wn_start": 1345,
+          "note": "The C-O-H angle opens and closes, O recoiling to compensate — the only in-plane bend the hydroxyl group can have, distinct from the out-of-plane torsion at the very bottom of this list. The in-plane methyl H echoes the same rotational sense very faintly, a small coupling between the hydroxyl bend and the methyl group.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_co_scaffold",
+          "label": "ν(CO)",
+          "category": "stretch",
+          "atoms": "C-O",
+          "herzberg_notation": "ν₇",
+          "symmetry": "A′",
+          "wn_start": 1060,
+          "note": "A C-O-region fundamental more delocalized than the cleaner C-O stretch below — mixing genuine C-O bond stretching with some C-O-H and O-C-H angle bending rather than being a pure bond stretch. That angle-bending admixture shows up as small, opposite-sense rotations: the hydroxyl H and the in-plane methyl H swing one way, the two out-of-plane methyl H's swing the other.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_co_stretch",
+          "label": "ν(CO)",
+          "herzberg_notation": "ν₈",
+          "symmetry": "A′",
+          "wn_start": 1033,
+          "note": "The methyl group and the hydroxyl group stretch apart along the C-O bond, each side recoiling slightly to conserve the center of mass — unlike methoxy's own C-O stretch, O is free to move here too. A small admixture rides along with the stretch: the hydroxyl H and the in-plane methyl H both pick up a faint, shared-sense rotation as the bond shortens. The cleaner of methanol's two C-O-region fundamentals; ν₇ above is the more delocalized one.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_stretch_antisym",
+          "label": "νₐₛ(CH₂)",
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₉",
+          "symmetry": "A″",
+          "wn_start": 2960,
+          "note": "The genuinely antisymmetric C-H stretch: the two out-of-plane H's move oppositely along their own bonds while the in-plane H and C sit it out — \"CH₂\" rather than \"CH₃\" since only two H's actually participate. Strongly mixed with overtone/combination resonances of ν₄, ν₅, and ν₁₀ in real spectra, so a single observed band rarely maps cleanly back to this one fundamental alone.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_twist",
+          "label": "δₐₛ(CH₃)",
+          "category": "bend",
+          "subtype": "twisting",
+          "atoms": "H-C-H",
+          "herzberg_notation": "ν₁₁",
+          "symmetry": "A″",
+          "wn_start": 1145,
+          "note": "An O-C-H angle twisting motion: the two out-of-plane H's rotate about C in opposite senses — one swinging toward the C-O axis, the other away from it — while the in-plane H stays put. Distinct in character from the scissor/rock pair above, not just a frequency-shifted repeat of either.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Dinu.HowVibrationalNotations.2024"]
+        },
+        {
+          "id": "methanol_torsion",
+          "label": "τ(CH₃)",
+          "category": "bend",
+          "subtype": "twisting",
+          "atoms": "C-H",
+          "herzberg_notation": "ν₁₂",
+          "symmetry": "A″",
+          "wn_start": 80,
+          "wn_end": 300,
+          "note": "The hydroxyl H bends out of the molecular plane — shown as a depth pulse, the same out-of-plane convention used for bicarbonate's own wagging mode — while C and O stay fixed; the in-plane methyl H picks up a much smaller version of the same motion, the two out-of-plane methyl H's stay out of it entirely. Dinu et al. frame this as an \"out-of-plane OH deformation,\" equally describable as the methyl cap twisting relative to a fixed O-H. Strongly coupled to overall molecular rotation, making it unusually floppy.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [],
+          "reference": ["Shimanouchi.TablesMolecularVibrational.1977", "Dinu.HowVibrationalNotations.2024"]
+        }
+      ]
+    },
+    {
       "id": "water",
       "label": "Water",
       "species": "H₂O",
@@ -1478,7 +1675,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_bend",
@@ -1490,7 +1687,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_stretch_asymmetric",
@@ -1502,7 +1699,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         }
       ]
     }

@@ -1192,6 +1192,191 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
     },
   },
 
+  // Methanol — methoxy's own monodentate geometry, freed from the surface
+  // and rotated 90° left (screen-space CCW: (x,y) -> (y,-x), a proper
+  // rotation, so every angle/length and every existing mode vector's own
+  // (dx,dy)/pivot carries over via the same transform; rotateDeg magnitudes
+  // are unaffected since the transform has no reflection in it), plus one
+  // new O-H hydrogen (index 5) completing the free CH₃OH molecule. Atom
+  // order is therefore [C, O, H, H, H, H(hydroxyl)] — the first five are
+  // methoxy's own C,O,H,H,H carried over unchanged in identity, just moved.
+  methanol: {
+    gas: {
+      atoms: [
+        { element: 'C', x: -16, y: 0 },
+        { element: 'O', x: 14, y: 0 },
+        { element: 'H', x: -32.9, y: -12.3 },
+        { element: 'H', x: -28.8, y: 27 },
+        { element: 'H', x: -27.4, y: -25.2 },
+        { element: 'H', x: 22.2, y: -24.7 },
+      ],
+      bonds: [[0, 1], [0, 2], [0, 3], [0, 4], [1, 5]],
+      modes: {
+        // O-H stretch, localized to the hydroxyl end: H5 moves along its
+        // own bond direction, O recoiling slightly oppositely; the methyl
+        // side is untouched, same localized-mode treatment used throughout
+        // this file.
+        methanol_oh_stretch: [
+          { dx: 0, dy: 0 },
+          { dx: -0.05, dy: 0.14 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0.32, dy: -0.95 },
+        ],
+        // ν₂ — one of methanol's two symmetric-species (A′) C-H stretches:
+        // all three H's stretch outward in phase (same direction set as ν₃
+        // below), but here the in-plane H (index 3, drawn at the bottom)
+        // dominates and the two out-of-plane H's (indices 2, 4, drawn
+        // above it) only contribute weakly — the opposite weighting from
+        // ν₃.
+        methanol_stretch_a: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.243, dy: -0.177 },
+          { dx: -0.428, dy: 0.904 },
+          { dx: -0.124, dy: -0.273 },
+          { dx: 0, dy: 0 },
+        ],
+        // ν₃ — methanol's other symmetric-species C-H stretch: same three
+        // outward directions as ν₂ above, but now the two out-of-plane H's
+        // dominate and the in-plane H (bottom) only contributes weakly. C
+        // still makes its small compensating recoil.
+        methanol_stretch_symmetric: [
+          { dx: 0.137, dy: 0.05 },
+          { dx: 0, dy: 0 },
+          { dx: -0.809, dy: -0.589 },
+          { dx: -0.128, dy: 0.271 },
+          { dx: -0.412, dy: -0.911 },
+          { dx: 0, dy: 0 },
+        ],
+        // ν₄ — scissor: the two out-of-plane H's translate toward each
+        // other (closing the angle between them), while the in-plane H
+        // (bottom) makes a small genuine rotation about C, swinging
+        // slightly toward the C-O axis — a real in-plane motion, not an
+        // out-of-plane stylization.
+        methanol_ch_scissor: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0.196, dy: -0.46 },
+          { dx: 0, dy: 0, rotateDeg: -6, pivot: { x: -16, y: 0 } },
+          { dx: -0.196, dy: 0.46 },
+          { dx: 0, dy: 0 },
+        ],
+        // ν₁₀ — rock: the two out-of-plane H's counter-rotate about C (the
+        // angle between them itself changing) while the in-plane H shears
+        // along its own bond — methoxy's own methoxy_bend_asymmetric
+        // carried over via the rotation, same as this entry used before
+        // ν₄/ν₁₀ were disentangled.
+        methanol_ch_rock: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 15 },
+          { dx: 0, dy: 0, rotateDeg: -15 },
+          { dx: -0.165, dy: -0.364 },
+          { dx: 0, dy: 0 },
+        ],
+        // Methyl umbrella deformation — methoxy's own methoxy_bend_symmetric
+        // carried over via the rotation; O and the hydroxyl H sit out, same
+        // localized-mode treatment as the stretches above.
+        methanol_bend_symmetric: [
+          { dx: 0.16, dy: 0.04 },
+          { dx: 0, dy: 0 },
+          { dx: -0.74, dy: -0.18 },
+          { dx: -0.5, dy: 0 },
+          { dx: -0.62, dy: -0.27 },
+          { dx: 0, dy: 0 },
+        ],
+        // C-O-H bend: H5 swings tangentially about O (angle-opening
+        // sense), O recoiling slightly to compensate. The in-plane H
+        // (bottom) now also picks up a very small rotation about C in the
+        // SAME rotational sense as H5's swing — a faint echo of the
+        // hydroxyl bend reaching the methyl group — while the two
+        // out-of-plane H's stay out of it entirely.
+        methanol_oh_bend: [
+          { dx: 0, dy: 0 },
+          { dx: -0.1, dy: -0.03 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 3, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0 },
+          { dx: 0.66, dy: 0.22 },
+        ],
+        // ν₇ — the more delocalized of the two C-O-region fundamentals.
+        // C and the hydroxyl group still separate along the C-O axis (the
+        // dominant rCO character), but now each methyl H also picks up its
+        // own small rotation about C: the in-plane H (bottom) and the
+        // hydroxyl H swing in the SAME rotational sense as each other,
+        // while the two out-of-plane H's swing the OPPOSITE way — the
+        // mirror image of ν₈'s own pairing below.
+        methanol_co_scaffold: [
+          { dx: -1, dy: 0 },
+          { dx: 0.15, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -4, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0, rotateDeg: 5, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0, rotateDeg: -4, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0, rotateDeg: 6, pivot: { x: 14, y: 0 } },
+        ],
+        // C-O stretch: the methyl group and the hydroxyl group translate
+        // apart rigidly along the C-O axis. Unlike methoxy's own
+        // methoxy_co_stretch (O pinned to the surface), O is free here, so
+        // it gets its own small recoil in the opposite direction. The
+        // in-plane H (bottom) and the hydroxyl H additionally pick up a
+        // small, shared-sense rotation — as the C-O bond shortens, both
+        // swing the same way — a small angle-bending admixture riding
+        // along with the dominant bond stretch.
+        methanol_co_stretch: [
+          { dx: -1, dy: 0 },
+          { dx: 0.15, dy: 0 },
+          { dx: -1, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -5, pivot: { x: -16, y: 0 } },
+          { dx: -1, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -6, pivot: { x: 14, y: 0 } },
+        ],
+        // ν₉ — the genuinely antisymmetric C-H stretch: the two
+        // out-of-plane H's (indices 2, 4) move oppositely along their own
+        // bonds while the in-plane H (index 3, bottom) and C sit it out
+        // entirely (per Dinu et al., this is "νasCH₂" rather than a
+        // methyl-wide motion — only two H's actually participate).
+        methanol_stretch_antisym: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: -0.809, dy: -0.589 },
+          { dx: 0, dy: 0 },
+          { dx: 0.412, dy: 0.911 },
+          { dx: 0, dy: 0 },
+        ],
+        // ν₁₁ — twist: the in-plane H (bottom) stays put, while the two
+        // out-of-plane H's rotate about C in OPPOSITE senses — one
+        // swinging toward the C-O axis, the other away from it — rather
+        // than moving together as a block.
+        methanol_twist: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 8, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: -8, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0 },
+        ],
+        // Recast as the O-H bend coming out of the molecular plane: the
+        // hydroxyl H pulses (grows/shrinks) to depict that out-of-plane
+        // motion, the same depth-cue trick as bicarbonate's own
+        // bicarbonate_wagging_bidentate. C and O stay exactly fixed — only
+        // the H's move. The in-plane H (bottom) picks up a much smaller
+        // version of the same pulse — Dinu et al.'s PED does show a small
+        // genuine contribution from that one H — while the two
+        // out-of-plane H's are uninvolved.
+        methanol_torsion: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, scale: 0.08 },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, scale: 0.4 },
+        ],
+      },
+    },
+  },
+
   // H2O — genuinely planar (C2v), so unlike CH4/methoxy this needs no
   // 3D-projection trick at all: the real bond angle/length are drawn as-is.
   water: {
@@ -1399,6 +1584,15 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
         { symbol: 'A₁', count: 4 },
         { symbol: 'A₂', count: 1 },
         { symbol: 'E', count: 5 },
+      ],
+    },
+  },
+  methanol: {
+    gas: {
+      pointCloud: '6 atoms in its stable staggered conformation: C and O on the would-be 3-fold axis, but one of the three methyl H\'s lies in the same plane as the hydroxyl H, breaking that axis down to a single mirror plane — the only symmetry element left, giving Cs rather than methoxy\'s C3v.',
+      terms: [
+        { symbol: "A′", count: 8 },
+        { symbol: "A″", count: 4 },
       ],
     },
   },

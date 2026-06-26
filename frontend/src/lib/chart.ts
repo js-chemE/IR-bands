@@ -33,6 +33,50 @@ export function computeLaneMetrics(bands: Band[], enabledGroups: ReadonlySet<str
   return { newLaneIdx, newNLanes: next };
 }
 
+// Sub-lane stagger (0 / +1 / -1) is computed at build time in Python over
+// ALL bands in a lane (src/ir_bands/layout.py's assign_sub_lanes), so a band
+// hidden by a disabled group can still hold a sub-lane slot hostage — e.g.
+// two bands that visually look unrelated once a third, group-hidden one is
+// toggled off. Recomputing it here, over only the currently-enabled bands,
+// re-centers/re-compacts the stagger to match what's actually on screen —
+// the exact same algorithm, just re-run client-side on a filtered set
+// instead of once over the full dataset.
+const SUB_LANE_PRIORITY = [0, 1, -1] as const;
+
+function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map<string, number> {
+  const byLane = new Map<number, Band[]>();
+  for (const b of bands) {
+    if (!enabledGroups.has(b.group)) continue;
+    if (!byLane.has(b.lane)) byLane.set(b.lane, []);
+    byLane.get(b.lane)!.push(b);
+  }
+
+  const subLane = new Map<string, number>();
+  for (const laneBands of byLane.values()) {
+    // Two-step sort: group first (so one group's bands consistently claim
+    // the same sub-lane priority before a second group sharing this lane is
+    // considered), then by wavenumber within that group — matches
+    // layout.py's own assign_sub_lanes() ordering.
+    const sorted = [...laneBands].sort((a, b) =>
+      a.group !== b.group ? a.group.localeCompare(b.group) : a.wn_min - b.wn_min
+    );
+    const subLaneEnds = new Map<number, number>(SUB_LANE_PRIORITY.map(sl => [sl, -Infinity]));
+    for (const b of sorted) {
+      for (const sl of SUB_LANE_PRIORITY) {
+        if (subLaneEnds.get(sl)! < b.wn_min) {
+          subLane.set(b.id, sl);
+          subLaneEnds.set(sl, b.wn_max);
+          break;
+        }
+      }
+      // Bands that don't fit any of the 3 sub-lanes (4-way+ overlap) are
+      // left unset — the caller falls back to 0, same as the dataclass
+      // default for a band layout.py itself couldn't place.
+    }
+  }
+  return subLane;
+}
+
 // ---------------------------------------------------------------------------
 // Legend category list (consumed by ColorLegend via App.svelte)
 // ---------------------------------------------------------------------------
@@ -267,6 +311,42 @@ interface PlotBand {
 }
 
 
+// A small, mark-free plot containing only the x-axis — kept visually pinned
+// (via sticky CSS in BandChart.svelte) above the scrolling lane stack, since
+// the main chart's own axis sits at the bottom of a potentially very tall
+// SVG and would otherwise scroll out of view while inspecting earlier lanes.
+// Must share width/marginLeft/marginRight with buildChart's own Plot.plot
+// call below so its ticks line up with the real chart underneath it.
+export function buildAxisStrip(
+  axisProperty: AxisProperty,
+  axisUnit: string,
+  width = 1100,
+  xDomainOverride?: [number, number],
+): SVGElement {
+  const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit)) as [number, number];
+  return Plot.plot({
+    width,
+    height: 50,
+    marginLeft: 200,
+    marginRight: 20,
+    marginTop: 4,
+    marginBottom: 34,
+    style: {
+      background: 'white',
+      overflow: 'visible',
+      fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+      fontSize: '13px',
+    },
+    x: {
+      domain: xDomain,
+      label: axisLabel(axisProperty, axisUnit),
+      labelArrow: 'none',
+    },
+    y: { domain: [0, 1], axis: null },
+    marks: [],
+  }) as unknown as SVGElement;
+}
+
 export function buildChart(
   bands: Band[],
   groups: GroupMap,
@@ -288,6 +368,7 @@ export function buildChart(
   tagIsolate: string | null = null,
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
+  const dynamicSubLane = computeSubLanes(bands, enabledGroups);
 
   const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit)) as [number, number];
   const xMin = Math.min(xDomain[0], xDomain[1]);
@@ -346,7 +427,8 @@ export function buildChart(
     const x1 = Math.min(xa, xb), x2 = Math.max(xa, xb);
 
     const laneY = (newNLanes - 1 - compactLane) * LANE_HEIGHT;
-    const y0 = laneY + b.sub_lane * (LANE_HEIGHT * SUB_LANE_OFFSET_FRAC * BAR_FRACTION);
+    const subLane = dynamicSubLane.get(b.id) ?? 0;
+    const y0 = laneY + subLane * (LANE_HEIGHT * SUB_LANE_OFFSET_FRAC * BAR_FRACTION);
     const y1 = y0 + LANE_HEIGHT * BAR_FRACTION;
     // Recorded for every enabled-group band before the display-only filters
     // below, so a hidden/off-screen partner can still anchor a connector.
@@ -453,8 +535,10 @@ export function buildChart(
     },
     x: {
       domain: xDomain,
-      label: axisLabel(axisProperty, axisUnit),
-      labelArrow: 'none',
+      // Axis itself is drawn by the separate, always-visible buildAxisStrip()
+      // instead (pinned via sticky CSS in BandChart.svelte) — rendering it
+      // here too would just duplicate it once both are on screen at once.
+      axis: null,
     },
     y: {
       domain: [-yPadBottom, yMax],
