@@ -22,6 +22,7 @@ from ir_bands.layout import assign_lanes, assign_sub_lanes
 from ir_bands.loader import (
     load_dataset,
     load_references,
+    load_tags,
     load_vibrations,
     tag_branch_groups,
     tag_fermi_pairs,
@@ -44,10 +45,12 @@ DOCS_DATA = DOCS_DIR / "data"
 BANDS_SRC = DATA_DIR / "bands.jsonc"
 REFS_SRC = DATA_DIR / "references.bib"
 VIBRATIONS_SRC = DATA_DIR / "vibrations.jsonc"
+TAGS_SRC = DATA_DIR / "tags.jsonc"
 
 BANDS_OUT = DOCS_DATA / "bands.json"
 REFS_OUT = DOCS_DATA / "references.json"
 VIBRATIONS_OUT = DOCS_DATA / "vibrations.json"
+TAGS_OUT = DOCS_DATA / "tags.json"
 HTML_OUT = DOCS_DIR / "index.html"
 
 
@@ -624,6 +627,10 @@ def main() -> int:
     print(f"  {len(vibrations.molecules)} molecules, {n_modes} modes")
     validate_vibrations(vibrations, dataset, references=references)
 
+    print(f"→ Loading tags from {TAGS_SRC.relative_to(ROOT)}")
+    tags = load_tags(TAGS_SRC)
+    print(f"  {len(tags)} tag tooltips")
+
     bands_payload = {
         "metadata": dataset.metadata,
         "regions": {k: asdict(v) for k, v in dataset.regions.items()},
@@ -651,11 +658,18 @@ def main() -> int:
     )
     print(f"✓ Wrote {VIBRATIONS_OUT.relative_to(ROOT)} ({VIBRATIONS_OUT.stat().st_size:,} bytes)")
 
+    TAGS_OUT.write_text(
+        json.dumps(tags, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"✓ Wrote {TAGS_OUT.relative_to(ROOT)} ({TAGS_OUT.stat().st_size:,} bytes)")
+
     # Copy source files so the frontend can offer them as downloads.
     for src, dst in [
         (BANDS_SRC, DOCS_DATA / "bands.jsonc"),
         (VIBRATIONS_SRC, DOCS_DATA / "vibrations.jsonc"),
         (REFS_SRC, DOCS_DATA / "references.bib"),
+        (TAGS_SRC, DOCS_DATA / "tags.jsonc"),
     ]:
         shutil.copy(src, dst)
         print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")

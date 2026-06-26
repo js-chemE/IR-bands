@@ -9,6 +9,9 @@
   // hiddenTags — see App.svelte's handleTagDblClick for why isolating a
   // multi-valued tag can't just be "hide every other tag".
   export let tagIsolate: string | null = null;
+  // Tag -> short tooltip text, loaded from data/tags.jsonc. Optional: tags
+  // without an entry just render without a tooltip (see that file's preamble).
+  export let tagTips: Record<string, { tip: string }> = {};
 
   const dispatch = createEventDispatcher<{
     tagToggle:   { tag: string; visible: boolean };
@@ -46,11 +49,12 @@
   <div class="legend">
     {#each tags as t (t.key)}
       {@const visible = tagIsolate ? t.key === tagIsolate : !hiddenTags.has(t.key)}
+      {@const tip = tagTips[t.key]?.tip}
       <button
         class="item"
         class:dimmed={!visible}
         class:isolated={t.key === tagIsolate}
-        title="{t.count} band{t.count !== 1 ? 's' : ''}"
+        title="{t.count} band{t.count !== 1 ? 's' : ''}{tip ? ' — ' + tip : ''}"
         on:click={() => onClick(t.key, visible)}
         on:dblclick={() => onDblClick(t.key)}
         on:mouseenter={() => dispatch('tagHover', { tag: t.key })}

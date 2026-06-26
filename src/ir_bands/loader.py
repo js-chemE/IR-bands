@@ -384,6 +384,22 @@ def load_vibrations(path: str | Path) -> Vibrations:
     return Vibrations(molecules=[_parse_molecule(m) for m in raw.get("molecules", [])])
 
 
+def load_tags(path: str | Path) -> dict:
+    """Load the tag-tooltip lookup table: {tag: {"tip": str}}.
+
+    Free-form by design (see tags.jsonc's own preamble) — this isn't
+    validated against the tags actually used in bands.jsonc/vibrations.jsonc,
+    just checked for basic shape so a typo'd entry fails loudly at build time
+    rather than silently rendering no tooltip.
+    """
+    raw = load_jsonc(path)
+    tags = raw.get("tags", {})
+    for key, value in tags.items():
+        if not isinstance(value, dict) or not value.get("tip"):
+            raise ValueError(f"tags.jsonc: tag {key!r} is missing a non-empty 'tip'")
+    return tags
+
+
 def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
     """Resolve Band.vibration_modes (bands.jsonc) into each mode's computed
     `bands` list, and derive category/subtype/atoms from the linked bands.

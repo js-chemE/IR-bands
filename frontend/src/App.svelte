@@ -16,6 +16,7 @@
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
   let vibrations: Vibrations = { molecules: [] };
+  let tagTips: Record<string, { tip: string }> = {};
   let loading = true;
   let error: string | null = null;
   type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
@@ -47,18 +48,20 @@
 
   onMount(async () => {
     try {
-      const [bRes, rRes, vRes] = await Promise.all([
+      const [bRes, rRes, vRes, tRes] = await Promise.all([
         fetch('data/bands.json'),
         fetch('data/references.json'),
         fetch('data/vibrations.json'),
+        fetch('data/tags.json'),
       ]);
       if (!bRes.ok) throw new Error(`bands.json: ${bRes.status}`);
       if (!rRes.ok) throw new Error(`references.json: ${rRes.status}`);
       dataset = (await bRes.json()) as Dataset;
       refs = (await rRes.json()) as RefMap;
-      // Vibrations content is supplementary — don't fail the whole app if
-      // it's missing (e.g. build.py was run before this feature existed).
+      // Vibrations/tag-tooltip content is supplementary — don't fail the
+      // whole app if either is missing (e.g. build.py predates the feature).
       vibrations = vRes.ok ? ((await vRes.json()) as Vibrations) : { molecules: [] };
+      tagTips = tRes.ok ? ((await tRes.json()) as Record<string, { tip: string }>) : {};
       enabledGroups = new Set(
         Object.keys(dataset.groups).filter(k => !DEFAULT_OFF.has(k))
       );
@@ -345,24 +348,26 @@
       {#if page === 'home'}
         <HomePage on:navigate={handleHomeNavigate} />
       {:else if page === 'chart'}
-        <BandChart
-          bands={dataset.bands}
-          groups={dataset.groups}
-          {refs}
-          {vibrations}
-          {enabledGroups}
-          {colorDim}
-          {hiddenCats}
-          {hiddenTags}
-          {tagIsolate}
-          {axisProperty}
-          {axisUnit}
-          hoveredCat={legendHoveredCat}
-          hoveredTag={legendHoveredTag}
-          {focusBand}
-          on:navigateRef={handleNavigateRef}
-          on:navigateMode={handleNavigateMode}
-        />
+        <div class="chart-scroll">
+          <BandChart
+            bands={dataset.bands}
+            groups={dataset.groups}
+            {refs}
+            {vibrations}
+            {enabledGroups}
+            {colorDim}
+            {hiddenCats}
+            {hiddenTags}
+            {tagIsolate}
+            {axisProperty}
+            {axisUnit}
+            hoveredCat={legendHoveredCat}
+            hoveredTag={legendHoveredTag}
+            {focusBand}
+            on:navigateRef={handleNavigateRef}
+            on:navigateMode={handleNavigateMode}
+          />
+        </div>
         <div class="legend-box">
           <ColorLegend
             categories={legendCats}
@@ -377,6 +382,7 @@
               tags={legendTags}
               {hiddenTags}
               {tagIsolate}
+              {tagTips}
               on:tagToggle={handleTagToggle}
               on:tagDblClick={handleTagDblClick}
               on:tagHover={handleTagHover}
@@ -674,9 +680,24 @@
     display: flex;
     flex-direction: column;
     padding: 0 40px;
+    overflow-y: hidden; /* vertical scroll happens inside .chart-scroll instead */
+  }
+
+  /* Chart itself scrolls internally so the legend below stays pinned in
+     view regardless of how tall the lane stack gets. flex-grow:0 keeps it
+     sized to its own content (no leftover blank space above the legend
+     when there are few enough lanes to fit); flex-shrink:1 still lets it
+     shrink down to the available space (enabling internal scroll) once the
+     lane stack grows past that. */
+  .chart-scroll {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .legend-box {
+    flex: 0 0 auto;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
     margin: 4px 0 8px;

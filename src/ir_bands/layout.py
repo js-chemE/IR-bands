@@ -70,7 +70,12 @@ def assign_sub_lanes(bands: list[Band], gap: int = 0) -> set[str]:
         by_lane[b.lane].append(b)
 
     for lane_idx, lane_bands in by_lane.items():
-        lane_sorted = sorted(lane_bands, key=lambda b: b.wn_min)
+        # Two-step sort: group first (so one group's bands consistently claim
+        # the same sub-lane priority before a second group sharing this lane
+        # gets considered), then by wavenumber within that group — rather
+        # than a single wn-only sort, which can interleave two groups'
+        # bands and place them in a visually inconsistent sub-lane pattern.
+        lane_sorted = sorted(lane_bands, key=lambda b: (b.group, b.wn_min))
         # Track the rightmost wn_max currently placed on each sub-lane;
         # a sub-lane is "free" for a new band if its tracked end is
         # strictly less than the new band's wn_min (i.e., no overlap).
