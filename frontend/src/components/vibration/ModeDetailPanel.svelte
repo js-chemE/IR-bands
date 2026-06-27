@@ -59,6 +59,24 @@
   // deduped by key — same citations a user would find by opening each band
   // individually, just collected in one place.
   $: citationKeys = [...new Set([...mode.reference, ...bands.flatMap(b => b.references.map(r => r.key))])];
+
+  // Per-band expand/collapse, same convention as the band chart tooltip's
+  // own reference list (BandChart.svelte): collapsed by default whenever a
+  // mode links to more than one band, always fully expanded when there's
+  // only one. Reset whenever the mode itself changes, since this panel's
+  // component instance persists across different open modes.
+  let expandedBands = new Set<number>();
+  let expandedForModeId: string | null = null;
+  $: if (mode.id !== expandedForModeId) {
+    expandedBands = new Set();
+    expandedForModeId = mode.id;
+  }
+  function toggleBandExpand(i: number) {
+    const next = new Set(expandedBands);
+    if (next.has(i)) next.delete(i); else next.add(i);
+    expandedBands = next;
+  }
+  $: bandsCollapsible = bands.length > 1;
 </script>
 
 <div class="detail-panel">
@@ -101,31 +119,50 @@
 
   <div class="bands-section">
     <div class="section-header">Bands</div>
-    {#each bands as b (b.id)}
+    {#each bands as b, i (b.id)}
       {@const bTags = getBandTags(b)}
       {@const cTags = [...new Set(b.references.flatMap(r => r.tags))]}
-      <button class="band-box" on:click={() => dispatch('navigateBand', { id: b.id })} title="View in band chart">
+      {@const expanded = !bandsCollapsible || expandedBands.has(i)}
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <div
+        class="band-box"
+        class:band-box-btn={bandsCollapsible}
+        on:click={bandsCollapsible ? () => toggleBandExpand(i) : null}
+        title={bandsCollapsible ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
+      >
+        <button
+          class="band-goto-btn"
+          on:click|stopPropagation={() => dispatch('navigateBand', { id: b.id })}
+          title="View in band chart"
+        >↗</button>
         <div class="band-box-line">
-          <span class="band-name">{b.short || b.id} <span class="band-box-arrow">↗</span></span>
+          <span class="band-name">
+            {b.short || b.id}
+            {#if bandsCollapsible}
+              <span class="band-box-chevron" class:open={expanded}>▸</span>
+            {/if}
+          </span>
           <span class="badge-wn">{b.wn_min}–{b.wn_max} cm⁻¹</span>
         </div>
-        {#if b.description}
-          <div class="band-desc">{@html b.description}</div>
-        {/if}
         {#if bTags.length}
           <div class="band-box-tags">
             {#each bTags as t (t)}<span class="pill">{t}</span>{/each}
           </div>
         {/if}
-        <div class="citation-line">
-          {b.references.length} citation{b.references.length !== 1 ? 's' : ''} backing this band
-        </div>
-        {#if cTags.length}
-          <div class="band-box-tags">
-            {#each cTags as t (t)}<span class="pill">{t}</span>{/each}
+        {#if expanded}
+          {#if b.description}
+            <div class="band-desc">{@html b.description}</div>
+          {/if}
+          <div class="citation-line">
+            {b.references.length} citation{b.references.length !== 1 ? 's' : ''} backing this band
           </div>
+          {#if cTags.length}
+            <div class="band-box-tags">
+              {#each cTags as t (t)}<span class="pill">{t}</span>{/each}
+            </div>
+          {/if}
         {/if}
-      </button>
+      </div>
     {/each}
     {#if bands.length === 0}
       <p class="no-bands">No separately observed band — see the note above.</p>
@@ -251,26 +288,66 @@
   .bands-section { margin-bottom: 14px; }
 
   .band-box {
+    position: relative;
     display: block;
     width: 100%;
+    box-sizing: border-box; /* otherwise the right-padding for .band-goto-btn pushes this past the panel's own edge */
     background: #f8f6f1;
     border: 1px solid #e2d9c9;
     border-left: 3px solid #c4a86e;
     border-radius: 4px;
-    padding: 7px 9px;
+    padding: 7px 26px 7px 9px;
     margin-top: 6px;
     font: inherit;
     color: inherit;
     text-align: left;
-    cursor: pointer;
-    transition: background 0.1s, border-left-color 0.1s;
   }
 
-  .band-box:hover {
+  /* Collapsible (2+ bands) — toggles its own description/citations open or
+     closed, same convention as the band chart tooltip's own reference list
+     (BandChart.svelte's .tip-ref-btn). A single linked band always shows
+     fully expanded instead, with no click affordance at all. */
+  .band-box-btn { cursor: pointer; transition: background 0.1s, border-left-color 0.1s; }
+  .band-box-btn:hover {
     background: #f0ece4;
     border-left-color: #a08050;
   }
-  .band-box:hover .band-box-arrow { opacity: 1; }
+
+  .band-box-chevron {
+    display: inline-block;
+    font-size: 9px;
+    color: #a08050;
+    margin-left: 4px;
+    transition: transform 0.15s;
+  }
+  .band-box-chevron.open { transform: rotate(90deg); }
+
+  /* Corner button — jumps to this band on the band chart; separate from
+     the box's own expand/collapse click, same split as the band chart
+     tooltip's .tip-ref-goto-btn. */
+  .band-goto-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #e2d9c9;
+    border-radius: 4px;
+    color: #a08050;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .band-goto-btn:hover {
+    background: #f0ece4;
+    border-color: #a08050;
+    color: #8a6d00;
+  }
 
   .band-box-line {
     display: flex;
@@ -285,12 +362,6 @@
     color: #222;
   }
 
-  .band-box-arrow {
-    font-size: 11px;
-    color: #a08050;
-    opacity: 0;
-    transition: opacity 0.1s;
-  }
 
   .badge-wn {
     background: #dbeafe;
