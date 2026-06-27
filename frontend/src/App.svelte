@@ -34,7 +34,7 @@
     colorMenuTimer = setTimeout(() => { showColorMenu = false; }, 180);
   }
 
-  const DEFAULT_OFF = new Set(['support', "support_oh", "h2", "carbonyl", "water", "hydroxyl"]);
+  const DEFAULT_OFF = new Set(['support', "support_oh", "h2", "carbonyl", "hydroxyl"]);
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
