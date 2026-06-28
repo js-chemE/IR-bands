@@ -3680,35 +3680,6 @@
       "wn_max": 3760
     },
     {
-      "id": "h2o_stretch_3400",
-      "species": "H₂O*",
-      "group": "water",
-      "vibration": {
-        "category": "stretch",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "O-H",
-      "wn_start": 3200,
-      "wn_end": 3600,
-      "short": "ν(HOH) H₂O*",
-      "description": "Very broad O-H stretch of adsorbed/condensed water (H₂O*).",
-      "based_on": [],
-      "references": [],
-      "tags": [],
-      "fermi_partner": null,
-      "fermi_partner_group": null,
-      "branch_group": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [],
-      "lane": 10,
-      "sub_lane": 0,
-      "wn_min": 3200,
-      "wn_max": 3600
-    },
-    {
       "id": "h2o_bend_1635",
       "species": "H₂O*",
       "group": "water",
