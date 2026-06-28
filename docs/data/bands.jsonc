@@ -2814,30 +2814,6 @@
       "confidence": "confirmed",
       "tags": ["gas-phase"]
     },
-
-    // ---------------------------------------------------------------------------
-    // ADSORBED WATER
-    // Byproduct of methanol/methanation; ν(OH) overlaps OH region, δ(HOH) overlaps formate ν_as.
-    // ---------------------------------------------------------------------------
-    {
-      "id": "h2o_stretch_3400",
-      "species": "H₂O*",
-      "group": "water",
-      "pair": 11,
-      "vibration": {
-        "category": "stretch",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "O-H",
-      "wn_start": 3200,
-      "wn_end": 3600,
-      "short": "ν(HOH) H₂O*",
-      "description": "Very broad O-H stretch of adsorbed/condensed water (H₂O*).",
-      "based_on": [],
-      "references": [],
-      "tags": []
-    },
     {
       "id": "h2o_bend_1635",
       "species": "H₂O*",
