@@ -2949,7 +2949,7 @@
         "branch": null
       },
       "atoms": "O-H",
-      "wn_start": 3300,
+      "wn_start": 3600,
       "wn_end": 3700,
       "short": "ν(OH) MeOH",
       "description": "Methanol O-H stretch (MeOH*/MeOH(g)) — broad and hydrogen-bonding-sensitive like most O-H stretches, so its exact shape depends heavily on the local hydrogen-bonding environment. Often obscured by adsorbed water and surface hydroxyl groups absorbing in the same broad region.",
@@ -2978,7 +2978,7 @@
       ],
       "lane": 8,
       "sub_lane": 0,
-      "wn_min": 3300,
+      "wn_min": 3600,
       "wn_max": 3700
     },
     {
