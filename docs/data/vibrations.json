@@ -38,7 +38,8 @@
           "bands": [
             "co2_sym_1388",
             "co2_combo_3730_R",
-            "co2_combo_3699_P"
+            "co2_combo_3699_P",
+            "co2_combo_2077_Q"
           ]
         },
         {
@@ -66,6 +67,7 @@
             "co2_bend_660_P",
             "co2_combo_3627_R",
             "co2_combo_3597_P",
+            "co2_combo_2077_Q",
             "co2_bend_overtone_1285"
           ]
         },
@@ -94,6 +96,7 @@
             "co2_bend_660_P",
             "co2_combo_3627_R",
             "co2_combo_3597_P",
+            "co2_combo_2077_Q",
             "co2_bend_overtone_1285"
           ]
         },
