@@ -643,15 +643,28 @@
       "atoms": "O=C=O",
       "wn_start": 2073,
       "wn_end": 2081,
-      "short": "CO₂ (Q) ~2077",
-      "description": "Gas CO₂ combination band at ~2077 cm⁻¹; (11101 ← 00001) Q-branch — the most intense combination band in the 2200–1900 cm⁻¹ region. Falls squarely in the linear metal-CO stretching range, so in a DRIFTS/transmission cell with gas-phase CO₂ present it's a recurring misassignment risk against a genuine surface ν(CO) band at the same position. Intensity grows with CO₂ pressure and temperature, not with anything happening at the catalyst surface — a useful discriminator. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
-      "based_on": [],
+      "short": "ν₁+ν₂(OCO) CO₂ (Q)",
+      "description": "Gas CO₂ combination band at ~2077 cm⁻¹: one quantum of the (IR-forbidden) symmetric stretch ν₁ plus one quantum of the bend ν₂ — the combined state has Πu symmetry, which is dipole-allowed even though ν₁ alone isn't. The most intense combination band in the 2200–1900 cm⁻¹ region. Falls squarely in the linear metal-CO stretching range, so in a DRIFTS/transmission cell with gas-phase CO₂ present it's a recurring misassignment risk against a genuine surface ν(CO) band at the same position. Intensity grows with CO₂ pressure and temperature, not with anything happening at the catalyst surface — a useful discriminator. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
+      "based_on": [
+        {
+          "band_id": "co2_sym_1388",
+          "branch_group": null,
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": "co2_nu2_branches",
+          "multiplier": 1,
+          "label": null
+        }
+      ],
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "wn": 2077,
           "site": null,
-          "note": "Table 3, band J: very strong, narrow Q-branch (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures.",
+          "note": "Table 3, band J: very strong, narrow Q-branch, ν₁+ν₂ (11101←00001, ¹²C¹⁶O₂) — most intense combination band in the investigated range; used as the intensity-normalization reference (no temperature dependence). Particularly pronounced in their long-path-length Praying Mantis HTRC cell; intensity amplified at elevated CO₂ pressures.",
           "tags": [
             "direct-dosing"
           ]
@@ -668,7 +681,11 @@
       "intensity": "s",
       "width": "sharp",
       "confidence": "confirmed",
-      "vibration_modes": [],
+      "vibration_modes": [
+        "co2_bend",
+        "co2_bend_wagging",
+        "co2_stretch_symmetric"
+      ],
       "lane": 0,
       "sub_lane": 0,
       "wn_min": 2073,
@@ -3678,35 +3695,6 @@
       "sub_lane": 0,
       "wn_min": 3750,
       "wn_max": 3760
-    },
-    {
-      "id": "h2o_bend_1635",
-      "species": "H₂O*",
-      "group": "water",
-      "vibration": {
-        "category": "bend",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "H-O-H",
-      "wn_start": 1620,
-      "wn_end": 1650,
-      "short": "δₛ(HOH) H₂O*",
-      "description": "Water bending mode (H₂O*); overlaps formate νₐₛ.",
-      "based_on": [],
-      "references": [],
-      "tags": [],
-      "fermi_partner": null,
-      "fermi_partner_group": null,
-      "branch_group": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [],
-      "lane": 10,
-      "sub_lane": 0,
-      "wn_min": 1620,
-      "wn_max": 1650
     },
     {
       "id": "gah_stretch_1976",
