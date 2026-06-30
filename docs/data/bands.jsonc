@@ -1288,7 +1288,15 @@
       "short": "ν(CO) HCO*",
       "description": "Surface formyl C=O stretch (HCO*); mechanistic intermediate from CO + H. Often observed transiently. Distinguishes the CO-H pathway from formate-mediated routes.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": 1759,
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3B (30 bar, 3H₂/CO₂, 513 K, Cu/ZnO in KBr): 1759 cm⁻¹; assigned to HCO* or weakly H-bonded *HCOOH (gaseous HCOOH at 1776 cm⁻¹). Intensity tracks methanol production rate — one of four GHSV-dependent bands (1759, 1691, 1457, 1398 cm⁻¹) identified as true intermediates; absent under 2H₂/CO."
+        }
+      ],
       "tags": []
     },
     {
@@ -1490,6 +1498,13 @@
           "wn": 1530,
           "site": "La-Al₂O₃",
           "note": "Table 3: νas(OCO⁻) at 1530 cm⁻¹; dominant CO₂ adsorption product on La-modified alumina; largely replaced by bidentate carbonate on active Ni-Ce-Fe/La-Al₂O₃."
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": 1464,
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3A (1 bar, 3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) monodentate carbonate (Fehr: 'unidentate') at 1464 cm⁻¹; Δν ≈ 64 cm⁻¹ vs. νₛ at 1400 cm⁻¹ confirms monodentate."
         }
       ],
       "intensity": "s",
@@ -1520,6 +1535,13 @@
           "wn": 1340,
           "site": "La-Al₂O₃",
           "note": "Table 3: νₛ(-C-O) at 1340 cm⁻¹."
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": [1400, 1398],
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₛ(OCO) monodentate carbonate (Fehr: 'unidentate') at 1400 cm⁻¹ (1 bar) and 1398 cm⁻¹ (30 bar); paired with νₐₛ at 1464 cm⁻¹."
         }
       ],
       "intensity": "m",
@@ -1563,10 +1585,10 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1620,
+      "wn_start": 1500,
       "wn_end": 1670,
       "short": "νₐₛ(OCO) b-CO₃²⁻",
-      "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~300 cm⁻¹).",
+      "description": "Bidentate carbonate asymmetric stretch (b-CO₃²⁻*); large splitting (Δν ~200–350 cm⁻¹). Position shifts with the base strength of the support: ~1510–1550 cm⁻¹ on less basic oxides (ZnO, CuO), ~1600–1670 cm⁻¹ on strongly basic ones (La₂O₃, CeO₂).",
       "based_on": [],
       "references": [
         {
@@ -1581,6 +1603,13 @@
           "site": "CeO₂",
           "note": "Bidentate carbonate at 1605 cm⁻¹ confirmed as active RWGS intermediate by ¹³C isotopic exchange at 200°C: ¹³CO₂ replaces ¹²C faster than the formate pool, indicating these carbonates are directly involved in the catalytic cycle.",
           "tags": ["isotopic-shift"]
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": [1543, 1511],
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3A (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) bidentate carbonate at 1543 cm⁻¹ (1 bar) and 1511 cm⁻¹ (30 bar); Δν = 224 cm⁻¹ vs. νₛ at 1319 cm⁻¹ confirms bidentate. Sits at the low-frequency end of the bidentate range — typical for ZnO/CuO supports vs. ~1600–1670 cm⁻¹ on more basic oxides."
         }
       ],
       "intensity": "s",
@@ -1618,6 +1647,13 @@
           "site": "CeO₂",
           "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS.",
           "tags": ["isotopic-shift"]
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": 1319,
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3A (1 bar, 3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₛ(OCO) bidentate carbonate at 1319 cm⁻¹; paired with νₐₛ at 1543 cm⁻¹ (Δν = 224 cm⁻¹ confirms bidentate)."
         }
       ],
       "intensity": "m",
@@ -1897,6 +1933,13 @@
           "site": ["Fe₃O₄(001)", "Fe₃O₄(111)"],
           "note": "Table 1, Fig. 6b–d: νas(OCO) of bidentate HCOO* resolved by p-polarized IRRAS (Fano line shape, UHV, room temperature). On Fe₃O₄(001) (Fig. 6c): two bidentate-bridging components, 1555 cm⁻¹ (tet site: oct-Fe above tet-Fe beneath) and 1548/1538 cm⁻¹ (p/s-pol; int site: oct-Fe above interstitial Fe) — paired νₛ(OCO) at 1369/1377 cm⁻¹ (tet/int); distinction only possible with polarized light due to Fano overlap in unpolarized spectra. On Fe₃O₄(111) (Fig. 6b/d): quasi-bidentate at 1588 cm⁻¹ (one O to Fe-tet, other to surface OH; paired νₛ at 1335 cm⁻¹, positive inverted Fano sign — TDM parallel to surface) and chelating at 1548 cm⁻¹ very weak (both O to single Fe-tet; paired νₛ at 1380 cm⁻¹); bidentate-bridging excluded here (Fe-tet neighbor distance 5.9 Å too large). Chelating forms first (from 0.05 L); quasi-bidentate develops above 0.2 L.",
           "tags": ["direct-dosing"]
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": [1587, 1603],
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) formate at 1587 cm⁻¹ (1 bar) and 1603 cm⁻¹ (30 bar). Both show large Δν (~230–290 cm⁻¹ vs. νₛ at 1360/1314 cm⁻¹) consistent with bidentate binding — Fehr's 'unidentate' label for the 30-bar species contradicts the Δν. Spectroscopically prominent surface spectator: intensity independent of GHSV, persists on inactive CZ_2000."
         }
       ],
       "intensity": "s",
@@ -1946,6 +1989,13 @@
           "wn": 1380,
           "site": "Al₂O₃",
           "note": "Table 3: νs(OCO⁻) at 1380 cm⁻¹."
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": [1360, 1314],
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₛ(OCO) formate at 1360 cm⁻¹ (1 bar) and 1314 cm⁻¹ (30 bar); spectator species (see νₐₛ entry)."
         }
       ],
       "intensity": "s",
@@ -1976,6 +2026,13 @@
           "site": "CuGaZrOx",
           "tags": ["drifts"],
           "note": "Formate C-H bending overlaps with νₛ(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νₛ in this study."
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": 1371,
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3B (30 bar, 3H₂/CO₂, 513 K, Cu/ZnO in KBr): δ(CH) formate at 1371 cm⁻¹."
         }
       ],
       "intensity": "m",
@@ -2193,6 +2250,13 @@
           "wn": 1480,
           "site": ["Al₂O₃", "Ni-Ce-Fe/La-Al₂O₃"],
           "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
+        },
+        {
+          "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "wn": 1457,
+          "site": "Cu/ZnO",
+          "tags": ["drifts"],
+          "note": "Table 3, Fig. 3B (30 bar, 3H₂/CO₂, 513 K, Cu/ZnO in KBr): δ(CH₃) methoxy at 1457 cm⁻¹; intensity tracks GC methanol production rate — GHSV-dependent, absent under 2H₂/CO."
         }
       ],
       "intensity": "w",
@@ -2306,23 +2370,30 @@
     // ν(C-O) at ~1030 is the cleanest marker but overlaps bidentate methoxy ν(C-O).
     // ---------------------------------------------------------------------------
     {
-      "id": "meoh_oh_stretch_3400",
+      "id": "meoh_oh_q_3687",
       "species": "Methanol",
       "group": "methanol_product",
       "pair": 8,
+      "branch_group": "meoh_oh_branches",
       "vibration_modes": ["methanol_oh_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "O-H",
-      "wn_start": 3600,
+      "wn_start": 3681,
       "wn_end": 3700,
-      "short": "ν(OH) MeOH",
+      "short": "ν(OH) MeOH (Q)",
       "description": "Methanol O-H stretch (MeOH*/MeOH(g)) — broad and hydrogen-bonding-sensitive like most O-H stretches, so its exact shape depends heavily on the local hydrogen-bonding environment. Often obscured by adsorbed water and surface hydroxyl groups absorbing in the same broad region.",
       "based_on": [],
       "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": [3687, 2720],
+          "note": "Table I (CH₃OH vapor): ν(OH) Q 3687 cm⁻¹ (vs); R 3713, P 3673; collapses to ~3337 vs broad in liquid due to H-bonding. Table II (CH₃OD vapor): ν(OD) Q 2720 cm⁻¹; R 2745, P 2705. Δν(OH→OD) = −967 cm⁻¹.",
+          "tags": ["ftir", "isotopic-shift"]
+        },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": 3681,
@@ -2333,6 +2404,68 @@
       "intensity": "m",
       "width": "broad",
       "confidence": "likely",
+      "tags": []
+    },
+    {
+      "id": "meoh_oh_r_3713",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_oh_branches",
+      "vibration_modes": ["methanol_oh_stretch"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "O-H",
+      "wn_start": 3707,
+      "wn_end": 3720,
+      "short": "ν(OH) MeOH (R)",
+      "description": "R-branch rotational satellite of gas-phase methanol ν(OH); ~26 cm⁻¹ above the Q branch at 3687 cm⁻¹. Only present in gas-phase spectra.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 3713,
+          "note": "Table I (CH₃OH vapor): ν(OH) R branch at 3713 cm⁻¹.",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "meoh_oh_p_3673",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_oh_branches",
+      "vibration_modes": ["methanol_oh_stretch"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O-H",
+      "wn_start": 3660,
+      "wn_end": 3680,
+      "short": "ν(OH) MeOH (P)",
+      "description": "P-branch rotational satellite of gas-phase methanol ν(OH); ~14 cm⁻¹ below the Q branch at 3687 cm⁻¹. Only present in gas-phase spectra.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 3673,
+          "note": "Table I (CH₃OH vapor): ν(OH) P branch at 3673 cm⁻¹.",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
       "tags": []
     },
     {
@@ -2391,6 +2524,12 @@
           "tags": ["direct-dosing"]
         },
         {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 2973,
+          "note": "Table I (CH₃OH vapor): νas(CH₃) at 2973 cm⁻¹ (vs); Falk treats a′ and a″ asymmetric stretches as one unresolved envelope — later work (Serrallach 1974, Dinu 2024) identifies this as a 3-component Fermi-resonance multiplet rather than a single fundamental.",
+          "tags": ["ftir"]
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": 2960,
           "note": "Table 3, gas phase: ν₉(A″) νasCH₂ ≈2960 cm⁻¹ (Shimanouchi); Serrallach resolves it into 3 resonance-split components instead of one band — not uniquely assignable.",
@@ -2403,20 +2542,21 @@
       "tags": ["molecular-adsorption"]
     },
     {
-      "id": "meoh_sym_2844",
+      "id": "meoh_ch3s_q_2845",
       "species": "Methanol adsorbed (CH₃OH*)",
       "group": "methanol_product",
       "pair": 8,
+      "branch_group": "meoh_ch3s_branches",
       "vibration_modes": ["methanol_stretch_symmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 2830,
-      "wn_end": 2860,
-      "short": "νₛ(CH₃) CH₃OH*",
+      "wn_start": 2836,
+      "wn_end": 2854,
+      "short": "νₛ(CH₃) MeOH (Q)",
       "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ from methoxy νₛ(CH₃). Appears as a shoulder pair with methoxy; mild evacuation selectively removes CH₃OH* and leaves methoxy as the dominant feature.",
       "based_on": [],
       "references": [
@@ -2425,6 +2565,12 @@
           "wn": 2844,
           "site": "TiO₂",
           "tags": ["direct-dosing"]
+        },
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 2845,
+          "note": "Table I (CH₃OH vapor): ν₃ νs(CH₃) Q 2845 cm⁻¹ (s); R 2869, P 2826.",
+          "tags": ["ftir"]
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
@@ -2437,6 +2583,68 @@
       "width": "medium",
       "confidence": "confirmed",
       "tags": ["molecular-adsorption"]
+    },
+    {
+      "id": "meoh_ch3s_r_2869",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_ch3s_branches",
+      "vibration_modes": ["methanol_stretch_symmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2858,
+      "wn_end": 2876,
+      "short": "νₛ(CH₃) MeOH (R)",
+      "description": "R-branch rotational satellite of gas-phase methanol νs(CH₃); ~24 cm⁻¹ above the Q branch at 2845 cm⁻¹. Only present in gas-phase spectra.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 2869,
+          "note": "Table I (CH₃OH vapor): νs(CH₃) R branch at 2869 cm⁻¹.",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "meoh_ch3s_p_2826",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_ch3s_branches",
+      "vibration_modes": ["methanol_stretch_symmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2820,
+      "wn_end": 2832,
+      "short": "νₛ(CH₃) MeOH (P)",
+      "description": "P-branch rotational satellite of gas-phase methanol νs(CH₃); ~19 cm⁻¹ below the Q branch at 2845 cm⁻¹. Only present in gas-phase spectra.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 2826,
+          "note": "Table I (CH₃OH vapor): νs(CH₃) P branch at 2826 cm⁻¹.",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
     },
     {
       "id": "meoh_ch_scissor_1477",
@@ -2456,6 +2664,12 @@
       "description": "Methanol CH₃ scissor deformation (MeOH*/MeOH(g)) — frequency-coincident with the rocking mode just below it; the two are rarely resolved separately in catalytic DRIFTS.",
       "based_on": [],
       "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 1477,
+          "note": "Table I (CH₃OH vapor): δas(CH₃) a′ at 1477 cm⁻¹ (m).",
+          "tags": ["ftir"]
+        },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": 1477,
@@ -2551,6 +2765,12 @@
       "based_on": [],
       "references": [
         {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 1455,
+          "note": "Table I (CH₃OH vapor): δs(CH₃) a′ at 1455 cm⁻¹ (m).",
+          "tags": ["ftir"]
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": 1455,
           "note": "Table 3, gas phase: ν₅(A′) δsCH₃ umbrella at 1455 (Shimanouchi) / 1454.5 (Serrallach) cm⁻¹.",
@@ -2580,6 +2800,12 @@
       "description": "Methanol C-O-H in-plane bend (MeOH*/MeOH(g)) — weak, and sits at the low-wavenumber edge of the formate νₛ(OCO) region, so it's easy to miss against a stronger neighboring band.",
       "based_on": [],
       "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 1346,
+          "note": "Table I (CH₃OH vapor): δip(OH) at 1346 cm⁻¹ (s). Falk value (1346) agrees with Shimanouchi (1345) but is ~14 cm⁻¹ above Serrallach 1974 (1332); discrepancy attributed by Falk to coupling between δ(OH) a′ and ρ(CH₃) a′ motions.",
+          "tags": ["ftir"]
+        },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": [1345, 1332],
@@ -2653,20 +2879,21 @@
       "tags": []
     },
     {
-      "id": "meoh_co_stretch_1030",
+      "id": "meoh_co_q_1034",
       "species": "Methanol",
       "group": "methanol_product",
       "pair": 8,
+      "branch_group": "meoh_co_branches",
       "vibration_modes": ["methanol_co_stretch"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "C-O",
       "wn_start": 1020,
       "wn_end": 1050,
-      "short": "ν(CO) MeOH",
+      "short": "ν(CO) MeOH (Q)",
       "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000–1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region. Disambiguate via the CH₃ stretching region: adsorbed methanol shows νₐₛ/νₛ blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
       "based_on": [],
       "references": [
@@ -2679,6 +2906,12 @@
           "tags": ["direct-dosing"]
         },
         {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": [1012, 1034, 1060],
+          "note": "Table I (CH₃OH vapor): ν(CO) P/Q/R branches at 1012/1034/1060 cm⁻¹ (vs). Q branch at 1034 is the fundamental; R at 1060 cm⁻¹ coincides with the CO scaffold mode (~1074 cm⁻¹) and may cause apparent broadening on the high-frequency side.",
+          "tags": ["ftir"]
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
           "wn": [1033, 1033.5],
           "note": "Table 3, gas phase: ν₈(A′) νCO at 1033 (Shimanouchi) / 1033.5 (Serrallach) cm⁻¹ — the cleaner of methanol's two C-O-region fundamentals.",
@@ -2687,6 +2920,68 @@
       ],
       "intensity": "m",
       "width": "medium",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "meoh_co_r_1060",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_co_branches",
+      "vibration_modes": ["methanol_co_stretch"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "C-O",
+      "wn_start": 1054,
+      "wn_end": 1068,
+      "short": "ν(CO) MeOH (R)",
+      "description": "R-branch rotational satellite of gas-phase methanol ν(CO); ~26 cm⁻¹ above the Q branch at 1034 cm⁻¹. Overlaps with the CO scaffold mode (νCO* fundamental at 1074 cm⁻¹) — the two cannot be distinguished by position alone in DRIFTS.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 1060,
+          "note": "Table I (CH₃OH vapor): ν(CO) R branch at 1060 cm⁻¹ (vs).",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": []
+    },
+    {
+      "id": "meoh_co_p_1012",
+      "species": "Methanol (gas)",
+      "group": "methanol_product",
+      "pair": 8,
+      "branch_group": "meoh_co_branches",
+      "vibration_modes": ["methanol_co_stretch"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "C-O",
+      "wn_start": 1006,
+      "wn_end": 1019,
+      "short": "ν(CO) MeOH (P)",
+      "description": "P-branch rotational satellite of gas-phase methanol ν(CO); ~22 cm⁻¹ below the Q branch at 1034 cm⁻¹. Only present in gas-phase spectra.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Falk.InfraredSpectraMethanol.1961",
+          "wn": 1012,
+          "note": "Table I (CH₃OH vapor): ν(CO) P branch at 1012 cm⁻¹.",
+          "tags": ["ftir"]
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
       "confidence": "confirmed",
       "tags": []
     },

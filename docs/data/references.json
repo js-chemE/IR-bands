@@ -17,6 +17,24 @@
     "keywords": "useful, well-written, reproduced/used-some-number/results",
     "file": "ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\RKMHQ2T6\\\\S0021951724001830.html:text/html;Vico van Berkel-Urakawa_2024_Exploiting the continuity equation for mechanistic understanding through spatially resolved.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Vico van Berkel-Urakawa_2024_Exploiting the continuity equation for mechanistic understanding through spatially resolved.pdf:application/pdf"
   },
+  "Toyao.HeterogeneousPtMoOx.2019": {
+    "_type": "article",
+    "title": "Heterogeneous Pt and {MoOx} Co-Loaded {TiO}2 Catalysts for Low-Temperature {CO}2 Hydrogenation To Form {CH}3OH",
+    "volume": "9",
+    "url": "https://doi.org/10.1021/acscatal.9b01225",
+    "doi": "10.1021/acscatal.9b01225",
+    "abstract": "Efficient conversion of {CO}2 into useful chemicals, exemplified by the development of methods for low-temperature hydrogenation of {CO}2 to form methanol ({CH}3OH), is a highly attractive research target. Herein, we report that Pt nanoparticles, loaded on {MoOx}/{TiO}2 as a support (Pt(3)/{MoOx}(30)/{TiO}2; Pt 3 wt \\%, {MoO}3 30 wt \\%), promote selective hydrogenation of {CO}2 to produce {CH}3OH in 73\\% yield under mild conditions (T = 150 °C; t = 48 h; {pCO}2 = 1 {MPa}; {pH}2 = 5 {MPa}). It is significant that the observed yield is almost the equilibrium yield of {CH}3OH expected under the current reaction conditions. In terms of both the yield and selectivity for {CH}3OH production, the performance of Pt(3)/{MoOx}(30)/{TiO}2 is better than that of other metal catalysts supported on {MoOx}(30)/{TiO}2 and of Pt catalysts on other supports. Moreover, the results of an investigation of the reaction mechanism using in situ X-ray absorption fine structure ({XAFS}) suggest that reduced {MoOx} species are responsible for the progress of this efficient reaction.",
+    "pages": "8187--8196",
+    "number": "9",
+    "journaltitle": "{ACS} Catalysis",
+    "shortjournal": "{ACS} Catal.",
+    "publisher": "American Chemical Society",
+    "author": "Toyao, Takashi and Kayamori, Shingo and Maeno, Zen and Siddiki, S. M. A. Hakim and Shimizu, Ken-ichi",
+    "urldate": "2025-03-24",
+    "date": "2019-09-06",
+    "keywords": "useful",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Toyao et al._2019_Heterogeneous Pt and MoOx Co-Loaded TiO2 Catalysts for Low-Temperature CO2 Hydrogenation To Form CH3.pdf:application/pdf"
+  },
   "AlAbdulghani.UncoveringPressureDependentMechanism.2025": {
     "_type": "article",
     "title": "Uncovering the Pressure-Dependent Mechanism of {CO}2 Hydrogenation to Methanol on Ga-Promoted Cu/{ZrO}2 Using Operando Modulation-Excitation {DRIFTS}",
@@ -467,6 +485,44 @@
     "author": "Dinu, Dennis F. and Oenen, Kemal and Schlagin, Jonas and Podewitz, Maren and Grothe, Hinrich and Loerting, Thomas and Liedl, Klaus R.",
     "urldate": "2026-06-26",
     "date": "2024-11-27",
-    "file": "Full Text PDF:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\LV4PXSWF\\\\Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:application/pdf"
+    "keywords": "useful, well-written, review, reproduced/used-some-number/results",
+    "file": "Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:application/pdf"
+  },
+  "Fehr.RealisticOperandoDRIFTSStudies.2022": {
+    "_type": "article",
+    "title": "Realistic Operando-{DRIFTS} Studies on Cu/{ZnO} Catalysts for {CO}2 Hydrogenation to Methanol – Direct Observation of Mono-ionized Defect Sites and Implications for Reaction Intermediates",
+    "volume": "14",
+    "issn": "1867-3899",
+    "url": "https://chemistry-europe.onlinelibrary.wiley.com/doi/full/10.1002/cctc.202101500",
+    "doi": "10.1002/cctc.202101500",
+    "abstract": "Operando-{DRIFTS} Spectra of a Cu/{ZnO}1–x catalyst system for methanol production revealed a broad band at 1500 cm−1 (top figure). It is indicative for a defect site, is maximal under methanol synthesis...",
+    "pages": "e202101500",
+    "number": "3",
+    "journaltitle": "{ChemCatChem}",
+    "publisher": "John Wiley \\& Sons, Ltd",
+    "author": "Fehr, Samuel M. and Nguyen, Karin and Krossing, Ingo",
+    "urldate": "2026-06-30",
+    "date": "2022-02-08",
+    "langid": "english",
+    "keywords": "useful, well-written, read-next, reproduced/used-some-number/results",
+    "file": "Fehr et al._2022_Realistic Operando-DRIFTS Studies on CuZnO Catalysts for CO2 Hydrogenation to Methanol – Direct Obs.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Fehr et al._2022_Realistic Operando-DRIFTS Studies on CuZnO Catalysts for CO2 Hydrogenation to Methanol – Direct Obs.pdf:application/pdf"
+  },
+  "Falk.InfraredSpectraMethanol.1961": {
+    "_type": "article",
+    "title": "Infrared Spectra of Methanol and Deuterated Methanols in Gas, Liquid, and Solid Phases",
+    "volume": "34",
+    "issn": "0021-9606",
+    "url": "https://doi.org/10.1063/1.1701044",
+    "doi": "10.1063/1.1701044",
+    "abstract": "The infrared spectra of {CH}3OH, {CH}3OD, {CD}3OH, and {CD}3OD in the five phases gas, liquid, vitreous solid, α‐crystal, and (except perhaps for {CD}3OH and {CD}3OD for which the solid‐solid transitions have not been studied) β‐crystal have been recorded in the range 4000 to 300 cm−1. The Raman spectrum of liquid {CD}3OH has been recorded. A complete assignment of the internal modes is given, which differs somewhat from previous assignments for the {CH}3 bending and rocking vibrations. No significant difference in spectrum occurred between the α‐crystal and β‐crystal phases. Under the full symmetry of the β‐phase determined by x‐ray diffraction only one {OH} out‐of‐plane bending band should occur. Two bands are observed, and it is concluded that the carbon and oxygen atoms in one chain are not coplanar, as is required by the symmetry determined by x‐ray diffraction [K. J. Tauer and W. N. Lipscomb, Acta Cryst. 5, 606 (1952)], but that the chains are puckered and the x‐ray symmetry arises because the puckered chains are irregularly distributed, a structure that had been previously suggested by Tauer and Lipscomb tentatively on the basis of high apparent thermal amplitudes. Bands occur in the crystal spectra near 500 cm−1 and 340 cm−1 at −180°C. These are interpreted as lattice modes, probably the two infrared‐active modes that involve translations of the molecules.",
+    "pages": "1554--1568",
+    "number": "5",
+    "journaltitle": "The Journal of Chemical Physics",
+    "shortjournal": "J. Chem. Phys.",
+    "author": "Falk, M. and Whalley, E.",
+    "urldate": "2026-06-30",
+    "date": "1961-05-01",
+    "keywords": "reproduced/used-some-number/results",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\J5E9HCDB\\\\Falk and Whalley_1961_Infrared Spectra of Methanol and Deuterated Methanols in Gas, Liquid, and Solid Phases.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\EQTTSDY8\\\\1.html:text/html"
   }
 }

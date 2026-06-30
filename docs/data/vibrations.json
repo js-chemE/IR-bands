@@ -2035,7 +2035,9 @@
           "wn_start": 3681,
           "wn_end": null,
           "bands": [
-            "meoh_oh_stretch_3400"
+            "meoh_oh_q_3687",
+            "meoh_oh_r_3713",
+            "meoh_oh_p_3673"
           ]
         },
         {
@@ -2087,7 +2089,9 @@
           "wn_start": 2844,
           "wn_end": null,
           "bands": [
-            "meoh_sym_2844"
+            "meoh_ch3s_q_2845",
+            "meoh_ch3s_r_2869",
+            "meoh_ch3s_p_2826"
           ]
         },
         {
@@ -2246,7 +2250,9 @@
           "wn_start": 1033,
           "wn_end": null,
           "bands": [
-            "meoh_co_stretch_1030"
+            "meoh_co_q_1034",
+            "meoh_co_r_1060",
+            "meoh_co_p_1012"
           ]
         },
         {
