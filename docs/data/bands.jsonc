@@ -2159,8 +2159,8 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
-          "wn": 2919,
-          "site": "Cu⁺",
+          "wn": [2919, 2926],
+          "site": ["Cu⁺", "Cu⁰"],
           "tags": ["drifts"],
           "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
         },
@@ -2203,8 +2203,8 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
-          "wn": 2836,
-          "site": "Cu⁺",
+          "wn": [2836, 2842],
+          "site": ["Cu⁺", "Cu⁰"],
           "tags": ["drifts"],
           "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift."
         },
