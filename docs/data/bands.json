@@ -3992,11 +3992,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
-          "wn": [
-            1012,
-            1034,
-            1060
-          ],
+          "wn": 1034,
           "site": null,
           "note": "Table I (CH₃OH vapor): ν(CO) P/Q/R branches at 1012/1034/1060 cm⁻¹ (vs). Q branch at 1034 is the fundamental; R at 1060 cm⁻¹ coincides with the CO scaffold mode (~1074 cm⁻¹) and may cause apparent broadening on the high-frequency side.",
           "tags": [
@@ -4005,10 +4001,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": [
-            1033,
-            1033.5
-          ],
+          "wn": 1033,
           "site": null,
           "note": "Table 3, gas phase: ν₈(A′) νCO at 1033 (Shimanouchi) / 1033.5 (Serrallach) cm⁻¹ — the cleaner of methanol's two C-O-region fundamentals.",
           "tags": [
