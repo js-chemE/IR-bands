@@ -2028,6 +2028,27 @@
           "tags": [
             "drifts"
           ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1532,
+          "site": "ZnHfOx",
+          "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* disappears instantaneously on switching to H₂. Position shifts slightly with Zn loading: 1532 cm⁻¹ (30 mol%), 1523 cm⁻¹ (20 mol%), 1525 cm⁻¹ (90 mol%).",
+          "tags": [
+            "drifts"
+          ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [
+            1595,
+            1511
+          ],
+          "site": "ZnO",
+          "note": "Fig. S56f (CO₂/N₂ 20 vol%, 320°C, 20 bar): carbonate adsorption on ZnO reference; weaker intensity than ZnHfOx, consistent with low CO₂ activation capacity of ZnO.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -2056,7 +2077,7 @@
       },
       "atoms": "O-C-O",
       "wn_start": 1270,
-      "wn_end": 1330,
+      "wn_end": 1370,
       "short": "νₛ(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate symmetric stretch (b-CO₃²⁻*).",
       "based_on": [],
@@ -2085,6 +2106,24 @@
           "tags": [
             "drifts"
           ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1358,
+          "site": "30ZnHfOx",
+          "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* νₛ(OCO); disappears instantaneously on switching to H₂.",
+          "tags": [
+            "drifts"
+          ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1370,
+          "site": "ZnO",
+          "note": "Fig. S56f (CO₂/N₂ 20 vol%, 320°C, 20 bar): carbonate νₛ on ZnO reference.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -2100,7 +2139,48 @@
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 1270,
-      "wn_max": 1330
+      "wn_max": 1370
+    },
+    {
+      "id": "carbonate_bidentate_co_stretch_1083",
+      "species": "Bidentate carbonate*",
+      "group": "carbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1070,
+      "wn_end": 1100,
+      "short": "ν₂(OCO) b-CO₃²⁻",
+      "description": "Bidentate carbonate ν₂ in-phase symmetric stretch of the two surface-bound C-O bonds (b-CO₃²⁻*): both surface-bonded oxygens expand and contract in unison while the free terminal oxygen counter-moves slightly. Lower-frequency member of the split degenerate pair (the out-of-phase counterpart is νₐₛ(OCO) at ~1500–1670 cm⁻¹). Rarely reported separately from the higher-frequency modes because it falls in a region also occupied by methoxy ν(CO) and formaldehyde bands.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1083,
+          "site": "30ZnHfOx",
+          "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* band at 1083 cm⁻¹; disappears instantaneously on switching to H₂.",
+          "tags": [
+            "drifts"
+          ]
+        }
+      ],
+      "tags": [],
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "carbonate_stretch_symmetric_bidentate"
+      ],
+      "lane": 5,
+      "sub_lane": 0,
+      "wn_min": 1070,
+      "wn_max": 1100
     },
     {
       "id": "carbonate_bidentate_asym_overtone_3000",
@@ -2238,6 +2318,15 @@
           ],
           "note": "Table 2: ν₂(OCO)ₐ at 1622 cm⁻¹ (nano-Fe₂O₃) / 1649 cm⁻¹ (Al₂O₃ avg). Best-fit DFT cluster model (root-mean-square deviation across 3 isotopologues) identifies the bonding geometry as bridged/bidentate, not monodentate.",
           "tags": []
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1622,
+          "site": "ZnHfOx",
+          "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃H* disappears instantaneously on switching to H₂. Position shifts with Zn loading: 1622 cm⁻¹ (30 mol%), 1609 cm⁻¹ (20 mol%), 1604 cm⁻¹ (90 mol%).",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -2397,6 +2486,21 @@
           "site": "CeO₂",
           "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate.",
           "tags": []
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [
+            2887,
+            2873
+          ],
+          "site": [
+            "ZnHfOx",
+            "ZnO"
+          ],
+          "note": "Fig. 6b/8e/S56 (H₂:CO₂:N₂ = 3:1:1 or H₂/N₂, 320°C, 20 bar): νₛ(C–H) HCOO* on ZnHfOx at 2887 cm⁻¹; on ZnO at ~2873 cm⁻¹ (only weak formate, consistent with low CO₂ activation on ZnO). Key intermediate in formate-methoxy pathway.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2480,6 +2584,15 @@
           ],
           "site": "Cu/ZnO",
           "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) formate at 1587 cm⁻¹ (1 bar) and 1603 cm⁻¹ (30 bar). Both show large Δν (~230–290 cm⁻¹ vs. νₛ at 1360/1314 cm⁻¹) consistent with bidentate binding — Fehr's 'unidentate' label for the 30-bar species contradicts the Δν. Spectroscopically prominent surface spectator: intensity independent of GHSV, persists on inactive CZ_2000.",
+          "tags": [
+            "drifts"
+          ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1578,
+          "site": "ZnHfOx",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): HCOO* ν(C=O) forms instantaneously on switching from CO₂ to H₂; intensity decreases as methoxy builds up, consistent with active intermediate in the formate-methoxy pathway.",
           "tags": [
             "drifts"
           ]
@@ -2647,7 +2760,7 @@
       },
       "atoms": "diverse",
       "wn_start": 2940,
-      "wn_end": 2960,
+      "wn_end": 2985,
       "short": "δ(OCH)+νₐₛ(OCO) HCOO*",
       "description": "Formate combination band (HCOO*): bending + asymmetric stretch; diagnostic for HCOO*.",
       "based_on": [
@@ -2682,6 +2795,15 @@
           "tags": [
             "drifts"
           ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2979,
+          "site": "ZnHfOx",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): assigned as νₐₛ(C–H) HCOO*; appears together with νₛ(C–H) at 2887 cm⁻¹ and ν(C=O) at 1578 cm⁻¹.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2700,7 +2822,7 @@
       "lane": 7,
       "sub_lane": 0,
       "wn_min": 2940,
-      "wn_max": 2960
+      "wn_max": 2985
     },
     {
       "id": "formate_combo_3300",
@@ -2794,6 +2916,15 @@
           "tags": [
             "drifts"
           ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2933,
+          "site": "ZnHfOx",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): νₐₛ(CH₃) H₃CO*; forms as formate is hydrogenated in the formate-methoxy pathway.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [
@@ -2858,6 +2989,21 @@
           "wn": 2819,
           "site": "Zr⁴⁺",
           "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
+          "tags": [
+            "drifts"
+          ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [
+            2827,
+            2825
+          ],
+          "site": [
+            "ZnHfOx",
+            "ZnO"
+          ],
+          "note": "Fig. 6b/S49/S56 (H₂:CO₂:N₂ = 3:1:1, 320°C, 20 bar): νₛ(CH₃) H₃CO* used as key tracker band; ~2827 cm⁻¹ on 30ZnHfOx, ~2832 cm⁻¹ (20ZnHfOx), ~2834 cm⁻¹ (90ZnHfOx). On ZnO: 2825 cm⁻¹, only very weak bands (poor methoxy formation from CO₂ on pure ZnO).",
           "tags": [
             "drifts"
           ]
@@ -3004,6 +3150,15 @@
           "tags": [
             "drifts"
           ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1153,
+          "site": "ZnHfOx",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): terminal methoxy (t-H₃CO*) ν(CO); forms as formate is hydrogenated. Assigned as terminal based on position above 1100 cm⁻¹; paired with bridged methoxy at 1052 cm⁻¹.",
+          "tags": [
+            "drifts"
+          ]
         }
       ],
       "tags": [],
@@ -3044,6 +3199,15 @@
           "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate.",
           "tags": [
             "direct-dosing"
+          ]
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1052,
+          "site": "ZnHfOx",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): bridged methoxy (b-H₃CO*) ν(CO); consistent with CH₃O* at a Zn–V_O–Hf oxygen-vacancy site. Paired with terminal methoxy at 1153 cm⁻¹.",
+          "tags": [
+            "drifts"
           ]
         }
       ],
