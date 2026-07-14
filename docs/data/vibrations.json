@@ -1219,7 +1219,8 @@
           "wn_start": 1000,
           "wn_end": 1070,
           "bands": [
-            "carbonate_bidentate_sym_1300"
+            "carbonate_bidentate_sym_1300",
+            "carbonate_bidentate_co_stretch_1083"
           ]
         },
         {
