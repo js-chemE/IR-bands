@@ -1614,7 +1614,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1532,
-          "site": "ZnHfOx",
+          "site": "Hf⁴⁺",
           "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* disappears instantaneously on switching to H₂. Position shifts slightly with Zn loading: 1532 cm⁻¹ (30 mol%), 1523 cm⁻¹ (20 mol%), 1525 cm⁻¹ (90 mol%).",
           "tags": ["drifts"]
         },
@@ -1672,7 +1672,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1358,
-          "site": "30ZnHfOx",
+          "site": "Hf⁴⁺",
           "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* νₛ(OCO); disappears instantaneously on switching to H₂.",
           "tags": ["drifts"]
         },
@@ -1710,7 +1710,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1083,
-          "site": "30ZnHfOx",
+          "site": "Hf⁴⁺",
           "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* band at 1083 cm⁻¹; disappears instantaneously on switching to H₂.",
           "tags": ["drifts"]
         }
@@ -1822,7 +1822,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1622,
-          "site": "ZnHfOx",
+          "site": "Hf⁴⁺",
           "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃H* disappears instantaneously on switching to H₂. Position shifts with Zn loading: 1622 cm⁻¹ (30 mol%), 1609 cm⁻¹ (20 mol%), 1604 cm⁻¹ (90 mol%).",
           "tags": ["drifts"]
         }
@@ -1953,7 +1953,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": [2887, 2873],
-          "site": ["ZnHfOx", "ZnO"],
+          "site": ["Zn²⁺", "ZnO"],
           "note": "Fig. 6b/8e/S56 (H₂:CO₂:N₂ = 3:1:1 or H₂/N₂, 320°C, 20 bar): νₛ(C–H) HCOO* on ZnHfOx at 2887 cm⁻¹; on ZnO at ~2873 cm⁻¹ (only weak formate, consistent with low CO₂ activation on ZnO). Key intermediate in formate-methoxy pathway.",
           "tags": ["drifts"]
         }
@@ -2017,7 +2017,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1578,
-          "site": "ZnHfOx",
+          "site": "Zn²⁺",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): HCOO* ν(C=O) forms instantaneously on switching from CO₂ to H₂; intensity decreases as methoxy builds up, consistent with active intermediate in the formate-methoxy pathway.",
           "tags": ["drifts"]
         }
@@ -2167,7 +2167,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 2979,
-          "site": "ZnHfOx",
+          "site": "Zn²⁺",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): assigned as νₐₛ(C–H) HCOO*; appears together with νₛ(C–H) at 2887 cm⁻¹ and ν(C=O) at 1578 cm⁻¹.",
           "tags": ["drifts"]
         }
@@ -2261,7 +2261,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 2933,
-          "site": "ZnHfOx",
+          "site": "Zn–V_O–Hf",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): νₐₛ(CH₃) H₃CO*; forms as formate is hydrogenated in the formate-methoxy pathway.",
           "tags": ["drifts"]
         }
@@ -2312,7 +2312,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": [2827, 2825],
-          "site": ["ZnHfOx", "ZnO"],
+          "site": ["Zn–V_O–Hf", "ZnO"],
           "note": "Fig. 6b/S49/S56 (H₂:CO₂:N₂ = 3:1:1, 320°C, 20 bar): νₛ(CH₃) H₃CO* used as key tracker band; ~2827 cm⁻¹ on 30ZnHfOx, ~2832 cm⁻¹ (20ZnHfOx), ~2834 cm⁻¹ (90ZnHfOx). On ZnO: 2825 cm⁻¹, only very weak bands (poor methoxy formation from CO₂ on pure ZnO).",
           "tags": ["drifts"]
         }
@@ -2428,7 +2428,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1153,
-          "site": "ZnHfOx",
+          "site": "Zn²⁺",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): terminal methoxy (t-H₃CO*) ν(CO); forms as formate is hydrogenated. Assigned as terminal based on position above 1100 cm⁻¹; paired with bridged methoxy at 1052 cm⁻¹.",
           "tags": ["drifts"]
         }
@@ -2466,7 +2466,7 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1052,
-          "site": "ZnHfOx",
+          "site": "Zn–V_O–Hf",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): bridged methoxy (b-H₃CO*) ν(CO); consistent with CH₃O* at a Zn–V_O–Hf oxygen-vacancy site. Paired with terminal methoxy at 1153 cm⁻¹.",
           "tags": ["drifts"]
         }
