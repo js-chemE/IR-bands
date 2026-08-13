@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(awk 'NR>=544' data/references.bib)"
+    ]
+  }
+}

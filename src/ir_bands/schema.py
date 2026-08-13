@@ -304,6 +304,25 @@ class Band:
     # branches" tag is auto-assigned to every member by tag_branch_groups().
     branch_group: Optional[str] = None
 
+    # Isotopologue link: this band is the SAME vibrational mode as another
+    # band in this file, observed on an isotope-substituted molecule (e.g.
+    # ν(C-D) of κ²-DCOO* vs ν(C-H) of κ²-HCOO*). One-directional, child ->
+    # parent: only the substituted band carries the link, the natural-
+    # abundance parent stays unmarked. Both fields are set together or
+    # neither; tag_isotopologues() then auto-assigns the "isotopic-shift"
+    # tag to the child alone — that tag means "this band IS an
+    # isotopologue", never "this assignment was checked with isotopes"
+    # (which is a per-citation "isotope-labeling" reference tag instead).
+    # Deliberately NOT reciprocal, unlike fermi_partner: the parent's
+    # position is a property of the ordinary molecule and shouldn't be
+    # relabeled just because someone measured its heavy twin.
+    isotopologue_of: Optional[str] = None
+
+    # Which substitution this band represents, e.g. "D", "¹³C", "¹⁸O" —
+    # display text, not a parsed enum. Required exactly when
+    # isotopologue_of is set.
+    isotope: Optional[str] = None
+
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
     width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad
     confidence: Optional[BandConfidence] = None # confirmed | likely | tentative | speculative

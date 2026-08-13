@@ -96,6 +96,7 @@ Valid enum values:
 - `site` in a reference object: the specific surface site where the band was observed (e.g. `"Cu⁺"`, `"Zr⁴⁺"`, `"CeO₂"`). Use the most specific known species (oxidation-state level) if the paper names it; use the catalyst/surface name otherwise. No reaction conditions — put those in `note`. Use a JSON array when a single source reports the band on multiple surfaces: `["Al₂O₃", "TiO₂"]`. Stored as `string | string[] | null` in both Python (`schema.py`) and TypeScript (`types.ts`); the tooltip renders each element as its own badge.
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode
+- Isotopologues (ν(C–D) of DCOO*, ν(¹³CO), ν(OD) of CH₃OD, …) get their **own band entry** with `isotopologue_of` pointing at the natural-abundance band plus an `isotope` label (`"D"`, `"¹³C"`). Never bury an isotopologue's wavenumber in the parent band's `references[].wn`. The link is one-directional (child → parent, no chains); `build.py` auto-adds the `isotopic-shift` tag to the child only, and the frontend draws those bands hatched. A source that merely *used* isotope substitution as evidence for an ordinary band gets the per-citation `isotope-labeling` tag instead — the two are different claims
 
 Atoms value `"diverse"` is used for combination bands whose two parent modes involve different atom groups; it renders in neutral grey.
 

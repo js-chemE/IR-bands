@@ -38,8 +38,11 @@
   "ir-inactive": {
     "tip": "Symmetry-forbidden in IR; included for context even though not directly observed."
   },
+  "isotope-labeling": {
+    "tip": "This source used isotope substitution as evidence for the assignment (the band itself is the ordinary, natural-abundance one)."
+  },
   "isotopic-shift": {
-    "tip": "Assignment confirmed or supported by an isotope-substitution frequency shift."
+    "tip": "Auto-tagged: this band IS the isotope-substituted twin of another one — same vibrational mode, heavier atom. Drawn hatched."
   },
   "misassignment-warning": {
     "tip": "Position is a known trap for misassigning this band to a different species."

@@ -126,6 +126,8 @@ def _parse_band(raw: dict) -> Band:
         fermi_partner=raw.get("fermi_partner"),
         fermi_partner_group=raw.get("fermi_partner_group"),
         branch_group=raw.get("branch_group"),
+        isotopologue_of=raw.get("isotopologue_of"),
+        isotope=raw.get("isotope"),
         vibration_modes=list(raw.get("vibration_modes", [])),
     )
 
@@ -219,6 +221,30 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                 errors.append(
                     f"Band {b.id}: fermi_partner_group references unknown branch_group {b.fermi_partner_group!r}"
                 )
+
+    # 6b. isotopologue_of resolves, isn't self-referential, and travels
+    #     together with `isotope` (one without the other is always a typo:
+    #     an unlabeled link says nothing about WHICH substitution, and a
+    #     lone label has no parent to be shifted from).
+    for b in dataset.bands:
+        if b.isotopologue_of is not None:
+            if b.isotopologue_of == b.id:
+                errors.append(f"Band {b.id}: isotopologue_of cannot reference itself")
+            elif b.isotopologue_of not in id_set:
+                errors.append(
+                    f"Band {b.id}: isotopologue_of references unknown band id {b.isotopologue_of!r}"
+                )
+            if not b.isotope:
+                errors.append(f"Band {b.id}: isotopologue_of is set but isotope is missing")
+            # No chains: the parent must be the natural-abundance band, so
+            # the vibration_modes chase below only ever has to walk one hop.
+            if b.isotopologue_of in id_set and dataset.band_by_id(b.isotopologue_of).isotopologue_of:
+                errors.append(
+                    f"Band {b.id}: isotopologue_of points at {b.isotopologue_of!r}, which is "
+                    "itself an isotopologue — link to the natural-abundance band instead"
+                )
+        elif b.isotope:
+            errors.append(f"Band {b.id}: isotope={b.isotope!r} is set but isotopologue_of is missing")
 
     # 7. wn_start/wn_end sanity
     for b in dataset.bands:
@@ -325,6 +351,29 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
     return warnings
 
 
+def tag_isotopologues(dataset: Dataset) -> list[str]:
+    """Auto-assign the "isotopic-shift" tag to every band that declares an
+    isotopologue_of link — and only to those.
+
+    Unlike tag_fermi_pairs/tag_branch_groups this link is deliberately
+    one-directional (see Band.isotopologue_of): the natural-abundance parent
+    is NOT tagged, so the tag reads unambiguously as "this band is the
+    isotope-substituted twin of another one". Evidence-by-substitution on an
+    ordinary band is a different claim entirely and lives as the per-citation
+    "isotope-labeling" reference tag instead.
+
+    Must run after validate_dataset(), which guarantees isotopologue_of
+    resolves and never chains. Always returns an empty warning list — there
+    is no reciprocity or group cardinality left to check by this point — but
+    keeps the same signature as the other two taggers so build.py can treat
+    all three identically.
+    """
+    for b in dataset.bands:
+        if b.isotopologue_of and "isotopic-shift" not in b.tags:
+            b.tags.append("isotopic-shift")
+    return []
+
+
 # ---------------------------------------------------------------------------
 # Vibrations loader (data/vibrations.jsonc)
 # ---------------------------------------------------------------------------
@@ -407,10 +456,11 @@ def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
     Two kinds of link, combined:
       - direct: a band whose own vibration_modes list names this mode.
       - derived: a band with NO vibration_modes of its own, whose based_on
-        entries resolve (one level — band_id or branch_group) to a band that
-        directly links to this mode. This is how an overtone/combination
-        band automatically shows up under its parent fundamental's mode
-        without needing its own link. As a side effect, this function also
+        entries (band_id or branch_group) or isotopologue_of link resolve —
+        one level — to a band that directly links to this mode. This is how
+        an overtone/combination band, or an isotope-substituted twin,
+        automatically shows up under its parent fundamental's mode without
+        needing its own link. As a side effect, this function also
         back-fills that band's own Band.vibration_modes in place with the
         resolved parent mode id(s) — so the band's *own* field reflects the
         inherited link too, not just the mode's computed `bands` list.
@@ -442,13 +492,18 @@ def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
             if mid not in all_mode_ids:
                 errors.append(f"Band {b.id}: vibration_modes entry {mid!r} is not a known mode id")
 
-    def based_on_parents(b: Band) -> list[Band]:
+    def parent_bands(b: Band) -> list[Band]:
         parents: list[Band] = []
         for bo in b.based_on:
             if bo.band_id is not None and bo.band_id in band_ids:
                 parents.append(dataset.band_by_id(bo.band_id))
             elif bo.branch_group is not None:
                 parents.extend(branch_group_members.get(bo.branch_group, []))
+        # An isotopologue is literally the same normal mode on a heavier
+        # molecule, so it inherits its parent's vibration_modes the same way
+        # a combination inherits its fundamentals' — see Band.isotopologue_of.
+        if b.isotopologue_of is not None and b.isotopologue_of in band_ids:
+            parents.append(dataset.band_by_id(b.isotopologue_of))
         return parents
 
     direct_members: dict[str, list[Band]] = {mid: [] for mid in all_mode_ids}
@@ -461,7 +516,7 @@ def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:
     for b in dataset.bands:
         if b.vibration_modes:
             continue
-        parent_modes = {mid for parent in based_on_parents(b) for mid in parent.vibration_modes}
+        parent_modes = {mid for parent in parent_bands(b) for mid in parent.vibration_modes}
         if parent_modes:
             # Inherit in place: a combination/overtone band never authors its
             # own vibration_modes (see Band.vibration_modes' docstring), but

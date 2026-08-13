@@ -26,6 +26,7 @@ from ir_bands.loader import (
     load_vibrations,
     tag_branch_groups,
     tag_fermi_pairs,
+    tag_isotopologues,
     validate_dataset,
     validate_vibrations,
 )
@@ -614,6 +615,10 @@ def main() -> int:
 
     branch_warnings = tag_branch_groups(dataset)
     for w in branch_warnings:
+        print(f"  ⚠ {w}", file=sys.stderr)
+
+    isotopologue_warnings = tag_isotopologues(dataset)
+    for w in isotopologue_warnings:
         print(f"  ⚠ {w}", file=sys.stderr)
 
     assign_lanes(dataset.bands)

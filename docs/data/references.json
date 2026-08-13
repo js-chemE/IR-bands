@@ -543,5 +543,24 @@
     "note": "\\_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1002/anie.8850754",
     "keywords": "useful, well-written, reproduced/used-some-number/results",
     "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Oing et al._2026_The Role of Zn–Hf Site Proximity and Oxygen Vacancies for Methanol Formation Over ZnHfOx Catalysts U.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\QVT5ECPR\\\\anie.html:text/html"
+  },
+  "Phongprueksathat.KeyDriversActivity.2026": {
+    "_type": "article",
+    "title": "Key Drivers of Activity and Selectivity in Cu-Based Catalysts for Methanol Synthesis From {CO}2: Insights From Atomically Dispersed Promoters",
+    "volume": "n/a",
+    "rights": "© 2026 The Author(s). Angewandte Chemie International Edition published by Wiley-{VCH} {GmbH}",
+    "issn": "1521-3773",
+    "url": "https://onlinelibrary.wiley.com/doi/abs/10.1002/anie.2693293",
+    "doi": "10.1002/anie.2693293",
+    "shorttitle": "Key Drivers of Activity and Selectivity in Cu-Based Catalysts for Methanol Synthesis From {CO}2",
+    "abstract": "The synergistic Cu–metal oxide (Cu–{MOx}) interface is critical for selective {CO}2 hydrogenation to methanol, yet its mechanistic function, the central, long-debated feature of industrial Cu/{ZnO}/Al2O3, remains ambiguous. Using operando transient {DRIFTS}-{SSITKA}, we elucidate the roles of M+ sites (Zn2+, Ga3+, and In3+) on model Cu─M/{SiO}2 catalysts prepared by surface organometallic chemistry ({SOMC}). X-ray absorption spectroscopy reveals that these promoters restructure from alloys after reduction to cationic species at the interface under reaction conditions. We find the promoter's electronic effect on formate bond strengths provides quantitative descriptors for both activity and selectivity. All catalysts follow a common formate spillover mechanism, with methoxy hydrogenation/desorption as the rate-limiting step. The intrinsic {CH}3OH formation rate follows a Sabatier-type volcano with C─O bond strength, while selectivity correlates linearly with C─H bond strength (a proxy for the formate decomposition barrier). Cu─Ga/{SiO}2 shows the fastest spillover, suppressing {CO} formation and yielding the highest selectivity; Cu─Zn/{SiO}2 has optimal binding for the highest activity; In3+ binds formate too strongly, creating a kinetic trap on the strong-binding side of the volcano. These findings bring mechanistic clarity to the debated Cu─Zn(O) synergy, showing selectivity is governed by a balance of electronic stabilization and spillover dynamics.",
+    "pages": "e2693293",
+    "issue": "n/a",
+    "journaltitle": "Angewandte Chemie International Edition",
+    "author": "Phongprueksathat, Nat and Noh, Gina and Docherty, Scott R. and van Berkel, Damian Vico and Stiefel, Yannik and Copéret, Christophe and Urakawa, Atsushi",
+    "urldate": "2026-08-13",
+    "date": "2026-08-08",
+    "langid": "english",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Phongprueksathat et al._2026_Key Drivers of Activity and Selectivity in Cu-Based Catalysts for Methanol Synthesis From CO2 Insig.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\JUYGPM4S\\\\anie.html:text/html"
   }
 }

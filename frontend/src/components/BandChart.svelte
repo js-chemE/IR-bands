@@ -117,11 +117,14 @@
         .filter((l): l is { hit: PlotBandHit; kind: 'branch' } => !!l)
     : [];
 
-  // Fermi and based_on targets, grouped by branch_group so a multi-branch
-  // partner vibration (on either side) collapses to one connector endpoint
-  // instead of one per branch. Deduplicated so the same group isn't drawn
-  // twice (e.g. two siblings both citing the same partner group).
-  function resolveTargetGroups(activeHit: PlotBandHit, kind: 'fermi' | 'based_on'): PlotBandHit[][] {
+  // Fermi, based_on and isotopologue targets, grouped by branch_group so a
+  // multi-branch partner vibration (on either side) collapses to one
+  // connector endpoint instead of one per branch. Deduplicated so the same
+  // group isn't drawn twice (e.g. two siblings both citing the same group).
+  function resolveTargetGroups(
+    activeHit: PlotBandHit,
+    kind: 'fermi' | 'based_on' | 'isotopologue',
+  ): PlotBandHit[][] {
     const ids = activeHit.tipData.partners.filter(p => p.kind === kind).map(p => p.id);
     const seen = new Set<string>();
     const groups: PlotBandHit[][] = [];
@@ -137,6 +140,7 @@
   }
   $: fermiGroups = active ? resolveTargetGroups(active, 'fermi') : [];
   $: basedOnGroups = active ? resolveTargetGroups(active, 'based_on') : [];
+  $: isotopologueGroups = active ? resolveTargetGroups(active, 'isotopologue') : [];
 
   // The active band's own group (its branch siblings, or just itself) — the
   // shared source anchor for every fermi/based_on connector, so hovering any
@@ -151,7 +155,8 @@
   $: glowHits = (hoveredCat || hoveredTag)
     ? highlightedHits
     : active
-      ? [active, ...directLinks.map(l => l.hit), ...activeGroup, ...fermiGroups.flat(), ...basedOnGroups.flat()]
+      ? [active, ...directLinks.map(l => l.hit), ...activeGroup,
+         ...fermiGroups.flat(), ...basedOnGroups.flat(), ...isotopologueGroups.flat()]
           .filter(h => hitBands.includes(h))
       : [];
 
@@ -168,11 +173,17 @@
   //    distinct from fermi since it's a parent/child relationship, not a
   //    peer one. Parents only: hovering a fundamental does not show every
   //    combination built from it.
-  // Fermi and based_on share the same anchor (group center, expanding any
-  // multi-branch side to its center) but no longer the same peak height;
-  // the visual difference is shape (staple vs arc), line style, and height.
+  //  - isotopologue: the same staple as fermi, dotted and lifted less, from
+  //    the substituted band back to its natural-abundance parent. Child ->
+  //    parent only, like based_on: hovering ν(C-H) doesn't fan out to every
+  //    isotopologue someone happened to measure.
+  // Fermi, based_on and isotopologue share the same anchor (group center,
+  // expanding any multi-branch side to its center) but not the same peak
+  // height; the visual difference is shape (staple vs arc), line style, and
+  // height.
   const FERMI_LIFT_FRAC = 0.8;
   const BASED_ON_LIFT_FRAC = 1.8;
+  const ISOTOPOLOGUE_LIFT_FRAC = 0.5;
   function midLaneLift(frac: number) {
     return frac * (laneHeightPx / 2);
   }
@@ -180,6 +191,7 @@
   type Connector =
     | { kind: 'branch'; xA: number; xB: number; y: number }
     | { kind: 'fermi'; xA: number; xB: number; yA: number; yB: number; bridgeY: number }
+    | { kind: 'isotopologue'; xA: number; xB: number; yA: number; yB: number; bridgeY: number }
     | { kind: 'based_on'; xA: number; yA: number; xB: number; yB: number; midX: number; controlY: number };
 
   function connectorBetween(a: PlotBandHit, b: PlotBandHit): Connector {
@@ -189,17 +201,23 @@
     return { kind: 'branch', xA, xB, y };
   }
 
+  const LIFT_FRAC: Record<'fermi' | 'based_on' | 'isotopologue', number> = {
+    fermi: FERMI_LIFT_FRAC,
+    based_on: BASED_ON_LIFT_FRAC,
+    isotopologue: ISOTOPOLOGUE_LIFT_FRAC,
+  };
+
   function groupConnector(
     srcHits: PlotBandHit[],
     dstHits: PlotBandHit[],
-    kind: 'fermi' | 'based_on',
+    kind: 'fermi' | 'based_on' | 'isotopologue',
     liftOverride?: number,
   ): Connector {
     const src = groupCenter(srcHits);
     const dst = groupCenter(dstHits);
-    const lift = liftOverride ?? midLaneLift(kind === 'fermi' ? FERMI_LIFT_FRAC : BASED_ON_LIFT_FRAC);
+    const lift = liftOverride ?? midLaneLift(LIFT_FRAC[kind]);
     const peakY = Math.min(src.y, dst.y) - lift;
-    if (kind === 'fermi') {
+    if (kind === 'fermi' || kind === 'isotopologue') {
       return { kind, xA: src.x, xB: dst.x, yA: src.y, yB: dst.y, bridgeY: peakY };
     }
     const midX = (src.x + dst.x) / 2;
@@ -230,6 +248,7 @@
     ? [
         ...directLinks.map(l => connectorBetween(active!, l.hit)),
         ...fermiGroups.map(g => groupConnector(activeGroup, g, 'fermi')),
+        ...isotopologueGroups.map(g => groupConnector(activeGroup, g, 'isotopologue')),
         ...scaledBasedOnConnectors,
       ]
     : [];
@@ -738,6 +757,13 @@
             <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
                   text-anchor="middle" font-style="italic" font-size="10"
                   fill="#777" opacity="0.85">fermi</text>
+          {:else if c.kind === 'isotopologue'}
+            <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
+                  fill="none" stroke="#3D5A70" stroke-width="1.5"
+                  stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85"/>
+            <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
+                  text-anchor="middle" font-style="italic" font-size="10"
+                  fill="#3D5A70" opacity="0.85">isotopologue</text>
           {:else}
             <path d="M {c.xA} {c.yA} Q {c.midX} {c.controlY} {c.xB} {c.yB}"
                   fill="none" stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>

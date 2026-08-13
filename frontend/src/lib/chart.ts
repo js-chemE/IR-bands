@@ -84,12 +84,12 @@ function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map
 const ATOMS_ORDER: Record<string, number> = {
   // C–O family (reds/oranges)
   'O=C=O': 0, 'O-C-O': 1, 'C-O': 2, 'C-O-H': 3,
-  // O–H family (teals)
-  'O-H': 4, 'H-O-H': 5,
-  // C–H family (greens)
-  'C-H': 6, 'H-C-H': 7, 'O-C-H': 8,
+  // O–H family (teals), each deuterated twin right after its parent
+  'O-H': 4, 'O-D': 5, 'H-O-H': 6,
+  // C–H family (greens), same convention
+  'C-H': 7, 'C-D': 8, 'H-C-H': 9, 'D-C-D': 10, 'O-C-H': 11,
   // Metal (greys/golds)
-  'M-H': 9, 'M-O': 10,
+  'M-H': 12, 'M-O': 13,
   // Diverse always last
   'diverse': 99,
 };
@@ -153,6 +153,9 @@ export function getBandTags(b: Band): string[] {
   const auto: string[] = [];
   if (b.vibration.category === 'combination') auto.push('combination');
   if (b.based_on?.some(bo => bo.multiplier > 1)) auto.push('overtone');
+  // Mirrors loader.py's tag_isotopologues() — the child of an
+  // isotopologue_of link, never its natural-abundance parent.
+  if (b.isotopologue_of) auto.push('isotopic-shift');
   // auto-tags first, then explicit tags (deduped)
   return [...auto, ...explicit.filter(t => !auto.includes(t))];
 }
@@ -202,7 +205,7 @@ export function getLegendTags(
 
 // A connection kind drives only the connector's visual style (BandChart.svelte);
 // the highlight/connector mechanism itself doesn't care which kind it is.
-export type PartnerKind = 'fermi' | 'branch' | 'based_on';
+export type PartnerKind = 'fermi' | 'branch' | 'based_on' | 'isotopologue';
 
 export interface TipPartner {
   id: string;
@@ -307,7 +310,39 @@ interface PlotBand {
   cx: number; cy: number;
   color: string;
   irInactive: boolean;
+  isotopologue: boolean;
   tipData: TipData;
+}
+
+// Isotopologue bands get a diagonal hatch laid over their normal coloured
+// fill, so they read at a glance as "same mode, heavier molecule" without
+// spending a colour on it. One neutral white-line pattern works over every
+// group colour, which is why it's an overlay rect rather than a per-colour
+// patterned fill.
+const HATCH_ID = 'iso-hatch';
+
+function appendHatchPattern(svg: SVGElement): void {
+  const ns = 'http://www.w3.org/2000/svg';
+  let defs = svg.querySelector('defs');
+  if (!defs) {
+    defs = document.createElementNS(ns, 'defs');
+    svg.insertBefore(defs, svg.firstChild);
+  }
+  const pattern = document.createElementNS(ns, 'pattern');
+  pattern.setAttribute('id', HATCH_ID);
+  pattern.setAttribute('width', '5');
+  pattern.setAttribute('height', '5');
+  pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+  pattern.setAttribute('patternTransform', 'rotate(45)');
+  const line = document.createElementNS(ns, 'line');
+  line.setAttribute('x1', '0');
+  line.setAttribute('y1', '0');
+  line.setAttribute('x2', '0');
+  line.setAttribute('y2', '5');
+  line.setAttribute('stroke', 'rgba(255,255,255,0.9)');
+  line.setAttribute('stroke-width', '2');
+  pattern.appendChild(line);
+  defs.appendChild(pattern);
 }
 
 
@@ -412,6 +447,11 @@ export function buildChart(
     for (const parentId of resolveBasedOnParents(b)) {
       if (parentId !== b.id) partners.push({ id: parentId, kind: 'based_on' });
     }
+    // Child -> parent only, matching the one-directional link itself:
+    // hovering ν(C-D) points back at ν(C-H), not the reverse.
+    if (b.isotopologue_of && b.isotopologue_of !== b.id) {
+      partners.push({ id: b.isotopologue_of, kind: 'isotopologue' });
+    }
     return partners;
   }
 
@@ -469,6 +509,7 @@ export function buildChart(
       cy: (y0 + y1) / 2,
       color,
       irInactive: bandTags.includes('ir-inactive'),
+      isotopologue: !!b.isotopologue_of,
       tipData: {
         id:        b.id,
         name:      bandName(b),
@@ -568,6 +609,19 @@ export function buildChart(
         opacity: 0.2,
         clip: true,
       }),
+      // Hatch overlay for isotopologue bands, drawn on top of whichever of
+      // the two marks above already painted them. Plot has no way to emit a
+      // paint-server fill, so this goes out with a marker opacity that the
+      // post-processing step below swaps for the pattern reference — the
+      // same trick the IR-inactive dash pattern uses.
+      Plot.rect(plotBands.filter(d => d.isotopologue), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: '#000',
+        stroke: 'none',
+        opacity: 0.999,
+        clip: true,
+      }),
     ],
   }) as unknown as SVGElement;
 
@@ -577,6 +631,17 @@ export function buildChart(
   svg.querySelectorAll('rect[opacity="0.2"]').forEach(el => {
     el.setAttribute('stroke-dasharray', '3,2');
   });
+
+  // Same idea for the isotopologue hatch: swap the marker opacity for the
+  // pattern fill. Only add the <pattern> when something actually uses it.
+  const hatchRects = svg.querySelectorAll('rect[opacity="0.999"]');
+  if (hatchRects.length > 0) {
+    appendHatchPattern(svg);
+    hatchRects.forEach(el => {
+      el.setAttribute('fill', `url(#${HATCH_ID})`);
+      el.setAttribute('opacity', '0.85');
+    });
+  }
 
   // Observable Plot's text mark only supports a single fill per element.
   // Append lane labels manually as <text>/<tspan> so each group segment gets its own color.
