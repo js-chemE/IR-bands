@@ -24,6 +24,14 @@ export const ATOMS_PALETTE: Record<string, string> = {
   'C-H':     '#5BA84F',
   'H-C-H':   '#3D7C36',
   'O-C-H':   '#9CCB91',
+  // Deuterated counterparts of the O-H / C-H entries above: same hue family
+  // (so a ν(C-D) band still reads as "a C-H-family mode"), lifted lighter
+  // and softer to mark it as the heavy twin. Which band is the isotopologue
+  // is carried structurally by isotopologue_of + the hatched fill, not by
+  // colour alone — this just keeps the two from colliding in the legend.
+  'O-D':     '#7AC4BF',
+  'C-D':     '#93C088',
+  'D-C-D':   '#6FA167',
   'C-O':     '#E07856',
   'C=O':     '#E2624A',
   'O-C-O':   '#C03B36',
@@ -52,6 +60,11 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   // translation/rotation a free adsorbate would have but can't anymore once
   // trapped in the adsorption well (CO's and methoxy's frustrated modes).
   'frustrated-mode': { background: '#DCF3F0', border: '#7EC8BE', color: '#1F6B5C' },
+  // Slate blue-grey — a fourth hue, deliberately the most neutral of the
+  // four: an isotopologue is the same mode as its parent, just heavier, so
+  // it shouldn't shout louder than the activity tags above. Pairs with the
+  // diagonal hatch fill these bands get in the chart.
+  'isotopic-shift': { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' },
   // Example (uncomment to activate):
   // 'overtone': { background: '#ede9fe', border: '#c4b5fd', color: '#5b21b6' },
 };

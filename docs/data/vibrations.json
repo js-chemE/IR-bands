@@ -346,7 +346,8 @@
           "wn_end": 2230,
           "bands": [
             "co_linear_mu1_2060",
-            "co_cation_stretch_2175"
+            "co_cation_stretch_2175",
+            "co_linear_13co_2005"
           ]
         },
         {
@@ -849,7 +850,10 @@
           "wn_start": 2800,
           "wn_end": 2890,
           "bands": [
-            "formate_ch_stretch_2885"
+            "formate_ch_stretch_2885",
+            "formate_ch_stretch_cu_2856",
+            "formate_cd_stretch_cu_2168",
+            "formate_cd_stretch_2184"
           ]
         },
         {
@@ -1777,7 +1781,8 @@
           "wn_start": 2795,
           "wn_end": 2800,
           "bands": [
-            "methoxy_sym_2835"
+            "methoxy_sym_2835",
+            "methoxy_cd_stretch_2080"
           ]
         },
         {
@@ -2038,7 +2043,8 @@
           "bands": [
             "meoh_oh_q_3687",
             "meoh_oh_r_3713",
-            "meoh_oh_p_3673"
+            "meoh_oh_p_3673",
+            "meod_od_stretch_2720"
           ]
         },
         {

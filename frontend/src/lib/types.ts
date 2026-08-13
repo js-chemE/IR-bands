@@ -46,6 +46,13 @@ export interface Band {
   fermi_partner: string | null;
   fermi_partner_group: string | null;
   branch_group: string | null;
+  // This band is the same normal mode as `isotopologue_of`, measured on an
+  // isotope-substituted molecule (e.g. ν(C-D) of DCOO* vs ν(C-H) of HCOO*).
+  // One-directional child -> parent: only the substituted band carries it,
+  // and only it gets the auto "isotopic-shift" tag. `isotope` names the
+  // substitution ("D", "¹³C", ...) and is set exactly when the link is.
+  isotopologue_of: string | null;
+  isotope: string | null;
   intensity: BandIntensity | null;
   width: BandWidth | null;
   confidence: BandConfidence | null;
