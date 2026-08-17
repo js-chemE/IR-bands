@@ -1992,10 +1992,10 @@
         "branch": null
       },
       "atoms": "C-H",
-      "wn_start": 2870,
+      "wn_start": 2845,
       "wn_end": 2900,
       "short": "ν(CH) HCOO*",
-      "description": "Formate C-H stretch (HCOO*); key HCOO* marker.",
+      "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Strongly site-sensitive across the window: κ²-HCOO* on a <em>metallic</em> Cu surface sits at ~2848–2860 cm⁻¹, while the same mode on a cationic or oxide site (Zn²⁺, Ga³⁺, In³⁺, Cu⁺, CeO₂) sits some 20–40 cm⁻¹ higher at ~2873–2896 cm⁻¹ — large enough to resolve two formate populations in one spectrum, which is what makes Cu-to-promoter formate spillover observable at all. See the <em>site</em> badge on each citation for which population that source reports. Two traps at the low end: methoxy's νₛ(CH₃) on silica lands within a few cm⁻¹ of Cu-bound formate, and adsorbed methanol's νₛ(CH₃) is close too, so a band near 2850 cm⁻¹ is only safely formate once its partner combination band near 2930 cm⁻¹ (or a deuteration/MCR check) backs it up.",
       "based_on": [],
       "fermi_partner": "formate_combo_2950",
       "references": [
@@ -2028,44 +2028,9 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
-          "wn": [2896, 2883, 2877],
-          "site": ["Zn²⁺", "Ga³⁺", "In³⁺"],
-          "note": "Fig. 4a/4c and Figs. S16/S19/S20 (operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC): ν(C–H) of κ²-HCOO* bound to the isolated cationic promoter, resolved by MCR-ALS as a component kinetically distinct from κ²-HCOO*(Cu⁰) at 2850–2860 cm⁻¹. Clean only on Zn²⁺ (2896 cm⁻¹); on Ga³⁺ (2881–2883 cm⁻¹, Figs. S16/S20) and In³⁺ (2877 cm⁻¹, Fig. S19) the component is non-separable from Cu-bound formate and methoxy. Formate reaches the promoter by spillover from Cu, not by CO₂ activation on the promoter itself — isolated M/SiO₂ without Cu converts no CO₂ at all.",
-          "tags": ["drifts"]
-        }
-      ],
-      "intensity": "m",
-      "width": "sharp",
-      "confidence": "confirmed",
-      "tags": []
-    },
-      // Split from formate_ch_stretch_2885 above rather than widening it:
-      // the ~35 cm⁻¹ gap between formate on metallic Cu and formate on a
-      // cationic/oxide site is itself the diagnostic, and collapsing both
-      // into one 2845–2900 lane would hide exactly that.
-    {
-      "id": "formate_ch_stretch_cu_2856",
-      "species": "Formate* on Cu⁰",
-      "group": "formate",
-      "pair": 7,
-      "vibration_modes": ["formate_ch_stretch_bidentate"],
-      "vibration": {
-        "category": "stretch",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "C-H",
-      "wn_start": 2845,
-      "wn_end": 2865,
-      "short": "ν(CH) HCOO*(Cu⁰)",
-      "description": "Formate C-H stretch of κ²-HCOO* bound to a <em>metallic</em> Cu surface, sitting some 20–40 cm⁻¹ below the same mode on a cationic or oxide site (see ν(CH) HCOO* above) — the split is large enough to tell the two formate populations apart in one spectrum, which is what makes Cu-vs-promoter formate spillover observable at all. Two traps at this position: methoxy's νₛ(CH₃) on silica lands within a few cm⁻¹ of it, and adsorbed methanol's νₛ(CH₃) is close too, so a band here is only safely formate once its partner combination band near 2930 cm⁻¹ (or a deuteration/MCR check) backs it up.",
-      "based_on": [],
-      "references": [
-        {
-          "key": "Phongprueksathat.KeyDriversActivity.2026",
-          "wn": [2856, 2850, 2860, 2858, 2854, 2852, 2848],
-          "site": "Cu⁰",
-          "note": "Fig. 4a/4c (time-resolved and steady-state, 2856 cm⁻¹), Fig. 5b (MCR-resolved, 2850 cm⁻¹) and Fig. 7a (2850/2854 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3. The first and most abundant surface species over all four catalysts (Cu/SiO₂, Cu–Zn/SiO₂, Cu–Ga/SiO₂, Cu–In/SiO₂). MCR-resolved per catalyst in the SI: Fig. S15 2860 and Fig. S18 2852 cm⁻¹ (Cu/SiO₂), Fig. S16 2850 and Fig. S20 2848 cm⁻¹ (Cu–Ga/SiO₂), Fig. S17 2858 and Fig. S19 2854 cm⁻¹ (Cu–In/SiO₂); Fig. S10 shows the same feature dominating all four time-resolved spectra from the first minutes onward. Exchanges to κ²-DCOO* within the 10 s spectral acquisition limit under D₂, so formate formation and exchange are not rate-limiting. On Cu it is also the RWGS intermediate: its decay tracks the rise of CO* at 2108–2115 cm⁻¹.",
+          "wn": [2856, 2850, 2860, 2858, 2854, 2852, 2848, 2896, 2883, 2877],
+          "site": ["Cu⁰", "Zn²⁺", "Ga³⁺", "In³⁺"],
+          "note": "Operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. MCR-ALS resolves two kinetically distinct κ²-HCOO* components. <strong>On metallic Cu (2848–2860 cm⁻¹):</strong> Fig. 4a/4c (2856), Fig. 5b (2850) and Fig. 7a (2850/2854); per catalyst in the SI, Fig. S15 2860 and Fig. S18 2852 (Cu/SiO₂), Fig. S16 2850 and Fig. S20 2848 (Cu–Ga/SiO₂), Fig. S17 2858 and Fig. S19 2854 (Cu–In/SiO₂). The first and most abundant surface species over all four catalysts, dominating the time-resolved spectra from the first minutes onward (Fig. S10). Exchanges to κ²-DCOO* within the 10 s acquisition limit under D₂, so formate formation and exchange are not rate-limiting; on Cu it is also the RWGS intermediate, its decay tracking the rise of CO* at 2108–2115 cm⁻¹. <strong>On the isolated cationic promoter (2877–2896 cm⁻¹):</strong> clean only on Zn²⁺ (2896); on Ga³⁺ (2881–2883, Figs. S16/S20) and In³⁺ (2877, Fig. S19) the component is non-separable from Cu-bound formate and methoxy. Formate reaches the promoter by spillover from Cu, not by CO₂ activation on the promoter itself — isolated M/SiO₂ without Cu converts no CO₂ at all.",
           "tags": ["drifts"]
         }
       ],
@@ -2332,8 +2297,11 @@
 
     // --- Deuterated formate (κ²-DCOO*) -----------------------------------------
     // Same bidentate ν(CH) mode as above, measured under D₂ instead of H₂ in
-    // a steady-state isotopic transient (SSITKA). Two entries, mirroring the
-    // Cu⁰/cation split of the H bands they point at. Worth having on the map
+    // a steady-state isotopic transient (SSITKA). Two entries: unlike the C-H
+    // region, where both formate populations live in one band and the site is
+    // read off the citation badge, the Cu⁰ and cation components are resolved
+    // here as separate MCR components with their own kinetics. Worth having
+    // on the map
     // in their own right: this window is where formate is actually READ in an
     // SSITKA experiment, because deuteration moves the δ(OCH)+νₐₛ(OCO)
     // combination band out of the way and leaves a single uncluttered
@@ -2344,7 +2312,7 @@
       "species": "Formate-d* on Cu⁰ (DCOO*)",
       "group": "formate",
       "pair": 7,
-      "isotopologue_of": "formate_ch_stretch_cu_2856",
+      "isotopologue_of": "formate_ch_stretch_2885",
       "isotope": "D",
       "vibration": {
         "category": "stretch",
@@ -2355,7 +2323,7 @@
       "wn_start": 2155,
       "wn_end": 2180,
       "short": "ν(CD) DCOO*(Cu⁰)",
-      "description": "C-D stretch of κ²-DCOO* on metallic Cu — the deuterated counterpart of ν(CH) HCOO*(Cu⁰) at ~2856 cm⁻¹, red-shifted by the ~0.73 harmonic-oscillator mass factor. Its position across a promoter series is a direct readout of formate C-H(D) bond strength, which in turn tracks how readily the formate decomposes to CO rather than being hydrogenated on: stronger C-D, less decomposition, higher methanol selectivity. Sits on top of gas-phase CO's R branch and, at the low end, of the deuterated-methoxy region, so a gas-phase subtraction (or a component-resolved analysis) is needed before reading a position off it.",
+      "description": "C-D stretch of κ²-DCOO* on metallic Cu — the deuterated counterpart of the Cu⁰-bound arm of ν(CH) HCOO* at ~2856 cm⁻¹, red-shifted by the ~0.73 harmonic-oscillator mass factor. Its position across a promoter series is a direct readout of formate C-H(D) bond strength, which in turn tracks how readily the formate decomposes to CO rather than being hydrogenated on: stronger C-D, less decomposition, higher methanol selectivity. Sits on top of gas-phase CO's R branch and, at the low end, of the deuterated-methoxy region, so a gas-phase subtraction (or a component-resolved analysis) is needed before reading a position off it.",
       "based_on": [],
       "references": [
         {
@@ -2492,7 +2460,7 @@
       "wn_start": 2815,
       "wn_end": 2862,
       "short": "νₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ symmetric stretch (CH₃O*), shifting in tandem with νₐₛ(CH₃) above. Often appears as a close shoulder pair with a coadsorbed methanol band sitting a little higher in frequency. Silica-grafted methoxy is the extreme case, ~2856–2859 cm⁻¹, some 40 cm⁻¹ above the same mode on Cu — high enough that it lands directly on formate's own ν(CH) on metallic Cu (see ν(CH) HCOO*(Cu⁰)). On a silica-supported Cu catalyst the two are effectively coincident and cannot be separated by position alone.",
+      "description": "Methoxy CH₃ symmetric stretch (CH₃O*), shifting in tandem with νₐₛ(CH₃) above. Often appears as a close shoulder pair with a coadsorbed methanol band sitting a little higher in frequency. Silica-grafted methoxy is the extreme case, ~2856–2859 cm⁻¹, some 40 cm⁻¹ above the same mode on Cu — high enough that it lands directly on formate's own ν(CH) on metallic Cu (the low end of ν(CH) HCOO*). On a silica-supported Cu catalyst the two are effectively coincident and cannot be separated by position alone.",
       "based_on": [],
       "references": [
         {
