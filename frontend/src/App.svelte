@@ -12,6 +12,7 @@
   import VibrationModesPage from './components/VibrationModesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
+  import MobileNotice from './components/MobileNotice.svelte';
 
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
@@ -241,6 +242,9 @@
     <div class="header-affil"><sup>1</sup>Delft University of Technology</div>
   </div>
 </header>
+
+<!-- ── Narrow / mobile viewport notice (full width, under the header) ── -->
+<MobileNotice />
 
 <div class="page-body">
 {#if loading}
