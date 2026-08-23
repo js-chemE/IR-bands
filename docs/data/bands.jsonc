@@ -2296,16 +2296,10 @@
     },
 
     // --- Deuterated formate (κ²-DCOO*) -----------------------------------------
-    // Same bidentate ν(CH) mode as above, measured under D₂ instead of H₂ in
-    // a steady-state isotopic transient (SSITKA). One entry covering both
-    // formate populations, exactly as in the C-H region: which site a given
-    // source reports is read off the *site* badge on its citation, not off a
-    // separate band. Worth having on the map in its own right: this window is
-    // where formate is actually READ in an SSITKA experiment, because
-    // deuteration moves the δ(OCH)+νₐₛ(OCO) combination band out of the way and
-    // leaves a single uncluttered fundamental — and because ν(C-D) here lands
-    // right on top of gas-phase CO's R branch at ~2170 cm⁻¹ (see
-    // co_stretch_2170_R).
+    // Same bidentate ν(CH) mode as above, measured under D₂ instead of H₂ in a
+    // steady-state isotopic transient (SSITKA). One entry covering both formate
+    // populations, as in the C-H region: which site a source reports is read off
+    // the *site* badge on its citation, not off a separate band.
     {
       "id": "formate_cd_stretch_2173",
       "species": "Formate-d* (DCOO*)",
@@ -2322,14 +2316,21 @@
       "wn_start": 2155,
       "wn_end": 2192,
       "short": "ν(CD) DCOO*",
-      "description": "C-D stretch of κ²-DCOO* — the deuterated counterpart of ν(CH) HCOO* at ~2845–2900 cm⁻¹, red-shifted by the ~0.73 harmonic-oscillator mass factor. Site-sensitive in the same way and for the same reason as the C-H fundamental: formate on <em>metallic</em> Cu sits at ~2161–2176 cm⁻¹ while formate on a cationic promoter site (Zn²⁺) sits ~17 cm⁻¹ higher at ~2184 cm⁻¹, the two resolvable as separate MCR components in one spectrum — the cleanest single piece of evidence that formate genuinely occupies two distinct sites at once rather than one averaged environment. See the <em>site</em> badge on each citation for which population that source reports. Its position across a promoter series is a direct readout of formate C-H(D) bond strength, which in turn tracks how readily the formate decomposes to CO rather than being hydrogenated on: stronger C-D, less decomposition, higher methanol selectivity. Sits on top of gas-phase CO's R branch and, at the low end, of the deuterated-methoxy region, so a gas-phase subtraction (or a component-resolved analysis) is needed before reading a position off it.",
+      "description": "C-D stretch of κ²-DCOO*, the deuterated twin of ν(CH) HCOO* at ~2845–2900 cm⁻¹ and red-shifted from it by the ~0.73 harmonic-oscillator mass factor. Site-sensitive in the same way as the C-H fundamental: formate on <em>metallic</em> Cu sits some 15–20 cm⁻¹ below formate on a cationic promoter site, far enough to resolve the two populations in one spectrum — see the <em>site</em> badge on each citation for which one that source reports. Deuteration is what makes this window readable at all, moving the δ(OCH)+νₐₛ(OCO) combination band out of the way and leaving a single uncluttered fundamental. Two overlaps to watch: gas-phase CO's R branch sits directly on top of it (see co_stretch_2170_R) and deuterated methoxy comes in at the low end, so a gas-phase subtraction or a component-resolved analysis is needed before reading a position off it.",
       "based_on": [],
       "references": [
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
-          "wn": [2167, 2173, 2161, 2176, 2169, 2184],
-          "site": ["Cu⁰", "Zn²⁺"],
-          "note": "Fig. 5b (MCR-resolved, Cu–Zn/SiO₂ SSITKA, CO₂+D₂ ⇄ CO₂+H₂, 230 °C, 10 bar, H₂ or D₂/CO₂ = 3). <strong>On metallic Cu (2161–2176 cm⁻¹):</strong> κ²-DCOO*(Cu) at 2167 cm⁻¹; per catalyst in the SI, Fig. S15 2161 cm⁻¹ (Cu/SiO₂), Fig. S16 2176 cm⁻¹ (Cu–Ga/SiO₂), Fig. S17 2169 cm⁻¹ (Cu–In/SiO₂). Fig. 6b plots those four points and uses 2173 cm⁻¹ for Cu–Zn/SiO₂ — the Gaussian-fitted centre of the overlapping Cu⁰ and Zn²⁺ components, not a separate species; across Cu/SiO₂ → Cu–In → Cu–Zn → Cu–Ga the ν(C–D) frequency rises monotonically and intrinsic CH₃OH selectivity rises linearly with it (R² > 0.99), making this band a quantitative selectivity descriptor. <strong>On the isolated cationic promoter (2184 cm⁻¹):</strong> κ²-DCOO*(Zn²⁺), kinetically indistinguishable from κ²-DCOO*(Cu) but spectrally separate — direct evidence that Zn²⁺ supplies a second, distinct Lewis-acid site for formate and simultaneously perturbs the formate on the adjacent Cu. Not resolved for Ga³⁺ or In³⁺ in this region (Figs. S16/S17), where the promoter-bound component overlaps κ²-DCOO*(Cu) or is too dilute at steady state. SI section 1.5.5 derives the expected ν(C–D)/ν(C–H) ratio of ≈0.734 from the harmonic-oscillator reduced masses and uses it to assign this region; Fig. S14 shows the exchange with κ²-HCOO* completes in under 1 min at both switches, so the kinetic isotope effect on formate hydrogenation is negligible.",
+          "wn": [2167, 2173, 2161, 2176, 2169],
+          "site": "Cu⁰",
+          "note": "Fig. 5b (MCR-resolved, Cu–Zn/SiO₂ SSITKA, CO₂+D₂ ⇄ CO₂+H₂, 230 °C, 10 bar, D₂ or H₂/CO₂ = 3): κ²-DCOO*(Cu) at 2167 cm⁻¹. Per catalyst in the SI: Fig. S15 2161 cm⁻¹ (Cu/SiO₂), Fig. S16 2176 cm⁻¹ (Cu–Ga/SiO₂), Fig. S17 2169 cm⁻¹ (Cu–In/SiO₂). Fig. 6b plots those four points and uses 2173 cm⁻¹ for Cu–Zn/SiO₂ — the Gaussian-fitted centre of the overlapping Cu⁰ and Zn²⁺ components, not a separate species; across Cu/SiO₂ → Cu–In → Cu–Zn → Cu–Ga the ν(C–D) frequency rises monotonically and intrinsic CH₃OH selectivity rises linearly with it (R² > 0.99), making the position a quantitative selectivity descriptor. SI section 1.5.5 derives the expected ν(C–D)/ν(C–H) ratio of ≈0.734 from the harmonic-oscillator reduced masses and uses it to assign this region; Fig. S14 shows the exchange with κ²-HCOO* completes in under 1 min at both switches, so the kinetic isotope effect on formate hydrogenation is negligible.",
+          "tags": ["drifts"]
+        },
+        {
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "wn": 2184,
+          "site": "Zn²⁺",
+          "note": "Fig. 5b (same MCR-resolved Cu–Zn/SiO₂ SSITKA experiment, 230 °C, 10 bar): κ²-DCOO*(Zn²⁺) at 2184 cm⁻¹, kinetically indistinguishable from κ²-DCOO*(Cu) at 2167 cm⁻¹ but spectrally separate — direct evidence that Zn²⁺ supplies a second, distinct Lewis-acid site for formate and simultaneously perturbs the formate on the adjacent Cu. Not resolved for Ga³⁺ or In³⁺ in this region (Figs. S16/S17), where the promoter-bound component overlaps κ²-DCOO*(Cu) or is too dilute at steady state.",
           "tags": ["drifts"]
         }
       ],
