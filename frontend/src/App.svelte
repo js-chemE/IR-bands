@@ -12,7 +12,7 @@
   import VibrationModesPage from './components/VibrationModesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
-  import StyleGuidePage from './components/StyleGuidePage.svelte';
+  import StyleGuidePage, { SECTIONS as SG_SECTIONS } from './components/StyleGuidePage.svelte';
   import MobileNotice from './components/MobileNotice.svelte';
 
   let dataset: Dataset | null = null;
@@ -26,6 +26,14 @@
   type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum' | 'styleguide';
   let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
+  // Style guide table of contents: which section the reader is currently in,
+  // reported by the page's own scroll spy.
+  let sgActive = SG_SECTIONS[0].id;
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    sgActive = id;
+  }
   let sidebarOpen = true;
   let showColorMenu = false;
   let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
@@ -294,6 +302,10 @@
             on:click={() => page = 'references'} title="References">R</button>
           <button class="page-mini-btn" class:active={page === 'impressum'}
             on:click={() => page = 'impressum'} title="Impressum">I</button>
+          {#if page === 'styleguide'}
+            <button class="page-mini-btn active"
+              on:click={() => page = 'styleguide'} title="Style guide">S</button>
+          {/if}
         </div>
       {/if}
 
@@ -340,6 +352,19 @@
             on:groupToggle={handleGroupToggle}
             on:allGroups={handleAllGroups}
           />
+
+        {:else if page === 'styleguide'}
+          <h3>Contents</h3>
+          <nav class="sg-toc">
+            {#each SG_SECTIONS as s}
+              <button
+                class="sg-toc-item"
+                class:sg-part={s.part}
+                class:active={sgActive === s.id}
+                on:click={() => scrollToSection(s.id)}
+              >{s.label}</button>
+            {/each}
+          </nav>
 
         {:else if page === 'references'}
           <h3>View</h3>
@@ -421,7 +446,7 @@
       {:else if page === 'impressum'}
         <ImpressumPage on:navigate={handleHomeNavigate} />
       {:else if page === 'styleguide'}
-        <StyleGuidePage />
+        <StyleGuidePage on:active={e => sgActive = e.detail.id} />
       {/if}
     </div>
 {/if}
@@ -728,6 +753,46 @@
     color: var(--ink-400);
   }
   .state-msg.error { color: var(--danger); }
+
+  /* ── Style guide table of contents ── */
+  .sg-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .sg-toc-item {
+    display: block;
+    width: 100%;
+    padding: 4px 8px 4px 18px;
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--ink-500);
+    text-align: left;
+    cursor: pointer;
+    line-height: 1.35;
+  }
+  .sg-toc-item:hover { background: var(--surface-hover); color: var(--ink-700); }
+
+  /* Part headings sit flush left and anchor the list; subsections indent. */
+  .sg-toc-item.sg-part {
+    padding-left: 8px;
+    margin-top: 8px;
+    font-weight: 700;
+    color: var(--brand-900);
+  }
+  .sg-toc-item.sg-part:first-child { margin-top: 0; }
+
+  .sg-toc-item.active {
+    background: var(--brand-tint);
+    border-left-color: var(--brand-tint-line);
+    color: var(--brand-accent);
+    font-weight: 600;
+  }
 
   /* ── Page navigation ── */
   .page-nav, .sub-nav {
