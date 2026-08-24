@@ -96,7 +96,15 @@ Rules when touching the frontend:
   stay in `data/bands.jsonc`. Element (CPK) colors stay in `elementColors.ts`,
   since they follow chemistry convention.
 - The style guide is reachable from the Impressum page (`page = 'styleguide'`);
-  it has no permanent sidebar entry.
+  it has no permanent sidebar entry. While it is open, the sidebar shows its
+  table of contents, built from the `SECTIONS` array the page exports from its
+  `<script context="module">` block; the page's own scroll spy reports the
+  active section back to `App.svelte`. Adding a section means adding an entry
+  there plus a matching `data-sg-section` anchor.
+- The guide is laid out in three parts (general, band chart, content rules),
+  each a stack of "spreads": explanation left, the artefact being explained
+  right, the visual sticky where one spans several subsections. A spread never
+  crosses a part boundary, so the cut between parts stays clean.
 
 ### Editorial limits
 
