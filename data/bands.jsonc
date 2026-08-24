@@ -8,6 +8,20 @@
 // removed, renamed, or its meaning changes (in schema.py, loader.py, or this
 // file), update this comment block in the same change. See CLAUDE.md.
 //
+// Notation: every text field here is written with real Unicode characters —
+// CO₂, cm⁻¹, Cu²⁺, ¹³CO, κ²-HCOO*, νₐₛ(OCO), μ₂ — and never with markup. No
+// <sub>/<sup>, no <em>/<strong>, no HTML entities, no LaTeX. The chart tooltip
+// renders these fields as plain text and strips any tag, while the References
+// page renders tags for real, so markup makes the same sentence read
+// differently in two places. build.py warns when it finds any. Underscores go
+// the same way: "ν_as" is a subscript nobody typed, so write νₐₛ (or A(HF), when
+// the letter has no Unicode subscript). The only underscores that belong in a
+// text field are machine identifiers — band ids, group keys, enum values —
+// which prose does sometimes name verbatim. The one place
+// tags ARE used in this project is point_group/symmetry in vibrations.jsonc,
+// where the subscript is a letter Unicode has no character for; see that
+// file's preamble and the Notation section of the Style guide page.
+//
 // -----------------------------------------------------------------------------
 // Cross-file links — the keys that actually connect the three data files.
 // Everything else below is this file's own, self-contained schema.
@@ -194,7 +208,7 @@
 // =============================================================================
 {
   "metadata": {
-    "title": "IR band map for CO2 hydrogenation",
+    "title": "IR band map for CO₂ hydrogenation",
     "wavenumber_unit": "cm^-1",
     "description": "Approximate band positions for surface and gas-phase species in CO₂ hydrogenation. Exact positions depend on support, coverage, and reaction conditions. The asterisk (*) denotes a surface-bound species.",
     "schema_version": 3
@@ -1229,7 +1243,7 @@
           "key": "Gomez.InterdependenceExtentGa.2024",
           "wn": 2125,
           "site": "Cu⁺",
-          "note": "New Cu⁺-CO feature appearing only after Ga loading (Fig. 3a; −160 °C, 0.15 mbar CO, static vacuum); peak area scales with Ga₂O₃ content and correlates with TOF_MeOH — assigned to Cu⁺ at the Cu-Ga₂O₃ interface, the proposed methanol active site.",
+          "note": "New Cu⁺-CO feature appearing only after Ga loading (Fig. 3a; −160 °C, 0.15 mbar CO, static vacuum); peak area scales with Ga₂O₃ content and correlates with TOF(MeOH) — assigned to Cu⁺ at the Cu-Ga₂O₃ interface, the proposed methanol active site.",
           "tags": ["direct-dosing", "drifts"]
         },
         {
@@ -1243,7 +1257,7 @@
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
           "site": ["Li⁺", "Na⁺", "K⁺", "Rb⁺", "Cs⁺", "H⁺ (Brønsted)"],
           "tags": ["computational", "direct-dosing"],
-          "note": "C-bonded (X⁺···CO) carbon monoxide on alkali-exchanged and protonic ZSM-5 zeolites (Si/Al = 14), assigned by transmission FTIR at 77 K. Position correlates linearly with 1/(R_M+R_CO)² (R_M = cation ionic radius), confirming a purely electrostatic, non-backdonating interaction — unlike the π-backdonating metallic-surface picture elsewhere in this dataset. High-frequency (HF) band positions at low CO coverage: Li⁺ 2188, Na⁺ 2178, K⁺ 2166, Rb⁺ 2162, Cs⁺ 2157, H⁺ (Brønsted) 2172 cm⁻¹ — frequency decreases monotonically with increasing cation radius/decreasing Lewis acidity. Each cation's HF band is accompanied by a much weaker low-frequency (LF) shoulder assigned to the O-bonded isomer of the same adduct, in thermodynamic equilibrium with this C-bonded form — see co_isocarbonyl_2220."
+          "note": "C-bonded (X⁺···CO) carbon monoxide on alkali-exchanged and protonic ZSM-5 zeolites (Si/Al = 14), assigned by transmission FTIR at 77 K. Position correlates linearly with 1/(R(M)+R(CO))² (R(M) = cation ionic radius), confirming a purely electrostatic, non-backdonating interaction — unlike the π-backdonating metallic-surface picture elsewhere in this dataset. High-frequency (HF) band positions at low CO coverage: Li⁺ 2188, Na⁺ 2178, K⁺ 2166, Rb⁺ 2162, Cs⁺ 2157, H⁺ (Brønsted) 2172 cm⁻¹ — frequency decreases monotonically with increasing cation radius/decreasing Lewis acidity. Each cation's HF band is accompanied by a much weaker low-frequency (LF) shoulder assigned to the O-bonded isomer of the same adduct, in thermodynamic equilibrium with this C-bonded form — see co_isocarbonyl_2220."
         }
       ],
       "intensity": "s",
@@ -1272,7 +1286,7 @@
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
           "site": ["Li⁺", "Na⁺", "K⁺", "Rb⁺", "Cs⁺", "H⁺ (Brønsted)"],
           "tags": ["computational", "direct-dosing"],
-          "note": "O-bonded (X⁺···OC) isocarbonyl species on the same alkali-exchanged and protonic ZSM-5 zeolites as co_cation_stretch_2175's HF band, in thermodynamic equilibrium with it: B3-LYP calculations on naked cations predict O-bonding is only slightly less stable than C-bonding, the energy gap narrowing from Li⁺ to Cs⁺, and a red-shifted shoulder consistent with that prediction is observed for every cation. Low-frequency (LF) band positions: Li⁺ 2108, Na⁺ 2113, K⁺ 2117, Rb⁺ 2119, Cs⁺ 2122, H⁺ (Brønsted) 2115 cm⁻¹ — frequency rises (shifts less below the free-gas 2143 cm⁻¹ value) with increasing cation radius, mirroring the HF band's opposite trend. Relative intensity of this band to the HF band (A_HF/A_LF) drops markedly from Li⁺ to Cs⁺, consistent with the two states' energies converging."
+          "note": "O-bonded (X⁺···OC) isocarbonyl species on the same alkali-exchanged and protonic ZSM-5 zeolites as co_cation_stretch_2175's HF band, in thermodynamic equilibrium with it: B3-LYP calculations on naked cations predict O-bonding is only slightly less stable than C-bonding, the energy gap narrowing from Li⁺ to Cs⁺, and a red-shifted shoulder consistent with that prediction is observed for every cation. Low-frequency (LF) band positions: Li⁺ 2108, Na⁺ 2113, K⁺ 2117, Rb⁺ 2119, Cs⁺ 2122, H⁺ (Brønsted) 2115 cm⁻¹ — frequency rises (shifts less below the free-gas 2143 cm⁻¹ value) with increasing cation radius, mirroring the HF band's opposite trend. Relative intensity of this band to the HF band (A(HF)/A(LF)) drops markedly from Li⁺ to Cs⁺, consistent with the two states' energies converging."
         }
       ],
       "intensity": "w",
@@ -1542,7 +1556,7 @@
 
     // ---------------------------------------------------------------------------
     // SURFACE CARBONATES
-    // Bidentate vs monodentate distinguished by ν_as/ν_s splitting (Δν ~300 vs ~100 cm⁻¹).
+    // Bidentate vs monodentate distinguished by νₐₛ/νₛ splitting (Δν ~300 vs ~100 cm⁻¹).
     // ---------------------------------------------------------------------------
     {
       "id": "carbonate_monodentate_asym_1500",
@@ -1728,7 +1742,7 @@
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
           "wn": 1251,
           "site": "CeO₂",
-          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with ν_as at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS.",
+          "note": "Bidentate carbonate symmetric stretch at 1251 cm⁻¹; paired with νₐₛ at 1605 cm⁻¹ (Δν ≈ 354 cm⁻¹ consistent with bidentate coordination). ¹³C exchange confirms activity in RWGS.",
           "tags": ["isotope-labeling"]
         },
         {
@@ -1995,7 +2009,7 @@
       "wn_start": 2845,
       "wn_end": 2900,
       "short": "ν(CH) HCOO*",
-      "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Strongly site-sensitive across the window: κ²-HCOO* on a <em>metallic</em> Cu surface sits at ~2848–2860 cm⁻¹, while the same mode on a cationic or oxide site (Zn²⁺, Ga³⁺, In³⁺, Cu⁺, CeO₂) sits some 20–40 cm⁻¹ higher at ~2873–2896 cm⁻¹ — large enough to resolve two formate populations in one spectrum, which is what makes Cu-to-promoter formate spillover observable at all. See the <em>site</em> badge on each citation for which population that source reports. Two traps at the low end: methoxy's νₛ(CH₃) on silica lands within a few cm⁻¹ of Cu-bound formate, and adsorbed methanol's νₛ(CH₃) is close too, so a band near 2850 cm⁻¹ is only safely formate once its partner combination band near 2930 cm⁻¹ (or a deuteration/MCR check) backs it up.",
+      "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Strongly site-sensitive across the window: κ²-HCOO* on a metallic Cu surface sits at ~2848–2860 cm⁻¹, while the same mode on a cationic or oxide site (Zn²⁺, Ga³⁺, In³⁺, Cu⁺, CeO₂) sits some 20–40 cm⁻¹ higher at ~2873–2896 cm⁻¹ — large enough to resolve two formate populations in one spectrum, which is what makes Cu-to-promoter formate spillover observable at all. See the site badge on each citation for which population that source reports. Two traps at the low end: methoxy's νₛ(CH₃) on silica lands within a few cm⁻¹ of Cu-bound formate, and adsorbed methanol's νₛ(CH₃) is close too, so a band near 2850 cm⁻¹ is only safely formate once its partner combination band near 2930 cm⁻¹ (or a deuteration/MCR check) backs it up.",
       "based_on": [],
       "fermi_partner": "formate_combo_2950",
       "references": [
@@ -2030,7 +2044,7 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [2856, 2850, 2860, 2858, 2854, 2852, 2848, 2896, 2883, 2877],
           "site": ["Cu⁰", "Zn²⁺", "Ga³⁺", "In³⁺"],
-          "note": "Operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. MCR-ALS resolves two kinetically distinct κ²-HCOO* components. <strong>On metallic Cu (2848–2860 cm⁻¹):</strong> Fig. 4a/4c (2856), Fig. 5b (2850) and Fig. 7a (2850/2854); per catalyst in the SI, Fig. S15 2860 and Fig. S18 2852 (Cu/SiO₂), Fig. S16 2850 and Fig. S20 2848 (Cu–Ga/SiO₂), Fig. S17 2858 and Fig. S19 2854 (Cu–In/SiO₂). The first and most abundant surface species over all four catalysts, dominating the time-resolved spectra from the first minutes onward (Fig. S10). Exchanges to κ²-DCOO* within the 10 s acquisition limit under D₂, so formate formation and exchange are not rate-limiting; on Cu it is also the RWGS intermediate, its decay tracking the rise of CO* at 2108–2115 cm⁻¹. <strong>On the isolated cationic promoter (2877–2896 cm⁻¹):</strong> clean only on Zn²⁺ (2896); on Ga³⁺ (2881–2883, Figs. S16/S20) and In³⁺ (2877, Fig. S19) the component is non-separable from Cu-bound formate and methoxy. Formate reaches the promoter by spillover from Cu, not by CO₂ activation on the promoter itself — isolated M/SiO₂ without Cu converts no CO₂ at all.",
+          "note": "Operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. MCR-ALS resolves two kinetically distinct κ²-HCOO* components. On metallic Cu (2848–2860 cm⁻¹): Fig. 4a/4c (2856), Fig. 5b (2850) and Fig. 7a (2850/2854); per catalyst in the SI, Fig. S15 2860 and Fig. S18 2852 (Cu/SiO₂), Fig. S16 2850 and Fig. S20 2848 (Cu–Ga/SiO₂), Fig. S17 2858 and Fig. S19 2854 (Cu–In/SiO₂). The first and most abundant surface species over all four catalysts, dominating the time-resolved spectra from the first minutes onward (Fig. S10). Exchanges to κ²-DCOO* within the 10 s acquisition limit under D₂, so formate formation and exchange are not rate-limiting; on Cu it is also the RWGS intermediate, its decay tracking the rise of CO* at 2108–2115 cm⁻¹. On the isolated cationic promoter (2877–2896 cm⁻¹): clean only on Zn²⁺ (2896); on Ga³⁺ (2881–2883, Figs. S16/S20) and In³⁺ (2877, Fig. S19) the component is non-separable from Cu-bound formate and methoxy. Formate reaches the promoter by spillover from Cu, not by CO₂ activation on the promoter itself — isolated M/SiO₂ without Cu converts no CO₂ at all.",
           "tags": ["drifts"]
         }
       ],
@@ -2088,7 +2102,7 @@
           "wn": [1587, 1603],
           "site": "Cu/ZnO",
           "tags": ["drifts"],
-          "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) formate at 1587 cm⁻¹ (1 bar) and 1603 cm⁻¹ (30 bar). Both show large Δν (~230–290 cm⁻¹ vs. νₛ at 1360/1314 cm⁻¹) consistent with bidentate binding — Fehr's 'unidentate' label for the 30-bar species contradicts the Δν. Spectroscopically prominent surface spectator: intensity independent of GHSV, persists on inactive CZ_2000."
+          "note": "Table 3, Fig. 3 (3H₂/CO₂, 513 K, Cu/ZnO in KBr): νₐₛ(OCO) formate at 1587 cm⁻¹ (1 bar) and 1603 cm⁻¹ (30 bar). Both show large Δν (~230–290 cm⁻¹ vs. νₛ at 1360/1314 cm⁻¹) consistent with bidentate binding — Fehr's 'unidentate' label for the 30-bar species contradicts the Δν. Spectroscopically prominent surface spectator: intensity independent of GHSV, persists on inactive CZ-2000."
         },
         {
           "key": "Oing.RoleZnHf.2026",
@@ -2316,7 +2330,7 @@
       "wn_start": 2155,
       "wn_end": 2192,
       "short": "ν(CD) DCOO*",
-      "description": "C-D stretch of κ²-DCOO*, the deuterated twin of ν(CH) HCOO* at ~2845–2900 cm⁻¹ and red-shifted from it by the ~0.73 harmonic-oscillator mass factor. Site-sensitive in the same way as the C-H fundamental: formate on <em>metallic</em> Cu sits some 15–20 cm⁻¹ below formate on a cationic promoter site, far enough to resolve the two populations in one spectrum — see the <em>site</em> badge on each citation for which one that source reports. Deuteration is what makes this window readable at all, moving the δ(OCH)+νₐₛ(OCO) combination band out of the way and leaving a single uncluttered fundamental. Two overlaps to watch: gas-phase CO's R branch sits directly on top of it (see co_stretch_2170_R) and deuterated methoxy comes in at the low end, so a gas-phase subtraction or a component-resolved analysis is needed before reading a position off it.",
+      "description": "C-D stretch of κ²-DCOO*, the deuterated twin of ν(CH) HCOO* at ~2845–2900 cm⁻¹ and red-shifted from it by the ~0.73 harmonic-oscillator mass factor. Site-sensitive in the same way as the C-H fundamental: formate on metallic Cu sits some 15–20 cm⁻¹ below formate on a cationic promoter site, far enough to resolve the two populations in one spectrum — see the site badge on each citation for which one that source reports. Deuteration is what makes this window readable at all, moving the δ(OCH)+νₐₛ(OCO) combination band out of the way and leaving a single uncluttered fundamental. Two overlaps to watch: gas-phase CO's R branch sits directly on top of it (see co_stretch_2170_R) and deuterated methoxy comes in at the low end, so a gas-phase subtraction or a component-resolved analysis is needed before reading a position off it.",
       "based_on": [],
       "references": [
         {
@@ -2350,7 +2364,7 @@
     // cations or at a bridging-O vacancy) below ~1100 cm⁻¹ (Hussein 1991, Wu 2000).
     // CH₃ stretching/bending modes are essentially insensitive to the geometry
     // but are sensitive to the cation identity / local environment: e.g. on Cu/SiO₂
-    // ν_as is ~2926 cm⁻¹ but shifts to ~2919 cm⁻¹ on Ga-promoted Cu (Cu⁺ site at
+    // νₐₛ is ~2926 cm⁻¹ but shifts to ~2919 cm⁻¹ on Ga-promoted Cu (Cu⁺ site at
     // Cu–Ga₂O₃ interface; Gómez 2024). On Zr-rich supports CH₃O* is typically
     // Zr-OCH₃ with ν(C-O) at ~1150 cm⁻¹ (Al Abdulghani 2025).
     // ---------------------------------------------------------------------------
@@ -2384,19 +2398,19 @@
           "wn": [2919, 2926],
           "site": ["Cu⁺", "Cu⁰"],
           "tags": ["drifts"],
-          "note": "ν_as(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
+          "note": "νₐₛ(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2926 cm⁻¹ on unpromoted Cu/SiO₂ — diagnostic of the Ga promoter-induced site change."
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2970,
           "site": "Zr⁴⁺",
           "tags": ["drifts"],
-          "note": "ν_as(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+          "note": "νₐₛ(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
         },
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 2933,
-          "site": "Zn–V_O–Hf",
+          "site": "Zn–Vₒ–Hf",
           "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): νₐₛ(CH₃) H₃CO*; forms as formate is hydrogenated in the formate-methoxy pathway.",
           "tags": ["drifts"]
         },
@@ -2442,19 +2456,19 @@
           "wn": [2836, 2842],
           "site": ["Cu⁺", "Cu⁰"],
           "tags": ["drifts"],
-          "note": "ν_s(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the ν_as(CH₃) site-diagnostic shift."
+          "note": "νₛ(CH₃) on Cu⁺ at Cu–Ga₂O₃; downshifted from ~2842 cm⁻¹ on unpromoted Cu/SiO₂ — mirrors the νₐₛ(CH₃) site-diagnostic shift."
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2819,
           "site": "Zr⁴⁺",
           "tags": ["drifts"],
-          "note": "ν_s(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
+          "note": "νₛ(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx."
         },
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": [2827, 2825],
-          "site": ["Zn–V_O–Hf", "ZnO"],
+          "site": ["Zn–Vₒ–Hf", "ZnO"],
           "note": "Fig. 6b/S49/S56 (H₂:CO₂:N₂ = 3:1:1, 320°C, 20 bar): νₛ(CH₃) H₃CO* used as key tracker band; ~2827 cm⁻¹ on 30ZnHfOx, ~2832 cm⁻¹ (20ZnHfOx), ~2834 cm⁻¹ (90ZnHfOx). On ZnO: 2825 cm⁻¹, only very weak bands (poor methoxy formation from CO₂ on pure ZnO).",
           "tags": ["drifts"]
         },
@@ -2615,8 +2629,8 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1052,
-          "site": "Zn–V_O–Hf",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): bridged methoxy (b-H₃CO*) ν(CO); consistent with CH₃O* at a Zn–V_O–Hf oxygen-vacancy site. Paired with terminal methoxy at 1153 cm⁻¹.",
+          "site": "Zn–Vₒ–Hf",
+          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): bridged methoxy (b-H₃CO*) ν(CO); consistent with CH₃O* at a Zn–Vₒ–Hf oxygen-vacancy site. Paired with terminal methoxy at 1153 cm⁻¹.",
           "tags": ["drifts"]
         }
       ],
@@ -3389,7 +3403,7 @@
       "wn_start": 3650,
       "wn_end": 3660,
       "short": "νₛ(HOH) H₂O(g)",
-      "description": "Gas-phase water symmetric O-H stretch (ν₁, A₁) — both O-H bonds lengthening and shortening together, in phase. Sharp and well-resolved in the gas phase, in contrast to the broad, merged envelope this band collapses into once adsorbed/condensed (see h2o_stretch_3400).",
+      "description": "Gas-phase water symmetric O-H stretch (ν₁, A₁) — both O-H bonds lengthening and shortening together, in phase. Sharp and well-resolved in the gas phase, in contrast to the broad, merged envelope this band collapses into once adsorbed/condensed (see oh_hbonded_3525).",
       "based_on": [],
       "references": [
         {

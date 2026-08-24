@@ -10,8 +10,9 @@
 //
 // HTML in text fields: topologies[].point_group and modes[].symmetry use
 // literal <sub>/<sup> tags for proper subscript/superscript rendering (e.g.
-// "D<sub>∞h</sub>", "Σ<sub>g</sub>⁺") — same convention as Band.short/
-// description in bands.jsonc. The frontend renders both with {@html}, not
+// "D<sub>∞h</sub>", "Σ<sub>g</sub>⁺"). These two fields are the ONLY place in
+// the whole project where markup is allowed — bands.jsonc is pure Unicode, see
+// its own preamble. The frontend renders both with {@html}, not
 // plain text interpolation. Every OTHER text field (topologies[].long/short,
 // modes[].label/note) uses plain Unicode super/subscript characters instead
 // (ν₁, η¹, μ₂, Oₛ...) — HTML is reserved for point_group/symmetry
