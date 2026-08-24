@@ -47,11 +47,14 @@ frontend/src/
     ColorLegend.svelte       ← legend swatches for the active color dimension
     AxisSelect.svelte        ← x-axis property and unit selectors
     ReferencesPage.svelte    ← tabular view of all references and cited bands
+    StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
     VibrationModesPage.svelte← vibration-modes page: molecule selector + mode list/detail panel
     vibration/               ← MoleculeViewer, MoleculeSelector, ModeList, ModeDetailPanel
   lib/
+    tokens.ts             ← DESIGN TOKENS: every color, type role, radius, shadow,
+                              chart dimension and editorial limit, in one place
     chart.ts              ← buildChart() and lane metric helpers
-    colors.ts             ← color maps for four coloring dimensions + TAG_STYLES
+    colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
     moleculeGeometry.ts    ← pixel atom geometry/displacement vectors for the vibration diagrams
     units.ts              ← wavenumber ↔ wavelength ↔ energy conversions
@@ -69,6 +72,41 @@ docs/
 ## Editing the JSONC data files
 
 `data/bands.jsonc` and `data/vibrations.jsonc` both open with a commented schema preamble documenting every key. **Keep it in sync**: whenever a key is added, removed, renamed, or its meaning changes — in `schema.py`, `loader.py`, or the JSONC file itself — update that file's preamble in the same change. A stale preamble is actively misleading, worse than no preamble at all.
+
+## Design system
+
+`frontend/src/lib/tokens.ts` is the single source of truth for every color, font
+size, font weight, radius, shadow, chart dimension and editorial limit.
+`installTokens()` (called from `main.ts`) injects them into `:root` as CSS
+custom properties before anything renders, and `StyleGuidePage.svelte` renders
+itself out of the same objects, so the guide cannot drift from the app.
+
+Rules when touching the frontend:
+
+- **Never hard-code a color, font size or font weight in a component.** Use
+  `var(--token)` in CSS, or import `C` / `TAG_STYLES` / `CHART_LAYOUT` from
+  `tokens.ts` where a value has to reach JavaScript (SVG presentation
+  attributes cannot read CSS variables).
+- Text styling goes through **type roles**: `--t-<role>-size`, `-weight`,
+  `-color`, `-ff`, `-lh`, `-ls`, `-tt`, `-fs`. Add a role to `TYPE_GROUPS`
+  rather than inventing a one-off size.
+- New tokens are added in `tokens.ts` **with a `usage` note**; that note is the
+  text shown next to the swatch on the style guide page.
+- Group colors are the deliberate exception: they belong to the dataset and
+  stay in `data/bands.jsonc`. Element (CPK) colors stay in `elementColors.ts`,
+  since they follow chemistry convention.
+- The style guide is reachable from the Impressum page (`page = 'styleguide'`);
+  it has no permanent sidebar entry.
+
+### Editorial limits
+
+- `description` on a band: **100 to 120 words**.
+- `note` on a band reference: **at most 150 words**.
+
+`build.py` counts words (HTML stripped) and prints a warning per over-long
+entry; it never fails the build. The numbers live in `DESCRIPTION_MAX_WORDS` /
+`REFERENCE_NOTE_MAX_WORDS` in `schema.py` and in `CONTENT_LIMITS` in
+`tokens.ts`. Change one, change the other.
 
 ## Key design decisions
 
@@ -101,3 +139,13 @@ Valid enum values:
 Atoms value `"diverse"` is used for combination bands whose two parent modes involve different atom groups; it renders in neutral grey.
 
 Band IDs are append-only: renaming an ID breaks `based_on` cross-references elsewhere in the file.
+
+Writing rules (the full version is on the style guide page):
+
+- `description` covers what is true of the band in general: what the mode is,
+  where it sits, what it is confused with. 100 to 120 words, short sentences,
+  numbers rather than adjectives.
+- Anything true of only one paper goes in that reference's `note` instead
+  (max 150 words). Wavenumbers go in `wn`, the surface goes in `site`,
+  conditions go in `note`.
+- `short` is a label, not a sentence: a few words, no full stop.

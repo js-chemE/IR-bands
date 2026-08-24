@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C } from '../../lib/tokens';
   import { createEventDispatcher } from 'svelte';
   import type { VibrationMode } from '../../lib/types';
   import { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES, DEFAULT_TAG_STYLE } from '../../lib/colors';
@@ -6,7 +7,7 @@
   export let modes: VibrationMode[];
   export let openModeId: string | null;
 
-  const GREY = '#7F7F7F';
+  const GREY = C['data-grey'];
 
   // Allowlist of every mode tag worth surfacing as its own pill in the
   // collapsed card, alongside the atoms badge — everything in a mode's tags
@@ -106,16 +107,16 @@
 
   .mode-box {
     cursor: pointer;
-    border-left: 3px solid #888;
+    border-left: 3px solid var(--ink-200);
     border-radius: 0 4px 4px 0;
-    background: #fff;
+    background: var(--surface);
     padding: 6px 10px;
   }
 
   .mode-box:hover { background: rgba(0, 0, 0, 0.03); }
 
   .mode-box.active {
-    background: #F5F7FB;
+    background: var(--surface-slate-soft);
   }
 
   .mode-box-top {
@@ -138,7 +139,7 @@
 
   .mode-subtitle {
     font-size: 12px;
-    color: #888;
+    color: var(--ink-200);
     margin-top: 1px;
   }
 
@@ -149,7 +150,7 @@
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11px;
-    color: #fff;
+    color: var(--surface);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -169,18 +170,18 @@
   /* Unstyled (no TAG_STYLES entry) until real herzberg_notation/symmetry
      values exist — plain default tag-pill colors. */
   .herzberg-pill {
-    background: #f9fafb;
-    border-color: #eaecef;
-    color: #8a8f98;
+    background: var(--pill-muted-bg);
+    border-color: var(--pill-muted-border);
+    color: var(--pill-muted-fg);
   }
   .herzberg-pill :global(sub) { font-size: 0.75em; }
 
   /* Same blue badge used for wavenumbers everywhere else on the site (band
      chart tooltip, references list, mode detail panel). */
   .badge-wn {
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
+    background: var(--badge-wn-bg);
+    border: 1px solid var(--badge-wn-border);
+    color: var(--badge-wn-fg);
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11px;

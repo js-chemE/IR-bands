@@ -138,17 +138,17 @@
   }
 
   .bond {
-    stroke: #999;
+    stroke: var(--ink-100);
     stroke-width: 2;
   }
 
   .surface-line {
-    stroke: #aaa;
+    stroke: var(--ink-050);
     stroke-width: 1.5;
   }
 
   .surface-bond {
-    stroke: #aaa;
+    stroke: var(--ink-050);
     stroke-width: 1;
     stroke-dasharray: 2.5, 2.5;
   }
@@ -157,7 +157,7 @@
      "buried" atom's cut-off lower half reads as cleanly gone rather than as
      a visible colored block. */
   .surface-slab {
-    fill: #FAFAFA;
+    fill: var(--surface-sunken);
   }
 
   .atom {

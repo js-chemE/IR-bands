@@ -33,21 +33,21 @@
   }
 
   .topo-btn {
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
     border-radius: 9px;
     padding: 0 9px;
     font-size: 12px;
     line-height: 18px;
-    color: #999;
+    color: var(--ink-100);
     cursor: pointer;
   }
 
-  .topo-btn:hover { background: #f3f3f3; }
+  .topo-btn:hover { background: var(--surface-hover); }
 
   .topo-btn.active {
-    background: #EEF3FF;
-    border-color: #C8D6F0;
-    color: #5878b0;
+    background: var(--brand-tint-soft);
+    border-color: var(--accent-blue-soft-line);
+    color: var(--accent-blue-soft);
   }
 </style>

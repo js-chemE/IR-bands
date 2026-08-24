@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C } from '../../lib/tokens';
   import { createEventDispatcher } from 'svelte';
   import type { VibrationMode, Band, RefMap } from '../../lib/types';
   import { ieeeHtml } from '../../lib/citations';
@@ -9,7 +10,7 @@
   export let bands: Band[];
   export let refs: RefMap;
 
-  const GREY = '#7F7F7F';
+  const GREY = C['data-grey'];
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -190,8 +191,8 @@
     position: relative;
     flex: 1 1 auto;
     min-width: 380px;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 8px;
     padding: 18px 22px;
     align-self: stretch;
@@ -205,15 +206,15 @@
     border: none;
     font-size: 21px;
     line-height: 1;
-    color: #aaa;
+    color: var(--ink-050);
     cursor: pointer;
     padding: 2px 6px;
   }
 
-  .close-btn:hover { color: #555; }
+  .close-btn:hover { color: var(--ink-500); }
 
   .panel-header {
-    border-left: 3px solid #888;
+    border-left: 3px solid var(--ink-200);
     padding-left: 12px;
     margin-bottom: 8px;
   }
@@ -226,25 +227,25 @@
 
   .panel-subtitle {
     font-size: 13px;
-    color: #777;
+    color: var(--ink-300);
     margin-top: 2px;
   }
 
   .panel-herzberg {
     font-size: 12.5px;
     font-style: italic;
-    color: #888;
+    color: var(--ink-200);
     margin: 6px 0 0;
   }
   .panel-herzberg :global(sub) { font-size: 0.75em; }
 
   .panel-note {
     font-size: 13.5px;
-    color: #555;
+    color: var(--ink-500);
     line-height: 1.5;
     margin: 0 0 10px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--line-faint);
   }
 
   .tag-section {
@@ -260,19 +261,19 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #999;
+    color: var(--ink-100);
     margin-right: 2px;
   }
 
   /* Same pill metrics as the band chart's tooltip tags / references list
      badges — only the fill color varies by source. */
   .pill {
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    background: var(--pill-bg);
+    border: 1px solid var(--line-panel);
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11px;
-    color: #555;
+    color: var(--ink-500);
     white-space: nowrap;
   }
 
@@ -281,7 +282,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #999;
+    color: var(--ink-100);
     margin-bottom: 6px;
   }
 
@@ -292,9 +293,9 @@
     display: block;
     width: 100%;
     box-sizing: border-box; /* otherwise the right-padding for .band-goto-btn pushes this past the panel's own edge */
-    background: #f8f6f1;
-    border: 1px solid #e2d9c9;
-    border-left: 3px solid #c4a86e;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
     border-radius: 4px;
     padding: 7px 26px 7px 9px;
     margin-top: 6px;
@@ -309,14 +310,14 @@
      fully expanded instead, with no click affordance at all. */
   .band-box-btn { cursor: pointer; transition: background 0.1s, border-left-color 0.1s; }
   .band-box-btn:hover {
-    background: #f0ece4;
-    border-left-color: #a08050;
+    background: var(--ref-surface-hover);
+    border-left-color: var(--ref-accent-strong);
   }
 
   .band-box-chevron {
     display: inline-block;
     font-size: 9px;
-    color: #a08050;
+    color: var(--ref-accent-strong);
     margin-left: 4px;
     transition: transform 0.15s;
   }
@@ -334,19 +335,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    border: 1px solid #e2d9c9;
+    background: var(--surface);
+    border: 1px solid var(--ref-border);
     border-radius: 4px;
-    color: #a08050;
+    color: var(--ref-accent-strong);
     font-size: 11px;
     line-height: 1;
     cursor: pointer;
     padding: 0;
   }
   .band-goto-btn:hover {
-    background: #f0ece4;
-    border-color: #a08050;
-    color: #8a6d00;
+    background: var(--ref-surface-hover);
+    border-color: var(--ref-accent-strong);
+    color: var(--ref-accent-deep);
   }
 
   .band-box-line {
@@ -359,14 +360,14 @@
   .band-name {
     font-size: 13.5px;
     font-weight: 600;
-    color: #222;
+    color: var(--ink-800);
   }
 
 
   .badge-wn {
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
+    background: var(--badge-wn-bg);
+    border: 1px solid var(--badge-wn-border);
+    color: var(--badge-wn-fg);
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11.5px;
@@ -376,7 +377,7 @@
 
   .band-desc {
     font-size: 12.5px;
-    color: #555;
+    color: var(--ink-500);
     line-height: 1.45;
     margin-top: 5px;
   }
@@ -391,13 +392,13 @@
 
   .citation-line {
     font-size: 12px;
-    color: #8a7a4a;
+    color: var(--ref-meta);
     margin-top: 5px;
   }
 
   .no-bands {
     font-size: 13px;
-    color: #888;
+    color: var(--ink-200);
     font-style: italic;
   }
 
@@ -415,11 +416,11 @@
     border: none;
     padding: 0;
     font-size: 13px;
-    color: #555;
+    color: var(--ink-500);
     cursor: pointer;
     text-align: left;
     line-height: 1.45;
   }
 
-  .ref-btn:hover { color: #1a3a8f; text-decoration: underline; }
+  .ref-btn:hover { color: var(--brand-accent); text-decoration: underline; }
 </style>

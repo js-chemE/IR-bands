@@ -1,3 +1,9 @@
+<script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher<{ navigate: { page: string } }>();
+</script>
+
 <main class="content">
   <h1 class="page-title">Impressum</h1>
 
@@ -121,6 +127,24 @@
   </section>
 
   <section class="section">
+    <h2>Style guide</h2>
+    <p>
+      How the atlas is put together: type scale, colour tokens, colormaps, page
+      layout, and the rules for what goes into a band entry and how long it may be.
+      Every value on that page is read from the same token module the interface
+      itself uses.
+    </p>
+    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'styleguide' })}>
+      <div class="dl-icon">&rarr;</div>
+      <div class="dl-body">
+        <div class="dl-name">Open the style guide</div>
+        <div class="dl-desc">Design tokens, typography, band-chart layout and content rules</div>
+        <code class="dl-file">frontend/src/lib/tokens.ts</code>
+      </div>
+    </button>
+  </section>
+
+  <section class="section">
     <h2>Disclaimer</h2>
     <p>
       This atlas is provided for informational and research purposes without warranty
@@ -133,40 +157,41 @@
 </main>
 
 <style>
+  /* Type roles come from lib/tokens.ts; see the Style guide page. */
   .content {
     padding: 28px 48px 48px;
     max-width: 760px;
     box-sizing: border-box;
-    font-size: 14.5px;
-    line-height: 1.6;
+    font-size: var(--t-body-size);
+    line-height: var(--t-body-lh);
   }
 
   .page-title {
-    font-size: 27px;
-    font-weight: 800;
-    color: #1a3055;
+    font-size: var(--t-page-title-size);
+    font-weight: var(--t-page-title-weight);
+    color: var(--t-page-title-color);
     margin: 0 0 32px;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--t-page-title-ls);
   }
 
   .section {
-    margin-bottom: 36px;
+    margin-bottom: var(--space-6);
   }
 
   .section h2 {
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #6b7a8f;
+    font-size: var(--t-section-head-size);
+    font-weight: var(--t-section-head-weight);
+    text-transform: var(--t-section-head-tt);
+    letter-spacing: var(--t-section-head-ls);
+    color: var(--t-section-head-color);
     margin: 0 0 12px;
     padding-bottom: 6px;
-    border-bottom: 1px solid #e8edf3;
+    border-bottom: 1px solid var(--line-heading);
   }
 
   .section p {
     margin: 0 0 10px;
-    color: #334;
+    color: var(--ink-700);
   }
 
   /* ── Info grid ── */
@@ -178,26 +203,26 @@
 
   .info-row {
     display: flex;
-    gap: 16px;
-    font-size: 14px;
-    line-height: 1.5;
+    gap: var(--space-4);
+    font-size: var(--t-label-size);
+    line-height: var(--t-label-lh);
   }
 
   .info-label {
     flex: 0 0 110px;
-    font-weight: 600;
-    color: #556;
+    font-weight: var(--t-label-weight);
+    color: var(--t-label-color);
   }
 
   .info-row a {
-    color: #2c4a6e;
+    color: var(--brand-700);
     text-decoration: underline;
   }
-  .info-row a:hover { color: #1a3055; }
+  .info-row a:hover { color: var(--brand-900); }
 
   /* ── Download cards ── */
   .dl-intro {
-    color: #556;
+    color: var(--ink-500);
     margin-bottom: 14px !important;
   }
 
@@ -209,11 +234,11 @@
   }
 
   .dl-row-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #8a93a3;
+    font-size: var(--t-micro-label-size);
+    font-weight: var(--t-micro-label-weight);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    color: var(--t-micro-label-color);
     margin-bottom: 6px;
   }
 
@@ -229,11 +254,11 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    background: #f8f6f1;
-    border: 1px solid #e2d9c9;
-    border-left: 3px solid #c4a86e;
-    border-radius: 8px;
-    padding: 14px 16px;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
+    border-radius: var(--radius-lg);
+    padding: 14px var(--space-4);
     text-decoration: none;
     color: inherit;
     transition: box-shadow 0.15s ease, transform 0.12s ease;
@@ -247,7 +272,7 @@
   .dl-icon {
     font-size: 21px;
     font-weight: 700;
-    color: #c4a86e;
+    color: var(--ref-accent);
     line-height: 1;
     padding-top: 1px;
     flex-shrink: 0;
@@ -256,24 +281,46 @@
   .dl-name {
     font-size: 14.5px;
     font-weight: 700;
-    color: #1a2a3a;
+    color: var(--ink-slate-900);
     margin-bottom: 3px;
   }
 
   .dl-desc {
     font-size: 13px;
-    color: #667;
+    color: var(--ink-400);
     line-height: 1.4;
     margin-bottom: 6px;
   }
 
+  /* Same anatomy as a download card, but it navigates instead of downloading. */
+  .sg-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    max-width: 420px;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
+    border-radius: var(--radius-lg);
+    padding: 14px var(--space-4);
+    transition: box-shadow 0.15s ease, transform 0.12s ease;
+  }
+  .sg-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
   .dl-file {
-    font-size: 12px;
-    font-family: ui-monospace, 'Courier New', monospace;
-    background: #ede8de;
-    color: #7a6040;
+    font-size: var(--t-code-size);
+    font-family: var(--t-code-ff);
+    background: var(--ref-code-bg);
+    color: var(--t-code-color);
     padding: 1px 6px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     display: inline-block;
   }
 </style>

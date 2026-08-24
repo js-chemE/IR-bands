@@ -47,7 +47,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #555;
+    color: var(--ink-500);
   }
 
   .row {
@@ -59,12 +59,12 @@
     flex: 1;
     padding: 4px 6px;
     font-size: 13px;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: white;
     cursor: pointer;
     box-sizing: border-box;
   }
 
-  select:hover { border-color: #A0A0A0; }
+  select:hover { border-color: var(--ink-050); }
 </style>

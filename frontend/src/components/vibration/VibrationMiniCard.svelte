@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C } from '../../lib/tokens';
   import { onDestroy, createEventDispatcher } from 'svelte';
   import type { VibrationMode } from '../../lib/types';
   import type { MoleculeGeometry } from '../../lib/moleculeGeometry';
@@ -22,7 +23,7 @@
   // and make the whole thing disappear before the mouseenter ever lands.
   export let interactive: boolean;
 
-  const GREY = '#7F7F7F';
+  const GREY = C['data-grey'];
   $: vibKey = mode.subtype ? `${mode.category}.${mode.subtype}` : mode.category;
   $: color = VIBRATION_PALETTE[vibKey] ?? GREY;
 
@@ -90,9 +91,9 @@
 
 <style>
   .mini-card {
-    border-left: 3px solid #888;
+    border-left: 3px solid var(--ink-200);
     border-radius: 0 4px 4px 0;
-    background: #fff;
+    background: var(--surface);
     padding: 4px 7px 2px;
   }
 
@@ -120,9 +121,9 @@
 
   .mini-herzberg {
     font-size: 10.5px;
-    color: #8a8f98;
-    background: #f9fafb;
-    border: 1px solid #eaecef;
+    color: var(--pill-muted-fg);
+    background: var(--pill-muted-bg);
+    border: 1px solid var(--pill-muted-border);
     border-radius: 3px;
     padding: 0 4px;
   }
@@ -149,7 +150,7 @@
     border-radius: 3px;
     padding: 0 4px;
     font-size: 10.5px;
-    color: #fff;
+    color: var(--surface);
     white-space: nowrap;
   }
 
