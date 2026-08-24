@@ -3,6 +3,9 @@ import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap } f
 import { getCat, getCatLabel, getCatColor, getColor, TAG_STYLES, DEFAULT_TAG_STYLE } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
 import { C, FONTS, CHART_LAYOUT } from './tokens';
+// Notation lives in its own module: the same maps back the Style guide's
+// character inventory, so the rule and the code cannot disagree.
+import { htmlToUnicode } from './notation';
 
 // Geometry lives in tokens.ts with the rest of the design system; these are
 // re-exported so existing importers of './chart' keep working.
@@ -276,26 +279,6 @@ function formatShortRef(ref: Record<string, string | undefined>, key: string): s
 // ---------------------------------------------------------------------------
 // HTML sub/sup → Unicode conversion (short/description fields use <sub> tags)
 // ---------------------------------------------------------------------------
-
-const SUB_CHARS: Record<string, string> = {
-  '0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉',
-  'a':'ₐ','e':'ₑ','o':'ₒ','x':'ₓ','h':'ₕ','k':'ₖ','l':'ₗ','m':'ₘ','n':'ₙ',
-  'p':'ₚ','s':'ₛ','t':'ₜ','+':'₊','-':'₋','=':'₌','(':'₍',')':'₎',
-};
-const SUP_CHARS: Record<string, string> = {
-  '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹',
-  '+':'⁺','-':'⁻','=':'⁼','(':'⁽',')':'⁾','n':'ⁿ','i':'ⁱ',
-};
-
-function htmlToUnicode(text: string): string {
-  if (!text) return text;
-  return text
-    .replace(/<sub>([^<]*)<\/sub>/gi, (_, inner: string) =>
-      [...inner].map(c => SUB_CHARS[c] ?? c).join(''))
-    .replace(/<sup>([^<]*)<\/sup>/gi, (_, inner: string) =>
-      [...inner].map(c => SUP_CHARS[c] ?? c).join(''))
-    .replace(/<[^>]+>/g, ''); // strip any remaining tags
-}
 
 function bandName(b: Band): string {
   if (b.short) return htmlToUnicode(b.short);

@@ -31,6 +31,25 @@ VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 DESCRIPTION_MAX_WORDS = 120
 REFERENCE_NOTE_MAX_WORDS = 150
 
+# Notation policy: text is written with real Unicode sub/superscript characters
+# (CO₂, cm⁻¹, Cu²⁺, ν₁), never with markup. The single exception is a label whose
+# subscript is a letter Unicode has none for, which in practice means point-group
+# and Mulliken symbols; those live in vibrations.jsonc's `point_group` and
+# `symmetry` fields and are the only places <sub>/<sup> may appear. See the
+# Notation section of the Style guide page.
+MARKUP_EXEMPT_VIBRATION_FIELDS = ("point_group", "symmetry")
+
+# An underscore in prose is nearly always a subscript that never got typed
+# ("nu_as", "V_O"). Text fields carry the real character instead. This map
+# mirrors SUB_CHARS in frontend/src/lib/notation.ts; keep the two in step.
+SUBSCRIPT_CHARS = {
+    "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
+    "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+    "a": "ₐ", "e": "ₑ", "o": "ₒ", "x": "ₓ", "h": "ₕ", "k": "ₖ", "l": "ₗ",
+    "m": "ₘ", "n": "ₙ", "p": "ₚ", "s": "ₛ", "t": "ₜ",
+    "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
+}
+
 
 @dataclass
 class Vibration:

@@ -53,6 +53,7 @@ frontend/src/
   lib/
     tokens.ts             ← DESIGN TOKENS: every color, type role, radius, shadow,
                               chart dimension and editorial limit, in one place
+    notation.ts           ← sub/superscript character maps + htmlToUnicode()
     chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
@@ -115,6 +116,37 @@ Rules when touching the frontend:
 entry; it never fails the build. The numbers live in `DESCRIPTION_MAX_WORDS` /
 `REFERENCE_NOTE_MAX_WORDS` in `schema.py` and in `CONTENT_LIMITS` in
 `tokens.ts`. Change one, change the other.
+
+### Notation: Unicode, not markup
+
+Text in the data files is written with **real Unicode characters**: `CO₂`,
+`cm⁻¹`, `Cu²⁺`, `¹³CO`, `κ²-HCOO*`, `νₐₛ(OCO)`, `μ₂`. Never `<sub>`/`<sup>`,
+never `<em>`/`<strong>`, never HTML entities, never LaTeX, never bare `CO2`.
+
+The reason is that the same string is rendered two ways: the chart tooltip is
+plain text and runs fields through `htmlToUnicode()` (in
+`frontend/src/lib/notation.ts`), which converts sub/sup tags and **strips
+everything else**, while `ReferencesPage.svelte` and `ModeDetailPanel.svelte`
+render the same fields with `{@html}`. Markup therefore reads differently in
+two places; Unicode survives both.
+
+**The one exception**: `topologies[].point_group` and `modes[].symmetry` in
+`data/vibrations.jsonc` carry literal `<sub>`/`<sup>` tags, because point-group
+and Mulliken labels need letter subscripts (g, u, v, d) that Unicode has no
+characters for. Those two fields, and nothing else in the project. They are
+listed in `MARKUP_EXEMPT_VIBRATION_FIELDS` in `schema.py`.
+
+**Underscores**: an underscore in text is a subscript nobody typed. Write the
+character (`ν_as` → `νₐₛ`, `V_O` → `Vₒ`, `H_2O` → `H₂O`); where the subscript is
+a letter Unicode has none for, parenthesise instead (`A_HF/A_LF` → `A(HF)/A(LF)`,
+`TOF_MeOH` → `TOF(MeOH)`). The only underscores that belong in text are machine
+identifiers: band ids, group keys, enum values, field names. Prose may name one
+verbatim.
+
+`build.py` warns when markup turns up in a band's `short`, `description`,
+`species` or a reference `note`, and when an underscored word in any of those
+(or in a reference `site`) is not a known identifier. The underscore warning
+carries the corrected spelling.
 
 ## Key design decisions
 

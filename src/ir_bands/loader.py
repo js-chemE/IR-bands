@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import fields
 from pathlib import Path
 
 from ir_bands.schema import (
@@ -17,6 +18,7 @@ from ir_bands.schema import (
     Vibration, VibrationMode, Vibrations,
     VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
     DESCRIPTION_MAX_WORDS, REFERENCE_NOTE_MAX_WORDS,
+    MARKUP_EXEMPT_VIBRATION_FIELDS, SUBSCRIPT_CHARS,
 )
 
 
@@ -152,6 +154,47 @@ def load_dataset(path: str | Path) -> Dataset:
 # ---------------------------------------------------------------------------
 
 _TAG_RE = re.compile(r"<[^>]+>")
+# Markup that has no business in a field written with Unicode characters: any
+# tag, any HTML entity, any LaTeX math span. See MARKUP_EXEMPT_VIBRATION_FIELDS
+# in schema.py for the one exception.
+_MARKUP_RE = re.compile(r"<[^>]+>|&[A-Za-z]+;|&#\d+;|\$[^$]+\$")
+
+
+def _markup_in(text: str | None) -> list[str]:
+    """Markup fragments found in text that should be plain Unicode."""
+    return [] if not text else _MARKUP_RE.findall(text)
+
+
+# Words are split on whitespace and sentence punctuation, but NOT on "_" or "/":
+# a band id has to survive as one token so it can be recognised, and ids are
+# often written as "a/b" when two are named together.
+_WORD_RE = re.compile(r"[^\s,;:()\[\]\"']+")
+
+
+def _subscript_suggestion(token: str) -> str:
+    """`nu_as` -> `nuₐₛ` when every character has a real subscript, else ''."""
+    head, _, tail = token.partition("_")
+    if not tail or "_" in tail:
+        return ""
+    sub = "".join(SUBSCRIPT_CHARS.get(c, "") for c in tail)
+    return f"{head}{sub}" if len(sub) == len(tail) else ""
+
+
+def _underscores_in(text: str | None, identifiers: set[str]) -> list[tuple[str, str]]:
+    """Underscored words that are not machine identifiers, with a suggestion.
+
+    An underscore in a text field is a subscript someone did not type. Band ids,
+    group keys, enum values and schema field names are the exception: those are
+    identifiers, and prose does name them.
+    """
+    found: list[tuple[str, str]] = []
+    for word in _WORD_RE.findall(text or ""):
+        for token in word.split("/"):
+            token = token.strip(".,;:()[]\"'")
+            if "_" not in token or token in identifiers:
+                continue
+            found.append((token, _subscript_suggestion(token)))
+    return found
 
 
 def _word_count(text: str | None) -> int:
@@ -283,7 +326,58 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                     f"(limit {REFERENCE_NOTE_MAX_WORDS})"
                 )
 
-    # 9. Reference keys resolve (if a references map is provided)
+    # 9. Notation (warning only): Unicode characters, not markup. The chart
+    #    tooltip strips tags while the References page renders them, so markup
+    #    makes the same sentence read differently in two places.
+    for b in dataset.bands:
+        for field, text in (
+            ("short", b.short),
+            ("description", b.description),
+            ("species", b.species),
+        ):
+            for frag in _markup_in(text):
+                warnings.append(
+                    f"Band {b.id}: {field} contains markup {frag!r}; "
+                    f"write the Unicode character instead"
+                )
+        for ref in b.references:
+            for frag in _markup_in(ref.note):
+                warnings.append(
+                    f"Band {b.id}, reference {ref.key}: note contains markup "
+                    f"{frag!r}; write the Unicode character instead"
+                )
+
+    # 10. Underscores (warning only). Machine identifiers keep theirs; prose
+    #     does not, because an underscore in prose is a subscript that never
+    #     got typed.
+    identifiers = set(id_set) | set(dataset.groups) | VALID_WIDTHS | VALID_INTENSITIES
+    identifiers |= VALID_CONFIDENCES | branch_group_set
+    identifiers |= {f.name for f in fields(Band)}
+    for b in dataset.bands:
+        checks = [
+            ("short", b.short),
+            ("description", b.description),
+            ("species", b.species),
+        ]
+        for ref in b.references:
+            checks.append((f"reference {ref.key} note", ref.note))
+            for site in (ref.site if isinstance(ref.site, list) else [ref.site]):
+                if site:
+                    checks.append((f"reference {ref.key} site", site))
+        for field, text in checks:
+            for token, suggestion in _underscores_in(text, identifiers):
+                fix = (
+                    f"write {suggestion!r}"
+                    if suggestion
+                    else "no Unicode subscript exists for those letters, so "
+                         "parenthesise instead, e.g. A(HF)"
+                )
+                warnings.append(
+                    f"Band {b.id}: {field} contains {token!r}; an underscore in "
+                    f"text is a subscript that was never typed: {fix}"
+                )
+
+    # 11. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
             for ref in b.references:

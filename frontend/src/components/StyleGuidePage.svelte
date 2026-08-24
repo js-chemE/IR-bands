@@ -19,9 +19,11 @@
     { id: 'shape',        label: 'Shape & layout' },
     { id: 'bandchart',    label: '2 · Band chart', part: true },
     { id: 'chart-layout', label: 'Chart layout & marks' },
+    { id: 'links',        label: 'Band relationships' },
     { id: 'tooltip',      label: 'Tooltip anatomy' },
     { id: 'contentrules', label: '3 · Content rules', part: true },
     { id: 'limits',       label: 'Length limits' },
+    { id: 'notation',     label: 'Notation' },
     { id: 'fields',       label: 'Fields & vocabularies' },
   ];
 </script>
@@ -58,6 +60,7 @@
     C,
   } from '../lib/tokens';
   import { ELEMENT_COLORS } from '../lib/elementColors';
+  import { SUB_CHARS, SUP_CHARS, MISSING_SUBSCRIPT_LETTERS, htmlToUnicode } from '../lib/notation';
   import type { TypeRole } from '../lib/tokens';
 
   const dispatch = createEventDispatcher<{ active: { id: string } }>();
@@ -185,6 +188,24 @@
         ['speculative', 'Inferred, not directly observed'],
       ],
     },
+  ];
+
+  // ── Notation ──
+  // Rendered live through the real converter, so the comparison cannot drift
+  // from what the tooltip actually does with each string.
+  const NOTATION_CASES: { src: string; verdict: 'ok' | 'exception' | 'bad'; why: string }[] = [
+    { src: 'CO₂ at 2349 cm⁻¹', verdict: 'ok',
+      why: 'Unicode: identical everywhere, searchable, copies cleanly.' },
+    { src: 'κ²-HCOO* on Cu⁺', verdict: 'ok',
+      why: 'Charges and hapticity are digits, which Unicode has.' },
+    { src: 'C<sub>2v</sub>', verdict: 'exception',
+      why: 'Point group: the subscript is a letter, so this field is HTML and rendered as HTML. Note what the plain-text path can do with it.' },
+    { src: '<em>metallic</em> Cu', verdict: 'bad',
+      why: 'Emphasis markup survives on the References page and is stripped in the tooltip: the same sentence reads differently in two places.' },
+    { src: 'ν_as at 1605 cm⁻¹', verdict: 'bad',
+      why: 'An underscore is a subscript nobody typed. Nothing converts it, so it stays broken on every surface: write νₐₛ.' },
+    { src: 'see co_gemdi_sym_2035', verdict: 'ok',
+      why: 'The exception: a band id is a machine identifier and keeps its underscores, in prose too.' },
   ];
 
   // The samples below are written to sit inside their limits, and say out loud
@@ -537,9 +558,7 @@
             <tr><th>Outline</th><td class="spec-val">0.5px, 35% black</td><td>Keeps two touching bands of similar hue apart.</td></tr>
             <tr><th>Hatched</th><td class="spec-val">diagonal 5px</td><td>An isotopologue: same normal mode, heavier molecule. Structural, so it survives every colour dimension.</td></tr>
             <tr><th>Dashed, faded</th><td class="spec-val">ir-inactive</td><td>A mode that exists but is not observed in IR.</td></tr>
-            <tr><th>Solid connector</th><td class="spec-val">ink-500</td><td>Branch group: the P, Q, R branches of one band.</td></tr>
-            <tr><th>Dashed connector</th><td class="spec-val">ink-500, "fermi"</td><td>Fermi resonance partners.</td></tr>
-            <tr><th>Dotted connector</th><td class="spec-val">isotopic-shift colour</td><td>Isotopologue to parent. The connector reuses the tag colour on purpose.</td></tr>
+            <tr><th>Connectors</th><td class="spec-val">four kinds</td><td>Drawn only while a band is hovered or pinned, never at rest. Each relationship has its own line, see the next section.</td></tr>
           </tbody>
         </table>
       </section>
@@ -599,6 +618,143 @@
           <span>isotopologue to parent</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Spread: band relationships ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="links" data-sg-section="links">
+        <h3>Band relationships</h3>
+        <p>
+          Four kinds of link exist between bands, and each one is a different
+          claim. They are drawn only while a band is hovered or pinned, so the
+          chart at rest stays a plain map of positions.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <th>parent</th>
+              <td class="spec-val">arc, solid</td>
+              <td>
+                A combination or overtone pointing at the mode it is built from.
+                Authored as <code>based_on</code> on the child, one entry per
+                parent, each with a <code>multiplier</code> (2 for an overtone,
+                1 + 1 for a sum band). Child to parent only.
+              </td>
+            </tr>
+            <tr>
+              <th>branch</th>
+              <td class="spec-val">straight line</td>
+              <td>
+                The P, Q and R branches of one vibration. Authored by giving the
+                siblings the same <code>branch_group</code> key; the link is
+                mutual and every sibling sees every other.
+              </td>
+            </tr>
+            <tr>
+              <th>fermi</th>
+              <td class="spec-val">bracket, dashed</td>
+              <td>
+                Two modes in Fermi resonance. Authored as
+                <code>fermi_partner</code> (one band) or
+                <code>fermi_partner_group</code> (a whole branch group). The
+                <code>fermi-resonance</code> tag is added by
+                <code>build.py</code> only when both sides name each other, so a
+                one-sided claim stays visible as untagged.
+              </td>
+            </tr>
+            <tr>
+              <th>isotopologue</th>
+              <td class="spec-val">bracket, dotted</td>
+              <td>
+                The same normal mode on a heavier molecule. Authored as
+                <code>isotopologue_of</code> plus an <code>isotope</code> label,
+                child to parent, one step, never a chain.
+                <code>build.py</code> adds <code>isotopic-shift</code> to the
+                child alone.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Authoring a parent link</h4>
+        <ul class="rules">
+          <li>Point at a specific band with <code>band_id</code> when the parent vibration has one reported position.</li>
+          <li>Point at a <code>branch_group</code> instead when the parent is itself split into branches: a combination built from ν₃ is built from ν₃ whichever branch a paper happened to read.</li>
+          <li>Give <code>label</code> alone, with neither id nor group, when the parent mode is not in the dataset at all (an IR-inactive fundamental, for instance). The band then states its parentage without drawing a line to nothing.</li>
+          <li>An overtone is not a category: keep the parent's <code>vibration.category</code>, add the <code>overtone</code> tag, and let <code>based_on</code> with <code>multiplier: 2</code> carry the arithmetic.</li>
+          <li>Never point a child at itself, and never invent a parent to justify a band whose assignment is uncertain. That is what <code>confidence</code> is for.</li>
+        </ul>
+
+        <h4>Why the shapes differ</h4>
+        <p>
+          A straight line reads as "these are the same thing, split"; a bracket
+          reads as "these two are coupled"; an arc reads as "this one is built
+          from that one". The arcs also carry the only geometry rule worth
+          knowing: when a child has several parents, each arc's height is scaled
+          by how far it travels, so nested arcs never cross each other.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">The four connectors</div>
+      <div class="link-demo">
+        <svg viewBox="0 0 420 300" class="link-svg" aria-hidden="true">
+          <defs>
+            <pattern id="sg-iso-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <rect width="5" height="5" fill={ATOMS_PALETTE['C-D']} />
+              <line x1="0" y1="0" x2="0" y2="5" stroke="rgba(255,255,255,0.9)" stroke-width="2" />
+            </pattern>
+          </defs>
+          <!-- parent arcs: one child, two parents, heights scaled by span -->
+          <text x="0" y="12" class="link-cap">parent (based_on), arcs nest by span</text>
+          <rect x="16" y="58" width="70" height="12" rx="1" fill={VIBRATION_PALETTE['combination']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="180" y="58" width="60" height="12" rx="1" fill={VIBRATION_PALETTE['bend']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="320" y="58" width="60" height="12" rx="1" fill={VIBRATION_PALETTE['stretch']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <path d="M 51 58 Q 130 34 210 58" fill="none" stroke={C['ink-500']} stroke-width="1.25" stroke-linecap="round" opacity="0.8" />
+          <path d="M 51 58 Q 200 20 350 58" fill="none" stroke={C['ink-500']} stroke-width="1.25" stroke-linecap="round" opacity="0.8" />
+          <text x="16" y="86" class="link-lbl">child</text>
+          <text x="180" y="86" class="link-lbl">parent ν₂</text>
+          <text x="320" y="86" class="link-lbl">parent ν₃</text>
+
+          <!-- branch -->
+          <text x="0" y="126" class="link-cap">branch group, straight</text>
+          <rect x="16" y="146" width="46" height="12" rx="1" fill={VIBRATION_PALETTE['stretch']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="120" y="146" width="46" height="12" rx="1" fill={VIBRATION_PALETTE['stretch']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="224" y="146" width="46" height="12" rx="1" fill={VIBRATION_PALETTE['stretch']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <line x1="39" y1="152" x2="247" y2="152" stroke={C['ink-500']} stroke-width="1.25" stroke-linecap="round" opacity="0.8" />
+          <text x="16" y="174" class="link-lbl">P</text>
+          <text x="120" y="174" class="link-lbl">Q</text>
+          <text x="224" y="174" class="link-lbl">R</text>
+
+          <!-- fermi -->
+          <text x="0" y="212" class="link-cap">fermi, dashed</text>
+          <text x="248" y="212" class="link-cap">isotopologue, dotted</text>
+          <rect x="16" y="240" width="60" height="12" rx="1" fill={VIBRATION_PALETTE['stretch.symmetric']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="150" y="240" width="60" height="12" rx="1" fill={VIBRATION_PALETTE['combination']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <path d="M 46 240 V 226 H 180 V 240" fill="none" stroke={C['ink-500']} stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8" />
+          <text x="80" y="222" class="link-inline">fermi</text>
+          <text x="16" y="268" class="link-lbl">νₛ</text>
+          <text x="150" y="268" class="link-lbl">2δ</text>
+
+          <!-- isotopologue -->
+          <rect x="262" y="240" width="60" height="12" rx="1" fill={ATOMS_PALETTE['C-H']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <rect x="352" y="240" width="56" height="12" rx="1" fill="url(#sg-iso-hatch)" stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
+          <path d="M 292 240 V 226 H 380 V 240" fill="none" stroke={TAG_STYLES['isotopic-shift'].color} stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
+          <text x="262" y="268" class="link-lbl">ν(C–H)</text>
+          <text x="352" y="268" class="link-lbl">ν(C–D)</text>
+        </svg>
+      </div>
+
+      <table class="spec-table link-table">
+        <tbody>
+          <tr><th>arc height</th><td class="spec-val">1.8 lanes</td><td>parent link, scaled down for the nearer of several parents</td></tr>
+          <tr><th>bracket height</th><td class="spec-val">0.8 / 0.5 lanes</td><td>fermi / isotopologue, low enough to stay inside the neighbouring lane</td></tr>
+          <tr><th>direction</th><td class="spec-val">child to parent</td><td>parent and isotopologue links are one-directional; branch and fermi are mutual</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -743,6 +899,132 @@
           </span>
         </div>
         <div class="sample-body tip-ref-note">{SAMPLE_NOTE}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Spread: notation ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="notation" data-sg-section="notation">
+        <h3>Notation</h3>
+        <p>
+          One convention, so a formula reads the same wherever it lands:
+          <strong>write real Unicode characters in the data, not markup</strong>.
+          CO₂, not CO2 and not CO&lt;sub&gt;2&lt;/sub&gt;. cm⁻¹, Cu²⁺, ¹³CO, κ²-HCOO*,
+          νₐₛ(OCO), μ₂. The whole of <code>bands.jsonc</code> is already written
+          this way.
+        </p>
+        <p>
+          The reason is not taste. The same string is rendered two different ways:
+          the chart tooltip is plain text and runs everything through
+          <code>htmlToUnicode()</code>, which converts sub/sup tags and strips
+          every other tag, while the References page and the mode panel render
+          tags for real. Unicode is the only notation that survives both
+          untouched.
+        </p>
+
+        <h4>The one exception</h4>
+        <p>
+          Unicode has subscripts for every digit but only for a handful of
+          letters, and the missing ones (g, u, v, d…) are exactly the letters
+          point-group and Mulliken labels need. So
+          <code>topologies[].point_group</code> and <code>modes[].symmetry</code>
+          in <code>vibrations.jsonc</code>, and only those two fields, carry
+          literal <code>&lt;sub&gt;</code> / <code>&lt;sup&gt;</code> tags.
+          Everything else in that file is Unicode like the rest.
+        </p>
+
+        <h4>Underscores</h4>
+        <p>
+          An underscore in text is almost always a subscript that never got
+          typed: <code>ν_as</code>, <code>V_O</code>, <code>H_2O</code>. It is
+          not markup and nothing in the pipeline converts it, so it stays broken
+          on every surface. Type the character: νₐₛ, Vₒ, H₂O.
+        </p>
+        <p>
+          When the subscript is a letter Unicode has none for (capitals, and most
+          consonants), parenthesise rather than leave the underscore standing:
+          <code>A_HF/A_LF</code> becomes A(HF)/A(LF), <code>TOF_MeOH</code>
+          becomes TOF(MeOH), <code>R_M</code> becomes R(M).
+        </p>
+        <p>
+          The only underscores that belong anywhere are <strong>machine
+          identifiers</strong>: band ids (<code>co_gemdi_sym_2035</code>), group
+          keys (<code>support_oh</code>), enum values
+          (<code>very_broad</code>), field names. Prose may name one verbatim,
+          and <code>build.py</code> recognises them and stays quiet; every other
+          underscore gets a warning, with the corrected spelling in the message.
+        </p>
+
+        <h4>Never</h4>
+        <ul class="rules">
+          <li><strong>Bare digits</strong> in a formula: CO2, H2O, cm-1. If the character exists, use it.</li>
+          <li><strong>Underscores</strong> outside a machine identifier. See above.</li>
+          <li><strong>Emphasis markup</strong> (<code>&lt;em&gt;</code>, <code>&lt;strong&gt;</code>) anywhere in band text. It disappears in the tooltip. Carry emphasis with word order, or with a shorter sentence.</li>
+          <li><strong>HTML entities</strong> (<code>&amp;#8322;</code>, <code>&amp;sup2;</code>) in the JSONC files. They are neither a character nor a rendered tag, so they print literally in half the surfaces.</li>
+          <li><strong>LaTeX</strong> (<code>$_2$</code>, <code>\nu</code>). Nothing in the pipeline parses it.</li>
+          <li><strong>Sub/sup tags in <code>bands.jsonc</code></strong>, even for a letter subscript. A band label that needs one is usually a symmetry symbol, and those live in <code>vibrations.jsonc</code>.</li>
+        </ul>
+        <p class="rule-note">
+          <code>build.py</code> warns when markup turns up in a field that should
+          be plain Unicode, the same way it warns about length.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">Characters and what survives</div>
+
+      <div class="map-block">
+        <div class="map-head">Subscript <span class="map-src">available</span></div>
+        <div class="char-row">
+          {#each Object.entries(SUB_CHARS) as [src, ch]}
+            <span class="char-cell" title="{src}">{ch}</span>
+          {/each}
+        </div>
+      </div>
+
+      <div class="map-block">
+        <div class="map-head">Superscript <span class="map-src">available</span></div>
+        <div class="char-row">
+          {#each Object.entries(SUP_CHARS) as [src, ch]}
+            <span class="char-cell" title="{src}">{ch}</span>
+          {/each}
+        </div>
+      </div>
+
+      <div class="map-block">
+        <div class="map-head">No subscript exists <span class="map-src">hence the exception</span></div>
+        <div class="char-row">
+          {#each MISSING_SUBSCRIPT_LETTERS as c}
+            <span class="char-cell missing">{c}</span>
+          {/each}
+        </div>
+      </div>
+
+      <div class="map-block">
+        <div class="map-head">Same string, two surfaces</div>
+        <table class="notation-table">
+          <thead>
+            <tr><th>written</th><th>tooltip</th><th>page</th></tr>
+          </thead>
+          <tbody>
+            {#each NOTATION_CASES as c}
+              <tr class="verdict-{c.verdict}">
+                <td class="n-src">{c.src}</td>
+                <td class="n-out">{htmlToUnicode(c.src)}</td>
+                <td class="n-out">{@html c.src}</td>
+              </tr>
+              <tr class="verdict-{c.verdict}">
+                <td class="n-why" colspan="3">
+                  <span class="verdict-tag">{c.verdict === 'ok' ? 'use this' : c.verdict === 'exception' ? 'two fields only' : 'never'}</span>
+                  {c.why}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -1244,6 +1526,31 @@
   }
   .mark-svg { flex: 0 0 120px; height: 14px; }
 
+  /* ── Relationship diagram ── */
+  .link-demo {
+    border: 1px solid var(--line-faint);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 10px 12px;
+    margin-bottom: var(--space-4);
+  }
+  .link-svg { width: 100%; height: auto; display: block; }
+  .link-svg :global(.link-cap) {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    fill: var(--ink-slate-400);
+  }
+  .link-svg :global(.link-lbl) { font-size: 10px; fill: var(--ink-400); }
+  .link-svg :global(.link-inline) {
+    font-size: 10px;
+    font-style: italic;
+    fill: var(--ink-300);
+  }
+  .link-svg :global(.link-inline.iso) { fill: var(--ink-slate-500); }
+  .link-table { margin-bottom: 0; }
+
   /* ── Tooltip replica ──
      Same structure and the same tokens as .band-tooltip in BandChart.svelte. */
   .tip-demo {
@@ -1453,6 +1760,87 @@
     padding-left: 12px;
     border-bottom: none;
     margin-bottom: 0;
+  }
+
+  /* ── Notation ── */
+  .char-row { display: flex; flex-wrap: wrap; gap: 3px; }
+  .char-cell {
+    min-width: 22px;
+    padding: 4px 5px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line-faint);
+    border-radius: var(--radius-sm);
+    color: var(--ink-700);
+  }
+  .char-cell.missing {
+    background: var(--pill-muted-bg);
+    border-style: dashed;
+    color: var(--ink-025);
+    text-decoration: line-through;
+  }
+
+  .notation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .notation-table th {
+    text-align: left;
+    font-size: var(--t-micro-label-size);
+    font-weight: var(--t-micro-label-weight);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    color: var(--t-micro-label-color);
+    padding: 0 8px 4px 0;
+  }
+  .notation-table td {
+    padding: 5px 8px 5px 0;
+    vertical-align: top;
+    color: var(--ink-600);
+  }
+  .n-src {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500) !important;
+    word-break: break-all;
+  }
+  .n-out { color: var(--ink-800) !important; }
+  .n-why {
+    font-size: 11.5px;
+    color: var(--ink-400) !important;
+    border-bottom: 1px solid var(--line-faint);
+    padding-bottom: 8px !important;
+  }
+  .verdict-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-sm);
+    padding: 0 5px;
+    margin-right: 5px;
+    background: var(--pill-muted-bg);
+    border: 1px solid var(--pill-muted-border);
+    color: var(--pill-muted-fg);
+  }
+  .verdict-ok .verdict-tag {
+    background: var(--badge-wn-bg);
+    border-color: var(--badge-wn-border);
+    color: var(--badge-wn-fg);
+  }
+  .verdict-exception .verdict-tag {
+    background: var(--badge-site-bg);
+    border-color: var(--badge-site-border);
+    color: var(--badge-site-fg);
+  }
+  .verdict-bad .verdict-tag {
+    background: var(--alert-bg);
+    border-color: var(--alert-border);
+    color: var(--alert-fg);
   }
 
   /* ── Where fields surface ── */
