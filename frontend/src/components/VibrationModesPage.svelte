@@ -314,9 +314,9 @@
 
   .wip-badge {
     display: inline-block;
-    background: #FFF3CD;
-    border: 1px solid #E6C86A;
-    color: #7A5A00;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-fg);
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -329,14 +329,14 @@
   h1 {
     font-size: 23px;
     font-weight: 700;
-    color: #222;
+    color: var(--ink-800);
     margin: 0 0 8px 0;
   }
 
   .intro {
     margin: 0 0 16px 0;
     font-size: 14.5px;
-    color: #666;
+    color: var(--ink-400);
     line-height: 1.6;
     max-width: 760px;
   }
@@ -348,15 +348,15 @@
 
   .notation-toggle {
     background: none;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 5px;
     padding: 5px 12px;
     font-size: 13.5px;
-    color: #444;
+    color: var(--ink-600);
     cursor: pointer;
   }
 
-  .notation-toggle:hover { background: #F0F0F0; }
+  .notation-toggle:hover { background: var(--surface-hover); }
 
   .chevron {
     display: inline-block;
@@ -369,8 +369,8 @@
   .notation-list {
     margin: 8px 0 0;
     padding: 14px 18px;
-    background: #FAFAFA;
-    border: 1px solid #E5E5E5;
+    background: var(--surface-sunken);
+    border: 1px solid var(--line-soft);
     border-radius: 6px;
     font-size: 13.5px;
   }
@@ -380,26 +380,26 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #888;
+    color: var(--ink-200);
     margin-bottom: 8px;
   }
 
   .notation-subheader {
     font-weight: 700;
     font-size: 14px;
-    color: #333;
+    color: var(--ink-700);
     margin: 4px 0;
   }
 
   .notation-thin-divider {
     border: none;
-    border-top: 1px solid #ECECEC;
+    border-top: 1px solid var(--line-faint);
     margin: 5px 0 8px;
   }
 
   .notation-main-divider {
     border: none;
-    border-top: 2px solid #D8D8D8;
+    border-top: 2px solid var(--line-strong);
     margin: 16px 0;
   }
 
@@ -418,34 +418,34 @@
 
   .t-col1 {
     font-weight: 600;
-    color: #333;
+    color: var(--ink-700);
     white-space: nowrap;
   }
 
   .t-col2 {
-    color: #888;
+    color: var(--ink-200);
   }
 
   .bend-table .t-col3 {
-    color: #666;
+    color: var(--ink-400);
   }
 
   .rest-table .t-col2, .stretch-table .t-col2 {
-    color: #666;
+    color: var(--ink-400);
   }
 
   .notation-note {
     margin: 10px 0 0;
     padding: 0 18px;
     font-size: 12.5px;
-    color: #777;
+    color: var(--ink-300);
     line-height: 1.55;
     max-width: 760px;
   }
 
   .empty {
     font-size: 15px;
-    color: #888;
+    color: var(--ink-200);
   }
 
   .content-row {
@@ -464,8 +464,8 @@
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    background: #FAFAFA;
-    border: 1px solid #E5E5E5;
+    background: var(--surface-sunken);
+    border: 1px solid var(--line-soft);
     border-radius: 8px;
     padding: 20px;
   }
@@ -473,19 +473,19 @@
   .molecule-title {
     font-size: 19px;
     font-weight: 700;
-    color: #222;
+    color: var(--ink-800);
     margin: 0 0 6px;
   }
 
   .symmetry-block {
     margin-bottom: 14px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #E5E5E5;
+    border-bottom: 1px solid var(--line-soft);
   }
 
   .symmetry-line {
     font-size: 13px;
-    color: #777;
+    color: var(--ink-300);
     line-height: 1.5;
     margin: 0 0 4px;
   }
@@ -498,7 +498,7 @@
   }
 
   .point-group {
-    color: #999;
+    color: var(--ink-100);
     margin-left: 4px;
   }
   .point-group :global(sub) { font-size: 0.75em; }

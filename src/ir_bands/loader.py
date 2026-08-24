@@ -16,6 +16,7 @@ from ir_bands.schema import (
     Band, BasedOn, Dataset, Group, Molecule, Reference, Region, Topology,
     Vibration, VibrationMode, Vibrations,
     VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
+    DESCRIPTION_MAX_WORDS, REFERENCE_NOTE_MAX_WORDS,
 )
 
 
@@ -150,6 +151,16 @@ def load_dataset(path: str | Path) -> Dataset:
 # Validation
 # ---------------------------------------------------------------------------
 
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def _word_count(text: str | None) -> int:
+    """Words in a description or note, ignoring any inline HTML markup."""
+    if not text:
+        return 0
+    return len(_TAG_RE.sub(" ", text).split())
+
+
 def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
     """Raise ValueError on any structural problem.
 
@@ -253,7 +264,26 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if b.wn_max < b.wn_min:
             errors.append(f"Band {b.id}: wn_max < wn_min")
 
-    # 8. Reference keys resolve (if a references map is provided)
+    # 8. Editorial length limits (warning only). Prose that overflows the
+    #    tooltip is a content problem, not a structural one, so it never fails
+    #    the build. See the Style guide page for the writing rules themselves.
+    for b in dataset.bands:
+        n = _word_count(b.description)
+        if n > DESCRIPTION_MAX_WORDS:
+            warnings.append(
+                f"Band {b.id}: description is {n} words "
+                f"(limit {DESCRIPTION_MAX_WORDS}); move paper-specific detail "
+                f"into the relevant reference note"
+            )
+        for ref in b.references:
+            n = _word_count(ref.note)
+            if n > REFERENCE_NOTE_MAX_WORDS:
+                warnings.append(
+                    f"Band {b.id}, reference {ref.key}: note is {n} words "
+                    f"(limit {REFERENCE_NOTE_MAX_WORDS})"
+                )
+
+    # 9. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
             for ref in b.references:

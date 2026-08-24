@@ -2,10 +2,13 @@ import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap } from './types';
 import { getCat, getCatLabel, getCatColor, getColor, TAG_STYLES, DEFAULT_TAG_STYLE } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
+import { C, FONTS, CHART_LAYOUT } from './tokens';
 
-export const LANE_HEIGHT = 1.2;
-export const BAR_FRACTION = 0.25;
-export const SUB_LANE_OFFSET_FRAC = 0.52;
+// Geometry lives in tokens.ts with the rest of the design system; these are
+// re-exported so existing importers of './chart' keep working.
+export const LANE_HEIGHT = CHART_LAYOUT.laneHeight;
+export const BAR_FRACTION = CHART_LAYOUT.barFraction;
+export const SUB_LANE_OFFSET_FRAC = CHART_LAYOUT.subLaneOffsetFrac;
 
 const WN_LO = 450;
 const WN_HI = 4050;
@@ -195,9 +198,9 @@ export function getLegendTags(
       key: UNTAGGED_KEY,
       label: 'others',
       count: untaggedCount,
-      background: '#f5f5f5',
-      border: '#e0e0e0',
-      color: '#aaa',
+      background: C['pill-muted-bg'],
+      border: C['pill-muted-border'],
+      color: C['ink-050'],
     });
   }
   return result;
@@ -355,21 +358,21 @@ function appendHatchPattern(svg: SVGElement): void {
 export function buildAxisStrip(
   axisProperty: AxisProperty,
   axisUnit: string,
-  width = 1100,
+  width = CHART_LAYOUT.width,
   xDomainOverride?: [number, number],
 ): SVGElement {
   const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit)) as [number, number];
   return Plot.plot({
     width,
     height: 50,
-    marginLeft: 200,
-    marginRight: 20,
+    marginLeft: CHART_LAYOUT.marginLeft,
+    marginRight: CHART_LAYOUT.marginRight,
     marginTop: 4,
     marginBottom: 34,
     style: {
-      background: 'white',
+      background: C['surface'],
       overflow: 'visible',
-      fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+      fontFamily: FONTS.sans,
       fontSize: '13px',
     },
     x: {
@@ -392,7 +395,7 @@ export function buildChart(
   axisProperty: AxisProperty,
   axisUnit: string,
   refs: RefMap,
-  width = 1100,
+  width = CHART_LAYOUT.width,
   xDomainOverride?: [number, number],
   // Tag "isolate" (double-click): show ONLY bands carrying this one tag,
   // bypassing hiddenTags entirely. A real, separate filter rather than
@@ -551,8 +554,8 @@ export function buildChart(
     const yCenter = laneY + LANE_HEIGHT * BAR_FRACTION / 2;
     const segments: LaneLabelSegment[] = [];
     activeKeys.forEach((k, i) => {
-      if (i > 0) segments.push({ text: ' / ', color: '#999' });
-      segments.push({ text: groups[k]?.label ?? k, color: groups[k]?.color ?? '#444' });
+      if (i > 0) segments.push({ text: ' / ', color: C['ink-100'] });
+      segments.push({ text: groups[k]?.label ?? k, color: groups[k]?.color ?? C['ink-600'] });
     });
     laneLabels.push({ yCenter, segments });
   }
@@ -564,14 +567,14 @@ export function buildChart(
   const svg = Plot.plot({
     width,
     height,
-    marginLeft: 200,
-    marginRight: 20,
-    marginTop: 30,
-    marginBottom: 50,
+    marginLeft: CHART_LAYOUT.marginLeft,
+    marginRight: CHART_LAYOUT.marginRight,
+    marginTop: CHART_LAYOUT.marginTop,
+    marginBottom: CHART_LAYOUT.marginBottom,
     style: {
-      background: 'white',
+      background: C['surface'],
       overflow: 'visible',
-      fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+      fontFamily: FONTS.sans,
       fontSize: '13px',
     },
     x: {
@@ -586,7 +589,7 @@ export function buildChart(
       axis: null,
     },
     marks: [
-      Plot.gridX({ stroke: '#bbb', strokeWidth: 0.75, strokeDasharray: '1,3', strokeOpacity: 0.8 }),
+      Plot.gridX({ stroke: C['ink-025'], strokeWidth: 0.75, strokeDasharray: '1,3', strokeOpacity: 0.8 }),
       // Normal bands and IR-inactive ones (very transparent, dashed outline —
       // these represent modes never actually observed in IR) need different
       // constant stroke-dasharray values, which Plot only accepts as a

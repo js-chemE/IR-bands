@@ -5,6 +5,15 @@
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
+  import { C, CHART_LAYOUT } from '../lib/tokens';
+
+  // Connector strokes drawn as SVG presentation attributes, which cannot read
+  // a CSS custom property, so they take their colour from the token module
+  // directly. ISO_STROKE deliberately reuses the isotopic-shift tag colour so
+  // the connector and the pill always match.
+  const CONN_STROKE = C['ink-500'];
+  const CONN_LABEL = C['ink-300'];
+  const ISO_STROKE = TAG_STYLES['isotopic-shift'].color;
   import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
 
@@ -74,9 +83,9 @@
     if (!band) return null;
     const synthetic: PlotBandHit = {
       px1: pos.px, px2: pos.px, py1: pos.py, py2: pos.py,
-      color: '#999',
+      color: C['ink-100'],
       tipData: {
-        id: band.id, name: '', vib: '', wnRange: '', group: '', color: '#999',
+        id: band.id, name: '', vib: '', wnRange: '', group: '', color: C['ink-100'],
         noteLines: [], tags: [], description: '', refs: [], partners: [],
         branchGroup: band.branch_group ?? null,
         vibrationModeIds: [],
@@ -438,7 +447,7 @@
     : [];
 
   // Selected tooltip stays at click position; hover tooltip follows the mouse.
-  const TIP_W = 300;
+  const TIP_W = CHART_LAYOUT.tooltipWidth;
   // .band-tooltip's CSS `width` is its content box only — its actual
   // rendered (and translateX(-100%)-shifted) box is wider by its own
   // padding (8px 10px) + border (1px, except the 3px overridden top) on
@@ -448,8 +457,8 @@
   // Linked-vibrations panel: a narrow column to the OUTER side of the main
   // tooltip (same side it flipped to, so the two never overlap), top-aligned
   // with it rather than stacked below.
-  const VIB_W = Math.round(TIP_W * 0.55); // a bit over half the tooltip's own width
-  const VIB_GAP = 6; // small, purely aesthetic separation from the tooltip
+  const VIB_W = Math.round(TIP_W * CHART_LAYOUT.vibPanelFrac); // a bit over half the tooltip's own width
+  const VIB_GAP = CHART_LAYOUT.vibPanelGap; // small, purely aesthetic separation from the tooltip
   const VIB_OUTER_W = VIB_W + 14; // padding (6px×2) + border (1px×2)
 
   $: _anchorX = selected ? selectedTipX : mouseX;
@@ -749,24 +758,24 @@
         {#each connectors as c}
           {#if c.kind === 'branch'}
             <line x1={c.xA} y1={c.y} x2={c.xB} y2={c.y}
-                  stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+                  stroke={CONN_STROKE} stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
           {:else if c.kind === 'fermi'}
             <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
-                  fill="none" stroke="#555" stroke-width="1.5"
+                  fill="none" stroke={CONN_STROKE} stroke-width="1.5"
                   stroke-dasharray="5,3" stroke-linecap="round" opacity="0.8"/>
             <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
                   text-anchor="middle" font-style="italic" font-size="10"
-                  fill="#777" opacity="0.85">fermi</text>
+                  fill={CONN_LABEL} opacity="0.85">fermi</text>
           {:else if c.kind === 'isotopologue'}
             <path d="M {c.xA} {c.yA} V {c.bridgeY} H {c.xB} V {c.yB}"
-                  fill="none" stroke="#3D5A70" stroke-width="1.5"
+                  fill="none" stroke={ISO_STROKE} stroke-width="1.5"
                   stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85"/>
             <text x={(c.xA + c.xB) / 2} y={c.bridgeY - 4}
                   text-anchor="middle" font-style="italic" font-size="10"
-                  fill="#3D5A70" opacity="0.85">isotopologue</text>
+                  fill={ISO_STROKE} opacity="0.85">isotopologue</text>
           {:else}
             <path d="M {c.xA} {c.yA} Q {c.midX} {c.controlY} {c.xB} {c.yB}"
-                  fill="none" stroke="#555" stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
+                  fill="none" stroke={CONN_STROKE} stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
           {/if}
         {/each}
         {#each glowHits as hit}
@@ -838,13 +847,13 @@
       <!-- Per-reference boxes -->
       {#if td.refs.length}
         {@const isCollapsible = td.refs.length > 1}
-        {@const useScroll = selected && td.refs.length > 3}
-        {@const refsToShow = selected ? td.refs : td.refs.slice(0, 3)}
+        {@const useScroll = selected && td.refs.length > CHART_LAYOUT.refsPreviewCount}
+        {@const refsToShow = selected ? td.refs : td.refs.slice(0, CHART_LAYOUT.refsPreviewCount)}
         <div class="tip-refs-section">
           <div class="tip-refs-header">
             References
-            {#if !selected && td.refs.length > 3}
-              <span class="tip-refs-overflow">+{td.refs.length - 3} more · click band</span>
+            {#if !selected && td.refs.length > CHART_LAYOUT.refsPreviewCount}
+              <span class="tip-refs-overflow">+{td.refs.length - CHART_LAYOUT.refsPreviewCount} more · click band</span>
             {/if}
           </div>
 
@@ -939,7 +948,7 @@
     bottom: 0;
     z-index: 6;
     background: white;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--line-panel);
   }
   .axis-strip :global(svg) { display: block; max-width: 100%; overflow: visible; }
 
@@ -959,15 +968,15 @@
     right: 28px;
     z-index: 10;
     background: white;
-    border: 1px solid #ccc;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 3px 10px;
     font-size: 13px;
     cursor: pointer;
-    color: #444;
+    color: var(--ink-600);
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   }
-  .reset-btn:hover { background: #f5f5f5; }
+  .reset-btn:hover { background: var(--surface-hover); }
 
   .chart {
     width: 100%;
@@ -980,49 +989,53 @@
     position: fixed;
     z-index: 200;
     pointer-events: none; /* overridden to auto when selected — see inline style */
-    background: #fff;
-    border: 1px solid #ddd;
-    border-top: 3px solid #888; /* overridden inline with band color */
-    border-radius: 6px;
-    padding: 8px 10px;
-    width: 300px;
-    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--ink-200); /* overridden inline with band color */
+    border-radius: var(--radius-md);
+    padding: 8px var(--space-3);
+    width: var(--tip-width);
+    font-family: var(--font-sans);
     font-size: 13px;
     line-height: 1.4;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    box-shadow: var(--shadow-md);
   }
   .band-tooltip.is-selected {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.22);
-    border-color: #bbb;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--ink-025);
   }
 
   .tip-header {
-    border-left: 3px solid #888; /* overridden inline */
+    border-left: 3px solid var(--ink-200); /* overridden inline */
     padding-left: 7px;
     margin-bottom: 6px;
   }
+  /* Every text role below is defined once in lib/tokens.ts and shown on the
+     Style guide page; edit the value there, never here. */
   .tip-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #111;
-    line-height: 1.2;
+    font-size: var(--t-tip-name-size);
+    font-weight: var(--t-tip-name-weight);
+    color: var(--t-tip-name-color);
+    line-height: var(--t-tip-name-lh);
   }
   .tip-vib {
-    font-size: 11.5px;
-    color: #777;
+    font-size: var(--t-tip-vib-size);
+    font-weight: var(--t-tip-vib-weight);
+    color: var(--t-tip-vib-color);
     margin-top: 1px;
   }
   .tip-wn {
-    font-size: 12px;
-    color: #333;
-    font-family: 'Courier New', monospace;
+    font-size: var(--t-tip-wn-size);
+    font-weight: var(--t-tip-wn-weight);
+    color: var(--t-tip-wn-color);
+    font-family: var(--t-tip-wn-ff);
     margin-top: 1px;
   }
   .tip-group {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: var(--t-tip-group-size);
+    font-weight: var(--t-tip-group-weight);
+    text-transform: var(--t-tip-group-tt);
+    letter-spacing: var(--t-tip-group-ls);
     margin-top: 3px;
   }
 
@@ -1033,36 +1046,36 @@
     margin-bottom: 5px;
   }
   .tip-tag {
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 3px;
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    border-radius: var(--radius-sm);
     padding: 1px 5px;
-    font-size: 11px;
-    color: #555;
+    font-size: var(--t-tip-tag-size);
+    color: var(--t-tip-tag-color);
   }
   .tip-tag-extra {
-    background: #f9fafb;
-    border-color: #eaecef;
-    color: #8a8f98;
+    background: var(--pill-muted-bg);
+    border-color: var(--pill-muted-border);
+    color: var(--pill-muted-fg);
   }
 
   .tip-desc {
-    font-size: 12px;
-    color: #555;
-    line-height: 1.4;
+    font-size: var(--t-tip-desc-size);
+    color: var(--t-tip-desc-color);
+    line-height: var(--t-tip-desc-lh);
     margin-bottom: 6px;
     padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--line-faint);
   }
 
   .tip-refs-section { margin-top: 2px; }
 
   .tip-refs-header {
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #999;
+    font-size: var(--t-tip-refs-head-size);
+    font-weight: var(--t-tip-refs-head-weight);
+    text-transform: var(--t-tip-refs-head-tt);
+    letter-spacing: var(--t-tip-refs-head-ls);
+    color: var(--t-tip-refs-head-color);
     margin-bottom: 4px;
     display: flex;
     align-items: baseline;
@@ -1074,24 +1087,24 @@
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
-    color: #bbb;
+    color: var(--ink-025);
   }
 
   .tip-refs-scroll {
-    max-height: 240px;
+    max-height: var(--tip-refs-max-h);
     overflow-y: auto;
     overflow-x: hidden;
     border-radius: 3px;
   }
   .tip-refs-scroll::-webkit-scrollbar { width: 4px; }
-  .tip-refs-scroll::-webkit-scrollbar-thumb { background: #d0c9bc; border-radius: 2px; }
+  .tip-refs-scroll::-webkit-scrollbar-thumb { background: var(--ref-scroll-thumb); border-radius: 2px; }
 
   .tip-ref-box {
     position: relative;
-    background: #f8f6f1;
-    border: 1px solid #e2d9c9;
-    border-left: 3px solid #c4a86e;
-    border-radius: 4px;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
+    border-radius: var(--radius);
     padding: 5px 26px 5px 7px; /* right padding clears .tip-ref-goto-btn */
     margin-top: 4px;
   }
@@ -1106,23 +1119,23 @@
     transition: background 0.1s, border-left-color 0.1s;
   }
   .tip-ref-btn:hover {
-    background: #f0ece4;
-    border-left-color: #a08050;
+    background: var(--ref-surface-hover);
+    border-left-color: var(--ref-accent-strong);
   }
 
   .tip-ref-chevron {
     display: inline-block;
     font-size: 9px;
-    color: #a08050;
+    color: var(--ref-accent-strong);
     margin-left: 4px;
     transition: transform 0.15s;
   }
   .tip-ref-chevron.open { transform: rotate(90deg); }
 
   .tip-ref-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: #222;
+    font-size: var(--t-tip-ref-title-size);
+    font-weight: var(--t-tip-ref-title-weight);
+    color: var(--t-tip-ref-title-color);
   }
 
   /* Per-reference corner button — jumps straight to this one citation on
@@ -1136,19 +1149,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    border: 1px solid #e2d9c9;
+    background: var(--surface);
+    border: 1px solid var(--ref-border);
     border-radius: 4px;
-    color: #a08050;
+    color: var(--ref-accent-strong);
     font-size: 11px;
     line-height: 1;
     cursor: pointer;
     padding: 0;
   }
   .tip-ref-goto-btn:hover {
-    background: #f0ece4;
-    border-color: #a08050;
-    color: #8a6d00;
+    background: var(--ref-surface-hover);
+    border-color: var(--ref-accent-strong);
+    color: var(--ref-accent-deep);
   }
 
   .tip-ref-badges {
@@ -1159,23 +1172,23 @@
   }
 
   .badge-wn {
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
-    border-radius: 3px;
+    background: var(--badge-wn-bg);
+    border: 1px solid var(--badge-wn-border);
+    color: var(--badge-wn-fg);
+    border-radius: var(--radius-sm);
     padding: 1px 6px;
-    font-size: 11.5px;
-    font-family: 'Courier New', monospace;
+    font-size: var(--t-tip-badge-size);
+    font-family: var(--font-mono);
     white-space: nowrap;
   }
 
   .badge-site {
-    background: #fef3c7;
-    border: 1px solid #fcd34d;
-    color: #78350f;
-    border-radius: 3px;
+    background: var(--badge-site-bg);
+    border: 1px solid var(--badge-site-border);
+    color: var(--badge-site-fg);
+    border-radius: var(--radius-sm);
     padding: 1px 6px;
-    font-size: 11.5px;
+    font-size: var(--t-tip-badge-size);
     white-space: nowrap;
   }
 
@@ -1188,25 +1201,25 @@
 
   .tip-ref-tag {
     border: 1px solid;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     padding: 1px 5px;
-    font-size: 11px;
+    font-size: var(--t-tip-tag-size);
   }
 
   .tip-ref-note {
-    font-size: 11.5px;
-    color: #6b7280;
-    font-style: italic;
+    font-size: var(--t-tip-ref-note-size);
+    color: var(--t-tip-ref-note-color);
+    font-style: var(--t-tip-ref-note-fs);
     margin-top: 4px;
-    line-height: 1.35;
+    line-height: var(--t-tip-ref-note-lh);
   }
 
   .tip-lock-hint {
     margin-top: 6px;
     padding-top: 5px;
-    border-top: 1px solid #eee;
-    font-size: 10.5px;
-    color: #aaa;
+    border-top: 1px solid var(--line-faint);
+    font-size: var(--t-tip-hint-size);
+    color: var(--t-tip-hint-color);
     text-align: center;
   }
 
@@ -1221,13 +1234,13 @@
     gap: 5px;
     width: 165px;
     overflow-y: auto;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 6px;
     padding: 6px;
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
     box-shadow: 0 4px 16px rgba(0,0,0,0.13);
   }
   .vib-panel::-webkit-scrollbar { width: 4px; }
-  .vib-panel::-webkit-scrollbar-thumb { background: #d0c9bc; border-radius: 2px; }
+  .vib-panel::-webkit-scrollbar-thumb { background: var(--ref-scroll-thumb); border-radius: 2px; }
 </style>

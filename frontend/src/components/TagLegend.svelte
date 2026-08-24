@@ -76,7 +76,7 @@
     gap: 2px 4px;
     padding: 5px 12px 7px;
     font-size: 13px;
-    color: #555;
+    color: var(--ink-500);
   }
 
   .item {
@@ -94,22 +94,22 @@
     color: inherit;
   }
 
-  .item:hover { background: #F0F0F0; }
+  .item:hover { background: var(--surface-hover); }
 
   /* pill swatch — wider, more rounded, visually distinct from the square in ColorLegend */
   .swatch {
     width: 18px;
     height: 9px;
     border-radius: 6px;
-    border: 1px solid #eaecef;
+    border: 1px solid var(--pill-muted-border);
     flex: 0 0 auto;
   }
 
   .label { flex: 0 0 auto; }
 
-  .dimmed .label { color: #C0C0C0 !important; text-decoration: line-through; }
+  .dimmed .label { color: var(--ink-025) !important; text-decoration: line-through; }
   .dimmed .swatch { opacity: 0.3; }
 
-  .isolated { background: #EAF1FC; }
-  .isolated:hover { background: #DEEAFB; }
+  .isolated { background: var(--accent-blue-soft-bg); }
+  .isolated:hover { background: var(--accent-blue-soft-bg-alt); }
 </style>

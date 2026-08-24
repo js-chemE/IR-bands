@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C } from '../lib/tokens';
   import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
   import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
   import { esc, ieeeHtml, refSortKey } from '../lib/citations';
@@ -120,7 +121,7 @@
           .map(gk => ({
             key:   gk,
             label: groups[gk]?.label ?? gk,
-            color: groups[gk]?.color ?? '#444',
+            color: groups[gk]?.color ?? C['ink-600'],
             entries: byGroup.get(gk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
           }));
         return { refKey: rk, html: ieeeHtml(refs![rk] ?? {}, rk), groupBands, moleculeModes: moleculeModesFor(rk) };
@@ -165,7 +166,7 @@
         return {
           key:   gk,
           label: groups[gk]?.label ?? gk,
-          color: groups[gk]?.color ?? '#444',
+          color: groups[gk]?.color ?? C['ink-600'],
           refs:  refEntries,
         };
       })
@@ -353,9 +354,9 @@
 
   /* ── Shared badge styles (mirror tooltip) ── */
   .badge-wn {
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
+    background: var(--badge-wn-bg);
+    border: 1px solid var(--badge-wn-border);
+    color: var(--badge-wn-fg);
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11.5px;
@@ -365,9 +366,9 @@
   }
 
   .badge-site {
-    background: #fef3c7;
-    border: 1px solid #fcd34d;
-    color: #78350f;
+    background: var(--badge-site-bg);
+    border: 1px solid var(--badge-site-border);
+    color: var(--badge-site-fg);
     border-radius: 3px;
     padding: 1px 6px;
     font-size: 11.5px;
@@ -376,12 +377,12 @@
   }
 
   .badge-quality {
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    background: var(--pill-bg);
+    border: 1px solid var(--line-panel);
     border-radius: 3px;
     padding: 1px 5px;
     font-size: 11px;
-    color: #555;
+    color: var(--ink-500);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -414,14 +415,14 @@
   .band-name {
     font-size: 13.5px;
     font-weight: 600;
-    color: #222;
+    color: var(--ink-800);
     margin-right: 2px;
   }
   .band-name :global(sub), .band-name :global(sup) { font-size: 0.75em; }
 
   .expand-arrow {
     font-size: 10px;
-    color: #aaa;
+    color: var(--ink-050);
     margin-left: auto;
     flex-shrink: 0;
     padding-left: 4px;
@@ -429,20 +430,20 @@
 
   .band-expand {
     padding: 2px 4px 6px 8px;
-    border-left: 2px solid #e5e7eb;
+    border-left: 2px solid var(--line-panel);
     margin: 0 4px 3px 4px;
   }
 
   .expand-desc {
     font-size: 12.5px;
-    color: #555;
+    color: var(--ink-500);
     line-height: 1.4;
   }
   .expand-desc :global(sub), .expand-desc :global(sup) { font-size: 0.75em; }
 
   .expand-note {
     font-size: 12px;
-    color: #8a7a4a;
+    color: var(--ref-meta);
     font-style: italic;
     margin-top: 2px;
     line-height: 1.35;
@@ -450,9 +451,9 @@
 
   /* ── By-reference view ── */
   .ref-card {
-    background: #f8f6f1;
-    border: 1px solid #e2d9c9;
-    border-left: 3px solid #c4a86e;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
     border-radius: 6px;
     padding: 14px 16px 10px;
     margin-bottom: 14px;
@@ -462,13 +463,13 @@
   .ref-card-citation {
     font-size: 13.5px;
     font-weight: 600;
-    color: #222;
+    color: var(--ink-800);
     line-height: 1.55;
     margin-bottom: 8px;
   }
   .ref-card-citation :global(em) { font-style: italic; }
-  .ref-card-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 12px; }
-  .ref-card-citation :global(a.ext:hover) { color: #5a3e1b; }
+  .ref-card-citation :global(a.ext) { color: var(--ref-accent-strong); text-decoration: none; font-size: 12px; }
+  .ref-card-citation :global(a.ext:hover) { color: var(--ref-link-hover); }
 
   .group-section { margin-top: 7px; }
 
@@ -483,18 +484,18 @@
 
   /* Vibration-mode citations get their own neutral color (not tied to any
      chart group, since a mode isn't a band) rather than reusing g.color. */
-  .mode-group-label { color: #6b5b95; }
+  .mode-group-label { color: var(--accent-violet); }
 
   .mode-subgroup { margin-top: 7px; }
 
   /* ── By-group view ── */
   .group-card {
-    border: 1px solid #e5e5e5;
-    border-left: 4px solid #888;
+    border: 1px solid var(--line-soft);
+    border-left: 4px solid var(--ink-200);
     border-radius: 6px;
     padding: 14px 16px 10px;
     margin-bottom: 20px;
-    background: #fff;
+    background: var(--surface);
   }
 
   .group-card-header {
@@ -504,13 +505,13 @@
     letter-spacing: 0.06em;
     margin-bottom: 12px;
     padding-bottom: 7px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--line-faint);
   }
 
   .ref-sub-card {
-    background: #f8f6f1;
-    border: 1px solid #e2d9c9;
-    border-left: 3px solid #c4a86e;
+    background: var(--ref-surface);
+    border: 1px solid var(--ref-border);
+    border-left: 3px solid var(--ref-accent);
     border-radius: 4px;
     padding: 10px 12px 7px;
     margin-bottom: 10px;
@@ -519,11 +520,11 @@
   .ref-sub-citation {
     font-size: 13px;
     font-weight: 600;
-    color: #222;
+    color: var(--ink-800);
     line-height: 1.5;
     margin-bottom: 6px;
   }
   .ref-sub-citation :global(em) { font-style: italic; }
-  .ref-sub-citation :global(a.ext) { color: #a08050; text-decoration: none; font-size: 12px; }
-  .ref-sub-citation :global(a.ext:hover) { color: #5a3e1b; }
+  .ref-sub-citation :global(a.ext) { color: var(--ref-accent-strong); text-decoration: none; font-size: 12px; }
+  .ref-sub-citation :global(a.ext:hover) { color: var(--ref-link-hover); }
 </style>

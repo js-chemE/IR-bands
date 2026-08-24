@@ -24,6 +24,13 @@ VALID_INTENSITIES = {"vs", "s", "m", "w", "vw"}
 VALID_WIDTHS = {"sharp", "medium", "broad", "very_broad"}
 VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 
+# Editorial length limits, checked as warnings by validate_dataset(). The band
+# tooltip is 300px wide and read while hovering, so long prose simply does not
+# get read. Keep these in step with CONTENT_LIMITS in
+# frontend/src/lib/tokens.ts, which is what the Style guide page displays.
+DESCRIPTION_MAX_WORDS = 120
+REFERENCE_NOTE_MAX_WORDS = 150
+
 
 @dataclass
 class Vibration:

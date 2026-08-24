@@ -141,7 +141,7 @@
     justify-content: center;
     padding: 20px;
     box-sizing: border-box;
-    background: linear-gradient(160deg, #2c4a6e 0%, #3d6a9a 100%);
+    background: linear-gradient(160deg, var(--brand-700) 0%, var(--brand-500) 100%);
     overflow-y: auto;
   }
 
@@ -162,34 +162,34 @@
     margin: 12px 0 10px;
     font-size: 21px;
     font-weight: 800;
-    color: #2c4a6e;
+    color: var(--brand-700);
   }
 
   .card p {
     margin: 0 0 12px;
     font-size: 15px;
     line-height: 1.5;
-    color: #3A3A3A;
+    color: var(--notice-fg);
   }
 
   .card p.secondary {
     font-size: 13.5px;
-    color: #666;
+    color: var(--ink-400);
   }
 
   .continue {
     margin-top: 6px;
     padding: 9px 18px;
-    background: #FFF8E1;
-    border: 1px solid #F0DDA0;
+    background: var(--notice-bg);
+    border: 1px solid var(--notice-border);
     border-radius: 5px;
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
-    color: #8a6d00;
+    color: var(--ref-accent-deep);
     cursor: pointer;
   }
-  .continue:hover { background: #FBEFC4; }
+  .continue:hover { background: var(--warn-bg-hover); }
 
   /* ── Full-width strip under the header ── */
   .notice {
@@ -200,17 +200,17 @@
     align-items: flex-start;
     gap: 9px;
     padding: 9px 18px;
-    background: #FFF8E1;
-    border-bottom: 1px solid #F0DDA0;
-    color: #6b5200;
+    background: var(--notice-bg);
+    border-bottom: 1px solid var(--notice-border);
+    color: var(--warn-fg);
     font-size: 14px;
     line-height: 1.45;
   }
 
   .notice.block {
-    background: #FDECEA;
-    border-bottom-color: #F3C0B8;
-    color: #7a2118;
+    background: var(--alert-bg);
+    border-bottom-color: var(--alert-border);
+    color: var(--alert-fg);
   }
 
   .icon { flex: 0 0 auto; font-size: 16px; }

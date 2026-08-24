@@ -12,6 +12,7 @@
   import VibrationModesPage from './components/VibrationModesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
+  import StyleGuidePage from './components/StyleGuidePage.svelte';
   import MobileNotice from './components/MobileNotice.svelte';
 
   let dataset: Dataset | null = null;
@@ -20,7 +21,9 @@
   let tagTips: Record<string, { tip: string }> = {};
   let loading = true;
   let error: string | null = null;
-  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum';
+  // 'styleguide' has no sidebar entry of its own: it is reached from the
+  // Impressum page, which is where the project's meta pages live.
+  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum' | 'styleguide';
   let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
   let sidebarOpen = true;
@@ -163,8 +166,8 @@
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       el.style.transition = 'box-shadow 0.25s ease-out, background-color 0.25s ease-out';
-      el.style.boxShadow = '0 0 0 3px #c4a86e88';
-      el.style.backgroundColor = '#f5edd8';
+      el.style.boxShadow = '0 0 0 3px var(--ref-focus-ring)';
+      el.style.backgroundColor = 'var(--ref-highlight)';
       setTimeout(() => {
         el.style.boxShadow = '';
         el.style.backgroundColor = '';
@@ -303,6 +306,9 @@
           <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
           <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
           <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
+          {#if page === 'styleguide'}
+            <button class="active" on:click={() => page = 'styleguide'}>Style guide</button>
+          {/if}
         </nav>
 
         <hr class="divider" />
@@ -413,7 +419,9 @@
           on:navigateBand={handleNavigateBand}
         />
       {:else if page === 'impressum'}
-        <ImpressumPage />
+        <ImpressumPage on:navigate={handleHomeNavigate} />
+      {:else if page === 'styleguide'}
+        <StyleGuidePage />
       {/if}
     </div>
 {/if}
@@ -436,8 +444,8 @@
     margin: 0; padding: 0;
     height: 100%;
     overflow: hidden;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    color: #2A2A2A;
+    font-family: var(--font-sans);
+    color: var(--ink-700);
     box-sizing: border-box;
   }
 
@@ -463,8 +471,8 @@
     justify-content: space-between;
     gap: 16px;
     padding: 14px 28px;
-    background: linear-gradient(100deg, #2c4a6e 0%, #3d6a9a 100%);
-    color: white;
+    background: var(--grad-header);
+    color: var(--brand-on-dark);
   }
 
   .header-left {
@@ -483,7 +491,7 @@
     font-weight: 800;
     font-style: italic;
     letter-spacing: -0.01em;
-    color: #fff;
+    color: var(--brand-on-dark);
   }
   .header-title-btn:hover { color: rgba(255,255,255,0.82); }
 
@@ -513,27 +521,27 @@
   /* ── Hint banner (footer) — always visible as the last flex item ── */
   .hint-banner {
     flex: 0 0 auto;
-    background: #FFF8E1;
-    border-top: 1px solid #F0DDA0;
-    color: #3A3A3A;
+    background: var(--notice-bg);
+    border-top: 1px solid var(--notice-border);
+    color: var(--notice-fg);
     font-size: 14px;
     padding: 6px 18px;
   }
 
   .hint-banner .contact {
-    color: #8a6d00;
+    color: var(--ref-accent-deep);
     font-weight: 600;
     text-decoration: underline;
   }
-  .hint-banner .contact:hover { color: #5c4a00; }
+  .hint-banner .contact:hover { color: var(--notice-link); }
 
   kbd {
-    background: #F4F4F4;
-    border: 1px solid #D0D0D0;
+    background: var(--surface-hover);
+    border: 1px solid var(--line-strong);
     border-radius: 3px;
     padding: 1px 5px;
     font-size: 13px;
-    font-family: ui-monospace, monospace;
+    font-family: var(--font-mono);
   }
 
   /* ── Sidebar ── */
@@ -543,8 +551,8 @@
     height: 100%;
     box-sizing: border-box;
     padding: 10px 14px;
-    border-right: 1px solid #E5E5E5;
-    background: #FAFAFA;
+    border-right: 1px solid var(--line-soft);
+    background: var(--surface-sunken);
     overflow-y: auto;
     overflow-x: hidden;
     font-size: 14px;
@@ -572,20 +580,20 @@
     height: 24px;
     padding: 0;
     background: none;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     font-size: 12px;
     font-weight: 700;
-    color: #888;
+    color: var(--ink-200);
     cursor: pointer;
     text-align: center;
     line-height: 22px;
   }
-  .page-mini-btn:hover { background: #F0F0F0; color: #333; }
+  .page-mini-btn:hover { background: var(--surface-hover); color: var(--ink-700); }
   .page-mini-btn.active {
-    background: #E8F0FE;
-    border-color: #A0B4E0;
-    color: #1a3a8f;
+    background: var(--brand-tint);
+    border-color: var(--brand-tint-line);
+    color: var(--brand-accent);
   }
 
   .mini-btn-wrap {
@@ -598,7 +606,7 @@
     left: 26px;
     top: 0;
     background: white;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 5px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.12);
     z-index: 200;
@@ -613,13 +621,13 @@
     background: none;
     border: none;
     font-size: 12.5px;
-    color: #444;
+    color: var(--ink-600);
     cursor: pointer;
     text-align: left;
     white-space: nowrap;
   }
-  .cq-item:hover { background: #F0F0F0; }
-  .cq-item.cq-active { color: #1a3a8f; font-weight: 600; background: #EEF3FF; }
+  .cq-item:hover { background: var(--surface-hover); }
+  .cq-item.cq-active { color: var(--brand-accent); font-weight: 600; background: var(--brand-tint-soft); }
 
   /* ── Sidebar flex wrapper (open state) ── */
   .sidebar-open-content {
@@ -632,17 +640,17 @@
     display: block;
     width: 100%;
     background: none;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 5px 0;
     font-size: 10px;
-    color: #777;
+    color: var(--ink-300);
     cursor: pointer;
     margin-bottom: 10px;
     text-align: center;
     white-space: nowrap;
   }
-  .sidebar-toggle:hover { background: #F0F0F0; color: #333; }
+  .sidebar-toggle:hover { background: var(--surface-hover); color: var(--ink-700); }
 
   .sidebar :global(h3) {
     margin: 0 0 8px 0;
@@ -650,14 +658,14 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #555;
+    color: var(--ink-500);
   }
 
   .sidebar :global(select) {
     width: 100%;
     padding: 4px 6px;
     font-size: 13px;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     background: white;
     cursor: pointer;
@@ -667,7 +675,7 @@
 
   .divider {
     border: none;
-    border-top: 1px solid #E5E5E5;
+    border-top: 1px solid var(--line-soft);
     margin: 12px 0;
   }
 
@@ -702,7 +710,7 @@
 
   .legend-box {
     flex: 0 0 auto;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--line-panel);
     border-radius: 6px;
     margin: 4px 0 8px;
     background: white;
@@ -710,16 +718,16 @@
 
   .legend-divider {
     border: none;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--surface-hover);
     margin: 0;
   }
 
   .state-msg {
     padding: 40px;
     font-size: 15px;
-    color: #666;
+    color: var(--ink-400);
   }
-  .state-msg.error { color: #c00; }
+  .state-msg.error { color: var(--danger); }
 
   /* ── Page navigation ── */
   .page-nav, .sub-nav {
@@ -733,20 +741,20 @@
     width: 100%;
     padding: 5px 10px;
     background: white;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     font-size: 13px;
     cursor: pointer;
-    color: #444;
+    color: var(--ink-600);
     text-align: left;
   }
 
-  .page-nav button:hover, .sub-nav button:hover { background: #F0F0F0; }
+  .page-nav button:hover, .sub-nav button:hover { background: var(--surface-hover); }
 
   .page-nav button.active, .sub-nav button.active {
-    background: #E8F0FE;
-    border-color: #A0B4E0;
-    color: #1a3a8f;
+    background: var(--brand-tint);
+    border-color: var(--brand-tint-line);
+    color: var(--brand-accent);
     font-weight: 600;
   }
 </style>

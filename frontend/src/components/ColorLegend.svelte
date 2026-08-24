@@ -66,7 +66,7 @@
     gap: 2px 4px;
     padding: 6px 12px 8px;
     font-size: 13px;
-    color: #333;
+    color: var(--ink-700);
   }
 
   .item {
@@ -84,7 +84,7 @@
     color: inherit;
   }
 
-  .item:hover { background: #F0F0F0; }
+  .item:hover { background: var(--surface-hover); }
 
   .swatch {
     width: 12px;
@@ -96,6 +96,6 @@
 
   .label { flex: 0 0 auto; }
 
-  .dimmed .label { color: #B0B0B0; text-decoration: line-through; }
+  .dimmed .label { color: var(--ink-025); text-decoration: line-through; }
   .dimmed .swatch { opacity: 0.3; }
 </style>

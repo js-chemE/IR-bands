@@ -45,7 +45,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #555;
+    color: var(--ink-500);
   }
 
   .actions {
@@ -57,15 +57,15 @@
   .actions button {
     flex: 1;
     background: white;
-    border: 1px solid #D0D0D0;
+    border: 1px solid var(--line-strong);
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 13px;
     cursor: pointer;
-    color: #333;
+    color: var(--ink-700);
   }
 
-  .actions button:hover { background: #F0F0F0; }
+  .actions button:hover { background: var(--surface-hover); }
 
   .row {
     display: flex;
@@ -77,7 +77,7 @@
     line-height: 1.3;
   }
 
-  .row:hover { background: #F0F0F0; }
+  .row:hover { background: var(--surface-hover); }
 
   .row input { margin: 0 8px 0 0; flex: 0 0 auto; }
 
@@ -93,7 +93,7 @@
   .glabel { flex: 1; }
 
   .off .glabel {
-    color: #B0B0B0;
+    color: var(--ink-025);
     text-decoration: line-through;
   }
 </style>
