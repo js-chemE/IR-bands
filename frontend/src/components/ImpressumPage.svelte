@@ -145,6 +145,24 @@
   </section>
 
   <section class="section">
+    <h2>Data model</h2>
+    <p>
+      What the atlas is made of: bands, the per-paper assignments hanging off them,
+      references, vibration modes, and the sites, species and techniques that are still
+      written as bare strings. Every count and every inventory on that page is read out
+      of the shipped JSON, so it shows the data as it actually stands.
+    </p>
+    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'datamodel' })}>
+      <div class="dl-icon">&rarr;</div>
+      <div class="dl-body">
+        <div class="dl-name">Open the data model</div>
+        <div class="dl-desc">Entities, relations, band-to-band links and the live site inventory</div>
+        <code class="dl-file">frontend/src/lib/dataModel.ts</code>
+      </div>
+    </button>
+  </section>
+
+  <section class="section">
     <h2>Disclaimer</h2>
     <p>
       This atlas is provided for informational and research purposes without warranty
