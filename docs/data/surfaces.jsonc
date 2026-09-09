@@ -18,7 +18,9 @@
 //           ZnO. Strictly the molecule sits on some site *within* the phase
 //           (on TiO₂ it is a Ti⁴⁺ or a surface O), but papers very often
 //           report only the phase, and recording that honestly beats guessing.
-//   sample  what was actually in the cell: Cu/ZnO, Ru/Al₂O₃, Fe₃O₄(001).
+//   sample  what was actually in the cell as a made thing: Cu/ZnO,
+//           Ru/Al₂O₃, Cu-GaZrOₓ. A bare oxide is a phase even when it is
+//           the only thing in the cell, facet and all: Fe₃O₄(001) is a phase.
 //
 // The same entry can play more than one role without changing: TiO₂ is the
 // sample when a paper measures bare titania, and the phase when the same
@@ -64,13 +66,14 @@
 //     oxidation_state: integer, for metal/cation sites (optional)
 //     formula:         Unicode formula, for a phase (optional)
 //     composition:     the sample as the literature writes it, for a sample
-//                        (optional)
+//                        (optional). A phase uses `formula` instead, facet or
+//                        no facet: a cut crystal is the same compound.
 //     elements:        every element this surface contains, as symbols. What
 //                        answers "anything on a Cu-containing sample",
 //                        whichever level the claim named (optional for a
 //                        site, where `element` already says it)
-//     facet:           crystallographic termination, for a single crystal
-//                        (optional)
+//     facet:           crystallographic termination, for a single crystal.
+//                        It narrows a phase; it never sits on a site (optional)
 //     parts:           keys of the surfaces one scale down (optional). See
 //                        above: this is the only containment link.
 //     note:            one sentence, shown on the Dataset page (optional)
@@ -144,6 +147,14 @@
       "element": "Cu",
       "oxidation_state": 1,
       "note": "The carbonyl marker that separates a partly oxidised copper surface from Cu⁰."
+    },
+    "cu_2p": {
+      "label": "Cu²⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Cu",
+      "oxidation_state": 2,
+      "note": "Fully oxidised copper, carrying a carbonyl some 25 cm⁻¹ above the Cu⁺ one. Rare in this dataset, because a working methanol catalyst is reduced: where a source reports it on one, it is claiming a minority site that survived the reduction, and the claim is worth reading against the Cu⁺ assignment it sits next to."
     },
     "zn_2p": {
       "label": "Zn²⁺",
@@ -228,6 +239,13 @@
       "kind": "defect",
       "note": "A bare oxygen vacancy. Listed on its own so ensembles can point at it."
     },
+    "o_vac_1p": {
+      "label": "Vₒ⁺",
+      "level": "site",
+      "kind": "defect",
+      "parts": ["o_vac"],
+      "note": "An oxygen vacancy that has given up one of its two electrons, the donor centre whose photoionization to the conduction band is the broad electronic absorption under an operando Cu/ZnO spectrum. Its concentration, not just its existence, is what the band measures."
+    },
     "zn_ovac_hf": {
       "label": "Zn–Vₒ–Hf",
       "level": "site",
@@ -269,6 +287,14 @@
       "elements": ["Zn", "O"],
       "parts": ["zn_2p"]
     },
+    "zno_1mx": {
+      "label": "ZnO₁₋ₓ",
+      "level": "phase",
+      "formula": "ZnO₁₋ₓ",
+      "elements": ["Zn", "O"],
+      "parts": ["zn_2p", "o_vac", "o_vac_1p"],
+      "note": "Zinc oxide after reduction, carrying the oxygen vacancies that stoichiometric ZnO does not. Recorded apart from zno because the distinction is the point wherever it is named: the defects are what the strong metal-support interaction with copper creates, and what the infrared background reports on."
+    },
     "zro2": {
       "label": "ZrO₂",
       "level": "phase",
@@ -299,18 +325,52 @@
     "fe3o4": {
       "label": "Fe₃O₄",
       "level": "phase",
-      "composition": "Fe₃O₄",
+      "formula": "Fe₃O₄",
       "elements": ["Fe", "O"],
-      "note": "Magnetite with no termination stated. The two facet variants below point at it."
+      "note": "Magnetite with no termination stated. The two facet variants below point at it, and all three are the same compound: only the cut differs."
+    },
+    "fe3o4_001": {
+      "label": "Fe₃O₄(001)",
+      "level": "phase",
+      "formula": "Fe₃O₄",
+      "facet": "(001)",
+      "elements": ["Fe", "O"],
+      "parts": ["fe3o4"],
+      "note": "Magnetite cut on the (001) plane. The formula is the whole chemistry: (001) is a termination, not a composition, so this entry and fe3o4_111 are the same compound differently cut. It is a phase for that reason, named by formula like any other bare oxide; `parts` points at plain fe3o4 so a query for magnetite reaches it."
+    },
+    "fe3o4_111": {
+      "label": "Fe₃O₄(111)",
+      "level": "phase",
+      "formula": "Fe₃O₄",
+      "facet": "(111)",
+      "elements": ["Fe", "O"],
+      "parts": ["fe3o4"],
+      "note": "The other termination measured in the same study, chemically identical to fe3o4_001. They are separate entries because the two cuts expose different Fe spacings and carry different formate geometries, which is a structural difference and not a compositional one."
     },
 
     // ── Samples: what was actually in the cell ──
+    "cu_sio2": {
+      "label": "Cu/SiO₂",
+      "level": "sample",
+      "composition": "Cu/SiO₂",
+      "elements": ["Cu", "Si", "O"],
+      "parts": ["cu_0", "sio2"],
+      "note": "Copper on silica with no promoter. Silica is close to inert here, so this is the reference against which a promoter's effect is read, and it is listed with Cu⁰ alone: the sources that pair it with a promoted counterpart find no Cu⁺ carbonyl on it at all."
+    },
+    "cuga_sio2": {
+      "label": "Cu-Ga₂O₃/SiO₂",
+      "level": "sample",
+      "composition": "Cu-Ga₂O₃/SiO₂",
+      "elements": ["Cu", "Ga", "Si", "O"],
+      "parts": ["cu_0", "cu_1p", "cu_2p", "ga_3p", "ga2o3", "sio2"],
+      "note": "Ga₂O₃-promoted Cu on silica, published as a loading series written CuGa(x) where x is the Ga/(Cu+Ga) molar ratio. The family is recorded here and the member named in the note, because the distinction the spectra turn on is against the Ga-free cu_sio2 rather than between members: the Cu⁺ carbonyl is absent without Ga and its area grows with the loading."
+    },
     "cu_zno": {
       "label": "Cu/ZnO",
       "level": "sample",
       "composition": "Cu/ZnO",
       "elements": ["Cu", "Zn", "O"],
-      "parts": ["cu_0", "cu_1p", "zn_2p", "zno"]
+      "parts": ["cu_0", "cu_1p", "zn_2p", "zno", "zno_1mx"]
     },
     "cu_gazrox": {
       "label": "Cu-GaZrOₓ",
@@ -357,24 +417,6 @@
       "elements": ["Ru", "Na", "Al", "O"],
       "parts": ["ru_0", "al2o3", "na_1p"],
       "note": "The sodium-promoted counterpart of Ru/Al₂O₃; the quotes are the authors' own."
-    },
-    "fe3o4_001": {
-      "label": "Fe₃O₄(001)",
-      "level": "sample",
-      "composition": "Fe₃O₄",
-      "facet": "(001)",
-      "elements": ["Fe", "O"],
-      "parts": ["fe3o4"],
-      "note": "Single crystal. A facet is a sample, not a site: it says how the material was cut."
-    },
-    "fe3o4_111": {
-      "label": "Fe₃O₄(111)",
-      "level": "sample",
-      "composition": "Fe₃O₄",
-      "facet": "(111)",
-      "elements": ["Fe", "O"],
-      "parts": ["fe3o4"],
-      "note": "The other termination measured in the same study."
     }
   }
 }

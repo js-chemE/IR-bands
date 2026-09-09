@@ -50,7 +50,27 @@
 </script>
 
 <section>
-  <h3>Filter</h3>
+  <h3>Enable &amp; Disable</h3>
+  <!-- Its own section, ahead of the group filter, because it is a different
+       kind of cut: the groups choose which chemistry is on screen, this chooses
+       whether the labelled twins of those bands exist at all. Off, they leave
+       the layout entirely rather than being hidden where they stand. -->
+  <div class="iso-filter">
+    <button
+      class="iso-pill"
+      class:off={!showIsotopes}
+      style="background:{ISOTOPE_STYLE.background}; border-color:{ISOTOPE_STYLE.border}; color:{ISOTOPE_STYLE.color}"
+      title={showIsotopes
+        ? 'Hide the isotopologue bands and re-lay out the lanes without them'
+        : 'Bring the isotopologue bands back'}
+      aria-pressed={showIsotopes}
+      on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
+    >isotope</button>
+  </div>
+</section>
+
+<section>
+  <h3>Group Filter</h3>
 
   <select
     value={activeSet}
@@ -77,23 +97,6 @@
     <span class="count">{enabledGroups.size} / {sortedKeys.length}</span>
   </button>
 
-  <!-- Below the set and the groups, because it is a different kind of cut:
-       the groups choose chemistry, this chooses whether the labelled twins of
-       those bands are in the picture. Off, they leave the layout entirely. -->
-  <div class="iso-filter">
-    <span class="iso-caption">Enable / disable</span>
-    <button
-      class="iso-pill"
-      class:off={!showIsotopes}
-      style="background:{ISOTOPE_STYLE.background}; border-color:{ISOTOPE_STYLE.border}; color:{ISOTOPE_STYLE.color}"
-      title={showIsotopes
-        ? 'Hide the isotopologue bands and re-lay out the lanes without them'
-        : 'Bring the isotopologue bands back'}
-      aria-pressed={showIsotopes}
-      on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
-    >isotope</button>
-  </div>
-
   {#if showGroups}
     <div class="group-list">
       {#each sortedKeys as key (key)}
@@ -114,6 +117,11 @@
 </section>
 
 <style>
+  /* Two sections now: the isotope switch, then the group filter. They are
+     different kinds of cut, so they get real air between them rather than a
+     rule. */
+  section + section { margin-top: 22px; }
+
   h3 {
     margin: 0 0 8px 0;
     font-size: var(--t-sidebar-head-size);
@@ -136,11 +144,10 @@
     align-items: center;
     gap: 6px;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
     padding: 4px 2px;
     background: none;
     border: none;
-    border-top: 1px solid var(--line-soft);
     font: inherit;
     font-size: var(--t-nav-size);
     color: var(--ink-500);
@@ -192,17 +199,8 @@
      off, the same idiom as a switched-off group row. */
   .iso-filter {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
     gap: 5px;
-    margin-top: 10px;
-  }
-  .iso-caption {
-    font-size: var(--t-micro-label-size);
-    font-weight: var(--t-micro-label-weight);
-    text-transform: var(--t-micro-label-tt);
-    letter-spacing: var(--t-micro-label-ls);
-    color: var(--t-micro-label-color);
   }
   .iso-pill {
     border: 1px solid;

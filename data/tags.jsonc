@@ -44,6 +44,15 @@
     "drifts": {
       "tip": "Measured by diffuse reflectance infrared spectroscopy (DRIFTS)."
     },
+    "irras": {
+      "tip": "Measured by infrared reflection absorption spectroscopy: grazing incidence off a flat, usually single-crystal sample in vacuum. The surface selection rule applies, so only dipole components along the surface normal absorb and a missing band may mean a mode lying flat rather than a species that is absent."
+    },
+    "pm_irras": {
+      "tip": "IRRAS with the polarisation modulated between s and p, which subtracts the isotropic gas-phase and window background and lets reflection measurements work outside vacuum."
+    },
+    "emission": {
+      "tip": "The hot sample is the infrared source rather than something the beam passes through; used where a bed is too opaque or too hot for the other geometries."
+    },
     "fermi-resonance": {
       "tip": "Auto-tagged: this band is one half of a Fermi-resonance doublet with another band."
     },
@@ -76,6 +85,9 @@
     },
     "deuterium": {
       "tip": "This band is the deuterated twin of another band in the atlas: same mode, heavier hydrogen. Drawn hatched."
+    },
+    "to-be-revised": {
+      "tip": "Something on this band does not add up and has not been resolved yet: a claim that may sit on the wrong band, or an assignment that needs the source read again. Not a caveat about the chemistry, a note that the entry itself is unfinished."
     },
     "misassignment-warning": {
       "tip": "A known trap: this position is easily assigned to the wrong species, or read as a surface signal when it is not one (gas-phase absorption in the beam path)."

@@ -150,9 +150,16 @@ export const GUIDE: GuideSection[] = [
       '"Fig. S4a", "Table S1". A number nobody can find again is a number nobody can check.',
       'Isotope experiments are often only in the SI, or only in one figure of the main text. ' +
       'Look before concluding that a substitution was qualitative.',
+      'When there is no SI to hand, say so in the note that wanted it. A main-text sentence ' +
+      'that quotes an SI result (“the band lies near 1000 cm⁻¹ on ZnO, Figure S22”) is a ' +
+      'main-text claim and can be recorded as one, with a clause saying the figure itself was ' +
+      'not read. Half a record, marked as half, beats a confident one that nobody checked.',
     ],
     never: [
       'Never assume the SI repeats the main text. Most of the numbers appear in exactly one of them.',
+      'Never cite an SI figure or table number you have not opened. Copying “Fig. S4” out of ' +
+      'the main text makes a note look checked when it is not, and it is the one kind of error ' +
+      'a reader cannot detect.',
       'Never take a number off an SI figure that neither text assigns, however suggestive the ' +
       'peak looks. An axis label is not an assignment.',
     ],
@@ -239,8 +246,10 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'A compound is a phase when it is a constituent and a sample when it is the whole thing. The same ' +
       'key covers both roles, so there is nothing to decide: use `tio2` alone for bare titania, and ' +
       '["tio2", "<the sample>"] when titania is the support the band was assigned to.',
-      'A gas-phase band takes the sample the gas was measured over, or nothing at all. Never a site: a ' +
-      'free molecule sits on nothing, and the build warns about it.',
+      'A gas-phase band takes no surface at all, at any level. The molecule is in the cell rather than ' +
+      'on the catalyst, and the same gas band shows up over whatever is in the beam, so a key here ' +
+      'answers no query and credits the sample with a band it did not cause. Name the cell and the ' +
+      'catalyst in the note instead; the build warns on any `measured_on` for a gas-phase band.',
       'Check the key exists in surfaces.jsonc. If it does not, add it rather than bending the claim to ' +
       'a key that nearly fits.',
     ],
@@ -266,7 +275,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['"on bare TiO₂"', '"tio2"'],
         ['"at the Pt-ceria interface"', '["pt0_ceo2_interface"]'],
         ['"at oxygen vacancies"', '["o_vac", "<the sample>"]'],
-        ['"gas-phase CO₂ in the cell"', '"<the sample>", or nothing'],
+        ['"gas-phase CO₂ in the cell"', 'nothing — leave measured_on out'],
         ['"on oxidised copper" (no state given)', 'the sample, and the paper’s wording in the note'],
       ],
     },
@@ -300,7 +309,10 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'mean the element, so `co_0` is cobalt metal and never carbon monoxide.',
       'Label: Unicode, exactly as a reader would write it (`Cu⁺`, `Fe₃O₄(001)`).',
       'A site gets `kind` and, where it applies, `element` and `oxidation_state`. A phase gets `formula` ' +
-      'and `elements`. A sample gets `composition`, `elements` and, for a single crystal, `facet`.',
+      'and `elements`, plus `facet` where it is a single crystal cut on a named plane. A sample gets ' +
+      '`composition` and `elements`. A facet is a phase and never a sample, and it stays out of the ' +
+      'formula: a cut oxide is the same compound as the uncut one, so Fe₃O₄(001) and Fe₃O₄(111) both ' +
+      'read formula Fe₃O₄ and differ only in `facet`.',
       'Add the new key to the `parts` of whatever contains it, and to nothing else. `parts` points down ' +
       'the scale only: a sample lists its phases and sites, a phase lists its sites.',
       'Run `python build.py`. It fails if a part sits at a coarser level than its container, or if a ' +
@@ -321,7 +333,13 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
     lead: [
       'One value per claim, from a closed list, and `build.py` derives the tag chip from it. The field ' +
       'is the sampling geometry, not the instrument: nearly every measurement here is an interferometer ' +
-      'measurement, so "FTIR" says nothing and is not a value.',
+      'measurement, so "FTIR" on its own says nothing and is only the placeholder for a paper that '
+      + 'states no geometry.',
+      'The reflection geometries are values of their own rather than one lumped entry, because on a '
+      + 'flat conducting sample the surface selection rule makes IRRAS a different experiment: only '
+      + 'dipole components along the surface normal absorb, so a band missing from the spectrum can '
+      + 'mean a mode lying flat rather than a species that is not there. On such a sample, read an '
+      + 'absence as geometry before reading it as chemistry.',
     ],
     table: {
       head: ['Value', 'What it means'],
@@ -329,6 +347,9 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['drifts', 'Diffuse reflectance off a powder bed'],
         ['transmission', 'Beam straight through a self-supporting wafer'],
         ['atr', 'Attenuated total reflectance against an internal-reflection crystal'],
+        ['irras', 'Grazing-incidence reflection off a flat single crystal, in vacuum'],
+        ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background'],
+        ['emission', 'The hot sample is the source; no beam passes through it'],
         ['ftir', 'Placeholder: the paper names the interferometer, not the geometry'],
         ['computational', 'Not a measurement: a calculated frequency'],
       ],
@@ -379,6 +400,52 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
   Particularly pronounced in their long-path-length Praying Mantis
   HTRC cell; intensity amplified at elevated CO₂ pressures."`,
       note: 'Where it came from, then what was special about this measurement, then the caveat.',
+    },
+  },
+  {
+    id: 'naming',
+    label: 'Naming a band',
+    title: 'Naming a band',
+    lead: [
+      'A source may name one mode in four ways: by what it does (νₛ(CH₃)), by an index into a list ' +
+      'of normal modes (ν₂, or q₁₁ in a computational paper), by an irreducible representation ' +
+      '(ν₃(A′)), or by a transition code from a line database (11101←00001). Only the first of ' +
+      'those says anything to somebody reading a chart, and it is what `short` uses.',
+    ],
+    rules: [
+      'Name the motion, not its rank: `ν` stretch, `δ` bend or scissor, `ρ` rock, `γ` out of plane, ' +
+      '`τ` torsion or twist, with `ₛ` and `ₐₛ` for symmetric and antisymmetric. Then the atoms that ' +
+      'move, in brackets: `νₐₛ(OCO)`, `δ(COH)`, `ν(C-OH)`.',
+      'Then the species as a reader writes it, with a trailing asterisk when it is adsorbed: ' +
+      '`νₐₛ(OCO) HCOO*`, `ν(CO) MeOH`. Where the binding geometry rather than the species is what ' +
+      'distinguishes the band, that goes in instead: `ν(CO) linear (μ₁)`.',
+      'A rotational branch goes last, in brackets: `(R)`, `(Q)`, `(P)`. A combination or difference ' +
+      'band is written as the arithmetic on the fundamentals it is built from: `νₛ+δ(OCO) CO₂`, ' +
+      '`νₐₛ−νₛ(OCO) upper CO₂`.',
+      'Where a molecule has two modes of the same kind, add the spectroscopist index as a ' +
+      'disambiguator rather than inventing a letter: methanol has two symmetric methyl stretches, ' +
+      'so one is `νₛ(CH₃) ν₂ MeOH`. An invented "(a)" tells the reader nothing.',
+      'One notation per species. Mixing νₛ and ν₁ across the bands of one molecule makes two ' +
+      'labels look like two different modes.',
+    ],
+    never: [
+      'Never put a database transition code in a label. `11101←00001` is how HITRAN names a ' +
+      'transition and it belongs in the note, where somebody checking the source needs it.',
+      'Never put a wavenumber in a `short`, for the same reason band ids do not carry one: the ' +
+      'position is data and it gets refined.',
+      'Never carry a source’s own numbering into the label because the source used it. Papers ' +
+      'renumber the same modes differently, and one of them will disagree with the atlas.',
+    ],
+    example: {
+      caption: 'The same mode, four ways a source might name it',
+      code: `HITRAN            11101←00001
+computational     ω₇(A′)
+spectroscopist    ν₅(A′)
+chemist           δₛCH₃ umbrella
+
+short             δₛ(CH₃) umbrella MeOH`,
+      note: 'The first four all appear in one paper on methanol. The last is the only one that ' +
+        'reads without a key beside it.',
     },
   },
   {
@@ -466,6 +533,11 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'All three sit on the band, not the claim, which is a known compromise: they describe an ' +
       'observation but are authored once. When two papers disagree strongly, the disagreement belongs ' +
       'in the notes.',
+      'A source sometimes reports an absorption that is not a normal mode at all: a defect or ' +
+      'charge-transfer transition, broad, structureless, and often the largest feature in the ' +
+      'spectrum. It is still a band a reader sees, so it is recorded as one, with ' +
+      '`vibration.category: "electronic"` and `atoms: "diverse"`. Say in the first sentence of ' +
+      'the description that nothing is vibrating, or the entry reads as a mode nobody can find.',
     ],
   },
   {

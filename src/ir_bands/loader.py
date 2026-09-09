@@ -482,21 +482,37 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                             "not in surfaces.jsonc"
                         )
 
-    # 12. A gas-phase band sits on nothing. Naming the sample it was measured
-    #     over is fine; naming a site is a leftover from before the band was
-    #     known to be gas phase, or a claim that belongs on an adsorbed band.
-    #     The level on the surface record is what tells the two apart.
+    # 11c. A claim's wavenumber falls inside the band's own window. A band's
+    #      window is the envelope of credible positions for that mode, so a
+    #      claim outside it means one of two things, both worth looking at:
+    #      the window is too narrow, or the claim belongs on a different band.
+    #      A warning rather than an error, since the honest fix is sometimes to
+    #      leave it and say so in the note.
+    for b_ in dataset.bands:
+        for ref in b_.references:
+            for w in _as_list(ref.wn):
+                if not (b_.wn_start <= w <= b_.wn_end):
+                    warnings.append(
+                        f"Band {b_.id}, reference {ref.key}: wn={w} is outside the band's "
+                        f"window {b_.wn_start}-{b_.wn_end} cm-1"
+                    )
+
+    # 12. A gas-phase band sits on nothing, at any level. The molecule is in
+    #     the cell, not on the catalyst, and the same gas band appears over
+    #     whatever happens to be in the beam, so a surface here answers no
+    #     query and quietly credits the sample with a band it did not cause.
+    #     Which cell it was seen in belongs in the note.
     for b_ in dataset.bands:
         if b_.phase != "gas":
             continue
         for ref in b_.references:
             for key in _as_list(ref.measured_on):
                 surf = dataset.surfaces.get(key)
-                if surf is not None and surf.level == "site":
-                    warnings.append(
-                        f"Band {b_.id}, reference {ref.key}: phase=gas but the claim "
-                        f"names site {key!r}; a free molecule sits on nothing"
-                    )
+                level = f"{surf.level} " if surf is not None else ""
+                warnings.append(
+                    f"Band {b_.id}, reference {ref.key}: phase=gas but the claim "
+                    f"names {level}{key!r}; a free molecule sits on nothing"
+                )
 
     # 13. Rotational branches are one transition of one species, so siblings
     #     that disagree about what they are looking at are a real error in the

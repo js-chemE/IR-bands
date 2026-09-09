@@ -39,7 +39,8 @@
             "co2_sym",
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
-            "co2_combo_sym_bend_q"
+            "co2_combo_sym_bend_q",
+            "co2_combo_sym_bend_p"
           ]
         },
         {
@@ -68,6 +69,7 @@
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
             "co2_combo_sym_bend_q",
+            "co2_combo_sym_bend_p",
             "co2_bend_overtone"
           ]
         },
@@ -97,6 +99,7 @@
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
             "co2_combo_sym_bend_q",
+            "co2_combo_sym_bend_p",
             "co2_bend_overtone"
           ]
         },
@@ -125,7 +128,9 @@
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
             "co2_combo_2bend_asym_r",
-            "co2_combo_2bend_asym_p"
+            "co2_combo_2bend_asym_p",
+            "co2_diff_asym_2bend",
+            "co2_diff_asym_sym"
           ]
         }
       ]
@@ -157,6 +162,7 @@
             "raman-active"
           ],
           "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
             "Nishimura.VibrationalExcitationsCH4.2002"
           ],
           "category": "stretch",
@@ -174,7 +180,7 @@
         {
           "id": "ch4_bend_e",
           "label": "δ(HCH)",
-          "note": "Two H-C-H angles open while the other two close, in a complementary pattern — one component of the doubly-degenerate bend (a second, equivalent component sits at the same frequency, not separately drawn). Doesn't change the dipole moment, so it's IR-forbidden — Raman-active only.",
+          "note": "Two H-C-H angles open while the other two close, in a complementary pattern — one component of the doubly-degenerate bend (a second, equivalent component sits at the same frequency, not separately drawn). It carries no dipole derivative of its own, so it is IR-forbidden by symmetry, yet it is still seen in the infrared near 1533 cm⁻¹: Coriolis coupling to ν₄ lends it intensity. Forbidden here means having no dipole derivative, not never being observed.",
           "ir_active": false,
           "raman_active": true,
           "tags": [
@@ -182,6 +188,7 @@
             "raman-active"
           ],
           "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
             "Nishimura.VibrationalExcitationsCH4.2002"
           ],
           "category": "bend",
@@ -208,6 +215,7 @@
             "ir-active"
           ],
           "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
             "Nishimura.VibrationalExcitationsCH4.2002"
           ],
           "category": "stretch",
@@ -234,6 +242,7 @@
             "ir-active"
           ],
           "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
             "Nishimura.VibrationalExcitationsCH4.2002"
           ],
           "category": "bend",
@@ -857,7 +866,7 @@
         {
           "id": "formate_stretch_symmetric_bidentate",
           "label": "νₛ(OCO)",
-          "note": "Both C-O bonds stretch in phase — both bound oxygens move together, the bridging analogue of CO₂'s symmetric stretch. Paired with νₐₛ(OCO) below; the splitting between the two is the standard diagnostic for carboxylate binding geometry.",
+          "note": "Both C-O bonds stretch in phase — both bound oxygens move together, the bridging analogue of CO₂'s symmetric stretch. Paired with νₐₛ(OCO) below; the splitting between the two is the standard diagnostic for carboxylate binding geometry. In the crystalline alkali salts it lands within about ten wavenumbers of δ(OCH), close enough that the two have been swapped between studies of the same solid.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -877,7 +886,9 @@
           "wn_start": 1340,
           "wn_end": 1400,
           "bands": [
-            "formate_sym"
+            "formate_sym",
+            "formate_combo_bend_sym",
+            "formate_d_sym"
           ]
         },
         {
@@ -927,13 +938,14 @@
           "wn_end": 1610,
           "bands": [
             "formate_asym",
-            "formate_combo_bend_asym"
+            "formate_combo_bend_asym",
+            "formate_d_asym"
           ]
         },
         {
           "id": "formate_och_scissoring_bidentate",
           "label": "δ(OCH)",
-          "note": "The angle between either bound O, C, and H changes as the C-H bond rocks in-plane relative to the O-C-O frame, while every bond length stays fixed. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum.",
+          "note": "The angle between either bound O, C, and H changes as the C-H bond rocks in-plane relative to the O-C-O frame, while every bond length stays fixed. Often overlaps νₛ(OCO) and isn't always separately resolved in a spectrum. It is the higher of the molecule's two rocking modes, some 300 cm⁻¹ above the out-of-plane wag.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -953,13 +965,14 @@
           "wn_end": 1400,
           "bands": [
             "formate_och_bend",
-            "formate_combo_bend_asym"
+            "formate_combo_bend_asym",
+            "formate_combo_bend_sym"
           ]
         },
         {
           "id": "formate_ch_wagging_bidentate",
           "label": "γ(CH)",
-          "note": "The C-H bond wags out of the O-C-O plane — the lone out-of-plane mode, so it's numbered last under the standard convention (see the Notation box). Not resolved as a separate surface band in this dataset yet.",
+          "note": "The C-H bond wags out of the O-C-O plane — the lone out-of-plane mode, so it's numbered last under the standard convention (see the Notation box). It falls below the in-plane rock, the reverse of the order the acetate and oxalate ions show; that ordering is not obvious from the frequencies alone and was settled by polarized infrared measurements on the oriented solid. Not resolved as a separate surface band in this dataset yet.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -1762,7 +1775,7 @@
         {
           "id": "methoxy_stretch_symmetric",
           "label": "νₛ(CH₃)",
-          "note": "All three C-H bonds stretch in phase while C makes a small compensating recoil along the C-O axis — that recoil is genuinely allowed here, unlike in CH₄, since z transforms as A₁ in C3v rather than being symmetry-forbidden.",
+          "note": "All three C-H bonds stretch in phase while C makes a small compensating recoil along the C-O axis — that recoil is genuinely allowed here, unlike in CH₄, since z transforms as A₁ in C3v rather than being symmetry-forbidden. What a spectrum shows is not the unperturbed frequency: this mode sits in Fermi resonance with the overtones of both methyl deformations, which pushes the observed fundamental down by 40 to 50 cm⁻¹ and lends the two overtones enough intensity that three peaks appear where one is expected.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -1811,7 +1824,7 @@
         {
           "id": "methoxy_co_stretch",
           "label": "ν(CO)",
-          "note": "The CH₃ group (C plus all three H's, moving together as a rigid unit) stretches away from the fixed, surface-bound O. Frequency is the diagnostic for binding geometry: monodentate (one M-O bond) sits above ~1100 cm⁻¹, bidentate below it.",
+          "note": "The CH₃ group (C plus all three H's, moving together as a rigid unit) stretches away from the fixed, surface-bound O. Frequency is the diagnostic for binding geometry: monodentate (one M-O bond) sits above ~1100 cm⁻¹, bidentate below it. On a flat metal it is coverage-sensitive too, climbing by tens of cm⁻¹ as dipole coupling between neighbours grows, so one position pins down the coverage as much as the geometry.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -1860,7 +1873,7 @@
         {
           "id": "methoxy_torsion",
           "label": "τ(CH₃)",
-          "note": "A hindered rotation of the whole methyl cap about the C-O axis — the lone mode outside A₁ and E, numbered last under the standard convention. Genuinely IR-inactive under any orientation: A₂ doesn't transform like x, y, or z, so it carries no dipole derivative at all.",
+          "note": "A hindered rotation of the whole methyl cap about the C-O axis — the lone mode outside A₁ and E, numbered last under the standard convention. Genuinely IR-inactive under any orientation: A₂ doesn't transform like x, y, or z, so it carries no dipole derivative at all. Its frequency is set entirely by the masses off the three-fold axis, which is why it drops from about 270 cm⁻¹ in methanol to near 120 cm⁻¹ once the hydroxyl H is traded for heavy metal atoms.",
           "ir_active": false,
           "raman_active": null,
           "tags": [],
@@ -1901,13 +1914,14 @@
           "wn_start": 2910,
           "wn_end": 2970,
           "bands": [
-            "methoxy_asym"
+            "methoxy_asym",
+            "methoxy_cd_asym_stretch"
           ]
         },
         {
           "id": "methoxy_bend_asymmetric",
           "label": "δₐₛ(CH₃)",
-          "note": "Two H's rock in antiphase relative to the C-O axis while the third shears outward — one component of the doubly-degenerate asymmetric deformation. Calculated well above the symmetric umbrella mode above, so a band much closer to that mode's own position is unlikely to actually be this one.",
+          "note": "Two H's rock in antiphase relative to the C-O axis while the third shears outward — one component of the doubly-degenerate asymmetric deformation. Never measured on a flat metal, where the surface selection rule forbids every E mode, so the upper end of the window is a normal-coordinate result rather than an observation; it puts this mode about 100 cm⁻¹ above the symmetric umbrella, so a band close to that mode's own position is unlikely to be this one.",
           "ir_active": true,
           "raman_active": null,
           "tags": [
@@ -1924,7 +1938,7 @@
           "herzberg_notation": "ν₇",
           "symmetry": "E",
           "wn_start": 1450,
-          "wn_end": 1470,
+          "wn_end": 1534,
           "bands": [
             "methoxy_bend_asym"
           ]
@@ -1995,7 +2009,7 @@
           "herzberg_notation": "ν₁₀",
           "symmetry": "E",
           "wn_start": 70,
-          "wn_end": 170,
+          "wn_end": 90,
           "bands": []
         }
       ]
@@ -2267,7 +2281,8 @@
             "meoh_co_q",
             "meoh_co_r",
             "meoh_co_p",
-            "meoh_cd_co_stretch"
+            "meoh_cd_co_stretch",
+            "meoh_co_overtone"
           ]
         },
         {
@@ -2369,7 +2384,7 @@
         {
           "id": "h2o_stretch_symmetric",
           "label": "νₛ(HOH)",
-          "note": "Both O-H bonds stretch in phase while O makes a small compensating recoil along the molecule's own C2 axis — the totally symmetric stretch, the highest-frequency of the three.",
+          "note": "Both O-H bonds stretch in phase while O makes a small compensating recoil along the molecule's own C₂ axis — the totally symmetric stretch, conventionally ν₁. It is the lower of the two stretches, about 100 cm⁻¹ below the asymmetric one, and the weaker of the two in the infrared.",
           "ir_active": true,
           "raman_active": true,
           "tags": [
@@ -2377,7 +2392,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",
@@ -2403,7 +2418,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "bend",
@@ -2429,7 +2444,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",

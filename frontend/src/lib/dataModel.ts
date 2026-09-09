@@ -152,7 +152,7 @@ export const ENTITIES: EntitySpec[] = [
     blurb:
       'What the band’s atoms are doing: the motion, its symmetry, and which rotational branch of it this band is. Three closed enums in one object, validated in schema.py, and the only descriptor on a band that is fully vocabulary-controlled.',
     fields: [
-      { name: 'category', type: 'stretch | bend | combination | lattice', req: 'req', note: 'An overtone is not a category: it uses the parent’s and adds the "overtone" tag.' },
+      { name: 'category', type: 'stretch | bend | combination | lattice | electronic', req: 'req', note: 'An overtone is not a category: it uses the parent’s and adds the "overtone" tag. `electronic` is the one that is not a normal mode: a defect-to-conduction-band transition that absorbs across the infrared.' },
       { name: 'subtype', type: 'symmetric | asymmetric | scissoring | rocking | wagging | twisting', req: 'opt', note: 'Never on a combination, which is not itself symmetric or asymmetric.' },
       { name: 'branch', type: 'R | P | Q', req: 'opt', note: 'Which rotational branch. Set together with branch_group, and only on gas-phase bands.' },
     ],
@@ -164,7 +164,7 @@ export const ENTITIES: EntitySpec[] = [
     source: 'data/bands.jsonc → band.atoms',
     id: 'none (the string is the identity)',
     blurb:
-      'Which atoms actually move: the bond environment, written as a small formula (O=C=O, C-H, M-O, M-O-C), with "diverse" for a combination whose parents involve unrelated groups. Drives the atoms colormap and the chip on the vibration-modes page.',
+      'Which atoms actually move: the bond environment, written as a small formula (O=C=O, C-H, M-O, M-O-C), with "diverse" for a combination whose parents involve unrelated groups, or for an electronic band where no atom moves at all. Drives the atoms colormap and the chip on the vibration-modes page.',
     fields: [
       { name: '(the string)', type: 'string', req: 'req', note: 'Free text. Nothing validates it, so a new spelling silently gets the fallback colour instead of failing.' },
     ],
@@ -203,7 +203,7 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'element / oxidation_state', type: 'string / int', req: 'opt', note: 'On a site. What makes "every Cu site regardless of oxidation state" answerable.' },
       { name: 'formula / composition', type: 'string', req: 'opt', note: 'The phase’s formula, or the sample as the literature writes it. Deliberately not parsed.' },
       { name: 'elements[]', type: 'symbol[]', req: 'opt', note: 'What this entry alone contains, authored rather than parsed out of the composition string.' },
-      { name: 'facet', type: 'string', req: 'opt', note: 'Crystallographic termination, on a single crystal. A facet says how the sample was cut, so it never sits on a site.' },
+      { name: 'facet', type: 'string', req: 'opt', note: 'Crystallographic termination, on a single crystal. It narrows a phase — a cut oxide is still that oxide — and never sits on a site.' },
       { name: 'parts[]', type: 'surface key[]', req: 'opt', note: 'The single containment link, pointing down the scale: a sample lists its phases and sites, a phase the sites within it, a composite site the simpler sites it is built from. It is what lets a site query reach the bands whose paper named only the catalyst.' },
       { name: 'all_elements[]', type: 'symbol[]', req: 'calc', note: 'elements unioned over the whole parts tree, computed by build.py. What the Element view runs against, so a band assigned to Zr⁴⁺ on CuGaZrOx answers a query for Cu.' },
     ],
@@ -393,7 +393,7 @@ export const RELATIONS: RelationSpec[] = [
   { from: 'band', to: 'vibration', card: 'N:1', via: 'band.vibration', note: 'Owned, not referenced: one vibration object per band, with three closed enums inside it.' },
   { from: 'band', to: 'atoms', card: 'N:1', via: 'band.atoms', note: 'String equality only, and nothing checks it.', weak: true },
   { from: 'band', to: 'region', card: 'N:1', via: 'Band.region_for(regions)', note: 'Computed from the band centre. Deliberately not stored on the band.', derived: true },
-  { from: 'species', to: 'group', card: 'N:M', via: '(the bands that carry both)', note: 'Real, and deliberately not authored. It is N:M rather than N:1 in both directions: CO appears under co, co_metal and co_cation, while carbonyl holds formaldehyde, formyl, hydroxymethyl and acyl. Since every band already names a species and a group, an authored copy could only ever disagree with the bands.', derived: true },
+  { from: 'species', to: 'group', card: 'N:M', via: '(the bands that carry both)', note: 'Real, and deliberately not authored. It is N:M rather than N:1 in both directions: CO appears under co, co_metal and co_cation, while carbonyl holds formaldehyde, formyl, hydroxymethyl, methylenebisoxy and acyl. Since every band already names a species and a group, an authored copy could only ever disagree with the bands.', derived: true },
   { from: 'band', to: 'mode', card: 'N:M', via: 'band.vibration_modes[]', note: 'Authored on the band. Usually 0 or 1 entries; 2 for a real degenerate pair.' },
   { from: 'molecule', to: 'mode', card: '1:N', via: 'molecule.modes[]', note: 'Ownership, not reference: a mode belongs to exactly one molecule.' },
   { from: 'molecule', to: 'topology', card: '1:N', via: 'molecule.topologies[]', note: 'At least one per molecule.' },
@@ -540,6 +540,9 @@ export const TAG_ROLES: Record<string, TagRole> = {
   transmission: 'technique',
   atr: 'technique',
   ftir: 'technique',
+  irras: 'technique',
+  pm_irras: 'technique',
+  emission: 'technique',
   computational: 'technique',
   'direct-dosing': 'evidence',
   'isotope-labeling': 'evidence',
@@ -548,6 +551,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
   // warning about reading the number, not a statement about the species.
   'misassignment-warning': 'caveat',
   'site-sensitive': 'caveat',
+  'to-be-revised': 'caveat',
 };
 
 /** Tags build.py or the loader writes from a field. Authoring one is an error. */
@@ -557,6 +561,9 @@ export const DERIVED_TAGS: Record<string, string> = {
   transmission: 'assignment.technique',
   atr: 'assignment.technique',
   ftir: 'assignment.technique',
+  irras: 'assignment.technique',
+  pm_irras: 'assignment.technique',
+  emission: 'assignment.technique',
   computational: 'assignment.technique',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',
@@ -594,6 +601,9 @@ export const TECHNIQUES: TechniqueSpec[] = [
   { key: 'transmission', label: 'Transmission', tag: 'transmission', note: 'Self-supporting wafer, beam straight through.' },
   { key: 'atr', label: 'ATR', tag: 'atr', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
   { key: 'ftir', label: 'FTIR (unspecified)', tag: 'ftir', note: 'The placeholder: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Use it when the paper genuinely does not say, and replace it once it does.' },
+  { key: 'irras', label: 'IRRAS', tag: 'irras', note: 'Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent.' },
+  { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', note: 'IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum.' },
+  { key: 'emission', label: 'Emission', tag: 'emission', note: 'The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries.' },
   { key: 'computational', label: 'Calculated', tag: 'computational', note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];
 
@@ -602,6 +612,30 @@ export const TECHNIQUES: TechniqueSpec[] = [
    --------------------------------------------------------------------------- */
 
 export const SURFACE_LEVELS: SurfaceLevel[] = ['site', 'phase', 'sample'];
+
+/**
+ * Oxidation state in Stock notation: Cu(I), Ga(III), Zr(IV). This is how a
+ * chemist writes an oxidation number, and it reads as one — where "(+1)" reads
+ * like a charge on an ion, which is a different statement about a lattice
+ * cation. Zero has no Roman numeral and is written as the digit, as usual.
+ */
+export function stockNotation(element: string, oxidationState?: number | null): string {
+  if (oxidationState == null) return element;
+  if (oxidationState === 0) return `${element}(0)`;
+  const n = Math.abs(oxidationState);
+  const NUMERALS: [number, string][] = [
+    [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
+  ];
+  let rest = n;
+  let roman = '';
+  for (const [v, sym] of NUMERALS) {
+    while (rest >= v) { roman += sym; rest -= v; }
+  }
+  // Non-integer or out-of-range states fall back to the number itself rather
+  // than silently rendering an empty numeral.
+  if (!roman || !Number.isInteger(oxidationState)) return `${element}(${oxidationState})`;
+  return `${element}(${oxidationState < 0 ? '−' : ''}${roman})`;
+}
 
 export const LEVEL_LABEL: Record<SurfaceLevel, string> = {
   site: 'Site',
@@ -755,7 +789,8 @@ export function analyse(
   const uncited: string[] = [];
   const noPhase: string[] = [];
   const noTechnique: string[] = [];
-  const gasWithSite: string[] = [];
+  const gasWithSurface: string[] = [];
+  const caveatOnClaim: string[] = [];
 
   for (const b of bands) {
     touch(species, b.species, b.id);
@@ -767,15 +802,21 @@ export function analyse(
       const surfaceKeys = asArray(r.measured_on);
       const siteKeys = surfaceKeys.filter(k => surfaceTable[k]?.level === 'site');
       const wnValues = asArray(r.wn);
-      if (!surfaceKeys.length) noSurface.push(r.uid || `${b.id}::${r.key}`);
-      if (b.phase === 'gas' && siteKeys.length) {
-        gasWithSite.push(`${b.id} → ${siteKeys.join(', ')}`);
+      // A gas-phase claim is *supposed* to name nothing, so it is not a gap.
+      if (!surfaceKeys.length && b.phase !== 'gas') noSurface.push(r.uid || `${b.id}::${r.key}`);
+      if (b.phase === 'gas' && surfaceKeys.length) {
+        gasWithSurface.push(`${b.id} → ${surfaceKeys.join(', ')}`);
       }
       if (siteKeys.length > 1 && wnValues.length > 1) ambiguousClaim.push(r.uid || `${b.id}::${r.key}`);
       for (const k of surfaceKeys) touch(surfaces, k, b.id, r.key);
       if (r.technique) touch(techniques, r.technique, b.id, r.key);
       else noTechnique.push(r.uid || `${b.id}::${r.key}`);
-      for (const t of r.tags) tagScope(t, 'assignment', b.id);
+      for (const t of r.tags) {
+        tagScope(t, 'assignment', b.id);
+        // A caveat describes where the band sits, so it is true whoever
+        // measured it. On a claim it warns only the readers of that one paper.
+        if (tagRole(t) === 'caveat') caveatOnClaim.push(`${b.id} → ${t} (${r.key})`);
+      }
     }
   }
 
@@ -821,15 +862,22 @@ export function analyse(
     row.kind = rec?.kind ?? undefined;
     row.parts = rec?.parts ?? [];
     // What characterises the entry differs by level, so read the field that
-    // level actually fills: a charge for a site, a formula or composition
-    // above it.
-    row.detail = rec
+    // level actually fills: an oxidation state for a site, a formula or
+    // composition above it. Suppressed where it would only repeat the label,
+    // which is most phases (label "Ga₂O₃", formula "Ga₂O₃"): a column that
+    // restates the one beside it reads as noise rather than as information.
+    // The facet is deliberately not folded in: a termination is not part of
+    // the chemistry, and Fe₃O₄(001) and Fe₃O₄(111) are the same compound cut
+    // two ways. Leaving the formula bare is what shows that — the label
+    // already carries the cut.
+    const formula = rec
       ? rec.level === 'site'
         ? rec.element
-          ? `${rec.element}${rec.oxidation_state != null ? ` (${rec.oxidation_state >= 0 ? '+' : ''}${rec.oxidation_state})` : ''}`
+          ? stockNotation(rec.element, rec.oxidation_state)
           : ''
-        : [rec.composition ?? rec.formula ?? '', rec.facet ?? ''].filter(Boolean).join(' ')
+        : rec.formula ?? rec.composition ?? ''
       : '';
+    row.detail = formula === row.label ? '' : formula;
   }
   for (const t of TECHNIQUES) {
     const row = techniques.get(t.key);
@@ -882,14 +930,20 @@ export function analyse(
     },
     {
       label: 'Claims that name no surface',
-      detail: 'The source did not say what it was measured on, or the field has not been filled in yet.',
+      detail: 'The source did not say what it was measured on, or the field has not been filled in yet. Gas-phase claims are excluded: naming nothing is the correct answer for them.',
       hits: noSurface,
     },
     {
-      label: 'Gas-phase claims that name a site',
+      label: 'Caveat tags authored on a claim',
       detail:
-        'A free molecule sits on nothing. Naming the sample is fine, since the gas was measured over it, but a site-level key is either a leftover from before the band was known to be gas phase or a claim that belongs on an adsorbed band instead.',
-      hits: gasWithSite,
+        'A caveat belongs on the band. It describes where the band sits — a position that is a known trap, or one that moves with the surface — which is true whoever measured it, so on a single claim it warns only the readers of that one paper and is invisible to everyone else.',
+      hits: caveatOnClaim,
+    },
+    {
+      label: 'Gas-phase claims that name a surface',
+      detail:
+        'A free molecule sits on nothing, at any level. The same gas band appears over whatever is in the beam, so a key here answers no query and credits the sample with a band it did not cause. Either the surface belongs in the note, or the claim belongs on an adsorbed band instead.',
+      hits: gasWithSurface,
     },
     {
       label: 'Claims with no technique',
