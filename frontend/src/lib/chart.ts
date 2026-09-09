@@ -7,7 +7,7 @@ import { C, FONTS, CHART_LAYOUT } from './tokens';
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
 import { speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
-import { TAG_ROLE_LABEL, tagRole, tagRoleRank, type TagRole } from './dataModel';
+import { TAG_ROLE_LABEL, isUmbrellaTag, tagRole, tagRoleRank, type TagRole } from './dataModel';
 
 // Geometry lives in tokens.ts with the rest of the design system; these are
 // re-exported so existing importers of './chart' keep working.
@@ -298,6 +298,7 @@ export function getLegendTags(
   // long tail of one-band tags out of the way.
   result.sort((a, b) =>
     tagRoleRank(a.role) - tagRoleRank(b.role) ||
+    Number(isUmbrellaTag(b.key, b.role)) - Number(isUmbrellaTag(a.key, a.role)) ||
     b.count - a.count ||
     a.key.localeCompare(b.key));
 

@@ -5,7 +5,7 @@
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
-  import { C, CHART_LAYOUT } from '../lib/tokens';
+  import { C, CHART_LAYOUT, ISOTOPE_STYLE } from '../lib/tokens';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
 
   // Connector strokes drawn as SVG presentation attributes, which cannot read
@@ -14,9 +14,12 @@
   // the connector and the pill always match.
   const CONN_STROKE = C['ink-500'];
   const CONN_LABEL = C['ink-300'];
-  const ISO_STROKE = TAG_STYLES['isotope'].color;
+  const ISO_STROKE = ISOTOPE_STYLE.color;
   import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
+
+  // Everything the chart draws comes from this list, not from `bands`.
+  $: shownBands = showIsotopes ? bands : bands.filter(b => !b.isotopologue_of);
 
   const dispatch = createEventDispatcher<{
     navigateRef: { key: string };
@@ -41,6 +44,9 @@
   export let enabledGroups: ReadonlySet<string>;
   export let hiddenCats: ReadonlySet<string>;
   export let hiddenTags: ReadonlySet<string>;
+  /** Isotopologue bands leave the dataset entirely when this is off, so the
+   *  lanes and the sub-lane stagger are recomputed without them. */
+  export let showIsotopes = true;
   export let tagIsolate: string | null = null;
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
@@ -294,7 +300,7 @@
   $: if (container) {
     hovered = null;
     const result = buildChart(
-      bands, groups, enabledGroups, hiddenCats, hiddenTags,
+      shownBands, groups, enabledGroups, hiddenCats, hiddenTags,
       colorDim, axisProperty, axisUnit, refs,
       containerWidth,
       xDomainForChart,

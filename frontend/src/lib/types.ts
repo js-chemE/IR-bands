@@ -6,8 +6,7 @@ export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
 export type Phase = 'gas' | 'adsorbed' | 'surface';
 export type Technique =
-  | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'emission'
-  | 'computational' | 'ftir';
+  | 'drifts' | 'transmission' | 'atr' | 'ftir' | 'computational';
 export type SurfaceLevel = 'site' | 'phase' | 'sample';
 export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
 export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references';
@@ -102,7 +101,7 @@ export interface Band {
   // This band is the same normal mode as `isotopologue_of`, measured on an
   // isotope-substituted molecule (e.g. ν(C-D) of DCOO* vs ν(C-H) of HCOO*).
   // One-directional child -> parent: only the substituted band carries it,
-  // and only it gets the auto "isotope" tag. `isotope` names the
+  // and only it gets the auto substitution tag. `isotope` names the
   // substitution ("D", "¹³C", ...) and is set exactly when the link is.
   isotopologue_of: string | null;
   isotope: string | null;

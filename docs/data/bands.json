@@ -32,11 +32,6 @@
     }
   },
   "groups": {
-    "hydroxyl": {
-      "key": "hydroxyl",
-      "label": "Hydroxyl* (R-OH)",
-      "color": "#5BA39B"
-    },
     "support_oh": {
       "key": "support_oh",
       "label": "Support OH",
@@ -139,7 +134,7 @@
     },
     "co2_hydrogenation_extended": {
       "key": "co2_hydrogenation_extended",
-      "label": "CO₂ hydrogenation +",
+      "label": "CO₂ hydrogenation (extended)",
       "groups": [
         "water",
         "formate",
@@ -161,7 +156,6 @@
       "key": "co2_hydrogenation_rwgs_ch4",
       "label": "CO₂ to CO/CH₄",
       "groups": [
-        "water",
         "carbonate",
         "bicarbonate",
         "co2",
@@ -169,8 +163,7 @@
         "ch4",
         "h2",
         "co_metal",
-        "co_cation",
-        "hydride"
+        "co_cation"
       ],
       "note": "Everything the RWGS and CO₂ methanation story touches."
     },
@@ -178,15 +171,13 @@
       "key": "co_methanation",
       "label": "CO methanation",
       "groups": [
-        "water",
         "carbonate",
         "bicarbonate",
         "co",
         "ch4",
         "h2",
         "co_metal",
-        "co_cation",
-        "hydride"
+        "co_cation"
       ],
       "note": "Everything the CO₂ methanation story touches."
     }
@@ -220,9 +211,6 @@
     [
       "methoxy",
       "methanol_product"
-    ],
-    [
-      "hydroxyl"
     ],
     [
       "support_oh"
@@ -332,19 +320,12 @@
       "molecule": null,
       "note": "Generic acyl group; the R is left open because the sources do not fix it."
     },
-    "hydroxyl_isolated": {
-      "key": "hydroxyl_isolated",
-      "label": "Isolated OH",
+    "hydroxyl": {
+      "key": "hydroxyl",
+      "label": "Surface OH",
       "formula": "OH*",
       "molecule": null,
-      "note": "Terminal hydroxyl with no hydrogen-bonded neighbour, which is why it stays sharp."
-    },
-    "hydroxyl_hbonded": {
-      "key": "hydroxyl_hbonded",
-      "label": "H-bonded OH",
-      "formula": "OH*",
-      "molecule": null,
-      "note": "The same group hydrogen-bonded to a neighbour: lower and much broader."
+      "note": "A hydroxyl on an oxide surface. Deliberately not split into isolated and hydrogen-bonded: that split needs evidence a source actually gives, and where a paper does resolve several hydroxyls it resolves them by the cation they sit on, which the claim records as its site."
     },
     "hydride": {
       "key": "hydride",
@@ -440,19 +421,56 @@
         "Ru"
       ]
     },
-    "ga_0": {
-      "key": "ga_0",
+    "ga": {
+      "key": "ga",
       "label": "Ga",
       "level": "site",
-      "kind": "metal",
+      "kind": null,
       "element": "Ga",
-      "oxidation_state": 0,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "facet": null,
+      "parts": [
+        "ga_tet",
+        "ga_oct"
+      ],
+      "note": "A Ga centre carrying a hydride, written as Ga-H with no charge in the sources that report it. Neither Ga⁰ nor Ga³⁺ is asserted, which is why this entry has no kind and no oxidation state; use ga_3p only where the paper states the cation. The two coordinations below are the resolved forms of it: a claim that says only Ga is a claim that did not separate them.",
+      "all_elements": [
+        "Ga"
+      ]
+    },
+    "ga_tet": {
+      "key": "ga_tet",
+      "label": "Ga(t)",
+      "level": "site",
+      "kind": null,
+      "element": "Ga",
+      "oxidation_state": null,
       "formula": null,
       "composition": null,
       "elements": [],
       "facet": null,
       "parts": [],
-      "note": "Written without a charge in the source; read as reduced gallium rather than Ga³⁺.",
+      "note": "Tetrahedrally coordinated gallium, the Ga(t) of β-Ga₂O₃. Its hydride and hydroxyl sit about 25 and 150 cm⁻¹ above those of the octahedral site, which is how the two are told apart.",
+      "all_elements": [
+        "Ga"
+      ]
+    },
+    "ga_oct": {
+      "key": "ga_oct",
+      "label": "Ga(o)",
+      "level": "site",
+      "kind": null,
+      "element": "Ga",
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "facet": null,
+      "parts": [],
+      "note": "Octahedrally coordinated gallium, the Ga(o) of β-Ga₂O₃. Coordinatively unsaturated at the surface, which is why it, and not the saturated tetrahedral site, is where H₂ dissociates in the calculations.",
       "all_elements": [
         "Ga"
       ]
@@ -806,6 +824,54 @@
         "Zn"
       ]
     },
+    "zro2": {
+      "key": "zro2",
+      "label": "ZrO₂",
+      "level": "phase",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": "ZrO₂",
+      "composition": null,
+      "elements": [
+        "Zr",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "zr_4p"
+      ],
+      "note": "",
+      "all_elements": [
+        "O",
+        "Zr"
+      ]
+    },
+    "ga2o3": {
+      "key": "ga2o3",
+      "label": "Ga₂O₃",
+      "level": "phase",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": "Ga₂O₃",
+      "composition": null,
+      "elements": [
+        "Ga",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "ga_3p",
+        "ga_tet",
+        "ga_oct"
+      ],
+      "note": "Gallia, as a constituent of a promoted catalyst and as a sample in its own right. The β polymorph carries both gallium coordinations, which is why hydride and hydroxyl bands on it come in pairs.",
+      "all_elements": [
+        "Ga",
+        "O"
+      ]
+    },
     "sio2": {
       "key": "sio2",
       "label": "SiO₂",
@@ -897,15 +963,15 @@
         "Zn"
       ]
     },
-    "cugazrox": {
-      "key": "cugazrox",
-      "label": "CuGaZrOx",
+    "cu_gazrox": {
+      "key": "cu_gazrox",
+      "label": "Cu-GaZrOₓ",
       "level": "sample",
       "kind": null,
       "element": null,
       "oxidation_state": null,
       "formula": null,
-      "composition": "CuGaZrOx",
+      "composition": "Cu-GaZrOₓ",
       "elements": [
         "Cu",
         "Ga",
@@ -916,12 +982,40 @@
       "parts": [
         "cu_0",
         "cu_1p",
+        "ga",
         "ga_3p",
         "zr_4p"
       ],
-      "note": "Mixed oxide: written as one formula in the literature, but a multi-component sample.",
+      "note": "Coprecipitated Cu-Ga-Zr mixed oxide, around 20 wt% Cu. Sources publish it as a series with different Ga and Zr loadings, written Cu-GaZrOₓ-Z where Z is Zr/(Zr+Cu+Ga) as a molar percentage; the family is recorded here and the individual member named in the note, since the distinction the spectra turn on is against the Cu-free GaZrOₓ rather than between members.",
       "all_elements": [
         "Cu",
+        "Ga",
+        "O",
+        "Zr"
+      ]
+    },
+    "gazrox": {
+      "key": "gazrox",
+      "label": "GaZrOₓ",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "GaZrOₓ",
+      "elements": [
+        "Ga",
+        "Zr",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "ga",
+        "ga_3p",
+        "zr_4p"
+      ],
+      "note": "The Cu-free counterpart of the Cu-GaZrOₓ series, 48 wt% Ga and 25 wt% Zr. Run to separate what the oxide does from what Cu does.",
+      "all_elements": [
         "Ga",
         "O",
         "Zr"
@@ -1674,7 +1768,7 @@
       "wn_start": 2073,
       "wn_end": 2081,
       "short": "ν₁+ν₂(OCO) CO₂ (Q)",
-      "description": "Gas CO₂ combination band at ~2077 cm⁻¹: one quantum of the (IR-forbidden) symmetric stretch ν₁ plus one quantum of the bend ν₂ — the combined state has Πu symmetry, which is dipole-allowed even though ν₁ alone isn't. The most intense combination band in the 2200–1900 cm⁻¹ region. Falls squarely in the linear metal-CO stretching range, so in a DRIFTS/transmission cell with gas-phase CO₂ present it's a recurring misassignment risk against a genuine surface ν(CO) band at the same position. Intensity grows with CO₂ pressure and temperature, not with anything happening at the catalyst surface — a useful discriminator. Always check for this band before assigning a 2077 cm⁻¹ feature to surface CO.",
+      "description": "Gas CO₂ combination of the IR-forbidden symmetric stretch with the bend: the combined level has Πu symmetry and is dipole-allowed although ν₁ alone is not. The strongest combination band between 2200 and 1900 cm⁻¹, and it falls squarely in the linear metal-carbonyl window, so it is a standing misassignment risk wherever gas CO₂ is in the beam. Its intensity tracks CO₂ pressure and temperature rather than anything on the surface, which is the discriminator.",
       "based_on": [
         {
           "band_id": "co2_sym",
@@ -1739,7 +1833,7 @@
       "wn_start": 1383,
       "wn_end": 1395,
       "short": "νₛ(OCO) CO₂",
-      "description": "Gas CO₂ symmetric stretch (νₛ) band origin at ~1388 cm⁻¹. Strictly IR-forbidden by symmetry (Σg⁺ — centrosymmetric, no dipole moment change); observed only in Raman spectroscopy. Listed here as the explicit parent mode for the νₛ+νₐₛ combination band (~3715 cm⁻¹) and as the Fermi-resonance partner of 2δ (see co2_bend_overtone) — the same cubic anharmonic term (coupling q₁ and q₂² directly) that mixes this pair also mixes their +νₐₛ combination levels above, since that term doesn't involve q₃ at all; that's why the νₛ+νₐₛ / 2δ+νₐₛ combination doublets further up are themselves marked as a Fermi-resonance pair too — same underlying coupling, carried up by one shared νₐₛ quantum on each side.",
+      "description": "Gas CO₂ symmetric stretch, strictly IR-forbidden (Σg⁺, no dipole change) and seen only in Raman. It is carried here as the explicit parent of the νₛ+νₐₛ combination band and as the Fermi partner of the bending overtone: the cubic anharmonic term that mixes those two also mixes their +νₐₛ combination levels, which is why the pair of combination doublets higher up is marked as a Fermi pair as well.",
       "based_on": [],
       "references": [
         {
@@ -1788,7 +1882,7 @@
       "wn_start": 1280,
       "wn_end": 1290,
       "short": "2δ(OCO) CO₂",
-      "description": "Gas CO₂ bending overtone (2δ, the l=0 / Σg⁺ component of two bending quanta) at ~1285 cm⁻¹ — like νₛ, strictly IR-forbidden by symmetry; observed only in Raman spectroscopy. In genuine Fermi resonance with νₛ (~1388 cm⁻¹, see co2_sym): the cubic anharmonic coupling between them pushes both away from their naive, uncoupled positions (~1334 and ~1388) to the observed ~1285/1388 split. The same coupling carries through into the νₛ+νₐₛ / 2δ+νₐₛ combination bands further up (~3700/3600 cm⁻¹), which is why those two combination doublets are themselves marked as a Fermi-resonance pair.",
+      "description": "Gas CO₂ bending overtone, the l=0 component of two bending quanta. Like νₛ it is IR-forbidden and seen only in Raman. It is in genuine Fermi resonance with νₛ: the cubic anharmonic coupling pushes both away from their uncoupled positions to the observed 1285/1388 cm⁻¹ split, and the same coupling carries up into the two combination doublets near 3700 and 3600 cm⁻¹.",
       "based_on": [
         {
           "band_id": null,
@@ -2226,7 +2320,7 @@
       "wn_start": 2000,
       "wn_end": 2120,
       "short": "ν(CO) linear (μ₁)",
-      "description": "Linear (atop) CO bonded end-on to a single metal atom — the most common single-center coordination geometry for adsorbed CO, and usually the strongest, sharpest band in a CO-probe spectrum. Frequency depends on metal identity, oxidation state, coordination environment, and surface coverage, all acting through their effect on metal→CO π-backdonation: more backdonation into the CO 2π* orbital weakens and red-shifts the C-O bond, electron-poor or partially oxidized sites push it the other way. ¹³CO substitution red-shifts this band by several tens of cm⁻¹ from the ¹²CO position, a standard isotope-labeling check for confirming a feature is genuinely a CO stretch and not a coincidentally overlapping species.",
+      "description": "CO bonded end-on to a single metal atom, the commonest coordination and usually the strongest, sharpest band in a CO-probe spectrum. Its position follows metal to CO π-backdonation: more backdonation into the 2π* orbital weakens the C-O bond and pushes the band down, while electron-poor or oxidised sites push it up, so metal identity, oxidation state, coordination and coverage all move it. ¹³CO substitution shifts it by tens of cm⁻¹, the standard check that a band really is a CO stretch.",
       "based_on": [],
       "references": [
         {
@@ -2327,7 +2421,7 @@
       "wn_start": 1955,
       "wn_end": 2075,
       "short": "ν(¹³CO) linear (μ₁)",
-      "description": "Linear (atop) CO carrying ¹³C instead of ¹²C — the same metal-surface stretch as ν(CO) linear (μ₁), red-shifted by roughly 45–50 cm⁻¹ by the heavier carbon. Substituting ¹³CO and watching a candidate band move by that predictable amount is the standard control for confirming a feature really is a CO stretch rather than a coincidental overlap, so this band exists mainly as the expected landing zone for that check. It also matters in its own right during ¹³CO₂ isotopic-transient work, where the shifted position is what the surface CO pool is actually tracked at.",
+      "description": "Atop CO carrying ¹³C, the same stretch as the ¹²CO band roughly 45 to 50 cm⁻¹ lower. It exists mainly as the landing zone for the standard isotope check: substitute ¹³CO and see whether a candidate band moves by the predicted amount. It matters in its own right in ¹³CO₂ transient work, where the shifted position is where the surface CO pool is tracked.",
       "based_on": [],
       "references": [
         {
@@ -2341,7 +2435,8 @@
         }
       ],
       "tags": [
-        "isotope"
+        "isotope",
+        "carbon-13"
       ],
       "phase": "adsorbed",
       "topology": "linear",
@@ -2615,7 +2710,7 @@
       "wn_start": 2105,
       "wn_end": 2125,
       "short": "ν(CO) iso (M-OC)",
-      "description": "Isocarbonyl species with CO coordinated through its oxygen end rather than carbon (M-OC) — the reverse orientation from every other CO-adsorption band in this dataset. On a purely electrostatic (non-backdonating) cation site, field-induced bond polarization runs opposite to C-bonding: O-bonding red-shifts ν(CO) below the free-gas value, paired with C-bonding's blue shift on the very same site, the two orientations coexisting as comparatively close-lying isomers in thermodynamic equilibrium rather than mutually exclusive species. Markedly weaker than the C-bonded band on the same site, since the C-bonded orientation is consistently the thermodynamically preferred one.",
+      "description": "CO coordinated through its oxygen rather than its carbon, the reverse orientation of every other CO band here. On an electrostatic cation site with no backdonation the field polarises the bond the other way, so O-bonding puts ν(CO) below the free-gas value while C-bonding on the same site puts it above. The two orientations coexist as close-lying isomers, with the C-bonded one preferred and far stronger.",
       "based_on": [],
       "references": [
         {
@@ -3111,7 +3206,7 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1480,
+      "wn_start": 1440,
       "wn_end": 1520,
       "short": "νₐₛ(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate asymmetric stretch (m-CO₃²⁻*); small splitting (Δν ~100 cm⁻¹).",
@@ -3136,6 +3231,30 @@
             "drifts"
           ],
           "uid": "carbonate_monodentate_asym::Fehr.RealisticOperandoDRIFTSStudies.2022"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 1496,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "CO₂ dosed on precipitated Ga₂O₃ at 200 °C (Fig. S12): assigned to carbonate together with the band at 1423 cm⁻¹, and left behind when Ar purging removes the bicarbonate. The paper does not distinguish monodentate from bidentate; the pair is recorded on the monodentate bands because of the roughly 70 cm⁻¹ splitting.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "carbonate_monodentate_asym::Feng.GenerationSurfaceGaH.2024"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1446,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 3b, Gaussian fit of the spectrum after 120 min evacuation of hydroxylated nanoparticulate Fe₂O₃ dosed with 274 mTorr CO₂ at 296 K. The fit resolves three species: monodentate carbonate at 1446 and 1383 cm⁻¹, bidentate carbonate at 1553 and 1316 cm⁻¹, and the residual bicarbonate. The carbonates are what survives evacuation, while the bicarbonate bands are almost gone after 120 min.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_monodentate_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
       "tags": [],
@@ -3154,7 +3273,7 @@
       ],
       "lane": 5,
       "sub_lane": 0,
-      "wn_min": 1480,
+      "wn_min": 1440,
       "wn_max": 1520
     },
     {
@@ -3168,7 +3287,7 @@
       },
       "atoms": "O-C-O",
       "wn_start": 1380,
-      "wn_end": 1420,
+      "wn_end": 1425,
       "short": "νₛ(OCO) m-CO₃²⁻",
       "description": "Monodentate carbonate symmetric stretch (m-CO₃²⁻*).",
       "based_on": [],
@@ -3195,6 +3314,30 @@
             "drifts"
           ],
           "uid": "carbonate_monodentate_sym::Fehr.RealisticOperandoDRIFTSStudies.2022"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 1423,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "CO₂ dosed on precipitated Ga₂O₃ at 200 °C (Fig. S12): the lower of the two carbonate bands, the companion of the 1496 cm⁻¹ one. Both survive Ar purging and are consumed once H₂ is introduced, giving formate at 1581 cm⁻¹, which is the reaction the surface Ga-H hydride is proposed to carry out.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "carbonate_monodentate_sym::Feng.GenerationSurfaceGaH.2024"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1383,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 3b, the symmetric partner of the 1446 cm⁻¹ band in the same Gaussian fit, on nanoparticulate Fe₂O₃ after evacuation. The 63 cm⁻¹ splitting is at the low end of what is usually quoted for monodentate carbonate.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_monodentate_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
       "tags": [],
@@ -3214,51 +3357,7 @@
       "lane": 5,
       "sub_lane": 0,
       "wn_min": 1380,
-      "wn_max": 1420
-    },
-    {
-      "id": "carbonate_monodentate_asym_overtone",
-      "species": "carbonate",
-      "group": "carbonate",
-      "vibration": {
-        "category": "stretch",
-        "subtype": "asymmetric",
-        "branch": null
-      },
-      "atoms": "O-C-O",
-      "wn_start": 2900,
-      "wn_end": 3000,
-      "short": "2νₐₛ(OCO) m-CO₃²⁻ (overtone)",
-      "description": "Monodentate carbonate asymmetric stretch first overtone (m-CO₃²⁻*); rare but reported.",
-      "based_on": [
-        {
-          "band_id": "carbonate_monodentate_asym",
-          "branch_group": null,
-          "multiplier": 2,
-          "label": null
-        }
-      ],
-      "references": [],
-      "tags": [
-        "overtone"
-      ],
-      "phase": "adsorbed",
-      "topology": "monodentate",
-      "fermi_partner": null,
-      "fermi_partner_group": null,
-      "branch_group": null,
-      "isotopologue_of": null,
-      "isotope": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [
-        "carbonate_stretch_asymmetric_monodentate"
-      ],
-      "lane": 5,
-      "sub_lane": 0,
-      "wn_min": 2900,
-      "wn_max": 3000
+      "wn_max": 1425
     },
     {
       "id": "carbonate_bidentate_asym",
@@ -3334,6 +3433,18 @@
             "drifts"
           ],
           "uid": "carbonate_bidentate_asym::Oing.RoleZnHf.2026::2"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1553,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 3b, Gaussian fit after 120 min evacuation of nanoparticulate Fe₂O₃ dosed with CO₂ at 296 K. With gas-phase CO₂ still present the same band sits a few wavenumbers higher, at 1557 cm⁻¹, and a further band at 1590 cm⁻¹ is assigned to a less stable form of bidentate carbonate that evacuation removes entirely.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_bidentate_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
       "tags": [],
@@ -3423,6 +3534,18 @@
             "drifts"
           ],
           "uid": "carbonate_bidentate_sym::Oing.RoleZnHf.2026::2"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1316,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 3b, the symmetric partner of the 1553 cm⁻¹ band on nanoparticulate Fe₂O₃ after evacuation; 1324 cm⁻¹ with gas-phase CO₂ present. The 237 cm⁻¹ splitting is what separates this bidentate population from the monodentate one at 1446 and 1383 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_bidentate_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
       "tags": [],
@@ -3454,7 +3577,7 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1070,
+      "wn_start": 1015,
       "wn_end": 1100,
       "short": "ν₂(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate ν₂ in-phase symmetric stretch of the two surface-bound C-O bonds (b-CO₃²⁻*): both surface-bonded oxygens expand and contract in unison while the free terminal oxygen counter-moves slightly. Lower-frequency member of the split degenerate pair (the out-of-phase counterpart is νₐₛ(OCO) at ~1500–1670 cm⁻¹). Rarely reported separately from the higher-frequency modes because it falls in a region also occupied by methoxy ν(CO) and formaldehyde bands.",
@@ -3470,6 +3593,18 @@
             "drifts"
           ],
           "uid": "carbonate_bidentate_co_stretch::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1020,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 2 (nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K): the symmetric C-O stretch of the bidentate carbonate, with the monodentate counterpart 20 cm⁻¹ higher. Weak beside the OCO stretches, and this pair is the lowest position reported for the mode.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_bidentate_co_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
       "tags": [],
@@ -3488,52 +3623,54 @@
       ],
       "lane": 5,
       "sub_lane": 0,
-      "wn_min": 1070,
+      "wn_min": 1015,
       "wn_max": 1100
     },
     {
-      "id": "carbonate_bidentate_asym_overtone",
+      "id": "carbonate_monodentate_co_stretch",
       "species": "carbonate",
       "group": "carbonate",
       "vibration": {
         "category": "stretch",
-        "subtype": "asymmetric",
+        "subtype": "symmetric",
         "branch": null
       },
-      "atoms": "O-C-O",
-      "wn_start": 2900,
-      "wn_end": 3100,
-      "short": "2νₐₛ(OCO) b-CO₃²⁻ (overtone)",
-      "description": "Bidentate carbonate asymmetric stretch first overtone (b-CO₃²⁻*); rare but reported.",
-      "based_on": [
+      "atoms": "C-O",
+      "wn_start": 1030,
+      "wn_end": 1060,
+      "short": "νₛ(CO) m-CO₃²⁻",
+      "description": "Symmetric C-O stretch of monodentate carbonate: infrared-inactive in the free ion and weakly allowed once coordination to the surface lowers its symmetry. Weak and rarely resolved, and it shares its window with methoxy ν(C-O) and with the bidentate counterpart a few tens of cm⁻¹ below.",
+      "based_on": [],
+      "references": [
         {
-          "band_id": "carbonate_bidentate_asym",
-          "branch_group": null,
-          "multiplier": 2,
-          "label": null
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1040,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 2 (hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K): reported together with the bidentate carbonate stretch 20 cm⁻¹ lower, as the pair of symmetric C-O stretches of the two carbonate geometries.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "carbonate_monodentate_co_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
         }
       ],
-      "references": [],
-      "tags": [
-        "overtone"
-      ],
+      "tags": [],
       "phase": "adsorbed",
-      "topology": "bidentate",
+      "topology": "monodentate",
       "fermi_partner": null,
       "fermi_partner_group": null,
       "branch_group": null,
       "isotopologue_of": null,
       "isotope": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [
-        "carbonate_stretch_asymmetric_bidentate"
-      ],
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [],
       "lane": 5,
       "sub_lane": 1,
-      "wn_min": 2900,
-      "wn_max": 3100
+      "wn_min": 1030,
+      "wn_max": 1060
     },
     {
       "id": "carbonate_wagging",
@@ -3620,7 +3757,7 @@
       "wn_start": 1610,
       "wn_end": 1650,
       "short": "νₐₛ(OCO) HCO₃⁻*",
-      "description": "Bicarbonate asymmetric OCO stretch (HCO₃⁻*). Isotope-labeling (D, ¹⁸O) and DFT comparison to five candidate cluster structures identify this as a bridged bidentate structure spanning two neighboring metal sites via both non-protonated oxygens, rather than a monodentate one.",
+      "description": "Bicarbonate asymmetric OCO stretch, the strongest band of the species together with its symmetric partner. Its splitting from that partner, around 210 to 220 cm⁻¹, is the geometry diagnostic: adsorbed bicarbonate bridges two neighbouring metal sites through both of its non-protonated oxygens rather than binding through one, and the splitting comes out the same on oxides as different as iron and aluminium. Distinguishing it from carbonate rests on the COH bend near 1220 cm⁻¹ and on its disappearance under deuteration, since carbonate has no proton to lose.",
       "based_on": [],
       "references": [
         {
@@ -3634,15 +3771,32 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
-          "wn": 1649,
-          "measured_on": [
-            "fe2o3",
-            "al2o3"
+          "wn": 1622,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₂(OCO)ₐ. Nanoparticulate amorphous Fe₂O₃, 229 m² g⁻¹, hydroxylated, 274 mTorr CO₂ at 296 K and RH below 1%. One of the three strongest bicarbonate bands, with the symmetric partner at 1410 and the COH bend at 1220 cm⁻¹. It sits 27 cm⁻¹ below the same mode on the aluminas, the largest difference between the oxides in this study. Substituting D and ¹⁸O and comparing all five isotopologues against five DFT cluster models is what identifies the structure as bridged rather than monodentate. Table 3 gives the ¹⁸O positions of this mode: 1599 cm⁻¹ for HC¹⁸O₃⁻ and 1613 and 1609 cm⁻¹ for the two mixed isotopologues.",
+          "tags": [
+            "isotope-labeling",
+            "direct-dosing",
+            "transmission"
           ],
-          "technique": null,
-          "note": "Table 2: ν₂(OCO)ₐ at 1622 cm⁻¹ (nano-Fe₂O₃) / 1649 cm⁻¹ (Al₂O₃ avg). Best-fit DFT cluster model (root-mean-square deviation across 3 isotopologues) identifies the bonding geometry as bridged/bidentate, not monodentate.",
-          "tags": [],
           "uid": "bicarbonate_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1650,
+            1648
+          ],
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₂(OCO)ₐ: 1650 cm⁻¹ on α-Al₂O₃ (12.4 m² g⁻¹) and 1648 cm⁻¹ on γ-Al₂O₃ (101 m² g⁻¹), 274 mTorr CO₂ at 296 K. The two aluminas are recorded under one key because the paper's own finding is that they differ by a few wavenumbers at most, and it averages them for comparison with Fe₂O₃. On γ-Al₂O₃ the fully ¹⁸O-labelled species puts this mode at 1634 cm⁻¹.",
+          "tags": [
+            "isotope-labeling",
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
         },
         {
           "key": "Oing.RoleZnHf.2026",
@@ -3654,6 +3808,18 @@
             "drifts"
           ],
           "uid": "bicarbonate_asym::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 1633,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "CO₂ dosed on precipitated Ga₂O₃ at 200 °C (Fig. S12): of the three bands formed, this one is assigned to bicarbonate and the other two to carbonate. It is the least stable of them: Ar purging removes the bicarbonate while the carbonates stay, which is the paper's evidence that the carbonate, not the bicarbonate, is what the surface hydride goes on to reduce.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "bicarbonate_asym::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [],
@@ -3671,7 +3837,7 @@
         "bicarbonate_stretch_asymmetric_bidentate"
       ],
       "lane": 6,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 1610,
       "wn_max": 1650
     },
@@ -3702,15 +3868,30 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
-          "wn": 1435,
-          "measured_on": [
-            "fe2o3",
-            "al2o3"
+          "wn": 1410,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₃(OCO)ₛ on hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K. The strongest of the bicarbonate bands here. Its splitting from the asymmetric partner is 212 cm⁻¹, against 217 and 210 cm⁻¹ on the two aluminas: the same splitting on every surface tested is the paper's argument that the structure is the same on all of them. Table 3: ¹⁸O labelling moves it to 1388, 1401 and 1389 cm⁻¹ for the three labelled species, and deuteration does not move it at all.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
           ],
-          "technique": null,
-          "note": "Table 2: ν₃(OCO)ₛ at 1410 cm⁻¹ (nano-Fe₂O₃) / 1435 cm⁻¹ (Al₂O₃ avg); ν₂-ν₃ splitting of 210-217 cm⁻¹ across all three oxides, consistent with the same bridged structure on every surface tested.",
-          "tags": [],
           "uid": "bicarbonate_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1433,
+            1438
+          ],
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₃(OCO)ₛ: 1433 cm⁻¹ on α-Al₂O₃ and 1438 cm⁻¹ on γ-Al₂O₃, 274 mTorr CO₂ at 296 K. The fully ¹⁸O-labelled species puts it at 1416 cm⁻¹ on γ-Al₂O₃.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
         }
       ],
       "tags": [],
@@ -3728,7 +3909,7 @@
         "bicarbonate_stretch_symmetric_bidentate"
       ],
       "lane": 6,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 1410,
       "wn_max": 1440
     },
@@ -3761,17 +3942,31 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
-          "wn": 1231,
-          "measured_on": [
-            "fe2o3",
-            "al2o3"
-          ],
+          "wn": 1220,
+          "measured_on": "fe2o3",
           "technique": "transmission",
-          "note": "Table 2: δ₄(COH) at 1220 cm⁻¹ (nano-Fe₂O₃) / 1231 cm⁻¹ (Al₂O₃ avg); literature range 1220-1269 cm⁻¹.",
+          "note": "Table 2, δ₄(COH) on hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K; the reported literature range is 1220 to 1269 cm⁻¹. Exchanging the surface hydroxyls with D₂O moves it to 969 cm⁻¹, by far the largest shift of any bicarbonate mode, which is what confirms the assignment. A residual band at 1220 cm⁻¹ survives that exchange, from CO₂ reacting with the ¹⁶OH groups left on the surface. ¹⁸O labelling moves it far less, to 1205, 1216 and 1209 cm⁻¹.",
           "tags": [
+            "isotope-labeling",
+            "direct-dosing",
             "transmission"
           ],
           "uid": "bicarbonate_coh_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1230,
+            1231
+          ],
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 2, δ₄(COH): 1230 cm⁻¹ on α-Al₂O₃ and 1231 cm⁻¹ on γ-Al₂O₃, 274 mTorr CO₂ at 296 K. The fully ¹⁸O-labelled species puts it at 1215 cm⁻¹ on γ-Al₂O₃.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_coh_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
         }
       ],
       "tags": [],
@@ -3789,9 +3984,526 @@
         "bicarbonate_bend_coh_bidentate"
       ],
       "lane": 6,
-      "sub_lane": 0,
+      "sub_lane": 1,
       "wn_min": 1210,
       "wn_max": 1230
+    },
+    {
+      "id": "bicarbonate_oh_stretch",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3600,
+      "wn_end": 3630,
+      "short": "ν(OH) HCO₃⁻*",
+      "description": "The O-H stretch of adsorbed bicarbonate, and the one band that shows the species still carries its proton. It sits well below the free surface hydroxyls it forms from, and far above the roughly 2550 cm⁻¹ of the hydrogen-bonded dimer in the bulk salt, so its position also says the adsorbed species is not dimerised. Weak beside the OCO stretches, and it falls inside the hydroxyl envelope of the support, so it is read against the clean surface rather than in an absolute spectrum.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 3619,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₁(OH) on hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K. Exchanging the surface hydroxyls with D₂O moves it to 2671 cm⁻¹, a shift of 948 cm⁻¹, and ¹⁸O labelling moves it by 10 cm⁻¹. Table 3: 3609, 3610 and 3609 cm⁻¹ for the three ¹⁸O-labelled species, which is why they are recorded as shifts here rather than as bands of their own.",
+          "tags": [
+            "isotope-labeling",
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_oh_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 3623,
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₁(OH) on γ-Al₂O₃, 274 mTorr CO₂ at 296 K. Not observed on α-Al₂O₃, whose surface area is eight times smaller. The fully ¹⁸O-labelled species puts it at 3614 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_oh_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
+        }
+      ],
+      "tags": [],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 3600,
+      "wn_max": 3630
+    },
+    {
+      "id": "bicarbonate_coh_stretch",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1000,
+      "wn_end": 1020,
+      "short": "ν(C-OH) HCO₃⁻*",
+      "description": "The single-bond C-OH stretch of adsorbed bicarbonate, the mode carbonate cannot have at all, since it has no such bond. Weak, and it lands where carbonate symmetric stretches and methoxy ν(C-O) also absorb, so it is reported only where the lattice of the oxide leaves the region open.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1010,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 2, ν₅(C-OH) on hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K. Not observed on either alumina, and outside the 1100 to 2100 cm⁻¹ window of the isotope experiments, so no labelled position is reported for it either.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_coh_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        }
+      ],
+      "tags": [],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1000,
+      "wn_max": 1020
+    },
+    {
+      "id": "bicarbonate_oop_bend",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "bend",
+        "subtype": "wagging",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 810,
+      "wn_end": 830,
+      "short": "γ(CO₂) HCO₃⁻*",
+      "description": "Out-of-plane deformation of the bicarbonate CO₂ fragment, the carbon moving through the plane of its two oxygens. It sits at the edge of the window an oxide leaves open: below roughly 800 cm⁻¹ the lattice absorbs everything, which is why this mode and the three bicarbonate modes below it are so rarely observed.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 820,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 2, δ₈(CO₂)oop on hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K. Not observed on either alumina. The remaining three bicarbonate modes, δ₆(OCO), ν₉(H torsion) and ν₇(OC-OH), all fall below 800 cm⁻¹ and are buried under the iron oxide lattice absorption. No labelled position is reported for this mode: the isotope spectra of Fig. 5 cover 1100 to 2100 cm⁻¹ and Table 3 lists only the two OCO stretches, the COH bend and the O-H stretch.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_oop_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        }
+      ],
+      "tags": [],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 810,
+      "wn_max": 830
+    },
+    {
+      "id": "bicarbonate_od_stretch",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 2660,
+      "wn_end": 2685,
+      "short": "ν(OD) DCO₃⁻*",
+      "description": "The bicarbonate O-H stretch after the surface hydroxyls have been exchanged with D₂O. It moves by nearly 950 cm⁻¹, out of the hydroxyl region altogether and into the quiet window between the C-H stretches and the carbonyls, which makes it the cleanest evidence that the adsorbed species carries a proton at all.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 2671,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3 (nanoparticulate Fe₂O₃ with its surface hydroxyls exchanged by D₂O at 295 K, then dosed with 274 mTorr C¹⁶O₂ at 296 K): ν₁(OD) of DC¹⁶O₃⁻, shifted 948 cm⁻¹ from the 3619 cm⁻¹ of the protonated species.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_od_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_oh_stretch",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 2660,
+      "wn_max": 2685
+    },
+    {
+      "id": "bicarbonate_cod_bend",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "C-O-H",
+      "wn_start": 960,
+      "wn_end": 980,
+      "short": "δ(COD) DCO₃⁻*",
+      "description": "The bicarbonate COH bend after exchange with D₂O. It drops by about 250 cm⁻¹, far more than the OCO stretches move, because it is the mode that actually swings the hydrogen. That large and predictable shift is the standard confirmation that a band near 1220 cm⁻¹ is bicarbonate rather than a carbonate, which has no such mode to lose.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 969,
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3 (D₂O-exchanged nanoparticulate Fe₂O₃, 274 mTorr C¹⁶O₂ at 296 K): δ₄(COD) of DC¹⁶O₃⁻, 251 cm⁻¹ below the protonated bend. The OCO stretches of the same species barely move by comparison, 16 cm⁻¹ for the asymmetric one and not at all for the symmetric one, so they are recorded as shifts on the ordinary bands rather than as bands of their own.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_cod_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_coh_bend",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "bicarbonate_bend_coh_bidentate"
+      ],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 960,
+      "wn_max": 980
+    },
+    {
+      "id": "bicarbonate_18o_oh_stretch",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 3604,
+      "wn_end": 3618,
+      "short": "ν(OH) HC¹⁸O₃⁻*",
+      "description": "Bicarbonate O-H stretch with ¹⁸O on the oxide. It moves by only about 10 cm⁻¹, since the hydrogen carries almost all of the motion and the oxygen mass barely enters it, and it moves by that much whether or not the labelled oxygen is the protonated one. That is the first sign that the oxygen the proton ends up on is not the one it started on.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            3609,
+            3610,
+            3609
+          ],
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3, hydroxylated nanoparticulate Fe₂O₃ at 296 K under 274 mTorr CO₂, in the order HC¹⁸O₃⁻, HC¹⁶O¹⁸O₂⁻, HC¹⁸O¹⁶O₂⁻: all three oxygens heavy (3609 cm⁻¹, Fig. 5e), only the two from CO₂ heavy (3610 cm⁻¹, Fig. 5d), and only the one from the surface hydroxyl heavy (3609 cm⁻¹, Fig. 5c). The unlabelled band sits at 3619 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_oh_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 3614,
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 3, the same experiment on γ-Al₂O₃ at 296 K under 274 mTorr CO₂, fully ¹⁸O-labelled: 3614 cm⁻¹ against 3623 cm⁻¹ unlabelled. The mixed labellings were run on Fe₂O₃ only.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_oh_stretch::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "oxygen-18"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_oh_stretch",
+      "isotope": "¹⁸O",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [],
+      "lane": 6,
+      "sub_lane": 1,
+      "wn_min": 3604,
+      "wn_max": 3618
+    },
+    {
+      "id": "bicarbonate_18o_asym",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1595,
+      "wn_end": 1638,
+      "short": "νₐₛ(OCO) HC¹⁸O₃⁻*",
+      "description": "Bicarbonate asymmetric OCO stretch with ¹⁸O on the oxide. Labelling both stretching oxygens moves it about 20 cm⁻¹, labelling one about half that. The shift is smaller than the distance the unlabelled band moves between one oxide and another, so a labelling experiment is only readable against an unlabelled spectrum of the same sample.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1599,
+            1613,
+            1609
+          ],
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3, hydroxylated nanoparticulate Fe₂O₃ at 296 K under 274 mTorr CO₂, in the order HC¹⁸O₃⁻, HC¹⁶O¹⁸O₂⁻, HC¹⁸O¹⁶O₂⁻: all three oxygens heavy (1599 cm⁻¹, Fig. 5e), only the two from CO₂ heavy (1613 cm⁻¹, Fig. 5d), and only the one from the surface hydroxyl heavy (1609 cm⁻¹, Fig. 5c). The unlabelled band sits at 1622 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1634,
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 3, the same experiment on γ-Al₂O₃ at 296 K under 274 mTorr CO₂, fully ¹⁸O-labelled: 1634 cm⁻¹ against 1648 cm⁻¹ unlabelled. The mixed labellings were run on Fe₂O₃ only.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "oxygen-18"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_asym",
+      "isotope": "¹⁸O",
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "bicarbonate_stretch_asymmetric_bidentate"
+      ],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1595,
+      "wn_max": 1638
+    },
+    {
+      "id": "bicarbonate_18o_sym",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1384,
+      "wn_end": 1420,
+      "short": "νₛ(OCO) HC¹⁸O₃⁻*",
+      "description": "Bicarbonate symmetric OCO stretch with ¹⁸O on the oxide, moving about 20 cm⁻¹ when the two stretching oxygens are heavy. Labelling only the surface hydroxyl, and leaving the carbon dioxide ordinary, moves it almost as far: the oxygen that arrived on the surface ends up inside the OCO frame rather than staying the protonated one, which is how the rearrangement after adsorption is caught.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1388,
+            1401,
+            1389
+          ],
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3, hydroxylated nanoparticulate Fe₂O₃ at 296 K under 274 mTorr CO₂, in the order HC¹⁸O₃⁻, HC¹⁶O¹⁸O₂⁻, HC¹⁸O¹⁶O₂⁻: all three oxygens heavy (1388 cm⁻¹, Fig. 5e), only the two from CO₂ heavy (1401 cm⁻¹, Fig. 5d), and only the one from the surface hydroxyl heavy (1389 cm⁻¹, Fig. 5c). The unlabelled band sits at 1410 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1416,
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 3, the same experiment on γ-Al₂O₃ at 296 K under 274 mTorr CO₂, fully ¹⁸O-labelled: 1416 cm⁻¹ against 1438 cm⁻¹ unlabelled. The mixed labellings were run on Fe₂O₃ only.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_sym::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "oxygen-18"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_sym",
+      "isotope": "¹⁸O",
+      "intensity": "s",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "bicarbonate_stretch_symmetric_bidentate"
+      ],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1384,
+      "wn_max": 1420
+    },
+    {
+      "id": "bicarbonate_18o_coh_bend",
+      "species": "bicarbonate",
+      "group": "bicarbonate",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "C-O-H",
+      "wn_start": 1200,
+      "wn_end": 1221,
+      "short": "δ(COH) HC¹⁸O₃⁻*",
+      "description": "Bicarbonate COH bend with ¹⁸O on the oxide, moving between 4 and 15 cm⁻¹ depending on which oxygens are labelled. Deuteration moves the same mode by 250 cm⁻¹: the contrast is what shows the bend is carried by the hydrogen and only steered by the oxygens it swings between.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            1205,
+            1216,
+            1209
+          ],
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Table 3, hydroxylated nanoparticulate Fe₂O₃ at 296 K under 274 mTorr CO₂, in the order HC¹⁸O₃⁻, HC¹⁶O¹⁸O₂⁻, HC¹⁸O¹⁶O₂⁻: all three oxygens heavy (1205 cm⁻¹, Fig. 5e), only the two from CO₂ heavy (1216 cm⁻¹, Fig. 5d), and only the one from the surface hydroxyl heavy (1209 cm⁻¹, Fig. 5c). The unlabelled band sits at 1220 cm⁻¹.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_coh_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": 1215,
+          "measured_on": "al2o3",
+          "technique": "transmission",
+          "note": "Table 3, the same experiment on γ-Al₂O₃ at 296 K under 274 mTorr CO₂, fully ¹⁸O-labelled: 1215 cm⁻¹ against 1231 cm⁻¹ unlabelled. The mixed labellings were run on Fe₂O₃ only.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "bicarbonate_18o_coh_bend::Baltrusaitis.FTIRSpectroscopyCombined.2006::2"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "oxygen-18"
+      ],
+      "phase": "adsorbed",
+      "topology": "bidentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "bicarbonate_coh_bend",
+      "isotope": "¹⁸O",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "bicarbonate_bend_coh_bidentate"
+      ],
+      "lane": 6,
+      "sub_lane": 0,
+      "wn_min": 1200,
+      "wn_max": 1221
     },
     {
       "id": "formate_ch_stretch",
@@ -3806,7 +4518,7 @@
       "wn_start": 2845,
       "wn_end": 2900,
       "short": "ν(CH) HCOO*",
-      "description": "Formate C-H stretch (HCOO*); key HCOO* marker. Strongly site-sensitive across the window: κ²-HCOO* on a metallic Cu surface sits at ~2848–2860 cm⁻¹, while the same mode on a cationic or oxide site (Zn²⁺, Ga³⁺, In³⁺, Cu⁺, CeO₂) sits some 20–40 cm⁻¹ higher at ~2873–2896 cm⁻¹ — large enough to resolve two formate populations in one spectrum, which is what makes Cu-to-promoter formate spillover observable at all. See the site badge on each citation for which population that source reports. Two traps at the low end: methoxy's νₛ(CH₃) on silica lands within a few cm⁻¹ of Cu-bound formate, and adsorbed methanol's νₛ(CH₃) is close too, so a band near 2850 cm⁻¹ is only safely formate once its partner combination band near 2930 cm⁻¹ (or a deuteration/MCR check) backs it up.",
+      "description": "Formate C-H stretch, the key HCOO* marker and strongly site-sensitive across its window: κ²-HCOO* on metallic Cu sits near 2848 to 2860 cm⁻¹ and the same mode on a cation or oxide site 20 to 40 cm⁻¹ higher, far enough to resolve two formate populations in one spectrum. Two traps at the low end: methoxy νₛ(CH₃) on silica and adsorbed methanol νₛ(CH₃) both land there, so a band near 2850 cm⁻¹ is safely formate only once its combination band near 2930 cm⁻¹ or a deuteration check backs it up.",
       "based_on": [],
       "references": [
         {
@@ -3823,13 +4535,40 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2876,
-          "measured_on": "cugazrox",
+          "measured_on": [
+            "cu_gazrox",
+            "gazrox"
+          ],
           "technique": "drifts",
-          "note": "HCOO* ν(CH) at 2876 cm⁻¹; active intermediate confirmed by ME-DRIFTS-PSD during CO₂ hydrogenation (20 bar, 260°C). Also observed in small amounts on Cu-free GaZrOx via slow reduction of (bi)carbonates by Ga-H.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C, CO₂ modulated at constant H₂): ν(CH) of HCOO* at 2876 cm⁻¹, responding at the modulation frequency, which is what marks it an intermediate rather than a spectator. The same position appears as a weak out-of-phase peak on the Cu-free GaZrOₓ at 1 bar (Fig. 4b inset), where the authors read it as slow reduction of surface (bi)carbonates by Ga-H rather than as the fast Cu-catalysed route.",
           "tags": [
             "drifts"
           ],
           "uid": "formate_ch_stretch::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2859,
+          "measured_on": "zro2",
+          "technique": "drifts",
+          "note": "Fig. S4a, reference spectrum rather than a working catalyst: formate generated on precipitated ZrO₂ by flowing CO over the surface hydroxyls (*OH + CO → HCOO*) at 260 °C and 20 bar. ν(CH) centred near 2859 cm⁻¹, and clearer once H₂ was added to the feed. This is the measurement the paper uses to attribute the catalyst's formate bands to the oxide rather than to Cu.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "formate_ch_stretch::AlAbdulghani.UncoveringPressureDependentMechanism.2025::2"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 2887,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "Fig. S4b, the same CO-dosing reference experiment on precipitated Ga₂O₃ at 260 °C and 20 bar. ν(CH) is a minor peak centred near 2887 cm⁻¹, weaker than on ZrO₂, where the asymmetric OCO region carried most of the formate intensity instead.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "formate_ch_stretch::AlAbdulghani.UncoveringPressureDependentMechanism.2025::3"
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
@@ -3883,6 +4622,17 @@
             "drifts"
           ],
           "uid": "formate_ch_stretch::Phongprueksathat.KeyDriversActivity.2026"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 2897,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "H₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Figs. 5a and S13, and 2898 cm⁻¹ in the CO₂-purge experiment of Fig. 4c at 200 °C). Weak beside the 1581 cm⁻¹ OCO band of the same formate: on this oxide the C-H stretch is a minor feature, which is why it is easy to miss on Ga-containing catalysts.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "formate_ch_stretch::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [
@@ -3921,7 +4671,7 @@
       "wn_start": 1515,
       "wn_end": 1620,
       "short": "νₐₛ(OCO) HCOO*",
-      "description": "Formate asymmetric OCO stretch (HCOO*) — the key HCOO* marker band, since this in-phase/antiphase C-O stretch pair (paired with νₛ(OCO) below) is a clean fingerprint distinct from carbonate or carboxylate features. Usually the more intense of the two paired stretches, and the easier one to spot first in a spectrum. Its exact position isn't a single fixed value — it shifts with the underlying adsorption geometry, so it's always worth cross-checking against the symmetric partner band and the Δν splitting between them (itself a geometry diagnostic, see νₛ(OCO) below) rather than relying on this band's position alone.",
+      "description": "Formate asymmetric OCO stretch, the marker band of HCOO* and usually the stronger of the two OCO stretches. Its position is not fixed: it moves with the adsorption geometry, so read it together with the symmetric partner and the Δν between them rather than on its own. The in-phase and antiphase C-O pair is what separates formate from carbonate and carboxylate features.",
       "based_on": [],
       "references": [
         {
@@ -3941,13 +4691,25 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1600,
-          "measured_on": "cugazrox",
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "νas(OCO) at 1600 cm⁻¹ (ME-DRIFTS, 20 bar, 260°C); confirmed active intermediate by CO₂ modulation-excitation PSD — responds at same frequency as product formation. Also at 1590 cm⁻¹ during methanol steam reforming on Cu-GaZrOx-24.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): νₐₛ(OCO) of HCOO* at 1600 cm⁻¹, responding at the modulation frequency of the CO₂ feed. Methanol steam reforming over the same sample at 1 bar puts the band at 1590 cm⁻¹ and shows it only while CO₂(g) is formed (Fig. 2b), which is the reverse-direction evidence for the same intermediate. On the Cu-free GaZrOₓ the peaks between 1250 and 1700 cm⁻¹ are assigned to carbonates and bicarbonates instead, so this position is not by itself proof of formate.",
           "tags": [
             "drifts"
           ],
           "uid": "formate_asym::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1582,
+          "measured_on": "zro2",
+          "technique": "drifts",
+          "note": "Fig. S4a, formate generated on precipitated ZrO₂ from CO and surface hydroxyls at 260 °C and 20 bar. The paper quotes the asymmetric OCO vibrations as lying between 1582 and 1641 cm⁻¹; only the 1582 cm⁻¹ component is recorded here, because the upper end of that range overlaps the carbonate and bicarbonate bands the same dosing experiment produces (Fig. S3) and the paper does not separate them.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "formate_asym::AlAbdulghani.UncoveringPressureDependentMechanism.2025::2"
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -4010,6 +4772,17 @@
             "drifts"
           ],
           "uid": "formate_asym::Phongprueksathat.KeyDriversActivity.2026"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 1581,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "H₂ temperature-programmed surface reaction after CO₂ adsorption on precipitated Ga₂O₃ (Figs. 4c, 5b and S13): introducing H₂ converts the carbonates into formate, which appears as a single dominant band at 1581 cm⁻¹ and grows from about 200 °C, the same temperature at which the Ga-H hydride becomes mobile. On this Cu-free oxide the formate is made by the hydride rather than by a metal.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "formate_asym::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [
@@ -4078,13 +4851,25 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1350,
-          "measured_on": "cugazrox",
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "νₛ(OCO) at ~1350 cm⁻¹ (Figure 1b, ME-DRIFTS, 20 bar, 260°C); companion band to νas at 1600 cm⁻¹.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): νₛ(OCO) marked at 1350 cm⁻¹, the companion of the 1600 cm⁻¹ asymmetric band and modulating with it.",
           "tags": [
             "drifts"
           ],
           "uid": "formate_sym::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1381,
+          "measured_on": "zro2",
+          "technique": "drifts",
+          "note": "Fig. S4a, formate generated on precipitated ZrO₂ from CO and surface hydroxyls at 260 °C and 20 bar. The paper reports symmetric OCO vibrations centred near 1290 and 1381 cm⁻¹; the 1381 cm⁻¹ component is recorded here, since 1290 cm⁻¹ sits in the carbonate region of the same spectrum and the paper does not say which species it belongs to.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "formate_sym::AlAbdulghani.UncoveringPressureDependentMechanism.2025::2"
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
@@ -4108,6 +4893,20 @@
             "drifts"
           ],
           "uid": "formate_sym::Fehr.RealisticOperandoDRIFTSStudies.2022"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": [
+            1386,
+            1370
+          ],
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "H₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S13): two components marked as formate below the dominant 1581 cm⁻¹ band. The paper labels both HCOO* without separating the symmetric OCO stretch from the C-H bend, which is the usual ambiguity in this window.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "formate_sym::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [
@@ -4150,9 +4949,9 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
-          "measured_on": "cugazrox",
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "Formate C-H bending overlaps with νₛ(OCO) in the 1350–1400 cm⁻¹ region; formate confirmed as key intermediate in CO₂ hydrogenation at 20 bar, 260°C. Band not separately resolved from νₛ in this study.",
+          "note": "Not resolved separately: on Cu-GaZrOₓ at 20 bar and 260 °C the C-H bend falls under the νₛ(OCO) feature marked at 1350 cm⁻¹, and the paper treats the 1350 to 1400 cm⁻¹ region as one formate signal. Recorded without a wavenumber because the paper gives none for this mode alone.",
           "tags": [
             "drifts"
           ],
@@ -4292,54 +5091,6 @@
       "wn_max": 2985
     },
     {
-      "id": "formate_combo_high",
-      "species": "formate",
-      "group": "formate",
-      "vibration": {
-        "category": "combination",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "diverse",
-      "wn_start": 3250,
-      "wn_end": 3350,
-      "short": "νₐₛ(OCO)+δ(???) HCOO*",
-      "description": "Formate higher combination band (HCOO*); sometimes assigned as 2ν(C=O) overtone in older literature.",
-      "based_on": [
-        {
-          "band_id": "formate_asym",
-          "branch_group": null,
-          "multiplier": 1,
-          "label": null
-        },
-        {
-          "band_id": null,
-          "branch_group": null,
-          "multiplier": 1,
-          "label": "second mode unidentified — see description"
-        }
-      ],
-      "references": [],
-      "tags": [],
-      "phase": "adsorbed",
-      "topology": null,
-      "fermi_partner": null,
-      "fermi_partner_group": null,
-      "branch_group": null,
-      "isotopologue_of": null,
-      "isotope": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [
-        "formate_stretch_asymmetric_bidentate"
-      ],
-      "lane": 7,
-      "sub_lane": 0,
-      "wn_min": 3250,
-      "wn_max": 3350
-    },
-    {
       "id": "formate_cd_stretch",
       "species": "formate",
       "group": "formate",
@@ -4350,9 +5101,9 @@
       },
       "atoms": "C-H",
       "wn_start": 2155,
-      "wn_end": 2192,
+      "wn_end": 2200,
       "short": "ν(CD) DCOO*",
-      "description": "C-D stretch of κ²-DCOO*, the deuterated twin of ν(CH) HCOO* at ~2845–2900 cm⁻¹ and red-shifted from it by the ~0.73 harmonic-oscillator mass factor. Site-sensitive in the same way as the C-H fundamental: formate on metallic Cu sits some 15–20 cm⁻¹ below formate on a cationic promoter site, far enough to resolve the two populations in one spectrum — see the site badge on each citation for which one that source reports. Deuteration is what makes this window readable at all, moving the δ(OCH)+νₐₛ(OCO) combination band out of the way and leaving a single uncluttered fundamental. Two overlaps to watch: gas-phase CO's R branch sits directly on top of it (see co_stretch_r) and deuterated methoxy comes in at the low end, so a gas-phase subtraction or a component-resolved analysis is needed before reading a position off it.",
+      "description": "C-D stretch of κ²-DCOO*, the deuterated twin of ν(CH) HCOO* and red-shifted from it by the 0.73 mass factor. Site-sensitive in the same way: formate on metallic Cu sits 15 to 20 cm⁻¹ below formate on a cation site. Deuteration is what makes this window readable, moving the δ(OCH)+νₐₛ(OCO) combination out of the way and leaving one uncluttered fundamental. Two overlaps: gas-phase CO's R branch sits on top of it, and deuterated methoxy comes in at the low end.",
       "based_on": [],
       "references": [
         {
@@ -4382,12 +5133,24 @@
             "drifts"
           ],
           "uid": "formate_cd_stretch::Phongprueksathat.KeyDriversActivity.2026::2"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 2194,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "D₂ temperature-programmed surface reaction after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S14): deuterated formate formed by the surface Ga-D. A second C-D feature is marked at 2067 cm⁻¹ and left unassigned. The OCO stretches of DCOO* in the same spectrum sit at 1592 and 1341 cm⁻¹, barely moved from the protonated formate, since those modes hardly involve the hydrogen.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "formate_cd_stretch::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [
         "site-sensitive",
         "misassignment-warning",
-        "isotope"
+        "isotope",
+        "deuterium"
       ],
       "phase": "adsorbed",
       "topology": null,
@@ -4405,7 +5168,7 @@
       "lane": 7,
       "sub_lane": 0,
       "wn_min": 2155,
-      "wn_max": 2192
+      "wn_max": 2200
     },
     {
       "id": "methoxy_asym",
@@ -4420,7 +5183,7 @@
       "wn_start": 2910,
       "wn_end": 2975,
       "short": "νₐₛ(CH₃) CH₃O*",
-      "description": "Methoxy CH₃ asymmetric stretch (CH₃O*) — one C-H bond stretching out of phase with the other two. Position shifts with adsorption site/coordination environment, tracking together with νₛ(CH₃) below, so a shift in this band is a useful sign that the binding environment itself has changed. A coadsorbed methanol band sits close by, a little higher in frequency, so the two are worth distinguishing carefully rather than assuming a single species. Silica is the outlier among supports: methoxy grafted to SiO₂ as Si-O-CH₃ absorbs near the top of the range (~2955–2960 cm⁻¹), some 30 cm⁻¹ above the same mode on Cu and well clear of the more usual oxide values.",
+      "description": "Methoxy CH₃ asymmetric stretch, one C-H bond moving out of phase with the other two. It tracks νₛ(CH₃) below, so a shift in both is a sign that the binding environment itself has changed. Coadsorbed methanol sits a little higher and is easily read as the same species. Silica is the outlier among supports: methoxy grafted as Si-O-CH₃ absorbs near 2955 to 2960 cm⁻¹, some 30 cm⁻¹ above the same mode on Cu.",
       "based_on": [],
       "references": [
         {
@@ -4454,12 +5217,9 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2970,
-          "measured_on": [
-            "zr_4p",
-            "cugazrox"
-          ],
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "νₐₛ(CH₃) at 2970 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the C-H stretching region of CH₃O* is marked at 2970, 2876 and 2819 cm⁻¹, with 2876 cm⁻¹ belonging to formate. The paper names no site for the methoxy on the catalyst; its own reference spectra on precipitated ZrO₂ and Ga₂O₃ (Fig. S5) are what support reading it as bound to the oxide rather than to Cu.",
           "tags": [
             "drifts"
           ],
@@ -4560,12 +5320,9 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 2819,
-          "measured_on": [
-            "zr_4p",
-            "cugazrox"
-          ],
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "νₛ(CH₃) at 2819 cm⁻¹ on Zr⁴⁺ sites of Zr-rich CuGaZrOx.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the lower of the two CH₃O* stretching peaks. The corresponding reference spectra on the single oxides (Fig. S5) put the methoxy C-H stretches between 2797 and 2935 cm⁻¹ without resolving them into symmetric and asymmetric.",
           "tags": [
             "drifts"
           ],
@@ -4603,6 +5360,17 @@
             "drifts"
           ],
           "uid": "methoxy_sym::Phongprueksathat.KeyDriversActivity.2026"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 2837,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "H₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Figs. 5a and S13): the methoxy that formate is converted into as the temperature rises, on an oxide with no metal on it at all. It appears above roughly 250 °C and its growth follows the loss of formate.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "methoxy_sym::Feng.GenerationSurfaceGaH.2024"
         }
       ],
       "tags": [
@@ -4761,16 +5529,28 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1152,
-          "measured_on": [
-            "zr_4p",
-            "cugazrox"
-          ],
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": "Zr-OCH₃ species: methoxy coordinated to Zr⁴⁺ sites on CuGaZrOx at 1152 cm⁻¹.",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the C-O stretch of CH₃O* at 1152 cm⁻¹, one of the two bands the paper follows through the modulation. It matches the 1154 cm⁻¹ peak of methoxy on precipitated ZrO₂ (Fig. S5), which is the paper's own basis for placing the methoxy on the zirconia rather than on Cu, though it never writes Zr⁴⁺ itself.",
           "tags": [
             "drifts"
           ],
           "uid": "methoxy_co_stretch_mono::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": [
+            1154,
+            1111
+          ],
+          "measured_on": "zro2",
+          "technique": "drifts",
+          "note": "Fig. S5, reference spectrum: methanol dosed directly onto precipitated ZrO₂ at 260 °C and 1 bar, with the bubbler then switched off so that only the adsorbed species remain. The paper reports the main C-O stretching peaks at 1111 and 1154 cm⁻¹ and cites Bensitel for the assignment, but does not itself say which peak is the mono- and which the bidentate methoxy. Both are recorded on this band because both fall inside its window.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "methoxy_co_stretch_mono::AlAbdulghani.UncoveringPressureDependentMechanism.2025::2"
         },
         {
           "key": "Oing.RoleZnHf.2026",
@@ -4840,6 +5620,18 @@
             "drifts"
           ],
           "uid": "methoxy_co_stretch_bi::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1071,
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "Fig. S5, reference spectrum: methanol dosed onto precipitated Ga₂O₃ at 260 °C and 1 bar, with the bubbler switched off so only adsorbed species remain. The paper puts the C-O stretch of CH₃O* at 1071 cm⁻¹ on this oxide and gives no binding geometry. It is recorded on the bidentate band because that is where the position falls, not because the paper says so.",
+          "tags": [
+            "direct-dosing",
+            "drifts"
+          ],
+          "uid": "methoxy_co_stretch_bi::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
         }
       ],
       "tags": [],
@@ -4857,7 +5649,7 @@
         "methoxy_co_stretch"
       ],
       "lane": 8,
-      "sub_lane": -1,
+      "sub_lane": 0,
       "wn_min": 1030,
       "wn_max": 1090
     },
@@ -4874,7 +5666,7 @@
       "wn_start": 2072,
       "wn_end": 2088,
       "short": "νₛ(CD₃) CD₃O*",
-      "description": "CD₃ symmetric stretch of deuterated methoxy — the deuterated counterpart of νₛ(CH₃) CH₃O*, and the only methoxy band that survives deuteration as a cleanly resolvable feature. That makes it unusually valuable: in the ordinary C-H region methoxy overlaps both formate's combination band and adsorbed methanol, whereas here it sits ~80 cm⁻¹ clear of the deuterated formate bands and can be integrated on its own. Practically the price is a crowded neighbourhood of a different kind, since this is also where CO on reduced metals and CO₂'s own combination bands absorb.",
+      "description": "CD₃ symmetric stretch of deuterated methoxy, the one methoxy band that survives deuteration as a cleanly resolvable feature. In the ordinary C-H region methoxy overlaps formate's combination band and adsorbed methanol; here it sits about 80 cm⁻¹ clear of the deuterated formate bands and can be integrated on its own. The neighbourhood is crowded in a different way, since CO on reduced metals and CO₂ combination bands absorb here.",
       "based_on": [],
       "references": [
         {
@@ -4890,7 +5682,8 @@
         }
       ],
       "tags": [
-        "isotope"
+        "isotope",
+        "deuterium"
       ],
       "phase": "adsorbed",
       "topology": null,
@@ -4939,10 +5732,10 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 3681,
+          "wn": 3690.1,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₁(A′) νOH at 3681 (Shimanouchi) / 3681.5 (Serrallach) cm⁻¹ — the sharp, unbroadened monomer position.",
+          "note": "Table 3, ν₁(A′) νOH of CH₃OH isolated in solid neon at 6 K, 0.3 cm⁻¹ resolution. Argon puts it at 3666.7 cm⁻¹: the two hosts differ by 23 cm⁻¹, the largest matrix effect of any methanol fundamental, and they straddle the gas-phase value of 3681.5 cm⁻¹ by +8.6 and −14.8 cm⁻¹. Matrix isolation quenches rotation, so this is a single sharp line rather than the rovibrational envelope the gas-phase band has.",
           "tags": [
             "isotope-labeling",
             "transmission"
@@ -4982,10 +5775,10 @@
         "branch": null
       },
       "atoms": "O-H",
-      "wn_start": 2705,
+      "wn_start": 2700,
       "wn_end": 2745,
-      "short": "ν(OD) CH₃OD",
-      "description": "O-D stretch of O-deuterated methanol, the hydroxyl counterpart of ν(OH) MeOH nearly 1000 cm⁻¹ lower. Deliberately drawn as the full R-to-P envelope rather than the Q branch alone, since all three branches sit inside 40 cm⁻¹. The practical value of knowing where it lands is negative rather than positive: methanol's O-H stretch is the band most easily lost under support hydroxyls and adsorbed water, and moving it here is one of the few ways to get it out of that region — but the new position then collides with the C-H stretching region instead, so the escape is only partial.",
+      "short": "ν(OD) MeOD",
+      "description": "O-D stretch of O-deuterated methanol, the hydroxyl counterpart of ν(OH) MeOH nearly 1000 cm⁻¹ lower. Drawn as the full R to P envelope, since all three branches sit inside 40 cm⁻¹. The point of moving the band here is escape: methanol's O-H stretch is the one most easily lost under support hydroxyls and adsorbed water. The escape is only partial, because the new position collides with the C-H stretching region instead.",
       "based_on": [],
       "references": [
         {
@@ -5002,10 +5795,33 @@
             "transmission"
           ],
           "uid": "meod_od_stretch::Falk.InfraredSpectraMethanol.1961"
+        },
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2721.7,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, ν₁(A′) νOD of CH₃OD in solid neon at 6 K; 2704.8 cm⁻¹ in argon, against 2717.6 cm⁻¹ in the gas phase. Deuterating the hydroxyl leaves the methyl bands almost where they were, which is what makes it the clean way to separate O-H from C-H features.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meod_od_stretch::Dinu.HowVibrationalNotations.2024"
+        },
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2723.0,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, ν₁(A′) νOD of the fully deuterated CD₃OD in solid neon at 6 K; 2705.3 cm⁻¹ in argon. It sits 1.3 cm⁻¹ from the same mode in CH₃OD, which is the point: the O-D stretch does not care whether the methyl group is deuterated, so both are recorded on this one band.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meod_od_stretch::Dinu.HowVibrationalNotations.2024::2"
         }
       ],
       "tags": [
         "isotope",
+        "deuterium",
         "gas-phase"
       ],
       "phase": "gas",
@@ -5023,8 +5839,518 @@
       ],
       "lane": 8,
       "sub_lane": 0,
-      "wn_min": 2705,
+      "wn_min": 2700,
       "wn_max": 2745
+    },
+    {
+      "id": "meoh_cd2_stretch_sym",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2243,
+      "wn_end": 2258,
+      "short": "νₛ(CD₂) CD₃OD",
+      "description": "The higher of the two symmetric methyl stretches of methanol, measured on the fully deuterated molecule. Deuteration divides the C-H stretching wavenumbers by roughly 1.33 and moves the whole methyl region from 3000 to 2100 cm⁻¹, where nothing else in a methanol spectrum absorbs. The mode also changes character: on CD₃OD the paper labels it a CD₂ rather than a CD₃ motion, since the in-plane deuteron stops participating.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2247.3,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, νₛ(CD₂) of CD₃OD isolated in solid neon at 6 K; 2255.0 cm⁻¹ in argon, against 2250 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd2_stretch_sym::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_stretch_a",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_stretch_a"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2243,
+      "wn_max": 2258
+    },
+    {
+      "id": "meoh_cd3_stretch_asym",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2138,
+      "wn_end": 2224,
+      "short": "νₐₛ(CD₃) CD₃OD",
+      "description": "The antisymmetric methyl stretch of fully deuterated methanol. In the light molecule this mode is spread across three resonance-mixed bands and cannot be assigned uniquely; deuteration lifts the resonance, leaving one dominant band and a much weaker second one. That simplification is the reason the deuterated spectrum is what settles the assignment of the ordinary one.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2209.4,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, νₐₛ(CD₃) of CD₃OD isolated in solid neon at 6 K; 2218.9 cm⁻¹ in argon, against 2212.6 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd3_stretch_asym::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_asym",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "methanol_stretch_antisym"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2138,
+      "wn_max": 2224
+    },
+    {
+      "id": "meoh_cd3_stretch_sym",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": "Q"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2068,
+      "wn_end": 2082,
+      "short": "νₛ(CD₃) CD₃OD",
+      "description": "The lower symmetric methyl stretch of fully deuterated methanol, and the strongest band of the deuterated methyl region. Its counterpart in the light molecule is itself half a resonance with the methyl scissor overtone; here the overtone has moved away and the band stands alone.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 2072.7,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, νₛ(CD₃) of CD₃OD isolated in solid neon at 6 K; 2078.0 cm⁻¹ in argon, against 2074.5 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd3_stretch_sym::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_ch3s_q",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "methanol_stretch_symmetric"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 2068,
+      "wn_max": 2082
+    },
+    {
+      "id": "meoh_cd_scissor",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "scissoring",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1124,
+      "wn_end": 1133,
+      "short": "δ(CD₃) scissor CD₃OD",
+      "description": "Methyl scissor of fully deuterated methanol. The deformation region drops from 1480 to 1450 cm⁻¹ down to 1130 to 1060, where it lands on the C-O stretches instead: deuteration clears the C-H region at the cost of crowding the fingerprint one.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1129.0,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, δ(CD₃) of CD₃OD isolated in solid neon at 6 K; 1127.9 cm⁻¹ in argon, against 1133.5 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_scissor::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_ch_scissor",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_ch_scissor"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1124,
+      "wn_max": 1133
+    },
+    {
+      "id": "meoh_cd_umbrella",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1064,
+      "wn_end": 1073,
+      "short": "δₛ(CD₃) umbrella CD₃OD",
+      "description": "Methyl umbrella deformation of fully deuterated methanol, within a few wavenumbers of the rocking mode and of the C-O scaffold stretch. Three unrelated modes inside 10 cm⁻¹ is what makes the deuterated fingerprint region harder to read than the light one, even though the stretching region becomes easier.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1069.0,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, δₛ(CD₃) of CD₃OD isolated in solid neon at 6 K; 1068.2 cm⁻¹ in argon, against 1078 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_umbrella::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_ch_umbrella",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_bend_symmetric"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 1064,
+      "wn_max": 1073
+    },
+    {
+      "id": "meoh_cd_rock",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "rocking",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1058,
+      "wn_end": 1068,
+      "short": "ρ(CD₂) CD₃OD",
+      "description": "Rocking deformation of the two out-of-plane deuterons of fully deuterated methanol. It sits below the umbrella mode here, the reverse of the order in the light molecule, which is one of the reasons a notation carried over from CH₃OH mislabels the deuterated spectrum.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1062.1,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, ρ(CD₂) of CD₃OD isolated in solid neon at 6 K; 1064.1 cm⁻¹ in argon, against 1069.3 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_rock::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_ch_rock",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_ch_rock"
+      ],
+      "lane": 8,
+      "sub_lane": 1,
+      "wn_min": 1058,
+      "wn_max": 1068
+    },
+    {
+      "id": "meoh_cd_co_scaffold",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O",
+      "wn_start": 1024,
+      "wn_end": 1035,
+      "short": "ν(CO) CD₃OD (scaffold)",
+      "description": "The mixed C-O stretch of fully deuterated methanol, the one that carries bending character as well. It barely moves on deuteration, which is the evidence that it is the C-O bond rather than the hydrogens that dominates it.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 1028.7,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, ν(CO) of CD₃OD isolated in solid neon at 6 K; 1031.5 cm⁻¹ in argon, against 1027.8 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_co_scaffold::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_co_scaffold",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_co_scaffold"
+      ],
+      "lane": 8,
+      "sub_lane": 1,
+      "wn_min": 1024,
+      "wn_max": 1035
+    },
+    {
+      "id": "meoh_cd_co_stretch",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "C-O",
+      "wn_start": 975,
+      "wn_end": 987,
+      "short": "ν(CO) CD₃OD",
+      "description": "The C-O stretch of fully deuterated methanol, some 50 cm⁻¹ below the light molecule. The shift is real but modest, since the mode is only 41% C-O stretch and the rest is bending that the deuterons do slow down.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 979.9,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, ν(CO) of CD₃OD isolated in solid neon at 6 K; 983.0 cm⁻¹ in argon, against 980.0 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_co_stretch::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_co_q",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [
+        "methanol_co_stretch"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 975,
+      "wn_max": 987
+    },
+    {
+      "id": "meoh_cd_twist",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": "twisting",
+        "branch": null
+      },
+      "atoms": "H-C-H",
+      "wn_start": 886,
+      "wn_end": 899,
+      "short": "δₐₛ(CD₃) twist CD₃OD",
+      "description": "Methyl twisting deformation of fully deuterated methanol. In the light molecule this is the band with the largest matrix shift of any fundamental; deuterated, it moves to a quieter part of the spectrum where the host matters less.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 890.3,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, δₐₛ(CD₃) of CD₃OD isolated in solid neon at 6 K; 895.0 cm⁻¹ in argon, against 892 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_cd_twist::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_twist",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_twist"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 886,
+      "wn_max": 899
+    },
+    {
+      "id": "meoh_od_bend",
+      "species": "methanol",
+      "group": "methanol_product",
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "C-O-H",
+      "wn_start": 770,
+      "wn_end": 780,
+      "short": "δ(COD) CD₃OD",
+      "description": "In-plane C-O-D bend of deuterated methanol, roughly 550 cm⁻¹ below the C-O-H bend it comes from, because this is the mode that swings the hydroxyl hydrogen. That very large shift is what makes it a clean test of whether a band in the fingerprint region involves the hydroxyl at all.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Dinu.HowVibrationalNotations.2024",
+          "wn": 774.4,
+          "measured_on": null,
+          "technique": "transmission",
+          "note": "Table 3, δ(COD) of CD₃OD isolated in solid neon at 6 K; 775.9 cm⁻¹ in argon, against 774.8 cm⁻¹ in the gas phase. Full deuteration is what lifts the resonances of the light molecule, so this spectrum has fewer bands than CH₃OH rather than the same number moved.",
+          "tags": [
+            "transmission"
+          ],
+          "uid": "meoh_od_bend::Dinu.HowVibrationalNotations.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "meoh_oh_bend",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "likely",
+      "vibration_modes": [
+        "methanol_oh_bend"
+      ],
+      "lane": 8,
+      "sub_lane": 0,
+      "wn_min": 770,
+      "wn_max": 780
     },
     {
       "id": "meoh_oh_r",
@@ -5138,16 +6464,16 @@
       "atoms": "H-C-H",
       "wn_start": 2985,
       "wn_end": 3010,
-      "short": "νₛ(CH₃) MeOH (a)",
+      "short": "νₛ(CH₃) ν₂ MeOH",
       "description": "One of methanol's two symmetric-species CH₃ stretches (see the vibration-modes page for why this isn't \"the asymmetric one\") — sits close enough to the O-H stretch's low-wavenumber tail that the two can blur together in a broad surface spectrum.",
       "based_on": [],
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 3000,
+          "wn": 2996.3,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₂(A′) νsCH₃ at 3000 (Shimanouchi) / 2999.0 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₂(A′) νsCH₃ of CH₃OH in solid neon at 6 K; 3006.4 cm⁻¹ in argon, against 2999.0 cm⁻¹ in the gas phase. This is the higher of methanol's two symmetric methyl stretches, 78% of the motion on the in-plane hydrogen, which is why it is not the asymmetric one despite sitting highest.",
           "tags": [
             "transmission"
           ],
@@ -5169,8 +6495,10 @@
           "uid": "meoh_stretch_a::Phongprueksathat.KeyDriversActivity.2026"
         }
       ],
-      "tags": [],
-      "phase": null,
+      "tags": [
+        "gas-phase"
+      ],
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5199,9 +6527,9 @@
       },
       "atoms": "H-C-H",
       "wn_start": 2935,
-      "wn_end": 2965,
-      "short": "νₐₛ(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ asymmetric stretch (CH₃OH*). Typically blue-shifted ~10–20 cm⁻¹ relative to methoxy νₐₛ(CH₃); the cleanest C-H region marker to distinguish molecularly-adsorbed methanol from methoxy. In the isolated gas-phase molecule this region is strongly resonance-mixed with overtones/combinations of the δCH₃ modes (see the vibration-modes page) rather than a single clean fundamental — worth keeping in mind even though that fine structure washes out on a real catalyst surface.",
+      "wn_end": 2970,
+      "short": "νₐₛ(CH₂) CH₃OH*",
+      "description": "The antisymmetric stretch of methanol’s two out-of-plane C-H bonds, a CH₂ rather than a CH₃ motion: the in-plane hydrogen barely moves. Typically 10 to 20 cm⁻¹ above methoxy in the same region, which is the cleanest way to tell molecularly adsorbed methanol from methoxy. In the isolated molecule it is not one band: it is spread across three, mixed with combinations of the methyl deformations, and no single band is dominated by the fundamental. That structure washes out on a working catalyst, but it is why the position quoted for this mode varies by tens of cm⁻¹ between sources.",
       "based_on": [],
       "references": [
         {
@@ -5228,20 +6556,24 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 2960,
+          "wn": [
+            2966.9,
+            2928.2,
+            2912.0
+          ],
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₉(A″) νasCH₂ ≈2960 cm⁻¹ (Shimanouchi); Serrallach resolves it into 3 resonance-split components instead of one band — not uniquely assignable.",
+          "note": "Table 3 and Fig. 7a: in solid neon at 6 K this mode is not one band but three, at 2966.9, 2928.2 and 2912.0 cm⁻¹ (2961.8, 2930.0 and 2914.2 in argon). The VCI analysis finds no state dominated by the ν₉ fundamental: 2966.9 cm⁻¹ is 59.9% the ν₄+ν₁₀ combination against 28.3% ν₉, and 2912.0 cm⁻¹ is best labelled ν₅+ν₁₀. Deuterating the methyl group collapses the pattern, which is how the resonance is demonstrated. Assigning a single band here to an asymmetric methyl stretch is the misassignment this paper exists to correct.",
           "tags": [
             "isotope-labeling",
-            "misassignment-warning",
             "transmission"
           ],
           "uid": "meoh_asym::Dinu.HowVibrationalNotations.2024"
         }
       ],
       "tags": [
-        "molecular-adsorption"
+        "molecular-adsorption",
+        "misassignment-warning"
       ],
       "phase": "adsorbed",
       "topology": null,
@@ -5259,7 +6591,7 @@
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 2935,
-      "wn_max": 2965
+      "wn_max": 2970
     },
     {
       "id": "meoh_sym",
@@ -5274,7 +6606,7 @@
       "wn_start": 2835,
       "wn_end": 2860,
       "short": "νₛ(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ symmetric stretch (CH₃OH*), the νₛ counterpart of meoh_asym. Blue-shifted roughly 10 to 20 cm⁻¹ from methoxy νₛ(CH₃), which is what separates molecularly adsorbed methanol from the methoxy it converts into; the two show up as a shoulder pair, and mild evacuation removes CH₃OH* first, leaving methoxy dominant. It also falls under the gas-phase Q branch of the same mode, so over a working catalyst the surface band and the gas contribution sit on top of each other. The flanking R and P satellites are what tell them apart, since an adsorbed molecule has no rotational structure.",
+      "description": "Adsorbed methanol CH₃ symmetric stretch, 10 to 20 cm⁻¹ above methoxy νₛ(CH₃), which is what separates molecular methanol from the methoxy it converts into; the two appear as a shoulder pair and mild evacuation removes the methanol first. It also falls under the gas-phase Q branch of the same mode, so surface and gas contributions sit on top of each other, and the flanking R and P satellites are what tell them apart.",
       "based_on": [],
       "references": [
         {
@@ -5323,7 +6655,7 @@
       "wn_start": 2836,
       "wn_end": 2854,
       "short": "νₛ(CH₃) MeOH (Q)",
-      "description": "Q-branch head of gas-phase methanol νₛ(CH₃): the central and strongest of the three branches, with the R branch about 24 cm⁻¹ above it and the P branch about 19 cm⁻¹ below. It falls directly on the adsorbed-methanol and methoxy νₛ(CH₃) region, so over a working catalyst the gas and surface contributions overlap; the flanking R and P satellites are what identify the gas part, since an adsorbed species has no rotational structure. Mild evacuation removes the gas signal along with weakly held CH₃OH*, leaving methoxy as the dominant feature.",
+      "description": "Q-branch head of gas-phase methanol νₛ(CH₃), the central and strongest of the three branches, with R about 24 cm⁻¹ above and P about 19 cm⁻¹ below. It falls on the adsorbed-methanol and methoxy νₛ(CH₃) region, so gas and surface overlap over a working catalyst; the flanking satellites identify the gas part, since an adsorbed species has no rotational structure.",
       "based_on": [],
       "references": [
         {
@@ -5339,10 +6671,10 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 2844,
+          "wn": 2841.5,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₃(A′) νsCH₃ at 2844 (Shimanouchi) / 2844.2 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₃(A′) νsCH₃ of CH₃OH in solid neon at 6 K; 2848.0 cm⁻¹ in argon, against 2844.2 cm⁻¹ in the gas phase. The VCI wave function is 51% this fundamental and 26% the first overtone of the methyl scissor, so even the cleanest-looking band in this region is a resonance rather than a pure fundamental.",
           "tags": [
             "isotope-labeling",
             "transmission"
@@ -5501,10 +6833,10 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 1477,
+          "wn": 1477.0,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₄(A′) δsCH₃ scissor at 1477 (Shimanouchi) / 1477.2 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₄(A′) δCH₃ scissor of CH₃OH in solid neon at 6 K; 1473.5 cm⁻¹ in argon, against 1477.2 cm⁻¹ in the gas phase.",
           "tags": [
             "transmission"
           ],
@@ -5512,9 +6844,10 @@
         }
       ],
       "tags": [
-        "degenerated"
+        "degenerated",
+        "gas-phase"
       ],
-      "phase": null,
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5557,10 +6890,10 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 2956,
+          "wn": 2954.0,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Section 2.3(c): VCI calculation gives a unique assignment for 2ν₄ at 2955 cm⁻¹ in gas-phase CH₃OH.",
+          "note": "Fig. 6d, the observed neon-matrix band at 2954.0 cm⁻¹ (2955.9 in argon, Fig. 6a), assigned to 2ν₄ by the VCI calculation, which puts it at 2955 cm⁻¹. It is the one overtone in this region the calculation can assign uniquely for CH₃OH: 2ν₁₀ and 2ν₅ are spread across three states near 2928, 2922 and 2847 cm⁻¹ and cannot be pinned to single bands.",
           "tags": [
             "transmission"
           ],
@@ -5568,9 +6901,10 @@
         }
       ],
       "tags": [
-        "overtone"
+        "overtone",
+        "gas-phase"
       ],
-      "phase": null,
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5606,10 +6940,10 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 1465,
+          "wn": 1469.0,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₁₀(A″) δasCH₂ rock at 1477 (Shimanouchi, coincident with ν₄) / 1465±3 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₁₀(A″) δasCH₂ rocking of CH₃OH in solid neon at 6 K; 1466.3 cm⁻¹ in argon, against 1465 ± 3 cm⁻¹ in the gas phase. Matrix isolation separates it from the scissor 8 cm⁻¹ above, which the older gas-phase compilation reported at the same position as the scissor.",
           "tags": [
             "transmission"
           ],
@@ -5617,9 +6951,10 @@
         }
       ],
       "tags": [
-        "degenerated"
+        "degenerated",
+        "gas-phase"
       ],
-      "phase": null,
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5666,18 +7001,20 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 1455,
+          "wn": 1450.5,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₅(A′) δsCH₃ umbrella at 1455 (Shimanouchi) / 1454.5 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₅(A′) δCH₃ umbrella of CH₃OH in solid neon at 6 K; 1451.8 cm⁻¹ in argon, against 1454.5 cm⁻¹ in the gas phase. Its first overtone is one of the states the 2960 to 2900 cm⁻¹ resonance pattern is built from.",
           "tags": [
             "transmission"
           ],
           "uid": "meoh_ch_umbrella::Dinu.HowVibrationalNotations.2024"
         }
       ],
-      "tags": [],
-      "phase": null,
+      "tags": [
+        "gas-phase"
+      ],
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5724,21 +7061,20 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": [
-            1345,
-            1332
-          ],
+          "wn": 1331.4,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₆(A′) δipOH at 1345 (Shimanouchi) / 1332.0 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₆(A′) δipOH of CH₃OH in solid neon at 6 K; 1329.6 cm⁻¹ in argon, against 1332.0 cm⁻¹ in the gas phase. The 1345 cm⁻¹ of the older compilation is 13 cm⁻¹ off and is the value most often carried forward in the literature.",
           "tags": [
             "transmission"
           ],
           "uid": "meoh_oh_bend::Dinu.HowVibrationalNotations.2024"
         }
       ],
-      "tags": [],
-      "phase": null,
+      "tags": [
+        "gas-phase"
+      ],
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5767,25 +7103,27 @@
       },
       "atoms": "H-C-H",
       "wn_start": 1141,
-      "wn_end": 1149,
+      "wn_end": 1158,
       "short": "δₐₛ(CH₃) twist MeOH",
       "description": "Methanol CH₃ twisting deformation (MeOH*/MeOH(g)) — only the two out-of-plane H's participate, one swinging toward the C-O axis and the other away (see the vibration-modes page).",
       "based_on": [],
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 1145,
+          "wn": 1156.5,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₁₁(A″) δasCH₃ twist at 1145±4 cm⁻¹ (Serrallach only — no Shimanouchi value).",
+          "note": "Table 3, ν₁₁(A″) δasCH₃ twisting of CH₃OH in solid neon at 6 K; 1162.8 cm⁻¹ in argon, against 1145 ± 4 cm⁻¹ in the gas phase. The 11 to 18 cm⁻¹ blue shift is the largest matrix effect of any methanol fundamental apart from the O-H stretch, so this position is host-dependent and should not be read as a free-molecule value.",
           "tags": [
             "transmission"
           ],
           "uid": "meoh_twist::Dinu.HowVibrationalNotations.2024"
         }
       ],
-      "tags": [],
-      "phase": null,
+      "tags": [
+        "gas-phase"
+      ],
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5801,7 +7139,7 @@
       "lane": 8,
       "sub_lane": 0,
       "wn_min": 1141,
-      "wn_max": 1149
+      "wn_max": 1158
     },
     {
       "id": "meoh_co_scaffold",
@@ -5821,21 +7159,20 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": [
-            1060,
-            1074.5
-          ],
+          "wn": 1071.4,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₇(A′) νCO \"scaffold\" at 1060 (Shimanouchi) / 1074.5 (Serrallach) cm⁻¹.",
+          "note": "Table 3, ν₇(A′) νCO scaffold of CH₃OH in solid neon at 6 K; 1076.3 cm⁻¹ in argon, against 1074.5 cm⁻¹ in the gas phase. Only 72% of this mode is the C-O stretch; the rest is HOC and OCH bending, which is why methanol has two bands in this region rather than one.",
           "tags": [
             "transmission"
           ],
           "uid": "meoh_co_scaffold::Dinu.HowVibrationalNotations.2024"
         }
       ],
-      "tags": [],
-      "phase": null,
+      "tags": [
+        "gas-phase"
+      ],
+      "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
@@ -5849,7 +7186,7 @@
         "methanol_co_scaffold"
       ],
       "lane": 8,
-      "sub_lane": 1,
+      "sub_lane": -1,
       "wn_min": 1060,
       "wn_max": 1080
     },
@@ -5872,9 +7209,9 @@
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": null,
-          "measured_on": "cugazrox",
+          "measured_on": "cu_gazrox",
           "technique": "drifts",
-          "note": null,
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): CH₃OH(g) is followed as the product of the modulation experiment and appears in the spectra below 1100 cm⁻¹, but the paper marks it by label rather than by wavenumber, so no position is recorded here. Its phase delay behind CH₃O* is the paper's evidence that methoxy is hydrolysed to methanol rather than hydrogenated.",
           "tags": [
             "drifts"
           ],
@@ -5904,10 +7241,10 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
-          "wn": 1033,
+          "wn": 1032.6,
           "measured_on": null,
           "technique": "transmission",
-          "note": "Table 3, gas phase: ν₈(A′) νCO at 1033 (Shimanouchi) / 1033.5 (Serrallach) cm⁻¹ — the cleaner of methanol's two C-O-region fundamentals.",
+          "note": "Table 3, ν₈(A′) νCO of CH₃OH in solid neon at 6 K; 1033.9 cm⁻¹ in argon, against 1033.5 cm⁻¹ in the gas phase, the smallest matrix shift of any methanol fundamental. Despite the label it is only 41% C-O stretch, with 29% HOC and 28% OCH bending mixed in.",
           "tags": [
             "transmission"
           ],
@@ -6037,42 +7374,9 @@
       "wn_max": 1019
     },
     {
-      "id": "oh_isolated",
-      "species": "hydroxyl_isolated",
-      "group": "hydroxyl",
-      "vibration": {
-        "category": "stretch",
-        "subtype": null,
-        "branch": null
-      },
-      "atoms": "O-H",
-      "wn_start": 3700,
-      "wn_end": 3750,
-      "short": "ν(OH) iso",
-      "description": "Sharp, narrow O-H stretch from an isolated terminal hydroxyl group — not hydrogen-bonded to a neighbor, which is exactly why it stays sharp rather than broadening the way the H-bonded band below does.",
-      "based_on": [],
-      "references": [],
-      "tags": [],
-      "phase": "surface",
-      "topology": null,
-      "fermi_partner": null,
-      "fermi_partner_group": null,
-      "branch_group": null,
-      "isotopologue_of": null,
-      "isotope": null,
-      "intensity": null,
-      "width": null,
-      "confidence": null,
-      "vibration_modes": [],
-      "lane": 9,
-      "sub_lane": 0,
-      "wn_min": 3700,
-      "wn_max": 3750
-    },
-    {
-      "id": "oh_hbonded",
-      "species": "hydroxyl_hbonded",
-      "group": "hydroxyl",
+      "id": "oh_surface",
+      "species": "hydroxyl",
+      "group": "support_oh",
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -6080,11 +7384,55 @@
       },
       "atoms": "O-H",
       "wn_start": 3400,
-      "wn_end": 3650,
-      "short": "ν(OH) H-b",
-      "description": "Broader band; bridged or hydrogen-bonded hydroxyls.",
+      "wn_end": 3750,
+      "short": "ν(OH) surface",
+      "description": "Surface hydroxyl stretch on an oxide: the O-H left behind wherever water or H₂ dissociates on it. The window is wide because the position tracks the coordination of the cation carrying the group and how strongly it is hydrogen-bonded. Discrete sharp components above roughly 3600 cm⁻¹ come from terminal hydroxyls on distinct cation environments, and hydrogen bonding drags them down and merges them into a broad envelope. Counting the sharp components is how the kinds of cation site a surface exposes get counted. The region is normally read as a difference spectrum, since adsorbates consume hydroxyls and push the band negative.",
       "based_on": [],
-      "references": [],
+      "references": [
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 3685,
+          "measured_on": [
+            "ga_tet",
+            "ga2o3"
+          ],
+          "technique": "drifts",
+          "note": "Fig. 1 (precipitated Ga₂O₃, 0.1 MPa H₂ at 450 °C): the higher of two hydroxyls resolved on one surface, assigned to the OH on a tetrahedrally coordinated gallium and formed together with the Ga-H at 2011 cm⁻¹. The split from the other hydroxyl follows the two gallium coordinations, not hydrogen bonding. Both O-H bands are about five times weaker than the hydride bands they accompany, the opposite of the usual intensity order, which the authors read as evidence that hydride rather than hydroxyl is what accumulates here.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "oh_surface::Feng.GenerationSurfaceGaH.2024"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 3532,
+          "measured_on": [
+            "ga_oct",
+            "ga2o3"
+          ],
+          "technique": "drifts",
+          "note": "Fig. 1 (precipitated Ga₂O₃, 0.1 MPa H₂ at 450 °C): the lower of the two hydroxyls, on an octahedrally coordinated gallium, formed together with the Ga-H at 1988 cm⁻¹. Two claims rather than one array, because the paper assigns each position to its own gallium site.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "oh_surface::Feng.GenerationSurfaceGaH.2024::2"
+        },
+        {
+          "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "wn": [
+            3686,
+            3664
+          ],
+          "measured_on": "fe2o3",
+          "technique": "transmission",
+          "note": "Fig. 2 (hydroxylated nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K): both bands appear as negative peaks, since CO₂ consumes these hydroxyls to make bicarbonate. They are assigned to OH bonded to two and to three iron atoms respectively, with singly coordinated hydroxyls expected near 3700 cm⁻¹ and more highly coordinated ones lower. A broad band near 3300 cm⁻¹ is the hydrogen-bonded population.",
+          "tags": [
+            "direct-dosing",
+            "transmission"
+          ],
+          "uid": "oh_surface::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        }
+      ],
       "tags": [],
       "phase": "surface",
       "topology": null,
@@ -6100,7 +7448,58 @@
       "lane": 9,
       "sub_lane": 0,
       "wn_min": 3400,
-      "wn_max": 3650
+      "wn_max": 3750
+    },
+    {
+      "id": "od_stretch",
+      "species": "hydroxyl",
+      "group": "support_oh",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "O-H",
+      "wn_start": 2580,
+      "wn_end": 2720,
+      "short": "ν(OD) surface",
+      "description": "A surface hydroxyl measured under D₂ or D₂O. The O-D stretch sits at about 1/1.36 of the O-H position, moving the hydroxyl region from 3400 to 3750 cm⁻¹ down into 2500 to 2750 cm⁻¹, where little else on an oxide absorbs. The pattern of components survives the shift, so it is the cleanest way to prove a band is a hydroxyl and to count how many kinds a surface carries. It overlaps the C-D stretches of deuterated adsorbates.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": [
+            2694,
+            2606
+          ],
+          "measured_on": "ga2o3",
+          "technique": "drifts",
+          "note": "Figs. 1 and S3 (precipitated Ga₂O₃, 0.1 MPa D₂ at 450 °C): the deuterated counterpart of the 3685 and 3532 cm⁻¹ hydroxyl pair, formed alongside the Ga-D bands. Both components are recorded on this one band because the paper reports them together and does not pair each with its own hydroxyl, though the ratios (1.37 and 1.36) follow the same order.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "od_stretch::Feng.GenerationSurfaceGaH.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium"
+      ],
+      "phase": "surface",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "oh_surface",
+      "isotope": "D",
+      "intensity": "w",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [],
+      "lane": 9,
+      "sub_lane": 0,
+      "wn_min": 2580,
+      "wn_max": 2720
     },
     {
       "id": "h2og_sym",
@@ -6115,7 +7514,7 @@
       "wn_start": 3650,
       "wn_end": 3660,
       "short": "νₛ(HOH) H₂O(g)",
-      "description": "Gas-phase water symmetric O-H stretch (ν₁, A₁) — both O-H bonds lengthening and shortening together, in phase. Sharp and well-resolved in the gas phase, in contrast to the broad, merged envelope this band collapses into once adsorbed/condensed (see oh_hbonded).",
+      "description": "Gas-phase water symmetric O-H stretch (ν₁, A₁) — both O-H bonds lengthening and shortening together, in phase. Sharp and well-resolved in the gas phase, in contrast to the broad, merged envelope this band collapses into once adsorbed or condensed (see oh_surface).",
       "based_on": [],
       "references": [
         {
@@ -6144,7 +7543,7 @@
       "vibration_modes": [
         "h2o_stretch_symmetric"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3650,
       "wn_max": 3660
@@ -6191,7 +7590,7 @@
       "vibration_modes": [
         "h2o_bend"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 1590,
       "wn_max": 1600
@@ -6238,7 +7637,7 @@
       "vibration_modes": [
         "h2o_stretch_asymmetric"
       ],
-      "lane": 11,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3750,
       "wn_max": 3760
@@ -6254,25 +7653,68 @@
       },
       "atoms": "M-H",
       "wn_start": 1960,
-      "wn_end": 2000,
+      "wn_end": 2015,
       "short": "ν(Ga-H)",
-      "description": "Gallium hydride (Ga-H*) stretch — a marker for heterolytic H₂ dissociation across a Lewis acid/base pair. Confirmed by substituting D₂ for H₂: the band red-shifts by the mass-dependent amount expected for a genuine M-H(D) stretch, ruling out a coincidental overlap with something else. Can play a role in surface hydrogen-transfer chemistry, e.g. converting a formate-type species toward a methoxy-type one via H spillover.",
+      "description": "Terminal hydride on a gallium centre: H₂ dissociated on the oxide itself rather than on a metal particle. Heterolytic splitting across a Ga-O pair puts a hydride on Ga and a proton on lattice oxygen, so Ga-H and fresh O-H bands appear together; the two gallium coordinations of the oxide split it by about 25 cm⁻¹. It sits in the CO stretching window, which is the standing confusion, and deuteration to near 1435 cm⁻¹ settles it. Metal-H absorbs far more weakly than O-H, so intensity is a poor guide to coverage.",
       "based_on": [],
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1976,
           "measured_on": [
-            "ga_0",
-            "cugazrox"
+            "ga",
+            "gazrox"
           ],
           "technique": "drifts",
-          "note": "Ga-H at 1976 cm⁻¹; confirmed by D₂ substitution (isotope shift observed). Present on GaZrOx and CuGaZrOx under CO₂/H₂ at 20 bar, 260°C. Partially static during MES — consistent with slow HCOO* → CH₃O* conversion.",
+          "note": "Fig. 4b to 4d (ME-DRIFTS, Cu-free GaZrOₓ, 1 bar and 20 bar, 260 °C): ν(Ga-H) at 1976 cm⁻¹, strong on the oxide alone (about 0.03 Kubelka-Munk in Fig. 4d). The assignment is confirmed by feeding D₂ in place of H₂: the band is absent under CO₂+D₂ (Fig. 4c). No Ga-D counterpart is reported anywhere in the paper or its SI, so the evidence is the disappearance, not a measured shift. The band stays largely static through the modulation, which the authors read as a slow step: Ga-H reduces (bi)carbonates to HCOO* and helps hydrogenate HCOO* to CH₃O*.",
           "tags": [
             "isotope-labeling",
             "drifts"
           ],
           "uid": "gah_stretch::AlAbdulghani.UncoveringPressureDependentMechanism.2025"
+        },
+        {
+          "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "wn": 1980,
+          "measured_on": [
+            "ga",
+            "cu_gazrox"
+          ],
+          "technique": "drifts",
+          "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the same hydride on the Cu-containing sample, marked at 1980 cm⁻¹, four wavenumbers above the value quoted for the Cu-free oxide. It is far weaker here, near 0.001 against 0.03 Kubelka-Munk on GaZrOₓ (Fig. 4d), which is the paper's argument that Ga-H accumulates on the oxide and is consumed quickly once Cu is present.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "gah_stretch::AlAbdulghani.UncoveringPressureDependentMechanism.2025::2"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 2011,
+          "measured_on": [
+            "ga_tet",
+            "ga2o3"
+          ],
+          "technique": "drifts",
+          "note": "Fig. 1 (in-situ DRIFTS, precipitated Ga₂O₃, 0.1 MPa H₂ at 450 °C, referenced to the same sample under Ar): the weaker, higher component of the hydride pair, assigned to H on tetrahedrally coordinated gallium together with the O-H at 3685 cm⁻¹. The pair is split by about 25 cm⁻¹, which the authors attribute to the two Ga coordinations of the bulk oxide rather than to two different kinds of hydride.",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "gah_stretch::Feng.GenerationSurfaceGaH.2024"
+        },
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": 1988,
+          "measured_on": [
+            "ga_oct",
+            "ga2o3"
+          ],
+          "technique": "drifts",
+          "note": "Fig. 1: the dominant component of the hydride pair on precipitated Ga₂O₃ under 0.1 MPa H₂ at 450 °C, assigned to H on octahedrally coordinated gallium with the O-H at 3532 cm⁻¹. Formation needs temperature: the band is weak at room temperature and grows monotonically above 150 °C (Fig. 2a), matching the onset of H₂-D₂ exchange. Ar purging removes it within 30 min at 450 °C and it returns on re-admitting H₂, so the dissociation is reversible (Figs. S5, S6).",
+          "tags": [
+            "isotope-labeling",
+            "drifts"
+          ],
+          "uid": "gah_stretch::Feng.GenerationSurfaceGaH.2024::2"
         }
       ],
       "tags": [],
@@ -6287,10 +7729,64 @@
       "width": "sharp",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 12,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 1960,
-      "wn_max": 2000
+      "wn_max": 2015
+    },
+    {
+      "id": "gad_stretch",
+      "species": "hydride",
+      "group": "hydride",
+      "vibration": {
+        "category": "stretch",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "M-H",
+      "wn_start": 1420,
+      "wn_end": 1450,
+      "short": "ν(Ga-D)",
+      "description": "The Ga-H stretch measured under D₂. A metal deuteride sits at about 1/1.39 of its hydride position, the square root of the reduced-mass ratio, so the pair moves from near 2000 to near 1435 cm⁻¹ and keeps its splitting. Nothing else in a CO₂ hydrogenation spectrum moves that far on deuteration, which is what makes it diagnostic; it lands among the carbonate and formate bands, which is what makes it easy to miss.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Feng.GenerationSurfaceGaH.2024",
+          "wn": [
+            1442,
+            1430
+          ],
+          "measured_on": [
+            "ga",
+            "ga2o3"
+          ],
+          "technique": "drifts",
+          "note": "Figs. 1 and S3 (in-situ DRIFTS, precipitated Ga₂O₃, 0.1 MPa D₂ at 450 °C): the deuteride pair, with the same shoulder-plus-main shape as the hydride pair and in the same intensity order, so 1442 cm⁻¹ pairs with 2011 cm⁻¹ and 1430 cm⁻¹ with 1988 cm⁻¹. The measured ν(Ga-H)/ν(Ga-D) ratio is 1.39 against 1.40 from the reduced masses. The paper does not assign the two deuteride components to the two Ga coordinations itself, so only the generic Ga centre is recorded here. A D₂ temperature-programmed surface reaction after CO₂ adsorption puts the band at 1429 cm⁻¹ (Fig. S14).",
+          "tags": [
+            "drifts"
+          ],
+          "uid": "gad_stretch::Feng.GenerationSurfaceGaH.2024"
+        }
+      ],
+      "tags": [
+        "isotope",
+        "deuterium"
+      ],
+      "phase": "surface",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": "gah_stretch",
+      "isotope": "D",
+      "intensity": "m",
+      "width": "medium",
+      "confidence": "confirmed",
+      "vibration_modes": [],
+      "lane": 11,
+      "sub_lane": 0,
+      "wn_min": 1420,
+      "wn_max": 1450
     }
   ]
 }

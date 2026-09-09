@@ -140,7 +140,7 @@ covers both), `topology` (a Topology id from the species' molecule), and the
 
 **Fields first, tags derived.** `build.py` writes `gas-phase` from `phase` and
 the technique chip from `references[].technique`, the way it already wrote
-`fermi-resonance`, `rotational-branches` and `isotope` from the link
+`fermi-resonance`, `rotational-branches` and the substitution tag (`deuterium`, `carbon-13`, `oxygen-18`, from `band.isotope`) from the link
 fields. Never author a derived tag by hand; the list is in `DERIVED_TAGS` in
 `frontend/src/lib/dataModel.ts`.
 
@@ -199,7 +199,7 @@ Rules when touching the frontend:
 
 ### Editorial limits
 
-- `description` on a band: **100 to 120 words**.
+- `description` on a band: **at most 120 words**, and shorter is better. There is no minimum: say what is general about the band and stop.
 - `note` on a band reference: **at most 150 words**.
 
 `build.py` counts words (HTML stripped) and prints a warning per over-long
@@ -304,7 +304,7 @@ the chart's filter. "All groups" is built into the filter rather than authored,
 and a hand-picked selection that matches no set shows as "Custom". The chart
 opens on `DEFAULT_SET` in `App.svelte`.
 
-**Lane layout (`layout.py`):** Two-level layout. `assign_lanes()` is a lookup, not a packing problem: it reads the `lanes` table in `bands.jsonc` (the chart's rows, in order, each naming the groups that share it) and gives every band the index of its group's row. Every group must sit in exactly one lane; `build.py` fails otherwise. `assign_sub_lanes()` then staggers overlapping bands within a lane into three sub-lanes (0, +1, −1), placing each `branch_group` as one unit so the R/P/Q branches of a transition always share a sub-lane, whether or not the packing needs them to. Units with more than 3-way overlap are skipped and logged.
+**Lane layout (`layout.py`):** Two-level layout. `assign_lanes()` is a lookup, not a packing problem: it reads the `lanes` table in `bands.jsonc` (the chart's rows, in order, each naming the groups that share it) and gives every band the index of its group's row. Every group must sit in exactly one lane; `build.py` fails otherwise. `assign_sub_lanes()` then staggers overlapping bands within a lane into three sub-lanes (0, +1, −1), placing each `branch_group` as one unit so the R/P/Q branches of a transition always share a sub-lane, whether or not the packing needs them to. Units with more than 3-way overlap fall back to the centre line and are logged. Treat that log line as a signal about the data rather than about the layout: it usually means one mode has been split into more bands than it needs.
 
 **Frontend rendering (`chart.ts`):** `buildChart()` builds a fresh Observable Plot SVG on every reactive update. Color dimension, axis property/unit, enabled groups, and hidden legend categories are all passed in as props; the chart is fully recomputed rather than mutated.
 
@@ -347,13 +347,13 @@ Valid enum values:
 - `intensity`: `vs | s | m | w | vw` (very strong → very weak; omit if unknown)
 - `width`: `sharp | medium | broad | very_broad` (omit if unknown)
 - `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
-- `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form)
+- `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form). Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
-- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | computational`. build.py derives a tag of the same name, so never write one by hand
+- `technique` in a reference object: `drifts | transmission | atr | ftir | computational`. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. build.py derives a tag of the same name, so never write one by hand
 - `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode
-- Isotopologues (ν(C–D) of DCOO*, ν(¹³CO), ν(OD) of CH₃OD, …) get their **own band entry** with `isotopologue_of` pointing at the natural-abundance band plus an `isotope` label (`"D"`, `"¹³C"`). Never bury an isotopologue's wavenumber in the parent band's `references[].wn`. The link is one-directional (child → parent, no chains); `build.py` auto-adds the `isotope` tag to the child only, and the frontend draws those bands hatched. A source that merely *used* isotope substitution as evidence for an ordinary band gets the per-citation `isotope-labeling` tag instead — the two are different claims
+- Isotopologues (ν(C–D) of DCOO*, ν(¹³CO), ν(OD) of CH₃OD, …) get their **own band entry** with `isotopologue_of` pointing at the natural-abundance band plus an `isotope` label (`"D"`, `"¹³C"`). Never bury an isotopologue's wavenumber in the parent band's `references[].wn`. The link is one-directional (child → parent, no chains); `build.py` auto-adds the substitution tag to the child only (`deuterium`, `carbon-13` or `oxygen-18`, named after `isotope`, whose vocabulary is closed in `VALID_ISOTOPES`), and the frontend draws those bands hatched. A source that merely *used* isotope substitution as evidence for an ordinary band gets the per-citation `isotope-labeling` tag instead — the two are different claims
 
 Atoms value `"diverse"` is used for combination bands whose two parent modes involve different atom groups; it renders in neutral grey.
 
@@ -372,8 +372,10 @@ survivable, just not free.
 Writing rules (the full version is on the style guide page):
 
 - `description` covers what is true of the band in general: what the mode is,
-  where it sits, what it is confused with. 100 to 120 words, short sentences,
-  numbers rather than adjectives.
+  where it sits, what moves it, what it is confused with. At most 120 words and
+  as few as the general part needs, short sentences, numbers rather than
+  adjectives. Nothing that is true of only one paper, one catalyst or one
+  experiment: that belongs in that reference's note.
 - Anything true of only one paper goes in that reference's `note` instead
   (max 150 words). Wavenumbers go in `wn`, the surface goes in `site`,
   conditions go in `note`.
