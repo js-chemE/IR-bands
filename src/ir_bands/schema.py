@@ -24,6 +24,52 @@ VALID_INTENSITIES = {"vs", "s", "m", "w", "vw"}
 VALID_WIDTHS = {"sharp", "medium", "broad", "very_broad"}
 VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 
+# Phase of the species this band belongs to. Optional on a band: omit it when
+# the band applies to both the free molecule and its adsorbed form, which is
+# genuinely the case for several methanol fundamentals. "surface" means a group
+# belonging to the solid itself (a support hydroxyl, a metal hydride) rather
+# than an adsorbate sitting on it.
+Phase = Literal["gas", "adsorbed", "surface"]
+VALID_PHASES = {"gas", "adsorbed", "surface"}
+
+# How the spectrum was taken, per citation. DRIFTS, ATR and the rest are
+# sampling geometries; "computational" is not a geometry at all, it marks a
+# calculated frequency. Every value names a real way of taking the spectrum:
+# there is deliberately no "FTIR, geometry not stated" placeholder, since
+# nearly every measurement here uses an interferometer and saying so would
+# distinguish nothing.
+Technique = Literal[
+    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
+    "computational",
+]
+VALID_TECHNIQUES = {
+    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
+    "computational",
+}
+
+# How specific a surface is. "Where was this measured" has a scale rather than
+# a single answer: the same titania is the sample when it is measured bare and
+# the phase when it is the support in Pt/TiO2, so the level lives on the record
+# and a claim just names whichever the paper actually said.
+SurfaceLevel = Literal["site", "phase", "sample"]
+VALID_SURFACE_LEVELS = {"site", "phase", "sample"}
+
+# Only a site has a kind; a phase and a sample are described by composition.
+SiteKind = Literal["metal", "cation", "defect", "interface", "bronsted"]
+VALID_SITE_KINDS = {"metal", "cation", "defect", "interface", "bronsted"}
+
+# Element symbols, for validating Surface.element and Surface.elements. Not a
+# periodic table: just enough to catch a typo in a field that is meant to be
+# queried on ("every band on a Cu-containing sample" only works if every
+# sample spells Cu the same way).
+ELEMENT_SYMBOLS = {
+    "H", "Li", "Be", "B", "C", "N", "O", "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl",
+    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge",
+    "As", "Se", "Br", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Ru", "Rh", "Pd", "Ag", "Cd",
+    "In", "Sn", "Sb", "Te", "I", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Sm", "Eu", "Gd",
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Th", "U",
+}
+
 # Editorial length limits, checked as warnings by validate_dataset(). The band
 # tooltip is 300px wide and read while hovering, so long prose simply does not
 # get read. Keep these in step with CONTENT_LIMITS in
@@ -107,6 +153,80 @@ class BasedOn:
 
 
 @dataclass
+class Surface:
+    """Where a band was measured, at whatever scale the paper stated.
+
+    One table rather than separate sites and materials, because the same entry
+    genuinely plays both roles: TiO2 is the sample when a paper measures bare
+    titania and the phase when that titania supports Pt. Forcing it into one
+    table or the other means choosing on the reader's behalf, and choosing
+    wrong half the time. `level` records how specific the entry is instead:
+
+      site    the atom-scale spot a molecule is bonded to
+      phase   a constituent of a sample, named by composition
+      sample  what was in the cell
+
+    `parts` is the single containment link and points down the scale: a sample
+    lists its phases and the sites it presents, a phase lists the sites within
+    it, a composite site lists the simpler sites it is built from. It is what
+    lets a query for Cu+ reach the bands whose paper named only Cu/ZnO. The
+    exception is an interface site, which may name a phase: the perimeter is
+    the metal against the oxide, not the metal against one cation.
+    """
+    key: str
+    label: str
+    level: SurfaceLevel
+    kind: Optional[SiteKind] = None
+    element: Optional[str] = None
+    oxidation_state: Optional[int] = None
+    formula: Optional[str] = None
+    composition: Optional[str] = None
+    # Every element this surface contains, authored rather than parsed: the
+    # composition strings are written the way the literature writes them and
+    # parsing them back is the fragile step surfaces.jsonc exists to remove.
+    elements: list[str] = field(default_factory=list)
+    facet: Optional[str] = None
+    parts: list[str] = field(default_factory=list)
+    note: str = ""
+
+    def __post_init__(self):
+        if self.level not in VALID_SURFACE_LEVELS:
+            raise ValueError(
+                f"surface {self.key}: level={self.level!r} not in {VALID_SURFACE_LEVELS}"
+            )
+        if self.kind is not None and self.kind not in VALID_SITE_KINDS:
+            raise ValueError(f"surface {self.key}: kind={self.kind!r} not in {VALID_SITE_KINDS}")
+        if self.kind is not None and self.level != "site":
+            raise ValueError(f"surface {self.key}: only a site has a kind")
+        for e in [self.element, *self.elements]:
+            if e is not None and e not in ELEMENT_SYMBOLS:
+                raise ValueError(f"surface {self.key}: unknown element symbol {e!r}")
+
+    @property
+    def all_elements(self) -> list[str]:
+        """Elements this surface contains, however they were recorded."""
+        return self.elements or ([self.element] if self.element else [])
+
+
+@dataclass
+class Species:
+    """One chemical identity, from data/species.jsonc.
+
+    `band.species` used to be a display label carrying five facts at once
+    (identity, phase, binding geometry, isotopologue, sometimes even the
+    site). Each of those now has its own field; this record holds the identity
+    alone. `molecule` is the link into vibrations.jsonc, authored here and
+    only here: Molecule.species is computed back from it, the same way a
+    VibrationMode's `bands` list is computed from Band.vibration_modes.
+    """
+    key: str
+    label: str
+    formula: str
+    molecule: Optional[str] = None
+    note: str = ""
+
+
+@dataclass
 class Reference:
     """A citation attached to a band, with optional source-specific specifics.
 
@@ -124,9 +244,22 @@ class Reference:
     """
     key: str
     wn: Optional[Union[int, list[int]]] = None
-    site: Optional[Union[str, list[str]]] = None
+    # One or more keys into surfaces.jsonc, at whatever level the paper stated.
+    measured_on: Optional[Union[str, list[str]]] = None
+    technique: Optional[Technique] = None
     note: Optional[str] = None
     tags: list[str] = field(default_factory=list)
+
+    # Computed: a stable handle for this one claim, "<band id>::<citekey>"
+    # with an ordinal appended when a paper makes several claims about the
+    # same band. Set by assign_reference_uids() in loader.py, not authored.
+    uid: str = field(default="", init=False)
+
+    def __post_init__(self):
+        if self.technique is not None and self.technique not in VALID_TECHNIQUES:
+            raise ValueError(
+                f"reference {self.key}: technique={self.technique!r} not in {VALID_TECHNIQUES}"
+            )
 
 
 @dataclass
@@ -278,8 +411,11 @@ class Molecule:
     """
     id: str
     label: str
-    species: str
     shape: str
+    # Computed, never authored here: back-filled by validate_vibrations() from
+    # the `molecule` field in species.jsonc, so the molecule/species link is
+    # written down in exactly one place. Same pattern as VibrationMode.bands.
+    species: str = field(default="", init=False)
     band_groups: list[str] = field(default_factory=list)
     topologies: list[Topology] = field(default_factory=list)
     modes: list[VibrationMode] = field(default_factory=list)
@@ -299,6 +435,8 @@ class Vibrations:
 @dataclass
 class Band:
     id: str
+    # Key into data/species.jsonc. The chemical identity only: phase, binding
+    # geometry and isotopologue each have their own field below.
     species: str
     group: str
     vibration: Vibration
@@ -310,6 +448,17 @@ class Band:
     based_on: list[BasedOn] = field(default_factory=list)
     references: list[Reference] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
+
+    # gas | adsorbed | surface, or None when the band applies to both the free
+    # molecule and its adsorbed form. tag_phase() derives the "gas-phase" tag
+    # from this, so that tag is never authored.
+    phase: Optional[Phase] = None
+
+    # Binding geometry, as a Topology id declared by this species' molecule in
+    # vibrations.jsonc (monodentate/bidentate, or CO's linear/bridged/hollow/
+    # geminal/isocarbonyl). None for a gas-phase band, and for a band whose
+    # source does not resolve the geometry.
+    topology: Optional[str] = None
 
     # Fermi resonance: id of the other band in the doublet, if any. Reciprocal
     # when complete (A.fermi_partner == B.id and B.fermi_partner == A.id); the
@@ -335,7 +484,7 @@ class Band:
     # ν(C-D) of κ²-DCOO* vs ν(C-H) of κ²-HCOO*). One-directional, child ->
     # parent: only the substituted band carries the link, the natural-
     # abundance parent stays unmarked. Both fields are set together or
-    # neither; tag_isotopologues() then auto-assigns the "isotopic-shift"
+    # neither; tag_isotopologues() then auto-assigns the "isotope"
     # tag to the child alone — that tag means "this band IS an
     # isotopologue", never "this assignment was checked with isotopes"
     # (which is a per-citation "isotope-labeling" reference tag instead).
@@ -352,10 +501,6 @@ class Band:
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
     width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad
     confidence: Optional[BandConfidence] = None # confirmed | likely | tentative | speculative
-
-    # Legacy field kept until the loader is rewritten to use group-based lanes.
-    # Used by layout.assign_lanes() for now.
-    pair: Optional[int] = None
 
     # Optional, manually-authored link(s) to VibrationMode.id in
     # vibrations.jsonc — this band documents that mode on the vibration-modes
@@ -389,13 +534,19 @@ class Band:
     def wn_center(self) -> float:
         return (self.wn_start + self.wn_end) / 2
 
-    @property
-    def label(self) -> str:
-        """Display label, falling back to species + vibration if no short."""
+    def label_for(self, species: "dict[str, Species] | None" = None) -> str:
+        """Display label, falling back to species + vibration if no short.
+
+        `species` is the lookup from species.jsonc: Band.species is a key now,
+        so the readable name has to be resolved rather than printed directly.
+        """
         if self.short:
             return self.short
+        name = self.species
+        if species and self.species in species:
+            name = species[self.species].label
         sub = f" {self.vibration.subtype}" if self.vibration.subtype else ""
-        return f"{self.species}{sub} {self.vibration.category}"
+        return f"{name}{sub} {self.vibration.category}"
 
     @property
     def is_derived(self) -> bool:
@@ -426,12 +577,44 @@ class Group:
 
 
 @dataclass
+class GroupSet:
+    """A named selection of groups, for the band chart's filter.
+
+    Which families belong to one question is an editorial judgement about the
+    dataset, the same kind of statement as a group's colour, so it lives in
+    bands.jsonc rather than in the frontend. Nothing points at a set: it is a
+    view over the groups, not a property of a band. The filter offers "All
+    groups" on top of whatever is defined here; that one is built in.
+    """
+    key: str
+    label: str
+    groups: list[str] = field(default_factory=list)
+    note: str = ""
+
+
+@dataclass
 class Dataset:
-    """Everything loaded from the JSONC: metadata + lookups + bands."""
+    """Everything loaded from the JSONC: metadata + lookups + bands.
+
+    regions/groups/sets/lanes come from bands.jsonc's own header; surfaces
+    come from surfaces.jsonc and species from species.jsonc, attached by
+    build.py before validation so every cross-file key is checked in one
+    pass.
+    """
     metadata: dict
     regions: dict[str, Region]
     groups: dict[str, Group]
+    sets: dict[str, GroupSet]
+    # The chart's rows, top to bottom; each names the groups sharing that row.
+    lanes: list[list[str]]
     bands: list[Band]
+    surfaces: dict[str, Surface] = field(default_factory=dict)
+    species: dict[str, Species] = field(default_factory=dict)
+
+    def species_label(self, key: str) -> str:
+        """Readable name for a species key, falling back to the key itself."""
+        sp = self.species.get(key)
+        return sp.label if sp else key
 
     def band_by_id(self, band_id: str) -> Band:
         for b in self.bands:

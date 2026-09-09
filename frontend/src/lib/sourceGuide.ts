@@ -1,0 +1,490 @@
+/**
+ * How a paper becomes data in this atlas.
+ *
+ * The other two specification modules describe the artefact: `tokens.ts` says
+ * what the interface looks like, `dataModel.ts` says what the entities are.
+ * This one says how to get from a PDF to a correct entry, which is the part
+ * that is normally carried in somebody's head and lost when they stop.
+ *
+ * It is written as a checklist rather than an essay because that is how it is
+ * used: open the paper, work down the list, run the build. `SourceGuidePage`
+ * renders it, and nothing else reads it, so adding a section here is all it
+ * takes to publish one.
+ *
+ * Every rule below is a rule about *this* dataset, not about spectroscopy in
+ * general. Where a rule exists because the schema enforces it, the field is
+ * named, so the guide and the validator can be checked against each other.
+ */
+
+export interface GuideExample {
+  caption: string;
+  /** JSONC, shown verbatim in a code block. */
+  code: string;
+  /** One line under the block, for the part the code cannot say. */
+  note?: string;
+}
+
+export interface GuideTable {
+  head: [string, string];
+  rows: [string, string][];
+}
+
+export interface GuideSection {
+  id: string;
+  /** Sidebar label. */
+  label: string;
+  /** True for a part heading, which carries `lead` and nothing else. */
+  part?: boolean;
+  title: string;
+  /** One or more paragraphs of prose. */
+  lead: string[];
+  /** An ordered procedure, where order matters. */
+  steps?: string[];
+  /** Unordered rules that all hold at once. */
+  rules?: string[];
+  /** The mistakes this section exists to prevent. */
+  never?: string[];
+  table?: GuideTable;
+  example?: GuideExample;
+  checklist?: string[];
+}
+
+export const GUIDE: GuideSection[] = [
+  /* =======================================================================
+     Part 1
+     ======================================================================= */
+  {
+    id: 'what',
+    label: '1 · What is recorded',
+    part: true,
+    title: '1 · What is recorded',
+    lead: [
+      'This atlas is a map of what the literature says an infrared band is. It is not a table of ' +
+      'measurements and not a review: it keeps every source’s own statement, including the ones that ' +
+      'disagree, and leaves the reader to weigh them.',
+    ],
+  },
+  {
+    id: 'claim',
+    label: 'One paper, one claim',
+    title: 'One paper, one claim',
+    lead: [
+      'A band here is a mode, not a number. The numbers belong to the papers, and the papers disagree, ' +
+      'so every source that reports a band gets its own row on it: the position it reports, the surface ' +
+      'it saw it on, how it measured, and what it said. Nothing is averaged and nothing is merged.',
+      'That split decides where every fact goes. If something is true of the mode wherever it appears, ' +
+      'it belongs to the band. If it is true only because one group ran one experiment, it belongs to ' +
+      'that group’s claim and nowhere else.',
+    ],
+    table: {
+      head: ['The paper gives you', 'It goes in'],
+      rows: [
+        ['A peak position', 'references[].wn'],
+        ['The surface the band was assigned to', 'references[].measured_on'],
+        ['How the spectrum was taken', 'references[].technique'],
+        ['Temperature, pressure, feed, pretreatment', 'references[].note'],
+        ['What the mode is, and what it is confused with', 'band.description'],
+        ['How strong, how broad, how certain', 'band.intensity / width / confidence'],
+        ['Evidence the assignment rests on', 'references[].tags'],
+      ],
+    },
+    never: [
+      'Never average two papers into one number, and never replace one paper’s value with a newer one. ' +
+      'Two rows that disagree are the point.',
+      'Never write a fact into prose when it has a field. A wavenumber in a note is invisible to the chart.',
+    ],
+  },
+  {
+    id: 'before',
+    label: 'Before adding anything',
+    title: 'Before adding anything, find what is already there',
+    lead: [
+      'Search the atlas by species and mode, never by wavenumber. Two unrelated modes land on the same ' +
+      'number all the time, and one mode moves by tens of cm⁻¹ between surfaces, so the number is the ' +
+      'worst possible key to search on.',
+    ],
+    steps: [
+      'Work out what the paper is actually claiming: which species, which mode, on what. Note whether ' +
+      'the paper argues for the assignment or inherits it from a citation, because that decides the ' +
+      'confidence later.',
+      'Look for an existing band with that species and that vibration. If one exists, you are adding a ' +
+      'claim to it, not creating a band.',
+      'Create a new band only when the species, the mode, the binding topology or the phase genuinely ' +
+      'differs from every existing one.',
+      'If the paper’s number falls outside the band’s wn_start/wn_end, widen the window only if you ' +
+      'believe the number. The window is the envelope of credible positions, not of every printed value.',
+      'If the paper contradicts the atlas’s assignment rather than extending it, still record the claim. ' +
+      'Say what it argues in the note, and consider a caveat tag on the band.',
+    ],
+    never: [
+      'Never create a second band because one paper reports a different position for the same mode. ' +
+      'That is a second claim on the same band.',
+    ],
+  },
+
+  /* =======================================================================
+     Part 2
+     ======================================================================= */
+  {
+    id: 'reading',
+    label: '2 · Reading one claim',
+    part: true,
+    title: '2 · Reading one claim out of the paper',
+    lead: [
+      'A claim is one object in `band.references[]`. Five fields, and each of them has exactly one kind ' +
+      'of content. Most mistakes in this dataset are a fact written into the wrong one.',
+    ],
+  },
+  {
+    id: 'number',
+    label: 'The number',
+    title: 'The number',
+    lead: [
+      '`wn` is the position this source reports, as printed. It is not the band’s position: the band ' +
+      'carries a window, and the claim carries the paper’s point inside it.',
+    ],
+    rules: [
+      'Take the value from the paper’s own table or text. A shoulder is a position too.',
+      'If you read a number off a figure because the paper does not tabulate it, say so in the note.',
+      'Use an array only when one source resolves several components of the same band: a multiplet, a ' +
+      'set of maxima across a temperature series. A range in the prose ("1580 to 1600") is not an ' +
+      'array: take the value the paper assigns and put the spread in the note.',
+      'Leave `wn` out when the paper names the band without giving a number. The row still carries the ' +
+      'surface, the technique and the note, and that is a real citation.',
+    ],
+    never: [
+      'Never put an isotopologue’s number here. See Isotopes.',
+      'Never nudge a number to fit the band’s window, and never round the paper’s value.',
+    ],
+    example: {
+      caption: 'One source resolving five maxima of one band (formate_cd_stretch)',
+      code: `{
+  "key": "Phongprueksathat.KeyDriversActivity.2026",
+  "wn": [2167, 2173, 2161, 2176, 2169],
+  "measured_on": "cu_0",
+  "technique": "drifts",
+  "note": "Fig. 5b (MCR-resolved, Cu–Zn/SiO₂ SSITKA, 230 °C, 10 bar):
+    κ²-DCOO*(Cu) at 2167 cm⁻¹. Per catalyst in the SI: 2161 (Cu/SiO₂),
+    2176 (Cu–Ga) …"
+}`,
+      note: 'Five numbers for one band, from one paper. Two papers reporting one number each are two rows, not an array.',
+    },
+  },
+  {
+    id: 'surface',
+    label: 'Site, phase or sample',
+    title: 'Where it was measured: site, phase or sample',
+    lead: [
+      '`measured_on` takes one or more keys from `data/surfaces.jsonc`, and every entry there carries a ' +
+      '`level`: a **site** is the atom-scale spot the molecule is bonded to, a **phase** is a constituent ' +
+      'named by composition, a **sample** is what was in the cell.',
+      'The level is not a judgement about the paper’s quality. It records how specific the paper chose ' +
+      'to be, and a paper that names only the catalyst has given a complete answer at its own level.',
+    ],
+    steps: [
+      'Copy the paper’s own phrase before deciding anything: "on Cu⁺ sites of the Cu/ZnO catalyst", ' +
+      '"over bare TiO₂", "at the metal-support perimeter". Use the sentence that makes the assignment, ' +
+      'not the methods section.',
+      'Ask what that sentence names: an atom-scale spot, a compound, a whole catalyst, or several of them.',
+      'Write one key per thing it names. Both, when it names both.',
+      'If it names only the catalyst, that is the whole answer. A site key asserts that the paper said ' +
+      'so, so promoting a guess to a site puts words in its mouth.',
+      'A compound is a phase when it is a constituent and a sample when it is the whole thing. The same ' +
+      'key covers both roles, so there is nothing to decide: use `tio2` alone for bare titania, and ' +
+      '["tio2", "<the sample>"] when titania is the support the band was assigned to.',
+      'A gas-phase band takes the sample the gas was measured over, or nothing at all. Never a site: a ' +
+      'free molecule sits on nothing, and the build warns about it.',
+      'Check the key exists in surfaces.jsonc. If it does not, add it rather than bending the claim to ' +
+      'a key that nearly fits.',
+    ],
+    table: {
+      head: ['The paper says', 'measured_on'],
+      rows: [
+        ['"ν(CO) on Cu⁺ of the Cu/ZnO catalyst"', '["cu_1p", "cu_zno"]'],
+        ['"over the CuGaZrOx catalyst"', '"cugazrox"'],
+        ['"formate on the alumina support" (of Ru/Al₂O₃)', '["al2o3", "ru_al2o3"]'],
+        ['"on bare TiO₂"', '"tio2"'],
+        ['"at the Pt-ceria interface"', '["pt0_ceo2_interface"]'],
+        ['"at oxygen vacancies"', '["o_vac", "<the sample>"]'],
+        ['"gas-phase CO₂ in the cell"', '"<the sample>", or nothing'],
+        ['"on oxidised copper" (no state given)', 'the sample, and the paper’s wording in the note'],
+      ],
+    },
+    never: [
+      'Never invent an oxidation state the paper does not give. "Oxidised copper" is not cu_1p.',
+      'Never drop the sample because you have the site. Both keys cost nothing and answer different questions.',
+    ],
+    example: {
+      caption: '"Zr⁴⁺ on CuGaZrOx" is one claim with two keys (methoxy_asym)',
+      code: `{
+  "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+  "wn": 2970,
+  "measured_on": ["zr_4p", "cugazrox"],
+  "technique": "drifts",
+  "note": "…"
+}`,
+      note: 'The site is what the paper assigned the band to; the sample is what was in the cell. A query for either one finds this row.',
+    },
+  },
+  {
+    id: 'new-surface',
+    label: 'Adding a surface',
+    title: 'Adding a surface entry',
+    lead: [
+      'A new key is cheap and a wrong key is expensive, so add one whenever the paper names something ' +
+      'the table does not have.',
+    ],
+    steps: [
+      'Pick the level first. It decides which fields the entry carries and how the badge is drawn.',
+      'Key: ASCII, lower case, charge spelled out (`cu_1p`, `zr_4p`, `o_vac`). Element-symbol keys always ' +
+      'mean the element, so `co_0` is cobalt metal and never carbon monoxide.',
+      'Label: Unicode, exactly as a reader would write it (`Cu⁺`, `Fe₃O₄(001)`).',
+      'A site gets `kind` and, where it applies, `element` and `oxidation_state`. A phase gets `formula` ' +
+      'and `elements`. A sample gets `composition`, `elements` and, for a single crystal, `facet`.',
+      'Add the new key to the `parts` of whatever contains it, and to nothing else. `parts` points down ' +
+      'the scale only: a sample lists its phases and sites, a phase lists its sites.',
+      'Run `python build.py`. It fails if a part sits at a coarser level than its container, or if a ' +
+      'container does not list the elements of something it contains.',
+    ],
+    rules: [
+      '`elements` is authored, never parsed out of the composition string. The strings are written the ' +
+      'way the literature writes them (Ru/"Na₂O"/Al₂O₃) and parsing them back is exactly the fragile ' +
+      'step this table exists to remove.',
+      'An interface site is the one entry allowed to name a phase in its `parts`, because a perimeter ' +
+      'is the metal against the oxide rather than the metal against one cation.',
+    ],
+  },
+  {
+    id: 'technique',
+    label: 'Technique',
+    title: 'How it was measured',
+    lead: [
+      'One value per claim, from a closed list, and `build.py` derives the tag chip from it. The field ' +
+      'is the sampling geometry, not the instrument: nearly every measurement here is an interferometer ' +
+      'measurement, so "FTIR" says nothing and is not a value.',
+    ],
+    table: {
+      head: ['Value', 'What it means'],
+      rows: [
+        ['drifts', 'Diffuse reflectance off a powder bed'],
+        ['transmission', 'Beam straight through a self-supporting wafer'],
+        ['atr', 'Attenuated total reflectance against an internal-reflection crystal'],
+        ['irras', 'Grazing-incidence reflection off a flat single crystal'],
+        ['pm_irras', 'Polarisation-modulated IRRAS'],
+        ['emission', 'The sample’s own thermal emission'],
+        ['computational', 'Not a measurement: a calculated frequency'],
+      ],
+    },
+    never: [
+      'Never guess the geometry from the catalyst. Leave it empty instead: the Dataset page counts the ' +
+      'gaps, and a gap is honest where a guess is not.',
+      'Never author the matching tag by hand. The build writes it.',
+    ],
+  },
+  {
+    id: 'conditions',
+    label: 'Conditions and the note',
+    title: 'Conditions, and the rest of the note',
+    lead: [
+      'The note is everything true of this paper and this claim alone, at most 150 words. It is prose ' +
+      'on purpose: conditions are not comparable enough between papers to be worth a schema yet, and a ' +
+      'half-filled set of condition fields would be worse than a sentence.',
+      'Write it so a reader can tell whether the number applies to their own experiment. That is the ' +
+      'whole test.',
+    ],
+    steps: [
+      'Where the number came from, when the paper has many: "Table 3, band J", "Fig. 4b".',
+      'What the sample was and what was done to it, because that decides which sites exist at all: ' +
+      '"reduced in H₂ at 573 K for 1 h", "calcined, not reduced".',
+      'The conditions themselves, in one compact clause: "473 K, 20 bar, CO₂/H₂ = 1:3, 30 mL min⁻¹".',
+      'What this paper observed or argued that a reader needs: transient behaviour, co-adsorbates, the ' +
+      'comparison it drew, the band it distinguished this one from.',
+      'The caveat, last: an overlapping band, a difference spectrum and against which background, a ' +
+      'saturated detector, a number read off a figure.',
+    ],
+    rules: [
+      'Keep the paper’s own units and numbers. If it says 200 °C, write 200 °C; converting silently ' +
+      'loses the fact that the paper chose that unit, and invites a rounding error for nothing.',
+      'Unicode throughout: cm⁻¹, °C, mL min⁻¹, CO₂/H₂, ¹³CO. No markup, no LaTeX, no bare CO2.',
+      'Name the other band when the paper distinguishes this one from it. That is the most useful ' +
+      'sentence a note can carry.',
+    ],
+    never: [
+      'The wavenumber (that is `wn`), the surface (`measured_on`), the technique (`technique`).',
+      'Anything true of the band in general. That is `description`, on the band, 100 to 120 words.',
+      'Conclusions the paper does not draw. If you are inferring, either leave it out or say who is inferring.',
+    ],
+    example: {
+      caption: 'A note that passes the test',
+      code: `"note": "Table 3, band J: very strong, narrow Q branch, ν₁+ν₂ …
+  Particularly pronounced in their long-path-length Praying Mantis
+  HTRC cell; intensity amplified at elevated CO₂ pressures."`,
+      note: 'Where it came from, then what was special about this measurement, then the caveat.',
+    },
+  },
+  {
+    id: 'isotopes',
+    label: 'Isotopes',
+    title: 'Isotopes',
+    lead: [
+      'Two different things get confused here and they are recorded in completely different places. One ' +
+      'question separates them: **is the band itself a different molecule?**',
+    ],
+    table: {
+      head: ['The paper', 'Record it as'],
+      rows: [
+        [
+          'Measured the substituted molecule and reports its band: ν(C–D) of DCOO*, ν(¹³CO), ν(OD) of CH₃OD',
+          'A band of its own, with `isotopologue_of` pointing at the natural-abundance band and `isotope` ' +
+          'naming the substitution ("D", "¹³C")',
+        ],
+        [
+          'Used substitution as evidence that an ordinary band is what it says (the band shifts on ' +
+          'deuteration, so it must involve H)',
+          'The ordinary band, unchanged. The claim gets the `isotope-labeling` tag',
+        ],
+      ],
+    },
+    rules: [
+      'The child band keeps the ordinary species key: `formate`, not a deuterated species. The ' +
+      'substitution lives in `isotope` and nowhere else.',
+      '`atoms` keeps the ordinary symbols too: a C–D stretch is `C-H`. A heavier nucleus is not a ' +
+      'different bond, and that field drives the colormap for which bond moves.',
+      '`short` is where the isotopologue is spelled out for the reader: `ν(CD) DCOO*`, `ν(¹³CO) linear (μ₁)`.',
+      'The link is one-directional, child to parent, and never chained. `build.py` adds the `isotope` ' +
+      'tag to the child; the parent is not relabelled because someone measured its heavy twin.',
+      'Both bands then collect their own claims, each with its own window.',
+    ],
+    never: [
+      'Never record the substituted position as a second `wn` on the parent’s claim. It is the commonest ' +
+      'way this dataset goes wrong: the parent’s window silently widens to cover a band that is not it.',
+      'Never author the `isotope` tag. It is derived from `isotopologue_of`.',
+    ],
+    example: {
+      caption: 'The deuterated formate C–H stretch',
+      code: `"formate_cd_stretch": {
+  "species": "formate",
+  "isotopologue_of": "formate_ch_stretch",
+  "isotope": "D",
+  "atoms": "C-H",
+  "short": "ν(CD) DCOO*",
+  "wn_start": 2155, "wn_end": 2192
+}`,
+      note: 'Ordinary species, ordinary atoms, the substitution in one field, and its own window.',
+    },
+  },
+  {
+    id: 'judgement',
+    label: 'Intensity, width, confidence',
+    title: 'Intensity, width, confidence',
+    lead: [
+      'These three are the reader’s shortcut to how much weight a band carries, so they have to come ' +
+      'from the paper rather than from an impression of the figure.',
+    ],
+    rules: [
+      '`intensity` (vs, s, m, w, vw) and `width` (sharp, medium, broad, very_broad): take the paper’s ' +
+      'own adjective and map it. Omit both rather than estimating from a plot.',
+      '`confidence` reads the paper’s hedging, and never upgrades it: **confirmed** when the paper ' +
+      'demonstrates the assignment (substitution, dosing, a calculation that matches); **likely** for a ' +
+      'standard assignment consistent with the literature; **tentative** when the paper hedges; ' +
+      '**speculative** when it offers the assignment as one option among several.',
+      'All three sit on the band, not the claim, which is a known compromise: they describe an ' +
+      'observation but are authored once. When two papers disagree strongly, the disagreement belongs ' +
+      'in the notes.',
+    ],
+  },
+  {
+    id: 'tags',
+    label: 'Tags',
+    title: 'Tags',
+    lead: [
+      'Tags are a flat namespace with a role behind each one, and roughly half of them are written by ' +
+      'the build from a field. Authoring a derived tag is an error, not a shortcut.',
+    ],
+    table: {
+      head: ['Do not author', 'It is derived from'],
+      rows: [
+        ['gas-phase', 'band.phase'],
+        ['drifts, transmission, computational', 'references[].technique'],
+        ['fermi-resonance', 'band.fermi_partner'],
+        ['rotational-branches', 'band.branch_group'],
+        ['isotope', 'band.isotopologue_of'],
+        ['ir-active, raman-active', 'the mode’s own booleans'],
+      ],
+    },
+    rules: [
+      'Author the evidence tags on the claim, where they belong: `direct-dosing`, `isotope-labeling`.',
+      'Author the caveat tags where a reader would be caught out: `misassignment-warning` when the ' +
+      'position is a known trap, `site-sensitive` when the position moves with the surface so a shift ' +
+      'is not by itself a different species. Caveats are the one role with a colour of its own.',
+      'A new tag needs an entry in `TAG_ROLES` and a tip in `data/tags.jsonc` in the same change.',
+    ],
+  },
+
+  /* =======================================================================
+     Part 3
+     ======================================================================= */
+  {
+    id: 'again',
+    label: '3 · Going over it again',
+    part: true,
+    title: '3 · Going over a paper again',
+    lead: [
+      'A second pass is not a sign the first was careless. The first pass is done against an incomplete ' +
+      'atlas: keys, bands and conventions arrive later, and a row that was as specific as the data ' +
+      'allowed in March can be sharpened in September.',
+    ],
+  },
+  {
+    id: 'second-pass',
+    label: 'What to look for',
+    title: 'What to look for the second time',
+    lead: [
+      'Open the References page grouped by Reference, read the paper’s own table of assignments beside ' +
+      'it, and work down this list. Most of it is upgrading, not correcting.',
+    ],
+    steps: [
+      'Missing claims. Compare the rows against every assignment the paper actually makes. Bands the ' +
+      'atlas did not have on the first pass are the commonest gap.',
+      'Surfaces that can be sharpened. Did the paper name a site where the row records only a sample? ' +
+      'Re-read the sentence that makes the assignment, not the methods. This is the most valuable ' +
+      'single upgrade, because it is what a site query runs on.',
+      'Claims with no technique. The Dataset page lists them.',
+      'Notes carrying a wavenumber, a surface or a technique in prose. Move each into its field.',
+      'Notes over 150 words and descriptions over 120. The build warns; the fix is usually that ' +
+      'paper-specific detail drifted into the description.',
+      'Isotope work recorded as an extra number on the parent band instead of its own band.',
+      'Caveats the paper states that the atlas does not. A paper warning about an overlap is exactly ' +
+      'what `misassignment-warning` is for.',
+      'Disagreements. If the paper assigns a band differently from the atlas, that is content: record ' +
+      'the claim and say what it argues.',
+    ],
+    never: [
+      'Never silently change an earlier claim’s number to the one you now read. Either the old number ' +
+      'was an error, and you correct it and say so, or it was a different feature, and it is a second row.',
+      'Never delete a claim because a newer paper disagrees.',
+    ],
+  },
+  {
+    id: 'checklist',
+    label: 'Before the build',
+    title: 'Before you run the build',
+    lead: [
+      'Then run `python build.py`, and read the warnings, not only the errors. Errors are broken ' +
+      'references; warnings are the things nobody will notice for a year.',
+    ],
+    checklist: [
+      'Every claim’s `key` resolves to an entry in references.bib.',
+      'Every `measured_on` key exists in surfaces.jsonc, at the level the paper chose.',
+      'No derived tag has been authored by hand.',
+      'Every isotopologue is its own band, linked with `isotopologue_of`.',
+      'Notes carry conditions and caveats, not wavenumbers or surfaces.',
+      'Unicode everywhere, no markup, no underscores outside machine identifiers.',
+      'New surfaces are listed in the `parts` of whatever contains them.',
+      '`python build.py` passes, and its warning list is no longer than it was before.',
+    ],
+  },
+];
+
+/** Sidebar table of contents, derived so it cannot drift from the guide. */
+export const GUIDE_SECTIONS = GUIDE.map(s => ({ id: s.id, label: s.label, part: s.part }));

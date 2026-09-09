@@ -1,0 +1,346 @@
+// =============================================================================
+// Surfaces: where a band was measured, at whatever scale the paper said.
+// -----------------------------------------------------------------------------
+// This file is JSONC (JSON with Comments). The build step strips // and /* */
+// comments before shipping clean JSON to the browser.
+//
+// ONE TABLE, THREE LEVELS
+// "Where was this measured" does not have one answer, it has a scale. A paper
+// might say Cu⁺, or TiO₂, or Pt/TiO₂, and all three are true at once. Rather
+// than forcing each into a separate table and then arguing about which one
+// TiO₂ belongs in, every entry here is a surface with a `level` saying how
+// specific it is:
+//
+//   site    the atom-scale spot the molecule is bonded to: a cation, a
+//           reduced metal atom, a vacancy, a proton, or a named ensemble of
+//           those. This is what "site" means strictly.
+//   phase   a constituent of a sample, named by composition: TiO₂, Al₂O₃,
+//           ZnO. Strictly the molecule sits on some site *within* the phase
+//           (on TiO₂ it is a Ti⁴⁺ or a surface O), but papers very often
+//           report only the phase, and recording that honestly beats guessing.
+//   sample  what was actually in the cell: Cu/ZnO, Ru/Al₂O₃, Fe₃O₄(001).
+//
+// The same entry can play more than one role without changing: TiO₂ is the
+// sample when a paper measures bare titania, and the phase when the same
+// titania is the support in Pt/TiO₂. That ambiguity is in the chemistry, not
+// in the schema, so the schema does not try to resolve it.
+//
+// `parts` is the one containment link, and it points down the scale: a sample
+// lists its phases and the sites it presents, a phase lists the sites within
+// it, a composite site lists the simpler sites it is built from. It is what
+// lets a query for Cu⁺ reach the bands whose paper only named Cu/ZnO, and
+// what would let a query for Ti⁴⁺ reach the ones that only named TiO₂ (add
+// the cation as a site entry and list it under the phase to say so).
+//
+// The one exception is an interface site (kind: interface), which may name a
+// phase among its parts: the Pt⁰-CeO₂ perimeter is not a Pt atom plus a Ce
+// cation, it is the metal against the oxide, so the phase is what it is made
+// of. build.py rejects a coarser part anywhere else.
+//
+// A band reference names surfaces in ONE field:
+//   measured_on — one or more keys from this table, at any level. A paper
+//                 that named both the site and the sample gets both, a paper
+//                 that named only the catalyst gets one, and neither is a
+//                 lesser record than the other.
+//
+// IDS ARE ASCII, LABELS CARRY THE UNICODE
+// Same convention as band ids, group keys and species keys: the key is a
+// machine identifier (`cu_1p`), the label is what a reader sees (`Cu⁺`).
+// Charge is spelled out as `_0`, `_1p`, `_2p` and so on. Element-symbol ids in
+// this file always mean the element (`co_0` is cobalt metal, never carbon
+// monoxide).
+//
+// -----------------------------------------------------------------------------
+// SCHEMA
+//   <key>:             ASCII identifier, referenced by
+//                        band.references[].measured_on
+//     label:           display text, Unicode (required)
+//     level:           site | phase | sample (required). It decides how the
+//                        badge is drawn: a site is filled, a phase or sample
+//                        is hollow, so the scale is visible at a glance.
+//     kind:            for a site only: metal | cation | defect | interface |
+//                        bronsted (optional)
+//     element:         element symbol, for an atom-scale site (optional)
+//     oxidation_state: integer, for metal/cation sites (optional)
+//     formula:         Unicode formula, for a phase (optional)
+//     composition:     the sample as the literature writes it, for a sample
+//                        (optional)
+//     elements:        every element this surface contains, as symbols. What
+//                        answers "anything on a Cu-containing sample",
+//                        whichever level the claim named (optional for a
+//                        site, where `element` already says it)
+//     facet:           crystallographic termination, for a single crystal
+//                        (optional)
+//     parts:           keys of the surfaces one scale down (optional). See
+//                        above: this is the only containment link.
+//     note:            one sentence, shown on the Dataset page (optional)
+//
+// KEEP IN SYNC: adding, renaming or removing a key here means updating
+// data/bands.jsonc in the same change. build.py fails on an unresolved key.
+// =============================================================================
+{
+  "surfaces": {
+
+    // ── Sites: the atom-scale spot a molecule is bonded to ──
+    "cu_0": {
+      "label": "Cu⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Cu",
+      "oxidation_state": 0,
+      "note": "Metallic copper. Carries ν(CO) roughly 40–80 cm⁻¹ below the Cu⁺ carbonyl."
+    },
+    "pd_0": {
+      "label": "Pd⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Pd",
+      "oxidation_state": 0
+    },
+    "co_0": {
+      "label": "Co⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Co",
+      "oxidation_state": 0
+    },
+    "pt_0": {
+      "label": "Pt⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Pt",
+      "oxidation_state": 0
+    },
+    "ru_0": {
+      "label": "Ru⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ru",
+      "oxidation_state": 0
+    },
+    "ga_0": {
+      "label": "Ga",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ga",
+      "oxidation_state": 0,
+      "note": "Written without a charge in the source; read as reduced gallium rather than Ga³⁺."
+    },
+    "cu_1p": {
+      "label": "Cu⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Cu",
+      "oxidation_state": 1,
+      "note": "The carbonyl marker that separates a partly oxidised copper surface from Cu⁰."
+    },
+    "zn_2p": {
+      "label": "Zn²⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Zn",
+      "oxidation_state": 2
+    },
+    "zr_4p": {
+      "label": "Zr⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Zr",
+      "oxidation_state": 4
+    },
+    "hf_4p": {
+      "label": "Hf⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Hf",
+      "oxidation_state": 4
+    },
+    "ga_3p": {
+      "label": "Ga³⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ga",
+      "oxidation_state": 3
+    },
+    "in_3p": {
+      "label": "In³⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "In",
+      "oxidation_state": 3
+    },
+    "li_1p": {
+      "label": "Li⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Li",
+      "oxidation_state": 1
+    },
+    "na_1p": {
+      "label": "Na⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Na",
+      "oxidation_state": 1
+    },
+    "k_1p": {
+      "label": "K⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "K",
+      "oxidation_state": 1
+    },
+    "rb_1p": {
+      "label": "Rb⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Rb",
+      "oxidation_state": 1
+    },
+    "cs_1p": {
+      "label": "Cs⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Cs",
+      "oxidation_state": 1
+    },
+    "h_bronsted": {
+      "label": "H⁺ (Brønsted)",
+      "level": "site",
+      "kind": "bronsted",
+      "element": "H",
+      "note": "A proton-donating surface hydroxyl, as opposed to the Lewis-acidic cations above."
+    },
+    "o_vac": {
+      "label": "Vₒ",
+      "level": "site",
+      "kind": "defect",
+      "note": "A bare oxygen vacancy. Listed on its own so ensembles can point at it."
+    },
+    "zn_ovac_hf": {
+      "label": "Zn–Vₒ–Hf",
+      "level": "site",
+      "kind": "defect",
+      "parts": ["zn_2p", "o_vac", "hf_4p"],
+      "note": "An oxygen vacancy flanked by Zn and Hf: the two cations and the vacancy act as one site."
+    },
+    "pt0_ceo2_interface": {
+      "label": "Pt⁰-CeO₂ interface",
+      "level": "site",
+      "kind": "interface",
+      "parts": ["pt_0", "ceo2"],
+      "note": "The perimeter where the metal particle meets the reducible support, not either phase alone."
+    },
+
+    // ── Phases: a constituent of a sample, named by composition ──
+    "al2o3": {
+      "label": "Al₂O₃",
+      "level": "phase",
+      "formula": "Al₂O₃",
+      "elements": ["Al", "O"]
+    },
+    "tio2": {
+      "label": "TiO₂",
+      "level": "phase",
+      "formula": "TiO₂",
+      "elements": ["Ti", "O"]
+    },
+    "ceo2": {
+      "label": "CeO₂",
+      "level": "phase",
+      "formula": "CeO₂",
+      "elements": ["Ce", "O"]
+    },
+    "zno": {
+      "label": "ZnO",
+      "level": "phase",
+      "formula": "ZnO",
+      "elements": ["Zn", "O"],
+      "parts": ["zn_2p"]
+    },
+    "sio2": {
+      "label": "SiO₂",
+      "level": "phase",
+      "formula": "SiO₂",
+      "elements": ["Si", "O"]
+    },
+    "fe2o3": {
+      "label": "Fe₂O₃",
+      "level": "phase",
+      "formula": "Fe₂O₃",
+      "elements": ["Fe", "O"]
+    },
+    "fe3o4": {
+      "label": "Fe₃O₄",
+      "level": "phase",
+      "composition": "Fe₃O₄",
+      "elements": ["Fe", "O"],
+      "note": "Magnetite with no termination stated. The two facet variants below point at it."
+    },
+
+    // ── Samples: what was actually in the cell ──
+    "cu_zno": {
+      "label": "Cu/ZnO",
+      "level": "sample",
+      "composition": "Cu/ZnO",
+      "elements": ["Cu", "Zn", "O"],
+      "parts": ["cu_0", "cu_1p", "zn_2p", "zno"]
+    },
+    "cugazrox": {
+      "label": "CuGaZrOx",
+      "level": "sample",
+      "composition": "CuGaZrOx",
+      "elements": ["Cu", "Ga", "Zr", "O"],
+      "parts": ["cu_0", "cu_1p", "ga_3p", "zr_4p"],
+      "note": "Mixed oxide: written as one formula in the literature, but a multi-component sample."
+    },
+    "la_al2o3": {
+      "label": "La-Al₂O₃",
+      "level": "sample",
+      "composition": "La-Al₂O₃",
+      "elements": ["La", "Al", "O"],
+      "parts": ["al2o3"],
+      "note": "Lanthanum-doped alumina; the doping stabilises the support rather than adding an IR-visible site."
+    },
+    "ni_ce_fe_la_al2o3": {
+      "label": "Ni-Ce-Fe/La-Al₂O₃",
+      "level": "sample",
+      "composition": "Ni-Ce-Fe/La-Al₂O₃",
+      "elements": ["Ni", "Ce", "Fe", "La", "Al", "O"],
+      "parts": ["al2o3", "ceo2"]
+    },
+    "ru_al2o3": {
+      "label": "Ru/Al₂O₃",
+      "level": "sample",
+      "composition": "Ru/Al₂O₃",
+      "elements": ["Ru", "Al", "O"],
+      "parts": ["ru_0", "al2o3"]
+    },
+    "ru_na2o_al2o3": {
+      "label": "Ru/\"Na₂O\"/Al₂O₃",
+      "level": "sample",
+      "composition": "Ru/\"Na₂O\"/Al₂O₃",
+      "elements": ["Ru", "Na", "Al", "O"],
+      "parts": ["ru_0", "al2o3", "na_1p"],
+      "note": "The sodium-promoted counterpart of Ru/Al₂O₃; the quotes are the authors' own."
+    },
+    "fe3o4_001": {
+      "label": "Fe₃O₄(001)",
+      "level": "sample",
+      "composition": "Fe₃O₄",
+      "facet": "(001)",
+      "elements": ["Fe", "O"],
+      "parts": ["fe3o4"],
+      "note": "Single crystal. A facet is a sample, not a site: it says how the material was cut."
+    },
+    "fe3o4_111": {
+      "label": "Fe₃O₄(111)",
+      "level": "sample",
+      "composition": "Fe₃O₄",
+      "facet": "(111)",
+      "elements": ["Fe", "O"],
+      "parts": ["fe3o4"],
+      "note": "The other termination measured in the same study."
+    }
+  }
+}

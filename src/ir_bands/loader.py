@@ -14,9 +14,10 @@ from dataclasses import fields
 from pathlib import Path
 
 from ir_bands.schema import (
-    Band, BasedOn, Dataset, Group, Molecule, Reference, Region, Topology,
-    Vibration, VibrationMode, Vibrations,
-    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES,
+    Band, BasedOn, Dataset, Group, GroupSet, Molecule, Reference,
+    Region, Species, Surface, Topology, Vibration, VibrationMode, Vibrations,
+    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES,
+    VALID_TECHNIQUES,
     DESCRIPTION_MAX_WORDS, REFERENCE_NOTE_MAX_WORDS,
     MARKUP_EXEMPT_VIBRATION_FIELDS, SUBSCRIPT_CHARS,
 )
@@ -75,8 +76,8 @@ def _parse_reference(raw) -> Reference | None:
     """Normalize one references[] entry into a Reference.
 
     Accepts either a bare BibTeX key string (shorthand for {key}) or an
-    object {key, wn, site, note, tags}. key is the only required part;
-    entries without one are disregarded.
+    object {key, wn, measured_on, technique, note, tags}. key is the only
+    required part; entries without one are disregarded.
     """
     if isinstance(raw, str):
         return Reference(key=raw) if raw else None
@@ -87,7 +88,8 @@ def _parse_reference(raw) -> Reference | None:
         return Reference(
             key=key,
             wn=raw.get("wn"),
-            site=raw.get("site"),
+            measured_on=raw.get("measured_on"),
+            technique=raw.get("technique"),
             note=raw.get("note"),
             tags=list(raw.get("tags", [])),
         )
@@ -125,27 +127,48 @@ def _parse_band(raw: dict) -> Band:
         intensity=raw.get("intensity"),
         width=raw.get("width"),
         confidence=raw.get("confidence"),
-        pair=raw.get("pair"),
         fermi_partner=raw.get("fermi_partner"),
         fermi_partner_group=raw.get("fermi_partner_group"),
         branch_group=raw.get("branch_group"),
         isotopologue_of=raw.get("isotopologue_of"),
         isotope=raw.get("isotope"),
+        phase=raw.get("phase"),
+        topology=raw.get("topology"),
         vibration_modes=list(raw.get("vibration_modes", [])),
     )
 
 
-def load_dataset(path: str | Path) -> Dataset:
-    """Load and validate the band dataset from a JSONC file."""
+def load_dataset(path: str | Path, validate: bool = True) -> Dataset:
+    """Load the band dataset from a JSONC file.
+
+    `validate=False` skips the validation pass, for the caller that attaches
+    the species and surfaces tables first and validates once afterwards with
+    every cross-file key in scope (build.py). Left on by default so loading a
+    dataset on its own still checks what it can.
+    """
     raw = load_jsonc(path)
 
     metadata = raw.get("metadata", {})
     regions = {k: Region(key=k, **v) for k, v in raw.get("regions", {}).items()}
     groups = {k: Group(key=k, **v) for k, v in raw.get("groups", {}).items()}
+    sets = {
+        k: GroupSet(
+            key=k,
+            label=v["label"],
+            groups=list(v.get("groups", [])),
+            note=v.get("note", ""),
+        )
+        for k, v in raw.get("sets", {}).items()
+    }
+    lanes = [list(lane) for lane in raw.get("lanes", [])]
     bands = [_parse_band(b) for b in raw.get("bands", [])]
 
-    dataset = Dataset(metadata=metadata, regions=regions, groups=groups, bands=bands)
-    validate_dataset(dataset)
+    dataset = Dataset(
+        metadata=metadata, regions=regions, groups=groups, sets=sets,
+        lanes=lanes, bands=bands,
+    )
+    if validate:
+        validate_dataset(dataset)
     return dataset
 
 
@@ -227,6 +250,35 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
     for b in dataset.bands:
         if b.group not in dataset.groups:
             errors.append(f"Band {b.id}: group {b.group!r} not in groups table")
+
+    # 2a. Every group sits in exactly one lane. Without this the chart would
+    #     silently drop a group's bands, or draw them twice.
+    if dataset.lanes:
+        seen_in_lane: dict[str, int] = {}
+        for i, lane in enumerate(dataset.lanes):
+            if not lane:
+                errors.append(f"Lane {i}: names no groups")
+            for gk in lane:
+                if gk not in dataset.groups:
+                    errors.append(f"Lane {i}: group {gk!r} not in groups table")
+                elif gk in seen_in_lane:
+                    errors.append(
+                        f"Group {gk!r} is in two lanes ({seen_in_lane[gk]} and {i})"
+                    )
+                else:
+                    seen_in_lane[gk] = i
+        for gk in dataset.groups:
+            if gk not in seen_in_lane:
+                errors.append(f"Group {gk!r} is in no lane; add it to the lanes table")
+
+    # 2b. Every set names real groups, and says something (an empty set would
+    #     render as a filter that hides everything).
+    for gs in dataset.sets.values():
+        for gk in gs.groups:
+            if gk not in dataset.groups:
+                errors.append(f"Set {gs.key}: group {gk!r} not in groups table")
+        if not gs.groups:
+            errors.append(f"Set {gs.key}: names no groups")
 
     # 3. based_on cross-references resolve (band_id or branch_group)
     branch_group_set = {b.branch_group for b in dataset.bands if b.branch_group}
@@ -333,7 +385,6 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         for field, text in (
             ("short", b.short),
             ("description", b.description),
-            ("species", b.species),
         ):
             for frag in _markup_in(text):
                 warnings.append(
@@ -353,17 +404,18 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
     identifiers = set(id_set) | set(dataset.groups) | VALID_WIDTHS | VALID_INTENSITIES
     identifiers |= VALID_CONFIDENCES | branch_group_set
     identifiers |= {f.name for f in fields(Band)}
+    identifiers |= set(dataset.species) | set(dataset.surfaces)
+    identifiers |= VALID_PHASES | VALID_TECHNIQUES
+    # Only prose is checked. `species` and the surface fields used to be display
+    # text and were read here; they are keys into their own tables now, checked
+    # by resolution instead, and an underscore in a key is exactly right.
     for b in dataset.bands:
         checks = [
             ("short", b.short),
             ("description", b.description),
-            ("species", b.species),
         ]
         for ref in b.references:
             checks.append((f"reference {ref.key} note", ref.note))
-            for site in (ref.site if isinstance(ref.site, list) else [ref.site]):
-                if site:
-                    checks.append((f"reference {ref.key} site", site))
         for field, text in checks:
             for token, suggestion in _underscores_in(text, identifiers):
                 fix = (
@@ -377,7 +429,82 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                     f"text is a subscript that was never typed: {fix}"
                 )
 
-    # 11. Reference keys resolve (if a references map is provided)
+    # 11. Cross-file keys resolve: species and surfaces.
+    #     Skipped when the table is empty, the same way reference-key
+    #     validation is skipped without a references map, so the loader still
+    #     works on a dataset loaded on its own.
+    if dataset.species:
+        for b in dataset.bands:
+            if b.species not in dataset.species:
+                errors.append(
+                    f"Band {b.id}: species {b.species!r} not in species.jsonc"
+                )
+    for b in dataset.bands:
+        if b.phase is not None and b.phase not in VALID_PHASES:
+            errors.append(f"Band {b.id}: phase={b.phase!r} not in {sorted(VALID_PHASES)}")
+        if b.phase == "gas" and b.topology is not None:
+            errors.append(
+                f"Band {b.id}: phase=gas cannot have topology={b.topology!r}; "
+                "a free molecule has no binding geometry"
+            )
+
+    if dataset.surfaces:
+        for b in dataset.bands:
+            for ref in b.references:
+                for key in _as_list(ref.measured_on):
+                    if key not in dataset.surfaces:
+                        errors.append(
+                            f"Band {b.id}, reference {ref.key}: measured_on {key!r} "
+                            "not in surfaces.jsonc"
+                        )
+
+    # 12. A gas-phase band sits on nothing. Naming the sample it was measured
+    #     over is fine; naming a site is a leftover from before the band was
+    #     known to be gas phase, or a claim that belongs on an adsorbed band.
+    #     The level on the surface record is what tells the two apart.
+    for b_ in dataset.bands:
+        if b_.phase != "gas":
+            continue
+        for ref in b_.references:
+            for key in _as_list(ref.measured_on):
+                surf = dataset.surfaces.get(key)
+                if surf is not None and surf.level == "site":
+                    warnings.append(
+                        f"Band {b_.id}, reference {ref.key}: phase=gas but the claim "
+                        f"names site {key!r}; a free molecule sits on nothing"
+                    )
+
+    # 13. Rotational branches are one transition of one species, so siblings
+    #     that disagree about what they are looking at are a real error in the
+    #     data rather than a stylistic slip. Reported as a warning because
+    #     resolving it needs a judgement about the chemistry.
+    for key, members in branch_group_members_for(dataset).items():
+        species_seen = {b.species for b in members}
+        phases_seen = {b.phase for b in members if b.phase is not None}
+        if len(species_seen) > 1:
+            warnings.append(
+                f"branch_group {key!r}: members disagree on species "
+                f"({', '.join(sorted(species_seen))}); R/P/Q branches are one "
+                "transition of one species"
+            )
+        if len(phases_seen) > 1:
+            warnings.append(
+                f"branch_group {key!r}: members disagree on phase "
+                f"({', '.join(sorted(phases_seen))}); rotational branches only "
+                "exist for a freely rotating gas-phase molecule"
+            )
+
+    # 14. An isotopologue is the same species as its parent, just heavier.
+    by_id = {b.id: b for b in dataset.bands}
+    for b in dataset.bands:
+        parent = by_id.get(b.isotopologue_of) if b.isotopologue_of else None
+        if parent is not None and parent.species != b.species:
+            errors.append(
+                f"Band {b.id}: isotopologue_of points at {parent.id}, which is "
+                f"species {parent.species!r} rather than {b.species!r}"
+            )
+
+    # 15. Reference keys resolve (if a references map is provided)
     if references is not None:
         for b in dataset.bands:
             for ref in b.references:
@@ -476,7 +603,7 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
 
 
 def tag_isotopologues(dataset: Dataset) -> list[str]:
-    """Auto-assign the "isotopic-shift" tag to every band that declares an
+    """Auto-assign the "isotope" tag to every band that declares an
     isotopologue_of link — and only to those.
 
     Unlike tag_fermi_pairs/tag_branch_groups this link is deliberately
@@ -493,8 +620,8 @@ def tag_isotopologues(dataset: Dataset) -> list[str]:
     all three identically.
     """
     for b in dataset.bands:
-        if b.isotopologue_of and "isotopic-shift" not in b.tags:
-            b.tags.append("isotopic-shift")
+        if b.isotopologue_of and "isotope" not in b.tags:
+            b.tags.append("isotope")
     return []
 
 
@@ -540,10 +667,12 @@ def _parse_topology(raw: dict) -> Topology:
 
 
 def _parse_molecule(raw: dict) -> Molecule:
+    # `species` is deliberately not read here: the molecule/species link is
+    # authored once, in species.jsonc, and back-filled onto the Molecule by
+    # validate_vibrations(). Same one-place rule as Band.vibration_modes.
     return Molecule(
         id=raw["id"],
         label=raw["label"],
-        species=raw["species"],
         shape=raw["shape"],
         band_groups=list(raw.get("band_groups", [])),
         topologies=[_parse_topology(t) for t in raw.get("topologies", [])],
@@ -555,6 +684,149 @@ def load_vibrations(path: str | Path) -> Vibrations:
     """Load the vibrations content (molecules + their named modes)."""
     raw = load_jsonc(path)
     return Vibrations(molecules=[_parse_molecule(m) for m in raw.get("molecules", [])])
+
+
+def _as_list(value) -> list:
+    """Normalize the scalar-or-array fields (measured_on, wn) to a list."""
+    if value is None:
+        return []
+    return list(value) if isinstance(value, list) else [value]
+
+
+def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
+    """Bands grouped by their branch_group key, skipping the unbranched ones."""
+    groups: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            groups.setdefault(b.branch_group, []).append(b)
+    return groups
+
+
+def tag_phase(dataset: Dataset) -> list[str]:
+    """Derive the "gas-phase" tag from Band.phase.
+
+    The tag used to be authored by hand and was applied to 25 of the 33 bands
+    that deserved it, which is exactly what a field is for. Nothing else reads
+    phase in the frontend yet, so deriving the tag keeps the chart's existing
+    filter working while the fact itself lives in one place.
+    """
+    for b in dataset.bands:
+        if b.phase == "gas" and "gas-phase" not in b.tags:
+            b.tags.append("gas-phase")
+    return []
+
+
+def tag_techniques(dataset: Dataset) -> list[str]:
+    """Derive each citation's technique tag from Reference.technique.
+
+    Same reasoning as tag_phase: the technique is a field now, but the tag
+    chips in the chart legend and on the references page keep working because
+    the tag is regenerated here. The tag is simply the technique's own name.
+    """
+    for b in dataset.bands:
+        for ref in b.references:
+            if ref.technique and ref.technique not in ref.tags:
+                ref.tags.append(ref.technique)
+    return []
+
+
+def assign_reference_uids(dataset: Dataset) -> list[str]:
+    """Give every citation a stable handle: "<band id>::<citekey>".
+
+    A citation is a claim about one band by one paper, and it is the row a
+    site or technique query actually returns, so it needs to be addressable.
+    Derived rather than authored: nothing in the data file has to change, and
+    an ordinal is appended only where one paper makes several claims about the
+    same band (which happens three times today, all of them a second site or
+    a second reported position).
+    """
+    for b in dataset.bands:
+        seen: dict[str, int] = {}
+        for ref in b.references:
+            n = seen.get(ref.key, 0) + 1
+            seen[ref.key] = n
+            ref.uid = f"{b.id}::{ref.key}" + (f"::{n}" if n > 1 else "")
+    return []
+
+
+def load_surfaces(path: str | Path) -> dict[str, Surface]:
+    """Load the surfaces table from data/surfaces.jsonc.
+
+    One table at three levels; see the Surface docstring for why they are not
+    separated. `parts` points down the scale and must resolve, and a part may
+    not sit at a coarser level than its container, which is what stops the
+    containment chain from looping back on itself.
+    """
+    raw = load_jsonc(path)
+    surfaces = {
+        key: Surface(
+            key=key,
+            label=value["label"],
+            level=value["level"],
+            kind=value.get("kind"),
+            element=value.get("element"),
+            oxidation_state=value.get("oxidation_state"),
+            formula=value.get("formula"),
+            composition=value.get("composition"),
+            elements=list(value.get("elements", [])),
+            facet=value.get("facet"),
+            parts=list(value.get("parts", [])),
+            note=value.get("note", ""),
+        )
+        for key, value in raw.get("surfaces", {}).items()
+    }
+
+    rank = {"sample": 2, "phase": 1, "site": 0}
+    errors: list[str] = []
+    for surf in surfaces.values():
+        for part in surf.parts:
+            if part not in surfaces:
+                errors.append(f"Surface {surf.key}: part {part!r} is not a surface key")
+                continue
+            child = surfaces[part]
+            # An interface is the one site defined by what it touches, and one
+            # of those is usually a whole phase: the Pt-CeO2 perimeter is not
+            # the Pt atom plus a Ce cation, it is the metal against the oxide.
+            # Every other container lists parts strictly below it.
+            interface = surf.level == "site" and surf.kind == "interface"
+            if rank[child.level] > rank[surf.level] and not interface:
+                errors.append(
+                    f"Surface {surf.key} ({surf.level}) lists {part!r} ({child.level}) "
+                    "as a part; parts go down the scale, never up "
+                    "(only an interface site may name a phase)"
+                )
+            # A container cannot present something made of an element it does
+            # not contain; that check is what an element query relies on.
+            own = set(surf.all_elements)
+            child_elements = set(child.all_elements)
+            if own and child_elements and not child_elements <= own:
+                missing = sorted(child_elements - own)
+                errors.append(
+                    f"Surface {surf.key}: part {part!r} contains {missing} which "
+                    f"{surf.key} does not list among its elements"
+                )
+    if errors:
+        raise ValueError("surfaces.jsonc validation failed:\n  " + "\n  ".join(errors))
+    return surfaces
+
+
+def load_species(path: str | Path) -> dict[str, Species]:
+    """Load the species table from data/species.jsonc.
+
+    `molecule` is validated against vibrations.jsonc later, in
+    validate_vibrations(), which is where both files are in scope.
+    """
+    raw = load_jsonc(path)
+    return {
+        key: Species(
+            key=key,
+            label=value["label"],
+            formula=value["formula"],
+            molecule=value.get("molecule"),
+            note=value.get("note", ""),
+        )
+        for key, value in raw.get("species", {}).items()
+    }
 
 
 def load_tags(path: str | Path) -> dict:
@@ -692,15 +964,75 @@ def validate_vibrations(
     vib: Vibrations,
     dataset: Dataset,
     references: dict | None = None,
-) -> None:
+) -> list[str]:
     """Raise ValueError on any structural problem in the vibrations data.
 
     Tightly coupled to the real band dataset via _link_modes_to_bands() (see
     its docstring) — every band_groups entry must also be a real Group key,
     every topology id must be unique per molecule, and every mode.reference
     citekey resolves against references.bib if given.
+
+    Also resolves the two links that cross into species.jsonc and bands.jsonc:
+    Molecule.species is back-filled from Species.molecule, and Band.topology is
+    checked against the topologies that species' molecule declares. Returns the
+    warnings that are not errors.
     """
     errors = _link_modes_to_bands(vib, dataset)
+    warnings: list[str] = []
+
+    molecule_ids = {m.id for m in vib.molecules}
+    topologies_by_molecule = {m.id: {t.id for t in m.topologies} for m in vib.molecules}
+    all_topologies: set[str] = set()
+    for ids in topologies_by_molecule.values():
+        all_topologies |= ids
+
+    # Species -> Molecule is authored in species.jsonc; the reverse field on
+    # Molecule is computed from it, so the two files cannot drift apart.
+    species_for_molecule: dict[str, str] = {}
+    for sp in dataset.species.values():
+        if sp.molecule is None:
+            continue
+        if sp.molecule not in molecule_ids:
+            errors.append(
+                f"Species {sp.key}: molecule {sp.molecule!r} not in vibrations.jsonc"
+            )
+            continue
+        if sp.molecule in species_for_molecule:
+            errors.append(
+                f"Molecule {sp.molecule}: claimed by two species "
+                f"({species_for_molecule[sp.molecule]} and {sp.key})"
+            )
+            continue
+        species_for_molecule[sp.molecule] = sp.key
+    for mol in vib.molecules:
+        mol.species = species_for_molecule.get(mol.id, "")
+        if not mol.species and dataset.species:
+            warnings.append(
+                f"Molecule {mol.id}: no species in species.jsonc points at it, "
+                "so its bands cannot be reached from the species side"
+            )
+
+    # Band.topology names a binding geometry; the molecule that draws it has to
+    # know about it, or the vibration-modes page silently cannot show it.
+    for b in dataset.bands:
+        if b.topology is None:
+            continue
+        sp = dataset.species.get(b.species)
+        mol_id = sp.molecule if sp else None
+        declared = topologies_by_molecule.get(mol_id, set()) if mol_id else set()
+        if b.topology in declared:
+            continue
+        if b.topology in all_topologies:
+            warnings.append(
+                f"Band {b.id}: topology={b.topology!r} is not declared by molecule "
+                f"{mol_id!r}; the vibration-modes page cannot show it until that "
+                "topology is added there"
+            )
+        else:
+            errors.append(
+                f"Band {b.id}: topology={b.topology!r} is not a topology id in "
+                "vibrations.jsonc"
+            )
 
     seen_molecules: dict[str, int] = {}
     seen_modes: dict[str, str] = {}  # mode id -> molecule id
@@ -744,6 +1076,7 @@ def validate_vibrations(
 
     if errors:
         raise ValueError("Vibrations validation failed:\n  " + "\n  ".join(errors))
+    return warnings
 
 
 # ---------------------------------------------------------------------------

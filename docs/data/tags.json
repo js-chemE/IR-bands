@@ -14,23 +14,17 @@
   "drifts": {
     "tip": "Measured by diffuse reflectance infrared spectroscopy (DRIFTS)."
   },
-  "drifts-artifact": {
-    "tip": "Can be mistaken for a surface signal in DRIFTS but isn't (e.g. gas-phase absorption in the beam path)."
-  },
   "fermi-resonance": {
     "tip": "Auto-tagged: this band is one half of a Fermi-resonance doublet with another band."
   },
   "frustrated-mode": {
     "tip": "A free gas-phase rotation/translation that becomes a restoring-force vibration once the molecule is adsorbed."
   },
-  "ftir": {
-    "tip": "Measured by transmission FTIR rather than DRIFTS."
+  "transmission": {
+    "tip": "Measured in transmission through a self-supporting wafer, rather than by diffuse reflectance."
   },
   "gas-phase": {
     "tip": "Band belongs to a gas-phase species, not an adsorbed one."
-  },
-  "hydride-marker": {
-    "tip": "Diagnostic marker band for a surface metal-hydride species."
   },
   "ir-active": {
     "tip": "This vibrational mode is IR-allowed."
@@ -41,11 +35,11 @@
   "isotope-labeling": {
     "tip": "This source used isotope substitution as evidence for the assignment (the band itself is the ordinary, natural-abundance one)."
   },
-  "isotopic-shift": {
+  "isotope": {
     "tip": "Auto-tagged: this band IS the isotope-substituted twin of another one — same vibrational mode, heavier atom. Drawn hatched."
   },
   "misassignment-warning": {
-    "tip": "Position is a known trap for misassigning this band to a different species."
+    "tip": "A known trap: this position is easily assigned to the wrong species, or read as a surface signal when it is not one (gas-phase absorption in the beam path)."
   },
   "molecular-adsorption": {
     "tip": "Species is adsorbed intact (not dissociated) rather than as a surface fragment."

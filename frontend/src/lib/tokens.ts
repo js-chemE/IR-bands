@@ -139,12 +139,13 @@ export const COLOR_GROUPS: ColorGroup[] = [
   {
     key: 'badge',
     title: 'Badges and pills',
-    note: 'Three fixed pill styles. Blue is always a wavenumber, amber is always a surface site, grey is always a qualifier (intensity, width, confidence). Do not invent a fourth.',
+    note: 'Three fixed pill styles. Blue is always a wavenumber, amber is always where it was measured, grey is always a qualifier (intensity, width, confidence). The amber pair has two fills: solid for a site, hollow for a material (the sample rather than a specific site). Do not invent a fourth style.',
     tokens: {
       'badge-wn-bg':       { value: '#dbeafe', usage: 'Wavenumber badge background' },
       'badge-wn-border':   { value: '#93c5fd', usage: 'Wavenumber badge border' },
       'badge-wn-fg':       { value: '#1d4ed8', usage: 'Wavenumber badge text' },
       'badge-site-bg':     { value: '#fef3c7', usage: 'Site badge background' },
+      'badge-site-bg-soft':{ value: '#fffdf5', usage: 'Material badge: the hollow variant of the site badge, for a sample rather than a specific site' },
       'badge-site-border': { value: '#fcd34d', usage: 'Site badge border' },
       'badge-site-fg':     { value: '#78350f', usage: 'Site badge text' },
       'pill-bg':           { value: '#f3f4f6', usage: 'Qualifier pill background' },
@@ -158,7 +159,7 @@ export const COLOR_GROUPS: ColorGroup[] = [
   {
     key: 'accent',
     title: 'Section accents',
-    note: 'One tinted pair per destination card on the home page, plus the two accents the vibration pages own. A pair is background plus text; they are always used together.',
+    note: 'One tinted pair per destination card on the home page, plus the two accents the vibration pages own. A pair is background plus text; they are always used together. Green is knowledge (what the spectra mean), red is the dataset (what the atlas holds).',
     tokens: {
       'accent-teal-bg':          { value: '#d8f2ec', usage: 'Vibration-modes card icon background' },
       'accent-teal-fg':          { value: '#27745e', usage: 'Vibration-modes card icon and call to action' },
@@ -166,6 +167,10 @@ export const COLOR_GROUPS: ColorGroup[] = [
       'accent-blue-fg':          { value: '#2c4a6e', usage: 'Band-chart card icon and call to action' },
       'accent-amber-bg':         { value: '#fef3dd', usage: 'References card icon background' },
       'accent-amber-fg':         { value: '#996a20', usage: 'References card icon and call to action' },
+      'accent-green-bg':         { value: '#e2f0d9', usage: 'Knowledge card icon background' },
+      'accent-green-fg':         { value: '#3f6b2b', usage: 'Knowledge card icon and call to action' },
+      'accent-red-bg':           { value: '#fbe2de', usage: 'Dataset card icon background' },
+      'accent-red-fg':           { value: '#a4382a', usage: 'Dataset card icon and call to action' },
       'accent-violet':           { value: '#6b5b95', usage: 'Vibration-mode group label' },
       'accent-blue-soft':        { value: '#5878b0', usage: 'Active topology button text' },
       'accent-blue-soft-line':   { value: '#c8d6f0', usage: 'Active topology button border' },
@@ -227,14 +232,6 @@ export const ATOMS_PALETTE: Record<string, string> = {
   'C-H':     '#5BA84F',
   'H-C-H':   '#3D7C36',
   'O-C-H':   '#9CCB91',
-  // Deuterated counterparts of the O-H / C-H entries above: same hue family
-  // (so a nu(C-D) band still reads as "a C-H-family mode"), lifted lighter
-  // and softer to mark it as the heavy twin. Which band is the isotopologue
-  // is carried structurally by isotopologue_of plus the hatched fill, not by
-  // colour alone; this just keeps the two from colliding in the legend.
-  'O-D':     '#7AC4BF',
-  'C-D':     '#93C088',
-  'D-C-D':   '#6FA167',
   'C-O':     '#E07856',
   'C=O':     '#E2624A',
   'O-C-O':   '#C03B36',
@@ -255,6 +252,8 @@ export const ATOMS_PALETTE: Record<string, string> = {
  * DEFAULT_TAG_STYLE, so adding a tag to the data never breaks the render.
  * Add an entry only when the tag deserves to stand out.
  */
+const CAVEAT_STYLE = { background: '#FBE0DC', border: '#E1897C', color: '#A4382A' };
+
 export const TAG_STYLES: Record<string, { background: string; border: string; color: string }> = {
   // Warm orange/red, an infrared/heat association. Distinguishable from
   // raman-active's cool violet, and from the neutral grey default reserved
@@ -270,7 +269,14 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   // four: an isotopologue is the same mode as its parent, only heavier, so it
   // should not shout louder than the activity tags above. Pairs with the
   // diagonal hatch fill these bands get in the chart.
-  'isotopic-shift':  { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' },
+  isotope:           { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' },
+  // The caveat role, and the only role that gets a colour for being a role
+  // rather than for what the individual tag means: a warning has to read as a
+  // warning at a glance. Red, the same warm family as ir-active but pushed off
+  // the orange side of it, so "slow down" and "IR-allowed" stay apart. Every
+  // tag whose TAG_ROLES entry is 'caveat' is listed here, and only those.
+  'misassignment-warning': CAVEAT_STYLE,
+  'site-sensitive':        CAVEAT_STYLE,
 };
 
 export const DEFAULT_TAG_STYLE = {
@@ -428,8 +434,13 @@ export const CHART_LAYOUT = {
   /** Plot margins, shared by the chart and the sticky axis strip so ticks align. */
   marginLeft: 200,
   marginRight: 20,
-  marginTop: 30,
-  marginBottom: 50,
+  // Only left/right carry anything (the lane labels). The x axis is a
+  // separate sticky strip, so top and bottom are pure breathing room and stay
+  // small; the air around the stack comes from the y domain instead.
+  marginTop: 12,
+  marginBottom: 12,
+  /** Vertical scale: pixels per y data unit, so one lane is this times laneHeight. */
+  pxPerYUnit: 55,
   /** Default plot width in px. */
   width: 1100,
   /** Tooltip content-box width in px. */
@@ -447,8 +458,9 @@ export const CHART_LAYOUT = {
 export const CHART_LAYOUT_DOCS: { name: string; value: string; usage: string }[] = [
   { name: 'laneHeight',      value: '1.2 y-units',      usage: 'One lane of the stack; lanes are packed by wavenumber range in layout.py' },
   { name: 'barFraction',     value: '0.25',             usage: 'Band rectangle fills a quarter of its lane, the rest is breathing room' },
-  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1; more than 3-way overlap is dropped and logged' },
-  { name: 'margins',         value: '200 / 20 / 30 / 50 px', usage: 'left / right / top / bottom. The 200px left margin holds the lane labels' },
+  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1. The R/P/Q branches of one transition move as a single unit, so they always share a sub-lane; more than 3-way overlap is dropped and logged' },
+  { name: 'margins',         value: '200 / 20 / 12 / 12 px', usage: 'left / right / top / bottom. The 200px left margin holds the lane labels; top and bottom are just breathing room, since the x axis is a separate strip' },
+  { name: 'vertical padding', value: 'half a lane, top and bottom', usage: 'The y domain ends half a lane pitch beyond the outermost bar edge, so the stack is not floating in empty space' },
   { name: 'axis strip',      value: '50px, sticky',     usage: 'Drawn as a separate plot pinned above the scrolling lane stack, sharing width and margins' },
   { name: 'tooltip',         value: '300px content box', usage: 'Plus 22px of padding and border. Flips to the other side of the cursor when it would run off screen' },
   { name: 'vibration panel', value: '55% of tooltip, 6px gap', usage: 'Attaches to the outer side of the tooltip, top-aligned, never overlapping it' },

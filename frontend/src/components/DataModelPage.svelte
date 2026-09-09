@@ -6,47 +6,60 @@
     part?: boolean;
   }
 
+  export type DmView = 'structure' | 'contents';
+
   /**
-   * Table of contents, consumed by the sidebar in App.svelte. Same contract as
-   * the Style guide's: every id exists as a `data-dm-section` anchor below and
-   * the scroll spy keys off this list.
+   * Two tables of contents, consumed by the sidebar in App.svelte. The page
+   * holds two different things and they are read for different reasons: the
+   * shape of the data, and what is actually in it. Every id exists as a
+   * `data-dm-section` anchor below and the scroll spy keys off the list for
+   * whichever view is showing.
    */
-  export const SECTIONS: DmSection[] = [
+  export const STRUCTURE_SECTIONS: DmSection[] = [
     { id: 'model',      label: '1 · The model', part: true },
     { id: 'map',        label: 'Entity map' },
     { id: 'entities',   label: 'Entities' },
     { id: 'relations',  label: 'Relations' },
     { id: 'selflinks',  label: 'Band-to-band links' },
-    { id: 'contents',   label: '2 · What is in the data', part: true },
-    { id: 'sites',      label: 'Sites and materials' },
+    { id: 'state',      label: '2 · State of the model', part: true },
+    { id: 'checks',     label: 'What nothing checks yet' },
+    { id: 'open',       label: 'What is still open' },
+  ];
+
+  export const CONTENTS_SECTIONS: DmSection[] = [
+    { id: 'modes',      label: 'Vibration modes' },
     { id: 'species',    label: 'Species' },
+    { id: 'surfaces',   label: 'Surfaces' },
+    { id: 'technique',  label: 'Technique' },
     { id: 'tags',       label: 'Tags and their roles' },
     { id: 'sources',    label: 'References and authors' },
-    { id: 'formalise',  label: '3 · Formalising', part: true },
-    { id: 'technique',  label: 'Measurement technique' },
-    { id: 'checks',     label: 'What nothing checks yet' },
-    { id: 'order',      label: 'Migration order' },
   ];
+
+  export function sectionsFor(view: DmView): DmSection[] {
+    return view === 'structure' ? STRUCTURE_SECTIONS : CONTENTS_SECTIONS;
+  }
 </script>
 
 <script lang="ts">
   /**
-   * Data model. What the atlas's six little databases are, how they link up,
-   * and which of them are not really databases yet but repeated strings.
+   * Data model. What the atlas's small databases are, how they link up, and
+   * which links the build actually enforces.
    *
    * The specification half is read live out of lib/dataModel.ts, the same way
    * the Style guide reads lib/tokens.ts, so the page cannot drift from the
    * model it documents. The inventory half is computed from the shipped JSON
-   * at render time: every count, every distinct site, every unmatched species
-   * on this page is the real current state of the data, not a snapshot
-   * somebody has to remember to update.
+   * at render time: every count, every site, every contradiction on this page
+   * is the real current state of the data, not a snapshot somebody has to
+   * remember to update.
    *
    * Layout follows the Style guide's spread convention: explanation left, the
    * artefact being explained right, and a spread never crosses a part
    * boundary.
    */
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-  import type { Dataset, RefMap, Vibrations } from '../lib/types';
+  import type { Dataset, RefMap, SurfaceLevel, Vibrations } from '../lib/types';
+  import VibrationModesPage from './VibrationModesPage.svelte';
+  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/tokens';
   import {
     ENTITIES,
     ENTITY_BY_KEY,
@@ -55,11 +68,17 @@
     TAG_TARGETS,
     STATUS_LABEL,
     STATUS_NOTE,
+    STATUS_ORDER,
     SITE_KIND_LABEL,
     SITE_KIND_NOTE,
+    SURFACE_LEVELS,
+    LEVEL_LABEL,
+    LEVEL_NOTE,
     TAG_ROLE_LABEL,
     TAG_ROLE_NOTE,
-    PROPOSED_TECHNIQUES,
+    TAG_ROLE_ORDER,
+    tagRoleRank,
+    TECHNIQUES,
     analyse,
     type EntityStatus,
     type SiteKind,
@@ -71,33 +90,61 @@
   export let refs: RefMap;
   export let vibrations: Vibrations;
   export let tagTips: Record<string, { tip: string }> = {};
+  /** Which half of the page is showing. */
+  export let view: DmView = 'structure';
+  export let sortedGroupKeys: string[] = [];
+  export let focusMode: { moleculeId: string; topologyId: string; modeId: string; nonce: number } | null = null;
 
-  const dispatch = createEventDispatcher<{ active: { id: string } }>();
+  const dispatch = createEventDispatcher<{
+    active: { id: string };
+    navigateRef: { key: string };
+    navigateBand: { id: string };
+  }>();
 
   $: stats = analyse(dataset, refs, vibrations, tagTips);
 
   /* ── Entity map ──
-     Hand-laid out: fourteen boxes on a fixed grid, so the reading order runs
-     left to right along the spine (reference → assignment → band → mode) with
-     everything each one hangs off placed above or below it. */
+     Hand-laid out, and it holds every entity in the model: nothing is
+     explained in prose that the map does not draw. The spine runs along row
+     three (reference → assignment → band → mode); what each spine entity owns
+     hangs below it, what classifies it sits above. */
   const W = 150;
   const H = 54;
 
+  // Columns every 230px, rows every 120px. The one deliberate exception is
+  // Species, parked half a row up so it sits in the middle of the square its
+  // four neighbours make (Group, Molecule, Band, VibrationMode), which is
+  // where all three of its links are shortest.
   const POS: Record<string, { x: number; y: number }> = {
-    author:     { x:  20, y:  30 },
-    reference:  { x:  20, y: 140 },
-    technique:  { x:  20, y: 260 },
-    assignment: { x: 250, y: 140 },
-    site:       { x: 250, y: 260 },
-    material:   { x: 250, y: 350 },
-    group:      { x: 480, y:  30 },
-    band:       { x: 480, y: 140 },
-    region:     { x: 410, y: 260 },
-    species:    { x: 610, y: 260 },
-    molecule:   { x: 790, y:  30 },
-    mode:       { x: 790, y: 140 },
-    topology:   { x: 790, y: 260 },
+    // Views over Group, one either side of it.
+    set:        { x: 250, y:  20 },
+    lane:       { x: 480, y:  20 },
+    // Classifiers.
+    author:     { x:  20, y: 140 },
+    group:      { x: 480, y: 140 },
+    molecule:   { x: 940, y: 140 },
+    species:    { x: 710, y: 200 },
+    // The spine.
+    reference:  { x:  20, y: 260 },
+    assignment: { x: 250, y: 260 },
+    band:       { x: 480, y: 260 },
+    mode:       { x: 940, y: 260 },
+    // What the spine entities own or point at.
+    technique:  { x:  20, y: 380 },
+    surface:    { x: 250, y: 380 },
+    vibration:  { x: 480, y: 380 },
+    atoms:      { x: 710, y: 380 },
+    topology:   { x: 940, y: 380 },
+    region:     { x: 710, y: 500 },
   };
+
+  /**
+   * Tag is not a box. It attaches to three entities at once, and drawing that
+   * meant three routes across the whole diagram to say something simpler: these
+   * are the things you can tag. So it is a pill on those three boxes instead,
+   * and the entity itself is in the list below.
+   */
+  const TAGGABLE = new Set(TAG_TARGETS);
 
   const boxes = Object.entries(POS).map(([key, p]) => ({
     key,
@@ -113,26 +160,46 @@
     lx: number;
     ly: number;
     anchor?: 'start' | 'middle' | 'end';
+    /** Second, smaller line under the cardinality. Only the self-loop needs it. */
+    sub?: string;
+    /** Holds only because two strings match. */
     weak?: boolean;
+    /** Nobody authors it; it falls out of records that already exist. */
+    derived?: boolean;
   }
 
   const EDGES: Edge[] = [
-    { card: 'N:M',  x1:  95, y1:  84, x2:  95, y2: 140, lx: 102, ly: 116, anchor: 'start', weak: true },
-    { card: '1:N',  x1: 170, y1: 167, x2: 250, y2: 167, lx: 210, ly: 159, anchor: 'middle' },
-    { card: 'N:1',  x1: 400, y1: 167, x2: 480, y2: 167, lx: 440, ly: 159, anchor: 'middle' },
-    { card: 'N:M',  x1: 325, y1: 194, x2: 325, y2: 260, lx: 332, ly: 231, anchor: 'start', weak: true },
-    { card: 'N:1',  x1: 325, y1: 314, x2: 325, y2: 350, lx: 332, ly: 336, anchor: 'start', weak: true },
-    { card: 'N:1',  x1: 170, y1: 283, x2: 262, y2: 194, lx: 200, ly: 250, anchor: 'middle', weak: true },
-    { card: 'N:1',  x1: 555, y1: 140, x2: 555, y2:  84, lx: 562, ly: 116, anchor: 'start' },
-    { card: 'N:1',  x1: 515, y1: 194, x2: 487, y2: 260, lx: 494, ly: 231, anchor: 'end' },
-    { card: 'N:1',  x1: 600, y1: 194, x2: 660, y2: 260, lx: 646, ly: 231, anchor: 'start', weak: true },
-    { card: 'N:M',  x1: 630, y1: 167, x2: 790, y2: 167, lx: 710, ly: 159, anchor: 'middle' },
-    { card: 'N:M',  x1: 630, y1:  57, x2: 790, y2:  57, lx: 710, ly:  49, anchor: 'middle' },
-    { card: '1:N',  x1: 865, y1:  84, x2: 865, y2: 140, lx: 872, ly: 116, anchor: 'start' },
-    { card: '0..1', x1: 865, y1: 194, x2: 865, y2: 260, lx: 872, ly: 231, anchor: 'start' },
-    // Species to molecule: routed up the empty corridor between the species
-    // and mode boxes, since a straight line would cut through both.
-    { card: 'N:1',  d: 'M 760,282 C 792,272 774,150 798,88', lx: 784, ly: 112, anchor: 'end', weak: true },
+    // Views over Group: the lane stack straight above it, the saved filter
+    // alongside.
+    { card: '1:N',  x1: 555, y1:  74, x2: 555, y2: 140, lx: 562, ly: 111, anchor: 'start' },
+    { card: 'N:M',  x1: 400, y1:  47, x2: 496, y2: 140, lx: 436, ly:  99, anchor: 'end' },
+    // Reference side.
+    { card: 'N:M',  x1:  95, y1: 194, x2:  95, y2: 260, lx: 102, ly: 231, anchor: 'start', weak: true },
+    { card: '1:N',  x1: 170, y1: 287, x2: 250, y2: 287, lx: 210, ly: 279, anchor: 'middle' },
+    { card: 'N:1',  x1: 170, y1: 407, x2: 262, y2: 314, lx: 198, ly: 372, anchor: 'middle' },
+    // The spine, straight along one row.
+    { card: 'N:1',  x1: 400, y1: 287, x2: 480, y2: 287, lx: 440, ly: 279, anchor: 'middle' },
+    { card: 'N:M',  x1: 630, y1: 287, x2: 940, y2: 287, lx: 785, ly: 279, anchor: 'middle' },
+    { card: 'N:1',  x1: 555, y1: 260, x2: 555, y2: 194, lx: 562, ly: 231, anchor: 'start' },
+    { card: 'N:M',  x1: 630, y1: 167, x2: 940, y2: 167, lx: 785, ly: 159, anchor: 'middle' },
+    { card: '1:N',  x1: 1015, y1: 194, x2: 1015, y2: 260, lx: 1022, ly: 231, anchor: 'start' },
+    { card: '0..1', x1: 1015, y1: 314, x2: 1015, y2: 380, lx: 1022, ly: 351, anchor: 'start' },
+    // Where a claim was measured: straight down the same column. One edge
+    // now, because site and sample are one field at two levels.
+    { card: 'N:M',  x1: 325, y1: 314, x2: 325, y2: 380, lx: 332, ly: 351, anchor: 'start' },
+    // Containment: a sample holds its phases and sites, a phase its sites, a
+    // composite site the simpler ones it is built from.
+    { card: 'N:M',  d: 'M 250,392 C 214,392 214,420 250,420', lx: 245, ly: 455, anchor: 'end',
+      sub: 'parts' },
+    // What a band is.
+    { card: 'N:1',  x1: 555, y1: 314, x2: 555, y2: 380, lx: 562, ly: 351, anchor: 'start' },
+    { card: 'N:1',  x1: 620, y1: 314, x2: 740, y2: 380, lx: 694, ly: 342, anchor: 'start', weak: true },
+    { card: 'N:1',  x1: 630, y1: 310, x2: 960, y2: 380, lx: 872, ly: 341, anchor: 'end' },
+    { card: 'N:1',  d: 'M 600,314 C 668,378 668,458 706,524', lx: 678, ly: 474, anchor: 'start', derived: true },
+    // Species sits between its four neighbours, so all three links are short.
+    { card: 'N:1',  x1: 630, y1: 275, x2: 710, y2: 240, lx: 670, ly: 272, anchor: 'middle' },
+    { card: '1:1',  x1: 860, y1: 222, x2: 940, y2: 180, lx: 900, ly: 216, anchor: 'middle' },
+    { card: 'N:M',  x1: 710, y1: 222, x2: 630, y2: 180, lx: 670, ly: 216, anchor: 'middle', derived: true },
   ];
 
   let selected: string | null = null;
@@ -143,20 +210,39 @@
   }
 
   /* ── Inventory controls ── */
+  let levelFilter: SurfaceLevel | null = null;
   let siteKindFilter: SiteKind | null = null;
   let openChecks: Record<string, boolean> = {};
 
   const HITS_PREVIEW = 8;
 
+  $: levelCounts = SURFACE_LEVELS.map(
+    lv => [lv, stats.surfaces.filter(s => s.level === lv).length] as const,
+  ).filter(([, n]) => n > 0);
+
   $: siteKinds = (() => {
     const counts = new Map<SiteKind, number>();
-    for (const s of stats.sites) counts.set(s.kind!, (counts.get(s.kind!) ?? 0) + 1);
+    for (const s of stats.surfaces) {
+      if (!s.kind) continue;
+      counts.set(s.kind, (counts.get(s.kind) ?? 0) + 1);
+    }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
   })();
 
-  $: shownSites = siteKindFilter
-    ? stats.sites.filter(s => s.kind === siteKindFilter)
-    : stats.sites;
+  // A kind only subdivides sites, so picking one implies the site level.
+  $: shownSurfaces = stats.surfaces.filter(
+    s => (!levelFilter || s.level === levelFilter) && (!siteKindFilter || s.kind === siteKindFilter),
+  );
+
+  function pickLevel(lv: SurfaceLevel | null) {
+    levelFilter = lv;
+    if (lv !== 'site') siteKindFilter = null;
+  }
+
+  function pickKind(kind: SiteKind) {
+    siteKindFilter = siteKindFilter === kind ? null : kind;
+    if (siteKindFilter) levelFilter = 'site';
+  }
 
   $: tagsByRole = (() => {
     const groups = new Map<TagRole, ValueRow[]>();
@@ -165,22 +251,16 @@
       if (!groups.has(role)) groups.set(role, []);
       groups.get(role)!.push(t);
     }
-    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+    // TAG_ROLE_ORDER decides the sequence here exactly as it does in the
+    // chart legend, so the two never disagree about what comes first.
+    return [...groups.entries()].sort((a, b) => tagRoleRank(a[0]) - tagRoleRank(b[0]));
   })();
 
   $: linkedSpecies = stats.species.filter(s => s.molecule).length;
-
-  /** Gas, adsorbed or unmarked, read off the way the string is written. */
-  function phaseOf(value: string): string {
-    if (/\(g(as)?\)/i.test(value)) return 'gas';
-    if (/\*/.test(value)) return 'adsorbed';
-    return '—';
-  }
+  $: viaContainerTotal = stats.surfaces.reduce((n, s) => n + (s.viaContainer ?? 0), 0);
+  $: derivedTagCount = stats.tags.filter(t => t.derivedFrom).length;
 
   const statusClass = (s: EntityStatus) => `st-${s}`;
-
-  /** Legend order: most formal first, so the amber "bare string" row reads as the outlier. */
-  const STATUS_ORDER: EntityStatus[] = ['record', 'lookup', 'inline', 'string', 'derived'];
 
   /* ── Scroll spy ──
      The page scrolls inside App.svelte's .main-area, not the window, so the
@@ -188,15 +268,17 @@
      Same mechanism as the Style guide. */
   let root: HTMLElement;
   let scroller: HTMLElement | null = null;
-  let activeId = SECTIONS[0].id;
+  let activeId = STRUCTURE_SECTIONS[0].id;
   let frame = 0;
+
+  $: viewSections = sectionsFor(view);
 
   function measure() {
     frame = 0;
     if (!scroller) return;
     const top = scroller.getBoundingClientRect().top;
-    let current = SECTIONS[0].id;
-    for (const s of SECTIONS) {
+    let current = viewSections[0].id;
+    for (const s of viewSections) {
       const el = root?.querySelector<HTMLElement>(`[data-dm-section="${s.id}"]`);
       if (!el) continue;
       if (el.getBoundingClientRect().top - top <= 90) current = s.id;
@@ -224,31 +306,42 @@
 </script>
 
 <main class="content" bind:this={root}>
-  <h1 class="page-title">Data model</h1>
-  <p class="lead">
-    The atlas is six small databases that point at each other: bands, vibrations,
-    references, tags, and the group and region lookups. Some of what they hold is a
-    proper record with an id. The rest is a bare string repeated in many places, and a
-    string cannot be filtered on, cannot carry attributes, and cannot be told apart from
-    a different spelling of itself. This page says which is which, and reads every count
-    below straight out of the shipped JSON.
-  </p>
+  <h1 class="page-title">Dataset</h1>
+  {#if view === 'structure'}
+    <p class="lead">
+      The shape of the data: a handful of small databases that point at each other, what
+      each of them holds, how they link up, and which links the build actually enforces.
+      Every count is read out of the shipped JSON, so it shows the data as it stands
+      rather than as it was once described.
+    </p>
+  {:else}
+    <p class="lead">
+      What is actually in it: the molecules and their normal modes, the species, the sites
+      and samples they were measured on, how the spectra were taken, and the literature
+      behind all of it. Every table is built from the shipped JSON at render time.
+    </p>
+  {/if}
 
   <!-- ══════════ Part 1 ══════════ -->
+{#if view === 'structure'}
   <h2 class="part" id="model" data-dm-section="model">1 &middot; The model</h2>
 
   <section class="section" id="map" data-dm-section="map">
     <h3>Entity map</h3>
 
     <div class="map-frame">
-      <svg viewBox="0 0 960 420" class="map" role="img" aria-label="Entity relationship map">
+      <svg viewBox="0 0 1110 580" class="map" role="img" aria-label="Entity relationship map">
         {#each EDGES as e}
           {#if e.d}
-            <path class="edge" class:weak={e.weak} d={e.d} />
+            <path class="edge" class:weak={e.weak} class:derived={e.derived} d={e.d} />
           {:else}
-            <line class="edge" class:weak={e.weak} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
+            <line class="edge" class:weak={e.weak} class:derived={e.derived}
+                  x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
           {/if}
           <text class="edge-card" x={e.lx} y={e.ly} text-anchor={e.anchor ?? 'middle'}>{e.card}</text>
+          {#if e.sub}
+            <text class="edge-sub" x={e.lx} y={e.ly + 13} text-anchor={e.anchor ?? 'middle'}>{e.sub}</text>
+          {/if}
         {/each}
 
         {#each boxes as b}
@@ -260,11 +353,15 @@
             on:click={() => focusEntity(b.key)}
             on:keydown={ev => (ev.key === 'Enter' || ev.key === ' ') && focusEntity(b.key)}
           >
-            <rect x={b.x} y={b.y} width={W} height={H} rx="6" />
+            <rect class="box-body" x={b.x} y={b.y} width={W} height={H} rx="6" />
             <text class="box-label" x={b.x + 12} y={b.y + 21}>{b.spec.label}</text>
             <text class="box-count" x={b.x + 12} y={b.y + 40}>{stats.counts[b.key] ?? 0}</text>
             <text class="box-status" x={b.x + W - 12} y={b.y + 40} text-anchor="end"
               >{STATUS_LABEL[b.spec.status]}</text>
+            {#if TAGGABLE.has(b.key)}
+              <rect class="tag-pill" x={b.x + W - 26} y={b.y - 8} width="34" height="17" rx="4" />
+              <text class="tag-pill-text" x={b.x + W - 9} y={b.y + 4} text-anchor="middle">tag</text>
+            {/if}
           </g>
         {/each}
       </svg>
@@ -278,20 +375,22 @@
           <strong>mode</strong>. Everything else hangs off one of those four.
         </p>
         <p>
-          Amber boxes are the ones that only exist as strings. They are where the model is
-          thinnest, and three of the four sit on the same edge: an assignment names its
-          site, its material and its technique in free text.
+          <strong>Surface</strong> is one table at three levels, not a site table and a
+          material table: an assignment names whatever the paper stated, a site, a phase,
+          a sample, or several at once. The loop on the box is <code>parts</code>, which
+          points down that scale, and it is what lets a query for Cu⁺ reach the
+          {viaContainerTotal} claims whose paper named only the catalyst.
+        </p>
+        <p>
+          Everything in the model is drawn, including the parts that are not chemistry:
+          <code>Set</code> is a saved filter and <code>Lane</code> is the chart's row
+          order, both views over <code>Group</code>. The one exception is
+          <code>Tag</code>, which attaches to three entities at once and says so with a
+          pill on each rather than three routes across the diagram. No two edges cross:
+          where the diagram forced a crossing, the entity was in the wrong place.
         </p>
         <p class="hint">Click a box to jump to its entry.</p>
 
-        <div class="tag-card">
-          <div class="tag-card-head">Tag &middot; {stats.counts.tag} in use</div>
-          <p>
-            Left off the map on purpose: a tag attaches to three different entities, so its
-            edges would cross everything. N:M with
-            {#each TAG_TARGETS as t, i}<code>{ENTITY_BY_KEY[t].label}</code>{i < TAG_TARGETS.length - 1 ? ', ' : '.'}{/each}
-          </p>
-        </div>
       </div>
 
       <div class="map-legend">
@@ -305,12 +404,22 @@
         <div class="legend-row">
           <span class="legend-chip legend-line"></span>
           <span class="legend-name">Solid edge</span>
-          <span class="legend-note">A validated foreign key. The build fails if it dangles.</span>
+          <span class="legend-note">A validated key. The build fails if it dangles.</span>
         </div>
         <div class="legend-row">
           <span class="legend-chip legend-line dashed"></span>
           <span class="legend-name">Dashed edge</span>
-          <span class="legend-note">A link that holds only because two strings match, or that does not exist yet.</span>
+          <span class="legend-note">A link that holds only because two strings match: authors parsed out of BibTeX, and the unvalidated atoms string.</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-chip legend-pill">tag</span>
+          <span class="legend-name">Tag pill</span>
+          <span class="legend-note">This entity can carry tags. {stats.counts.tag} tags are in use, {derivedTagCount} of them derived from a field rather than authored.</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-chip legend-line dotted"></span>
+          <span class="legend-name">Dotted edge</span>
+          <span class="legend-note">Derived: nobody authors it, so it cannot drift. A band's region follows from its centre, and species/group falls out of the bands that carry both.</span>
         </div>
       </div>
     </div>
@@ -319,8 +428,8 @@
   <section class="section" id="entities" data-dm-section="entities">
     <h3>Entities</h3>
     <p class="section-lead">
-      Fourteen of them. Five are real records; the other nine are values that behave like
-      entities without being modelled as one.
+      Thirteen of them, plus the tag table. Everything that carries attributes of its own
+      is a record with a key the build checks.
     </p>
 
     <div class="entity-list">
@@ -356,10 +465,10 @@
             {/each}
           </div>
 
-          {#if e.promote}
+          {#if e.open}
             <div class="promote">
-              <span class="promote-label">If it became a record</span>
-              <span>{e.promote}</span>
+              <span class="promote-label">Still open</span>
+              <span>{e.open}</span>
             </div>
           {/if}
         </article>
@@ -376,9 +485,9 @@
           Reference&nbsp;→&nbsp;Assignment means one reference has many assignments.
         </p>
         <p>
-          The rows marked <em>weak</em> are the ones nothing enforces. Six of the fifteen
-          links in the model are weak, and every one of them is a string comparison
-          standing in for a foreign key.
+          One row is marked <em>weak</em>, meaning nothing enforces it. It used to be six.
+          The rest are keys the build resolves, and it fails rather than shipping a
+          dangling one.
         </p>
       </div>
       <div class="spread-visual">
@@ -396,7 +505,8 @@
               </tr>
               <tr class="rel-note-row" class:weak-row={r.weak}>
                 <td colspan="4" class="rel-note">
-                  {#if r.weak}<span class="weak-flag">weak</span>{/if}{r.note}
+                  {#if r.weak}<span class="weak-flag">weak</span>{/if}
+                  {#if r.derived}<span class="derived-flag">derived</span>{/if}{r.note}
                 </td>
               </tr>
             {/each}
@@ -416,7 +526,7 @@
           nobody reading the atlas ever opens.
         </p>
         <p>
-          The distinction that catches people out is the last one: a band that
+          The distinction that catches people out is the fourth: a band that
           <em>is</em> an isotopologue versus a paper that <em>used</em> isotopes to prove an
           ordinary assignment. Different claims, different fields, similar names.
         </p>
@@ -437,231 +547,14 @@
   </section>
 
   <!-- ══════════ Part 2 ══════════ -->
-  <h2 class="part" id="contents" data-dm-section="contents">2 &middot; What is in the data</h2>
-
-  <section class="section" id="sites" data-dm-section="sites">
-    <h3>Sites and materials</h3>
-    <div class="spread">
-      <div class="spread-text">
-        <p>
-          {stats.sites.length} distinct strings are in the <code>site</code> field, and they
-          are not one kind of thing. <code>Cu⁺</code> is a cation, <code>TiO₂</code> is an
-          oxide surface, <code>Fe₃O₄(001)</code> is a facet, and <code>Cu/ZnO</code> is a
-          whole catalyst that <em>contains</em> Cu⁰ and Cu⁺ sites without saying so.
-        </p>
-        <p>
-          The kind column below is a proposal, worked out from how each string is written:
-          an explicit charge means a cation, a slash or a dash means a sample, one metal
-          plus oxygen means an oxide. Rows marked <span class="guess-flag">guess</span> are
-          where the rule did not fire cleanly and a human has to decide.
-        </p>
-        <p class="hint">Filter by proposed kind:</p>
-        <div class="kind-chips">
-          <button class="chip" class:on={siteKindFilter === null} on:click={() => siteKindFilter = null}>
-            all <span class="chip-n">{stats.sites.length}</span>
-          </button>
-          {#each siteKinds as [kind, n]}
-            <button
-              class="chip"
-              class:on={siteKindFilter === kind}
-              title={SITE_KIND_NOTE[kind]}
-              on:click={() => siteKindFilter = siteKindFilter === kind ? null : kind}
-            >{SITE_KIND_LABEL[kind]} <span class="chip-n">{n}</span></button>
-          {/each}
-        </div>
-      </div>
-
-      <div class="spread-visual">
-        <table class="inv-table">
-          <thead>
-            <tr><th>Site string</th><th>Proposed kind</th><th>Elements</th><th class="num">Claims</th><th class="num">Bands</th><th class="num">Refs</th></tr>
-          </thead>
-          <tbody>
-            {#each shownSites as s}
-              <tr>
-                <td class="v-value">{s.value}</td>
-                <td>
-                  <span class="kind-tag k-{s.kind}">{SITE_KIND_LABEL[s.kind ?? 'material']}</span>
-                  {#if !s.sure}<span class="guess-flag">guess</span>{/if}
-                </td>
-                <td class="v-els">{(s.elements ?? []).join(' · ') || '—'}</td>
-                <td class="num">{s.uses}</td>
-                <td class="num">{s.bands.length}</td>
-                <td class="num">{s.refs.length}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="species" data-dm-section="species">
-    <h3>Species</h3>
-    <div class="spread">
-      <div class="spread-text">
-        <p>
-          {stats.species.length} distinct species strings across {stats.counts.band} bands, of
-          which {linkedSpecies} match a molecule on the vibration-modes page by spelling.
-          The rest do not, because the two files write the same species differently:
-          <code>Methoxy (CH₃O*)</code> in one, <code>CH₃O*</code> in the other.
-        </p>
-        <p>
-          Nothing validates either side, so the mismatch is invisible. What actually holds
-          the two pages together is the explicit <code>band.vibration_modes</code> link,
-          not this string.
-        </p>
-      </div>
-      <div class="spread-visual">
-        <table class="inv-table">
-          <thead>
-            <tr><th>Species string</th><th>Phase</th><th>Molecule</th><th class="num">Bands</th></tr>
-          </thead>
-          <tbody>
-            {#each stats.species as s}
-              <tr>
-                <td class="v-value">{s.value}</td>
-                <td class="v-phase">{phaseOf(s.value)}</td>
-                <td>
-                  {#if s.molecule}<code>{s.molecule}</code>{:else}<span class="dash">no match</span>{/if}
-                </td>
-                <td class="num">{s.uses}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="tags" data-dm-section="tags">
-    <h3>Tags and their roles</h3>
-    <div class="spread">
-      <div class="spread-text">
-        <p>
-          One flat namespace, {stats.tags.length} tags in use, making five different kinds
-          of statement. <code>drifts</code> says how the spectrum was taken,
-          <code>overtone</code> says what the band is, <code>gas-phase</code> says what the
-          species is doing, and <code>misassignment-warning</code> is a warning about the
-          claim.
-        </p>
-        <p>
-          Grouping them costs nothing and is the groundwork for lifting the ones that are
-          really fields out of the pile. The scope markers say where each tag is written:
-          on a band, on a single citation, or on a vibration mode.
-        </p>
-      </div>
-      <div class="spread-visual">
-        {#each tagsByRole as [role, rows]}
-          <div class="role-block">
-            <div class="role-head">
-              <span class="role-name">{TAG_ROLE_LABEL[role]}</span>
-              <span class="role-note">{TAG_ROLE_NOTE[role]}</span>
-            </div>
-            <div class="tag-rows">
-              {#each rows as t}
-                <div class="tag-row" title={tagTips[t.value]?.tip ?? 'No tooltip in tags.jsonc'}>
-                  <code class="tag-name">{t.value}</code>
-                  <span class="tag-scopes">
-                    {#each t.scopes ?? [] as sc}<span class="scope sc-{sc}">{sc}</span>{/each}
-                  </span>
-                  <span class="tag-count">{t.uses}</span>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="sources" data-dm-section="sources">
-    <h3>References and authors</h3>
-    <div class="spread">
-      <div class="spread-text">
-        <p>
-          {stats.counts.reference} references carry {stats.counts.assignment} assignments
-          across {stats.counts.band} bands. Authors are parsed out of the BibTeX
-          <code>author</code> field at render time and thrown away again; nothing stores
-          them, and nothing needs to yet.
-        </p>
-        <p>
-          Listed here mostly to make the point that the entity exists whether or not it is
-          modelled: {stats.authors.length} distinct people are already in the data.
-        </p>
-      </div>
-      <div class="spread-visual">
-        <table class="inv-table">
-          <thead>
-            <tr><th>Author</th><th class="num">References</th></tr>
-          </thead>
-          <tbody>
-            {#each stats.authors.slice(0, 20) as a}
-              <tr>
-                <td class="v-value">{a.value}</td>
-                <td class="num">{a.refs.length}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-        {#if stats.authors.length > 20}
-          <p class="table-foot">{stats.authors.length - 20} more, one reference each.</p>
-        {/if}
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════ Part 3 ══════════ -->
-  <h2 class="part" id="formalise" data-dm-section="formalise">3 &middot; Formalising</h2>
-
-  <section class="section" id="technique" data-dm-section="technique">
-    <h3>Measurement technique</h3>
-    <div class="spread">
-      <div class="spread-text">
-        <p>
-          Three tags carry this today, and they do not describe the same axis. DRIFTS and
-          ATR are sampling geometries; FTIR is the interferometer, which nearly every one
-          of these measurements uses whatever the geometry; and a calculated frequency is
-          not a measurement at all.
-        </p>
-        <p>
-          A <code>technique</code> field on the assignment separates the two questions a
-          reader actually asks: how was the sample presented to the beam, and was this
-          measured or computed. The vocabulary below is a proposal; the marked rows are
-          the ones already standing in as tags.
-        </p>
-      </div>
-      <div class="spread-visual">
-        <table class="inv-table">
-          <thead>
-            <tr><th>Value</th><th>In the data</th><th>Meaning</th></tr>
-          </thead>
-          <tbody>
-            {#each PROPOSED_TECHNIQUES as t}
-              <tr>
-                <td class="v-value">{t.label}</td>
-                <td>
-                  {#if t.currentTag}
-                    <code>{t.currentTag}</code>
-                  {:else}
-                    <span class="dash">not yet</span>
-                  {/if}
-                </td>
-                <td class="t-note">{t.note}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+  <h2 class="part" id="state" data-dm-section="state">2 &middot; State of the model</h2>
 
   <section class="section" id="checks" data-dm-section="checks">
     <h3>What nothing checks yet</h3>
     <p class="section-lead">
-      Computed live from the shipped JSON. None of these is an error today, because nothing
-      in the build looks for them. Each one is a validation rule waiting for the entity it
-      would validate against.
+      Computed live from the shipped JSON. The build already fails on an unresolved
+      species, surface or topology key; these are the things it reports or ignores
+      rather than refuses.
     </p>
     <div class="check-list">
       {#each stats.checks as c}
@@ -689,60 +582,317 @@
     </div>
   </section>
 
-  <section class="section" id="order" data-dm-section="order">
-    <h3>Migration order</h3>
+  <section class="section" id="open" data-dm-section="open">
+    <h3>What is still open</h3>
     <div class="spread">
       <div class="spread-text">
         <p>
-          Each step is useful on its own and none of them requires the next one, so they can
-          stop at any point. The order is chosen so that no step has to be redone by a later
-          one.
+          Each of these is useful on its own and none of them requires the next, so the
+          model can stop here for as long as it needs to.
         </p>
       </div>
       <div class="spread-visual">
         <ol class="steps">
           <li>
-            <span class="step-title">Split Site from Material</span>
-            <span class="step-body">
-              A <code>sites.jsonc</code> with id, label, kind, element and oxidation state,
-              plus a <code>materials.jsonc</code> naming which sites each sample exposes.
-              Validate that every <code>site</code> string resolves. The table above is the
-              worklist.
-            </span>
-          </li>
-          <li>
-            <span class="step-title">Give the assignment an id</span>
-            <span class="step-body">
-              Once a claim is addressable, it can carry its own confidence and technique, and
-              the <code>wn</code>/<code>site</code> arrays split into one row per claim
-              instead of two parallel lists nothing pairs up.
-            </span>
-          </li>
-          <li>
-            <span class="step-title">Add the technique field</span>
-            <span class="step-body">
-              Closed vocabulary on the assignment, and retire the three technique tags. This
-              is cheap after step 2 and awkward before it.
-            </span>
-          </li>
-          <li>
-            <span class="step-title">Make species a record</span>
-            <span class="step-body">
-              Formula, display label and phase in one place, and the band ↔ molecule link
-              becomes a real foreign key rather than two strings that happen to match.
-            </span>
-          </li>
-          <li>
             <span class="step-title">Move intensity, width and confidence onto the claim</span>
             <span class="step-body">
-              All three are observation-dependent but authored on the band. The band keeps a
-              rollup for the chart; the claim keeps what its paper actually reported.
+              All three describe an observation but are authored once per band. The band
+              would keep a rollup for the chart; the claim would keep what its own paper
+              reported.
+            </span>
+          </li>
+          <li>
+            <span class="step-title">Give methoxy its bidentate topology</span>
+            <span class="step-body">
+              A band already claims that geometry, but the molecule in
+              <code>vibrations.jsonc</code> declares only monodentate, so the
+              vibration-modes page cannot draw it. The build warns on every run.
+            </span>
+          </li>
+          <li>
+            <span class="step-title">Structure the reaction conditions</span>
+            <span class="step-body">
+              Temperature, pressure, feed and pretreatment are still prose inside
+              <code>note</code>. Worth doing at several times the current number of claims,
+              not before.
             </span>
           </li>
         </ol>
       </div>
     </div>
   </section>
+{:else}
+  <section class="section" id="modes" data-dm-section="modes">
+    <h3>Vibration modes</h3>
+    <p class="section-lead">
+      The molecules in <code>data/vibrations.jsonc</code>, their binding geometries and
+      their normal modes, with the bands each mode is linked to. This is the same view
+      that used to be its own page; it belongs here, because a mode is one of the things
+      the dataset holds.
+    </p>
+    <div class="modes-frame">
+      <VibrationModesPage
+        bands={dataset.bands}
+        {refs}
+        {vibrations}
+        {sortedGroupKeys}
+        {focusMode}
+        on:navigateRef
+        on:navigateBand
+      />
+    </div>
+  </section>
+
+
+  <section class="section" id="species" data-dm-section="species">
+    <h3>Species</h3>
+    <div class="spread">
+      <div class="spread-text">
+        <p>
+          {stats.species.length} species records across {stats.counts.band} bands, of which
+          {linkedSpecies} carry a molecule on the vibration-modes page.
+        </p>
+        <p>
+          This used to be 33 free-text labels for the same set of molecules, because the
+          label also carried the phase (<code>Methanol</code> vs
+          <code>Methanol (gas)</code> vs <code>Methanol adsorbed (CH₃OH*)</code>), the
+          binding geometry (<code>Monodentate carbonate*</code>, <code>CO bridge (μ₂)</code>),
+          the isotopologue and occasionally even the site. Each of those has its own field
+          now, so the identity is spelled one way everywhere and can be checked.
+        </p>
+      </div>
+      <div class="spread-visual">
+        <table class="inv-table">
+          <thead>
+            <tr><th>Key</th><th>Label</th><th>Formula</th><th>Molecule</th><th class="num">Bands</th></tr>
+          </thead>
+          <tbody>
+            {#each stats.species as s}
+              <tr>
+                <td><code>{s.value}</code></td>
+                <td class="v-value">{s.label}</td>
+                <td class="v-els">{s.detail}</td>
+                <td>
+                  {#if s.molecule}<code>{s.molecule}</code>{:else}<span class="dash">none yet</span>{/if}
+                </td>
+                <td class="num">{s.uses}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="surfaces" data-dm-section="surfaces">
+    <h3>Surfaces</h3>
+    <div class="spread">
+      <div class="spread-text">
+        <p>
+          {stats.surfaces.length} entries, out of what used to be 32 strings in one
+          <code>site</code> field. They were never one kind of thing: <code>Cu⁺</code> is
+          an atom-scale spot, <code>Cu/ZnO</code> is a whole catalyst, and
+          <code>TiO₂</code> is either, depending on the paper. So there is one table with
+          a <code>level</code> rather than two tables and an argument about which one
+          titania belongs in.
+        </p>
+        <p>
+          The badge carries the level everywhere it is drawn: a site is
+          <span class="badge-site">filled</span>, a phase or a sample is
+          <span class="badge-site badge-coarse">hollow</span>. That way a claim about
+          Cu⁺ never reads like a claim about Cu/ZnO, on this page or in the chart.
+        </p>
+        <p>
+          The <em>via container</em> column is the point of <code>parts</code>: those
+          claims name only the coarser surface and reach this one through it. Without
+          that link they would be invisible to any site query.
+        </p>
+        <div class="kind-chips">
+          <button class="chip" class:on={levelFilter === null && siteKindFilter === null}
+                  on:click={() => { pickLevel(null); siteKindFilter = null; }}>
+            all <span class="chip-n">{stats.surfaces.length}</span>
+          </button>
+          {#each levelCounts as [lv, n]}
+            <button
+              class="chip"
+              class:on={levelFilter === lv}
+              title={LEVEL_NOTE[lv]}
+              on:click={() => pickLevel(levelFilter === lv ? null : lv)}
+            >{LEVEL_LABEL[lv]} <span class="chip-n">{n}</span></button>
+          {/each}
+        </div>
+        <div class="kind-chips">
+          {#each siteKinds as [kind, n]}
+            <button
+              class="chip chip-sub"
+              class:on={siteKindFilter === kind}
+              title={SITE_KIND_NOTE[kind]}
+              on:click={() => pickKind(kind)}
+            >{SITE_KIND_LABEL[kind]} <span class="chip-n">{n}</span></button>
+          {/each}
+        </div>
+      </div>
+
+      <div class="spread-visual">
+        <table class="inv-table">
+          <thead>
+            <tr><th>Key</th><th>Surface</th><th>Kind</th><th>What</th><th>Parts</th><th class="num">Claims</th><th class="num">Via container</th></tr>
+          </thead>
+          <tbody>
+            {#each shownSurfaces as s}
+              <tr>
+                <td><code>{s.value}</code></td>
+                <td class="v-value">
+                  <span
+                    class="badge-site"
+                    class:badge-coarse={s.level !== 'site'}
+                    title={s.level ? LEVEL_NOTE[s.level] : ''}
+                  >{s.label}</span>
+                </td>
+                <td>
+                  {#if s.kind}<span class="kind-tag">{SITE_KIND_LABEL[s.kind]}</span>{/if}
+                </td>
+                <td class="v-els">{s.detail}</td>
+                <td class="v-els">{(s.parts ?? []).join(' · ')}</td>
+                <td class="num">{s.uses}</td>
+                <td class="num">{s.viaContainer ?? ''}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="technique" data-dm-section="technique">
+    <h3>Technique</h3>
+    <div class="spread">
+      <div class="spread-text">
+        <p>
+          Three tags used to carry this, and they did not describe the same axis. DRIFTS
+          and ATR are sampling geometries; FTIR is the interferometer, which nearly every
+          one of these measurements uses whatever the geometry; and a calculated frequency
+          is not a measurement at all.
+        </p>
+        <p>
+          It is a field on the assignment now, with a closed vocabulary, and the tag chip
+          the chart legend filters on is derived from it. <code>ftir</code> is the honest
+          placeholder for a source that says only "FTIR": resolve each one to transmission
+          or ATR as the paper is checked.
+        </p>
+      </div>
+      <div class="spread-visual">
+        <table class="inv-table">
+          <thead>
+            <tr><th>Value</th><th>Tag</th><th class="num">Claims</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            {#each TECHNIQUES as t}
+              <tr>
+                <td><code>{t.key}</code></td>
+                <td><code>{t.tag}</code></td>
+                <td class="num">{stats.techniques.find(r => r.value === t.key)?.uses || ''}</td>
+                <td class="t-note">{t.note}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tags" data-dm-section="tags">
+    <h3>Tags and their roles</h3>
+    <div class="spread">
+      <div class="spread-text">
+        <p>
+          One flat namespace, {stats.tags.length} tags in use, making six different kinds of
+          statement. {derivedTagCount} of them are derived from a field by the build rather
+          than authored, which is what a tag should become once the fact behind it has a
+          proper home.
+        </p>
+        <p>
+          Each tag is drawn the way it is drawn everywhere else, so this list and the
+          chart legend show the same object. The markers beside it say where it is
+          written: on a band, on a single citation, or on a vibration mode, and
+          <span class="scope sc-derived">derived</span> means the build writes it from a
+          field rather than anyone authoring it. The number is how many times it is used.
+        </p>
+        <p>
+          The roles run in the order the model declares, the same order the chart legend
+          sorts by: what the band is, what it is doing, the selection rule, how it was
+          measured, and the caveat last.
+        </p>
+      </div>
+      <div class="spread-visual">
+        {#each tagsByRole as [role, rows]}
+          <div class="role-block">
+            <div class="role-head">
+              <span class="role-name">{TAG_ROLE_LABEL[role]}</span>
+              <span class="role-n">{rows.length}</span>
+              <span class="role-note">{TAG_ROLE_NOTE[role]}</span>
+            </div>
+            <div class="tag-rows">
+              {#each rows as t}
+                {@const style = TAG_STYLES[t.value] ?? DEFAULT_TAG_STYLE}
+                <div
+                  class="tag-row"
+                  title={t.derivedFrom ? `Derived from ${t.derivedFrom}` : (tagTips[t.value]?.tip ?? 'No tooltip in tags.jsonc')}
+                >
+                  <span
+                    class="tag-pill-live"
+                    style="background:{style.background};border-color:{style.border};color:{style.color}"
+                  >{t.value}</span>
+                  {#if t.derivedFrom}<span class="scope sc-derived">derived</span>{/if}
+                  {#each t.scopes ?? [] as sc}<span class="scope sc-{sc}">{sc}</span>{/each}
+                  <span class="tag-count">{t.uses}</span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="sources" data-dm-section="sources">
+    <h3>References and authors</h3>
+    <div class="spread">
+      <div class="spread-text">
+        <p>
+          {stats.counts.reference} references carry {stats.counts.assignment} assignments
+          across {stats.counts.band} bands. Authors are parsed out of the BibTeX
+          <code>author</code> field at render time and thrown away again; nothing stores
+          them, and nothing needs to yet.
+        </p>
+        <p>
+          They are the last bare string in the model: {stats.authors.length} distinct people
+          are already in the data whether or not anything models them.
+        </p>
+      </div>
+      <div class="spread-visual">
+        <table class="inv-table">
+          <thead>
+            <tr><th>Author</th><th class="num">References</th></tr>
+          </thead>
+          <tbody>
+            {#each stats.authors.slice(0, 20) as a}
+              <tr>
+                <td class="v-value">{a.label}</td>
+                <td class="num">{a.refs.length}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+        {#if stats.authors.length > 20}
+          <p class="table-foot">{stats.authors.length - 20} more, one reference each.</p>
+        {/if}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ Part 3 ══════════ -->
+{/if}
 </main>
 
 <style>
@@ -750,6 +900,7 @@
   .content {
     padding: 28px 48px 64px;
     max-width: 1180px;
+    margin: 0 auto;
     box-sizing: border-box;
     font-size: var(--t-body-size);
     line-height: var(--t-body-lh);
@@ -814,13 +965,20 @@
     color: var(--ink-500);
   }
 
-  .spread-text strong { color: var(--ink-700); }
-
   .spread-visual { min-width: 0; }
 
   .hint {
     font-size: var(--t-code-size);
     color: var(--ink-200);
+  }
+
+  .micro-label {
+    font-size: var(--t-micro-label-size);
+    font-weight: var(--t-micro-label-weight);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    color: var(--t-micro-label-color);
+    margin: var(--space-4) 0 6px;
   }
 
   code {
@@ -841,7 +999,7 @@
     overflow-x: auto;
   }
 
-  .map { width: 100%; min-width: 860px; display: block; }
+  .map { width: 100%; min-width: 1000px; display: block; }
 
   .edge {
     fill: none;
@@ -849,6 +1007,8 @@
     stroke-width: 1.4;
   }
   .edge.weak { stroke-dasharray: 4 3; stroke: var(--ink-050); }
+  /* Derived is the opposite of weak: nobody authors it, so it cannot drift. */
+  .edge.derived { stroke-dasharray: 1 3; stroke: var(--badge-wn-border); }
 
   .edge-card {
     font-family: var(--t-code-ff);
@@ -856,21 +1016,29 @@
     fill: var(--ink-200);
   }
 
+  /* What a self-loop means, since a cardinality alone reads as a puzzle. */
+  .edge-sub {
+    font-size: var(--t-micro-label-size);
+    font-style: italic;
+    fill: var(--ink-100);
+  }
+
   .box { cursor: pointer; }
-  .box rect {
+  .box .box-body {
     fill: var(--surface);
     stroke: var(--line-strong);
     stroke-width: 1.4;
     transition: filter 0.12s ease;
   }
-  .box:hover rect { filter: brightness(0.97); }
-  .box.selected rect { stroke-width: 2.6; }
+  .box:hover .box-body { filter: brightness(0.97); }
+  .box.selected .box-body { stroke-width: 2.6; }
 
-  .box.st-record rect  { stroke: var(--brand-700); }
-  .box.st-lookup rect  { stroke: var(--ink-300); }
-  .box.st-inline rect  { stroke: var(--ink-300); fill: var(--surface-sunken); }
-  .box.st-string rect  { stroke: var(--badge-site-border); fill: var(--badge-site-bg); }
-  .box.st-derived rect { stroke: var(--badge-wn-border); fill: var(--badge-wn-bg); }
+  .box.st-record .box-body  { stroke: var(--brand-700); }
+  .box.st-lookup .box-body  { stroke: var(--ink-300); }
+  .box.st-inline .box-body  { stroke: var(--ink-300); fill: var(--surface-sunken); }
+  .box.st-enum .box-body    { stroke: var(--pill-border); fill: var(--pill-bg); }
+  .box.st-string .box-body  { stroke: var(--badge-site-border); fill: var(--badge-site-bg); }
+  .box.st-derived .box-body { stroke: var(--badge-wn-border); fill: var(--badge-wn-bg); }
 
   .box-label {
     font-size: var(--t-label-size);
@@ -882,6 +1050,21 @@
     font-size: var(--t-code-size);
     fill: var(--ink-400);
   }
+  /* "This entity can carry tags", rather than a Tag box with three routes
+     across the diagram to say the same thing. */
+  /* Teal is the one accent this diagram does not already spend on a status:
+     amber marks a bare string, blue marks derived. */
+  .tag-pill {
+    fill: var(--accent-teal-bg);
+    stroke: var(--accent-teal-fg);
+    stroke-width: 1;
+  }
+  .tag-pill-text {
+    font-size: var(--t-code-size);
+    font-weight: var(--t-micro-label-weight);
+    fill: var(--accent-teal-fg);
+  }
+
   .box-status {
     font-size: var(--t-micro-label-size);
     font-weight: var(--t-micro-label-weight);
@@ -909,15 +1092,19 @@
 
   .legend-row {
     display: grid;
-    grid-template-columns: 16px 92px 1fr;
+    grid-template-columns: 34px 92px 1fr;
     gap: 8px;
-    align-items: baseline;
+    /* start, not baseline: a note can run to several lines, and the symbol
+       belongs beside the first one rather than floating in the middle. */
+    align-items: start;
     font-size: var(--t-code-size);
   }
 
   .legend-chip {
     width: 14px;
     height: 11px;
+    margin-top: 2px;
+    justify-self: start;
     border-radius: 2px;
     border: 1.4px solid var(--line-strong);
     background: var(--surface);
@@ -926,36 +1113,34 @@
   .legend-chip.st-record  { border-color: var(--brand-700); }
   .legend-chip.st-lookup  { border-color: var(--ink-300); }
   .legend-chip.st-inline  { border-color: var(--ink-300); background: var(--surface-sunken); }
+  .legend-chip.st-enum    { border-color: var(--pill-border); background: var(--pill-bg); }
   .legend-chip.st-string  { border-color: var(--badge-site-border); background: var(--badge-site-bg); }
   .legend-chip.st-derived { border-color: var(--badge-wn-border); background: var(--badge-wn-bg); }
   .legend-line {
     height: 0;
     border: 0;
     border-top: 1.6px solid var(--line-strong);
-    align-self: center;
+    margin-top: 7px;
   }
   .legend-line.dashed { border-top-style: dashed; border-color: var(--ink-050); }
+  .legend-line.dotted { border-top-style: dotted; border-color: var(--badge-wn-border); }
+  .legend-pill {
+    width: auto;
+    height: auto;
+    margin-top: 0;
+    padding: 0 5px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-teal-fg);
+    background: var(--accent-teal-bg);
+    color: var(--accent-teal-fg);
+    font-size: var(--t-micro-label-size);
+    line-height: 1.4;
+    text-align: center;
+  }
 
   .legend-name { font-weight: 600; color: var(--ink-600); }
   .legend-note { color: var(--ink-400); }
 
-  .tag-card {
-    margin-top: var(--space-4);
-    background: var(--surface-sunken);
-    border: 1px solid var(--line-soft);
-    border-left: 3px solid var(--pill-border);
-    border-radius: var(--radius);
-    padding: 10px var(--space-4);
-  }
-  .tag-card-head {
-    font-size: var(--t-micro-label-size);
-    font-weight: var(--t-micro-label-weight);
-    text-transform: var(--t-micro-label-tt);
-    letter-spacing: var(--t-micro-label-ls);
-    color: var(--t-micro-label-color);
-    margin-bottom: 4px;
-  }
-  .tag-card p { margin: 0; color: var(--ink-500); font-size: var(--t-code-size); }
 
   /* ── Entity cards ── */
   .entity-list {
@@ -1132,7 +1317,22 @@
     font-size: var(--t-code-size);
     line-height: 1.45;
   }
-  .weak-flag, .guess-flag {
+  /* Derived is the opposite of weak: nobody authors it, so it cannot drift. */
+  .derived-flag {
+    display: inline-block;
+    font-size: var(--t-micro-label-size);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    padding: 0 5px;
+    margin-right: 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--badge-wn-border);
+    background: var(--badge-wn-bg);
+    color: var(--badge-wn-fg);
+    white-space: nowrap;
+  }
+
+  .weak-flag {
     display: inline-block;
     font-size: var(--t-micro-label-size);
     text-transform: var(--t-micro-label-tt);
@@ -1149,12 +1349,12 @@
 
   .num { text-align: right; font-family: var(--t-code-ff); color: var(--ink-400); }
   .v-value { color: var(--ink-800); }
-  .v-els, .v-phase { color: var(--ink-300); font-size: var(--t-code-size); }
+  .v-els { color: var(--ink-300); font-size: var(--t-code-size); }
   .t-note { color: var(--ink-400); font-size: var(--t-code-size); line-height: 1.45; }
   .dash { color: var(--ink-050); }
   .table-foot { font-size: var(--t-code-size); color: var(--ink-200); margin: 6px 0 0; }
 
-  .kind-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .kind-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
   .chip {
     font-family: inherit;
     font-size: var(--t-code-size);
@@ -1173,6 +1373,27 @@
   }
   .chip-n { color: var(--ink-200); }
 
+  /* The kind chips subdivide the site level only, so they read as a second
+     rank under the level chips rather than a competing filter. */
+  .chip-sub {
+    font-size: var(--t-micro-label-size);
+    margin-top: 4px;
+  }
+
+  /* Same badge as the chart tooltip and the References page, so the level of
+     a claim looks the same wherever it is drawn: a site filled, anything
+     coarser hollow. */
+  .badge-site {
+    background: var(--badge-site-bg);
+    border: 1px solid var(--badge-site-border);
+    color: var(--badge-site-fg);
+    border-radius: var(--radius-sm);
+    padding: 1px 6px;
+    font-size: var(--t-code-size);
+    white-space: nowrap;
+  }
+  .badge-coarse { background: var(--badge-site-bg-soft); }
+
   .kind-tag {
     font-size: var(--t-micro-label-size);
     padding: 1px 6px;
@@ -1181,11 +1402,6 @@
     background: var(--pill-bg);
     color: var(--pill-fg);
     white-space: nowrap;
-  }
-  .kind-tag.k-material {
-    border-color: var(--badge-site-border);
-    background: var(--badge-site-bg);
-    color: var(--badge-site-fg);
   }
 
   /* ── Band-to-band link cards ── */
@@ -1236,8 +1452,24 @@
     border-radius: var(--radius-sm);
     background: var(--surface);
   }
-  .tag-name { background: none; padding: 0; color: var(--ink-600); }
+  /* The tag as the chart and the tooltip draw it, colours inline from
+     TAG_STYLES so this list cannot drift from them. */
+  .tag-pill-live {
+    border: 1px solid;
+    border-radius: var(--radius-sm);
+    padding: 1px 6px;
+    font-size: var(--t-tip-tag-size);
+    white-space: nowrap;
+  }
   .tag-count { font-family: var(--t-code-ff); font-size: var(--t-code-size); color: var(--ink-200); }
+  /* How many tags carry this role, next to the role's name. */
+  .role-n {
+    font-family: var(--t-code-ff);
+    font-size: var(--t-code-size);
+    color: var(--ink-200);
+    margin-right: 8px;
+  }
+
   .scope {
     font-size: var(--t-micro-label-size);
     text-transform: var(--t-micro-label-tt);
@@ -1250,6 +1482,7 @@
   }
   .scope.sc-assignment { background: var(--badge-site-bg); color: var(--badge-site-fg); }
   .scope.sc-mode { background: var(--badge-wn-bg); color: var(--badge-wn-fg); }
+  .scope.sc-derived { background: var(--brand-tint); color: var(--brand-accent); }
 
   /* ── Checks ── */
   .check-list {
@@ -1293,7 +1526,7 @@
     text-decoration: underline;
   }
 
-  /* ── Migration steps ── */
+  /* ── Open items ── */
   .steps {
     margin: 0;
     padding-left: 20px;
@@ -1309,6 +1542,18 @@
     margin-bottom: 2px;
   }
   .step-body { font-size: 13.5px; line-height: 1.55; }
+
+  /* VibrationModesPage is a whole page in its own right, so it keeps its own
+     padding; this just stops it doubling up on the section's. */
+  .modes-frame {
+    margin: 0 -48px;
+  }
+  /* It is a whole page in its own right, so it opens with its own title and
+     status badge. Inside this section those are said already. */
+  .modes-frame :global(.wip-badge),
+  .modes-frame :global(h1) {
+    display: none;
+  }
 
   @media (max-width: 1000px) {
     .spread, .map-below { grid-template-columns: 1fr; gap: var(--space-4); }
