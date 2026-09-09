@@ -146,7 +146,7 @@ const VIBRATION_ORDER: Record<string, number> = {
   'stretch': 0, 'stretch.symmetric': 1, 'stretch.asymmetric': 2,
   'bend': 3, 'bend.symmetric': 4, 'bend.asymmetric': 5,
   'bend.scissoring': 6, 'bend.rocking': 7, 'bend.wagging': 8, 'bend.twisting': 9,
-  'combination': 10, 'lattice': 11,
+  'combination': 10, 'lattice': 11, 'electronic': 12,
 };
 
 export function getLegendCategories(

@@ -393,23 +393,14 @@
     "keywords": "reproduced/used-some-number/results",
     "file": "Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:application/pdf"
   },
-  "Herzberg.InfraredRamanSpectra.1946": {
-    "_type": "article",
-    "title": "Infrared and Raman Spectra of Polyatomic Molecules.",
-    "volume": "50",
-    "issn": "0092-7325",
-    "url": "https://doi.org/10.1021/j150447a021",
-    "doi": "10.1021/j150447a021",
-    "pages": "288--288",
-    "number": "3",
-    "journaltitle": "The Journal of Physical Chemistry",
-    "shortjournal": "J. Phys. Chem.",
-    "publisher": "American Chemical Society",
-    "author": "Herzberg, Gerhard and Crawford, Bryce L. Jr.",
-    "urldate": "2026-06-23",
-    "date": "1946-03-01",
-    "keywords": "reproduced/used-some-number/results",
-    "file": "Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:application/pdf"
+  "Herzberg.InfraredRamanSpectra.1945": {
+    "_type": "book",
+    "title": "Molecular Spectra and Molecular Structure. {II}. Infrared and Raman Spectra of Polyatomic Molecules",
+    "publisher": "D. Van Nostrand",
+    "location": "New York",
+    "author": "Herzberg, Gerhard",
+    "date": "1945",
+    "keywords": "reproduced/used-some-number/results"
   },
   "Shimanouchi.TablesMolecularVibrational.1978": {
     "_type": "article",
@@ -600,23 +591,7 @@
     "author": "Feng, Zhendong and Wang, Qingnan and Zhang, Pengfei and Li, Guanna and Wang, Jijie and Feng, Zhaochi and Li, Can",
     "urldate": "2026-09-09",
     "date": "2024-11-01",
+    "keywords": "reproduced/used-some-number/results",
     "file": "Feng et al._2024_Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Feng et al._2024_Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\KZKWWWUZ\\\\acs.jpclett.html:text/html"
-  },
-  "Feng.SUPPORTGenerationSurface.2024": {
-    "_type": "article",
-    "title": "{SUPPORT} Generation of Surface Ga‑H Hydride and Reactivity toward {CO}2",
-    "volume": "15",
-    "issn": "1948-7185",
-    "url": "https://doi.org/10.1021/acs.jpclett.4c02854",
-    "doi": "10.1021/acs.jpclett.4c02854",
-    "abstract": "Hydrogen adsorption on gallium oxide was investigated\nby in situ\ninfrared ({IR}) spectroscopy over a temperature range of 30–450\n°C. Both hydroxyl groups and Ga-H hydrides with a pair of characteristic\nbands at 3685 (3532) cm–1 and 2011 (1988) cm–1 were detected on the surface gallium oxide. The formation\nand stability of surface Ga-H hydrides were found to be highly dependent\non the temperature of H2 dissociation. Through a combination\nof density functional theory ({DFT}) calculations and isotopic experiments,\na mechanism involving both heterolytic and homolytic pathways for\nhydrogen dissociation was proposed for the generation of Ga-H hydrides.\nFurthermore, the reactivity of surface Ga-H hydrides was explored\nby their interactions with various probe molecules such as carbon\ndioxide, oxygen, and nitrogen. A potential reaction mechanism involving\nthe attraction between nucleophilic hydrogen and positively charged\nintermediates was suggested during those hydrogenations.",
-    "pages": "11194--11199",
-    "number": "45",
-    "journaltitle": "The Journal of Physical Chemistry Letters",
-    "shortjournal": "J. Phys. Chem. Lett.",
-    "author": "Feng, Zhendong and Wang, Qingnan and Zhang, Pengfei and Li, Guanna and Wang, Jijie and Feng, Zhaochi and Li, Can",
-    "urldate": "2026-09-09",
-    "date": "2024-11-01",
-    "file": "Feng et al._2024_SUPPORT Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Feng et al._2024_SUPPORT Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:application/pdf"
   }
 }

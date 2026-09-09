@@ -244,6 +244,18 @@
     if (siteKindFilter) levelFilter = 'site';
   }
 
+  // `parts` is authored as bare keys, but a key is not what a reader recognises
+  // and it hides the one thing that matters about a part: its level. Resolve
+  // each through the same table the rows come from, so a part is drawn as the
+  // badge that entry gets everywhere else — filled for a site, hollow above it.
+  $: surfaceByKey = new Map(stats.surfaces.map(s => [s.value, s]));
+  const surfaceLabel = (key: string) => surfaceByKey.get(key)?.label ?? key;
+  const surfaceLevel = (key: string) => surfaceByKey.get(key)?.level;
+  function partTitle(key: string) {
+    const lv = surfaceLevel(key);
+    return lv ? `${key} — ${LEVEL_LABEL[lv].toLowerCase()}` : key;
+  }
+
   $: tagsByRole = (() => {
     const groups = new Map<TagRole, ValueRow[]>();
     for (const t of stats.tags) {
@@ -736,7 +748,7 @@
       <div class="spread-visual">
         <table class="inv-table">
           <thead>
-            <tr><th>Key</th><th>Surface</th><th>Kind</th><th>What</th><th>Parts</th><th class="num">Claims</th><th class="num">Via container</th></tr>
+            <tr><th>Key</th><th>Surface</th><th>Level</th><th>Kind</th><th>Formula</th><th>Parts</th><th class="num">Claims</th><th class="num">Via container</th></tr>
           </thead>
           <tbody>
             {#each shownSurfaces as s}
@@ -750,10 +762,28 @@
                   >{s.label}</span>
                 </td>
                 <td>
+                  {#if s.level}
+                    <span class="level-tag lv-{s.level}" title={LEVEL_NOTE[s.level]}
+                    >{LEVEL_LABEL[s.level]}</span>
+                  {/if}
+                </td>
+                <td>
                   {#if s.kind}<span class="kind-tag">{SITE_KIND_LABEL[s.kind]}</span>{/if}
                 </td>
-                <td class="v-els">{s.detail}</td>
-                <td class="v-els">{(s.parts ?? []).join(' · ')}</td>
+                <td class="v-els">{s.detail || ''}</td>
+                <td>
+                  {#if (s.parts ?? []).length}
+                    <span class="part-list">
+                      {#each s.parts ?? [] as p}
+                        <span
+                          class="badge-site badge-part"
+                          class:badge-coarse={surfaceLevel(p) !== 'site'}
+                          title={partTitle(p)}
+                        >{surfaceLabel(p)}</span>
+                      {/each}
+                    </span>
+                  {/if}
+                </td>
                 <td class="num">{s.uses}</td>
                 <td class="num">{s.viaContainer ?? ''}</td>
               </tr>
@@ -1403,6 +1433,30 @@
     color: var(--pill-fg);
     white-space: nowrap;
   }
+
+  /* The level in words, next to the badge that encodes it as filled/hollow.
+     Filled against hollow separates a site from everything above it, which is
+     the distinction that must never be missed; it cannot say which of phase or
+     sample, so the word does that. */
+  .level-tag {
+    font-size: var(--t-micro-label-size);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--pill-border);
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+    white-space: nowrap;
+    text-transform: lowercase;
+  }
+  .level-tag.lv-site {
+    border-color: var(--badge-site-border);
+    background: var(--badge-site-bg);
+    color: var(--badge-site-fg);
+  }
+  .level-tag.lv-phase { background: var(--badge-site-bg-soft); }
+
+  .part-list { display: flex; flex-wrap: wrap; gap: 3px; }
+  .badge-part { font-size: var(--t-micro-label-size); }
 
   /* ── Band-to-band link cards ── */
   .link-card {

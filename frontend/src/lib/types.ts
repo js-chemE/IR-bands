@@ -1,4 +1,4 @@
-export type VibCategory = 'stretch' | 'bend' | 'combination' | 'lattice';
+export type VibCategory = 'stretch' | 'bend' | 'combination' | 'lattice' | 'electronic';
 export type VibSubtype = 'symmetric' | 'asymmetric' | 'scissoring' | 'rocking' | 'wagging' | 'twisting';
 export type Branch = 'R' | 'P' | 'Q';
 export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';

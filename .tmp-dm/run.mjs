@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import { analyse, classifySite, SITE_KIND_LABEL } from './dataModel.mjs';
+const r = p => JSON.parse(fs.readFileSync(p, 'utf-8'));
+const dataset = r('docs/data/bands.json');
+const refs = r('docs/data/references.json');
+const vib = r('docs/data/vibrations.json');
+const tags = r('docs/data/tags.json');
+const s = analyse(dataset, refs, vib, tags);
+console.log('counts', s.counts);
+console.log('\nSITES');
+for (const x of s.sites) console.log(` ${x.value.padEnd(22)} ${SITE_KIND_LABEL[x.kind].padEnd(15)} ${x.sure?'    ':'GUESS'} els=${x.elements.join(',')} uses=${x.uses} bands=${x.bands.length} refs=${x.refs.length}`);
+console.log('\nCHECKS');
+for (const c of s.checks) console.log(` ${c.hits.length}\t${c.label}\n   ${c.hits.slice(0,6).join(' | ')}`);
+console.log('\nspecies linked', s.species.filter(x=>x.molecule).length, '/', s.species.length);
+console.log('authors', s.authors.length, 'techniques', s.techniques.map(t=>t.value+':'+t.uses).join(' '));
+console.log('tags roles', [...new Set(s.tags.map(t=>t.role))].join(','));

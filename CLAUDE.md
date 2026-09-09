@@ -100,16 +100,20 @@ one file.
 not a single answer, so every entry carries a `level`:
 
 - `site` — the atom-scale spot the molecule is bonded to (`cu_1p`, `zn_ovac_hf`)
-- `phase` — a constituent of a sample, named by composition (`tio2`, `zno`)
-- `sample` — what was in the cell (`cu_zno`, `fe3o4_001`)
+- `phase` — a compound named by its formula, whether it is a constituent of a
+  sample or the only thing in the cell (`tio2`, `zno`, `fe3o4_001`)
+- `sample` — a made thing that was in the cell (`cu_zno`, `cuga_sio2`)
 
 The same entry plays several roles without changing: TiO₂ is the sample when a
 paper measures bare titania and a phase when that titania supports Pt. That
 ambiguity is in the chemistry, so the schema records the entry once and lets
 the claim say which keys it names. `"measured_on": ["zr_4p", "cugazrox"]` is
 how "Zr⁴⁺ on CuGaZrOx" is recorded; a paper that named only the catalyst gets
-one key, and that is a complete record of what it said. A facet is a sample,
-not a site.
+one key, and that is a complete record of what it said. A facet is a **phase**,
+never a site or a sample: `Fe₃O₄(001)` is magnetite, named by `formula` like
+any other bare oxide, with `(001)` in `facet`. The cut is not part of the
+chemistry, so `Fe₃O₄(001)` and `Fe₃O₄(111)` are the same compound and differ
+only in the plane they expose.
 
 `parts` is the single containment link and points **down** the scale: a sample
 lists its phases and sites, a phase the sites within it, a composite site the
@@ -226,6 +230,17 @@ and Mulliken labels need letter subscripts (g, u, v, d) that Unicode has no
 characters for. Those two fields, and nothing else in the project. They are
 listed in `MARKUP_EXEMPT_VIBRATION_FIELDS` in `schema.py`.
 
+**Naming a mode**: a band's `short` names the motion, never a rank or a
+database code. `ν` stretch, `δ` bend, `ρ` rock, `γ` out of plane, `τ` torsion,
+with `ₛ` / `ₐₛ`; then the moving atoms in brackets, then the species with a
+trailing `*` when adsorbed, then the rotational branch: `νₐₛ(OCO) HCOO*`,
+`ν(CO) MeOH (Q)`, `νₛ+δ(OCO) CO₂ (P)`. Where the binding geometry is what
+distinguishes the band, it replaces the species: `ν(CO) linear (μ₁)`. Where a
+molecule has two modes of one kind, disambiguate with the spectroscopist index
+(`νₛ(CH₃) ν₂ MeOH`), never an invented letter. One notation per species, and
+`11101←00001` or `q₁₂` belongs in the note, not the label. The full rule is the
+Naming a band section of `lib/sourceGuide.ts`.
+
 **Underscores**: an underscore in text is a subscript nobody typed. Write the
 character (`ν_as` → `νₐₛ`, `V_O` → `Vₒ`, `H_2O` → `H₂O`); where the subscript is
 a letter Unicode has none for, parenthesise instead (`A_HF/A_LF` → `A(HF)/A(LF)`,
@@ -341,7 +356,10 @@ Edit `data/bands.jsonc`. Required fields per band: `id`, `species` (a key in `da
 The `region` a band belongs to is derived at runtime via `Band.region_for(dataset.regions)` — it finds the `Region` whose `wn_min`/`wn_max` range contains the band's center. Do not add `region` back to individual band entries.
 
 Valid enum values:
-- `vibration.category`: `stretch | bend | combination | lattice`
+- `vibration.category`: `stretch | bend | combination | lattice | electronic`.
+  `electronic` is not a normal mode: it is a defect or charge-transfer transition that
+  absorbs across the infrared (the Vo+ photoionization band of reduced ZnO). It takes
+  `atoms: "diverse"`, since nothing moves
 - `vibration.subtype`: `symmetric | asymmetric | scissoring | rocking | wagging | twisting`
 - `vibration.branch`: `R | P | Q`
 - `intensity`: `vs | s | m | w | vw` (very strong → very weak; omit if unknown)
@@ -349,7 +367,7 @@ Valid enum values:
 - `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
 - `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form). Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
-- `technique` in a reference object: `drifts | transmission | atr | ftir | computational`. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. build.py derives a tag of the same name, so never write one by hand
+- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | ftir | computational`. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
 - `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode

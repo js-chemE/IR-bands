@@ -72,6 +72,12 @@
       "formula": "HCO₃⁻*",
       "molecule": "bicarbonate"
     },
+    "formic_acid": {
+      "label": "Formic acid",
+      "formula": "HCOOH*",
+      "molecule": null,
+      "note": "Formate that has kept its proton: HCOOH adsorbed without dissociating. The C=O stretch near 1700 to 1730 cm⁻¹ is what separates it from formate, which has no localised carbonyl at all, so an absorption in that window is the test for whether the acid dissociated on contact."
+    },
     "formaldehyde": {
       "label": "Formaldehyde",
       "formula": "H₂CO*",
@@ -86,6 +92,12 @@
       "label": "Hydroxymethyl",
       "formula": "H₂COH*",
       "molecule": null
+    },
+    "methylenebisoxy": {
+      "label": "Methylenebisoxy",
+      "formula": "H₂COO*",
+      "molecule": null,
+      "note": "Formate one hydrogenation step further on, with both oxygens still held by the surface; also written dioxymethylene. It sits between HCOO* and H₂CO* on the methanol path, and because it cannot be dosed, the sources that name it rest on a calculated frequency plus a band that rises and falls out of step with the formate it comes from."
     },
     "acyl": {
       "label": "Acyl",
@@ -104,6 +116,12 @@
       "formula": "OH*",
       "molecule": null,
       "note": "A hydroxyl on an oxide surface. Deliberately not split into isolated and hydrogen-bonded: that split needs evidence a source actually gives, and where a paper does resolve several hydroxyls it resolves them by the cation they sit on, which the claim records as its site."
+    },
+    "o_vacancy": {
+      "label": "Oxygen vacancy",
+      "formula": "Vₒ",
+      "molecule": null,
+      "note": "A missing lattice oxygen in a reducible oxide, and the electrons left behind with it. Not a molecule and it has no normal modes; it is here because the electron trapped in it absorbs infrared light, which puts a band on the chart that belongs to no adsorbate."
     },
     "hydride": {
       "label": "Hydride",

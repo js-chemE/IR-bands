@@ -222,6 +222,7 @@ export const VIBRATION_PALETTE: Record<string, string> = {
   'bend.twisting':      '#A86B4A',
   'combination':        '#8C7A95',
   'lattice':            '#9B6B3D',
+  'electronic':         '#6E6A7F',
 };
 
 /** Atom group. One hue family per element pair; deuterated twins run lighter. */
@@ -253,6 +254,13 @@ export const ATOMS_PALETTE: Record<string, string> = {
  * Add an entry only when the tag deserves to stand out.
  */
 const CAVEAT_STYLE = { background: '#FBE0DC', border: '#E1897C', color: '#A4382A' };
+
+/**
+ * The one filled pill in the set. Every other tag is light with dark text;
+ * this one inverts, because it does not describe the band, it says the entry
+ * is unresolved and somebody has to go back to the paper.
+ */
+const REVISE_STYLE = { background: '#8C2019', border: '#6B1710', color: '#FFF1EF' };
 
 /**
  * The isotopologue bands, one tag per substitution. They share a style because
@@ -288,6 +296,7 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   // tag whose TAG_ROLES entry is 'caveat' is listed here, and only those.
   'misassignment-warning': CAVEAT_STYLE,
   'site-sensitive':        CAVEAT_STYLE,
+  'to-be-revised':         REVISE_STYLE,
 };
 
 export const DEFAULT_TAG_STYLE = {

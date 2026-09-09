@@ -10,14 +10,14 @@ from typing import Optional, Literal, Union
 
 
 # Allowed enum values — keep in sync with the JSONC schema header
-VibCategory = Literal["stretch", "bend", "combination", "lattice"]
+VibCategory = Literal["stretch", "bend", "combination", "lattice", "electronic"]
 VibSubtype = Literal["symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"]
 Branch = Literal["R", "P", "Q"]
 BandIntensity = Literal["vs", "s", "m", "w", "vw"]
 BandWidth = Literal["sharp", "medium", "broad", "very_broad"]
 BandConfidence = Literal["confirmed", "likely", "tentative", "speculative"]
 
-VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice"}
+VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice", "electronic"}
 VALID_SUBTYPES = {"symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"}
 VALID_BRANCHES = {"R", "P", "Q"}
 VALID_INTENSITIES = {"vs", "s", "m", "w", "vw"}
@@ -35,12 +35,14 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # How the spectrum was taken, per citation. DRIFTS, ATR and the rest are
 # sampling geometries; "computational" is not a geometry at all, it marks a
 # calculated frequency. Every value names a real way of taking the spectrum:
-# there is deliberately no "FTIR, geometry not stated" placeholder, since
-# nearly every measurement here uses an interferometer and saying so would
-# distinguish nothing.
+# "ftir" is the one placeholder: it says the source named the interferometer
+# and not the geometry, which is worth recording as an open question rather
+# than guessing. Reflection geometries are separate values because the surface
+# selection rule makes them a different experiment: on a flat conducting
+# sample IRRAS sees only dipoles with a component along the surface normal.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "computational",
+    "ftir", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -49,8 +51,12 @@ Technique = Literal[
 ISOTOPE_TAGS = {"D": "deuterium", "¹³C": "carbon-13", "¹⁸O": "oxygen-18"}
 VALID_ISOTOPES = set(ISOTOPE_TAGS)
 
+# Kept in step with Technique above by hand: the two drifted apart once
+# already, the Literal gaining reflection geometries the validator then
+# rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
-    "drifts", "transmission", "atr", "ftir", "computational",
+    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
+    "ftir", "computational",
 }
 
 # How specific a surface is. "Where was this measured" has a scale rather than
