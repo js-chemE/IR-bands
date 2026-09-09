@@ -42,9 +42,15 @@ Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
     "computational",
 ]
+# Which substitution an isotopologue band carries. Closed, because each value
+# derives a tag of its own and a stray spelling would quietly create a fourth
+# chip in the chart legend. The key is written the way a spectroscopist writes
+# it; the value is the ASCII tag the build derives from it.
+ISOTOPE_TAGS = {"D": "deuterium", "¹³C": "carbon-13", "¹⁸O": "oxygen-18"}
+VALID_ISOTOPES = set(ISOTOPE_TAGS)
+
 VALID_TECHNIQUES = {
-    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "computational",
+    "drifts", "transmission", "atr", "ftir", "computational",
 }
 
 # How specific a surface is. "Where was this measured" has a scale rather than
@@ -493,8 +499,8 @@ class Band:
     # relabeled just because someone measured its heavy twin.
     isotopologue_of: Optional[str] = None
 
-    # Which substitution this band represents, e.g. "D", "¹³C", "¹⁸O" —
-    # display text, not a parsed enum. Required exactly when
+    # Which substitution this band represents: one of VALID_ISOTOPES, which
+    # is also what the derived tag is named after. Required exactly when
     # isotopologue_of is set.
     isotope: Optional[str] = None
 

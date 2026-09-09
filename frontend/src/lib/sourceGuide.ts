@@ -122,6 +122,53 @@ export const GUIDE: GuideSection[] = [
     ],
   },
 
+  {
+    id: 'si',
+    label: 'Read the supporting information',
+    title: 'Read the supporting information',
+    lead: [
+      'The SI is not an appendix to skim once the interesting part is done. In an operando ' +
+      'paper it carries three things the main text almost never has: which sample each figure ' +
+      'was actually measured on, reference spectra of the same species on the single ' +
+      'components, and the figure and table numbers that make a note checkable.',
+      'Read it before writing any claim. It routinely changes the surface key, and it often ' +
+      'adds claims the main text does not contain at all.',
+    ],
+    rules: [
+      'Find the sample table first. A main text that says "the CuGaZrOₓ catalysts" usually has an ' +
+      'SI table naming five or six distinct samples with different loadings, and each figure used ' +
+      'one of them. Reading that table is what turns a family name into a real answer; how fine ' +
+      'the key should then be is the grain question in Site, phase or sample above.',
+      'Reference spectra on single components are their own claims, at phase level. When a ' +
+      'paper doses CO or methanol onto the bare oxide to justify an assignment, that is a ' +
+      'different surface, a different number and a different experiment: record it as a row of ' +
+      'its own rather than folding it into the catalyst’s note.',
+      'Take pretreatment and conditions from the SI methods, not from the figure caption. ' +
+      'Reduction temperature, ramp rate and dosing sequence live there, and they decide which ' +
+      'sites exist at all.',
+      'Cite the SI figure or table in the note the same way you would cite a main-text figure: ' +
+      '"Fig. S4a", "Table S1". A number nobody can find again is a number nobody can check.',
+      'Isotope experiments are often only in the SI, or only in one figure of the main text. ' +
+      'Look before concluding that a substitution was qualitative.',
+    ],
+    never: [
+      'Never assume the SI repeats the main text. Most of the numbers appear in exactly one of them.',
+      'Never take a number off an SI figure that neither text assigns, however suggestive the ' +
+      'peak looks. An axis label is not an assignment.',
+    ],
+    example: {
+      caption: 'One family name, six samples (Table S1 of a real paper)',
+      code: `Cu-ZrOₓ         24 wt% Cu,  0 wt% Ga, 47 wt% Zr
+Cu-GaZrOₓ-48    19 wt% Cu,  9 wt% Ga, 36 wt% Zr
+Cu-GaZrOₓ-24    23 wt% Cu, 22 wt% Ga, 20 wt% Zr
+Cu-GaOₓ         22 wt% Cu, 45 wt% Ga,  0 wt% Zr
+GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
+      note: 'The main text calls all of them "CuGaZrOₓ". The Ga-H band is strong on the Cu-free ' +
+        'sample and a trace on the Cu-containing one, so those two need separate keys; the loading ' +
+        'series behind the Cu-containing ones does not, until a claim depends on it.',
+    },
+  },
+
   /* =======================================================================
      Part 2
      ======================================================================= */
@@ -197,11 +244,24 @@ export const GUIDE: GuideSection[] = [
       'Check the key exists in surfaces.jsonc. If it does not, add it rather than bending the claim to ' +
       'a key that nearly fits.',
     ],
+    rules: [
+      'How fine a sample key should be is decided by what the claims turn on, not by how much ' +
+      'detail the paper prints. Two samples get two keys when a band appears on one and not the ' +
+      'other, or sits at a different position on each: a Cu-free counterpart of the same oxide, ' +
+      'a different facet of the same crystal, a support that changes the assignment. Members of a ' +
+      'loading series are one key until a claim depends on which member, and the note names the ' +
+      'member either way.',
+      'That judgement is about which distinction the spectra carry. What is never right is a ' +
+      'family key chosen because nobody opened the sample table.',
+      'Splitting later is cheap and merging later is cheap; recording a claim against a sample it ' +
+      'was not measured on is not. When in doubt, name the specific sample and let the note say ' +
+      'what it belongs to.',
+    ],
     table: {
       head: ['The paper says', 'measured_on'],
       rows: [
         ['"ν(CO) on Cu⁺ of the Cu/ZnO catalyst"', '["cu_1p", "cu_zno"]'],
-        ['"over the CuGaZrOx catalyst"', '"cugazrox"'],
+        ['"over the Cu-GaZrOₓ catalyst"', '"cu_gazrox"'],
         ['"formate on the alumina support" (of Ru/Al₂O₃)', '["al2o3", "ru_al2o3"]'],
         ['"on bare TiO₂"', '"tio2"'],
         ['"at the Pt-ceria interface"', '["pt0_ceo2_interface"]'],
@@ -215,15 +275,15 @@ export const GUIDE: GuideSection[] = [
       'Never drop the sample because you have the site. Both keys cost nothing and answer different questions.',
     ],
     example: {
-      caption: '"Zr⁴⁺ on CuGaZrOx" is one claim with two keys (methoxy_asym)',
+      caption: 'A site and a sample in one claim (gah_stretch)',
       code: `{
   "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
-  "wn": 2970,
-  "measured_on": ["zr_4p", "cugazrox"],
+  "wn": 1976,
+  "measured_on": ["ga", "gazrox"],
   "technique": "drifts",
-  "note": "…"
+  "note": "Fig. 4b to 4d … ν(Ga-H) at 1976 cm⁻¹ …"
 }`,
-      note: 'The site is what the paper assigned the band to; the sample is what was in the cell. A query for either one finds this row.',
+      note: 'The site is the Ga centre the paper names by writing Ga-H; the sample is what was in the cell. A query for either one finds this row. Note the key is `ga` and not `ga_3p`: the paper states no charge, so the record states none.',
     },
   },
   {
@@ -269,15 +329,14 @@ export const GUIDE: GuideSection[] = [
         ['drifts', 'Diffuse reflectance off a powder bed'],
         ['transmission', 'Beam straight through a self-supporting wafer'],
         ['atr', 'Attenuated total reflectance against an internal-reflection crystal'],
-        ['irras', 'Grazing-incidence reflection off a flat single crystal'],
-        ['pm_irras', 'Polarisation-modulated IRRAS'],
-        ['emission', 'The sample’s own thermal emission'],
+        ['ftir', 'Placeholder: the paper names the interferometer, not the geometry'],
         ['computational', 'Not a measurement: a calculated frequency'],
       ],
     },
     never: [
-      'Never guess the geometry from the catalyst. Leave it empty instead: the Dataset page counts the ' +
-      'gaps, and a gap is honest where a guess is not.',
+      'Never guess the geometry from the catalyst. Write `ftir` when the paper names only the ' +
+      'instrument, and leave the field out when it says nothing at all: the Dataset page counts ' +
+      'both, and either is honest where a guess is not.',
       'Never author the matching tag by hand. The build writes it.',
     ],
   },
@@ -311,7 +370,7 @@ export const GUIDE: GuideSection[] = [
     ],
     never: [
       'The wavenumber (that is `wn`), the surface (`measured_on`), the technique (`technique`).',
-      'Anything true of the band in general. That is `description`, on the band, 100 to 120 words.',
+      'Anything true of the band in general. That is `description`, on the band, 120 words at most and as short as the general part allows.',
       'Conclusions the paper does not draw. If you are inferring, either leave it out or say who is inferring.',
     ],
     example: {
@@ -346,6 +405,7 @@ export const GUIDE: GuideSection[] = [
       ],
     },
     rules: [
+      '`isotope` says which substitution, from a closed list (D, ¹³C, ¹⁸O), and the build derives the matching tag from it, so the chart can filter a deuteration experiment apart from an ¹⁸O one.',
       'The child band keeps the ordinary species key: `formate`, not a deuterated species. The ' +
       'substitution lives in `isotope` and nowhere else.',
       '`atoms` keeps the ordinary symbols too: a C–D stretch is `C-H`. A heavier nucleus is not a ' +
@@ -354,11 +414,26 @@ export const GUIDE: GuideSection[] = [
       'The link is one-directional, child to parent, and never chained. `build.py` adds the `isotope` ' +
       'tag to the child; the parent is not relabelled because someone measured its heavy twin.',
       'Both bands then collect their own claims, each with its own window.',
+      'One band per mode per label, never one per isotopologue. A study that resolves the fully ' +
+      '¹⁸O-labelled species and two partly labelled ones reports three positions for the same mode, ' +
+      'a few cm⁻¹ apart: that is one band and one assignment carrying all three, with the note ' +
+      'saying which labelling gives which. Splitting them into a band each spends a dozen rows ' +
+      'saying one thing.',
+      'The build tells you when a mode has been split too finely: bands that no longer fit the ' +
+      'three sub-lanes of their row get logged. Read that as a signal about the data rather than ' +
+      'about the layout.',
+      'If the paper substitutes and reports no position for the substituted band, there is no ' +
+      'isotopologue band to add. Tag the claim `isotope-labeling`, and let the note say what was ' +
+      'seen: usually the ordinary band weakening or vanishing. Do not compute the expected ' +
+      'shifted position and record it as data.',
     ],
     never: [
       'Never record the substituted position as a second `wn` on the parent’s claim. It is the commonest ' +
       'way this dataset goes wrong: the parent’s window silently widens to cover a band that is not it.',
-      'Never author the `isotope` tag. It is derived from `isotopologue_of`.',
+      'Never write that a shift was observed when what the paper shows is a band **disappearing**. ' +
+      'A band that vanishes under D₂ and a band that moves to a stated position are different ' +
+      'evidence, and only the second one can become an isotopologue band. Say which it was.',
+      'Never author the substitution tag. `deuterium`, `carbon-13` and `oxygen-18` are derived from the `isotope` field, whose vocabulary is closed: a new substitution needs a value and a tag name adding together.',
     ],
     example: {
       caption: 'The deuterated formate C–H stretch',
@@ -414,9 +489,10 @@ export const GUIDE: GuideSection[] = [
     },
     rules: [
       'Author the evidence tags on the claim, where they belong: `direct-dosing`, `isotope-labeling`.',
-      'Author the caveat tags where a reader would be caught out: `misassignment-warning` when the ' +
-      'position is a known trap, `site-sensitive` when the position moves with the surface so a shift ' +
-      'is not by itself a different species. Caveats are the one role with a colour of its own.',
+      'Author the caveat tags on the **band**, not on the claim: `misassignment-warning` when the ' +
+      'position is a known trap, `site-sensitive` when the position moves with the surface so a ' +
+      'shift is not by itself a different species. Both describe where the band sits, which is true ' +
+      'whoever measured it. Caveats are the one role with a colour of its own.',
       'A new tag needs an entry in `TAG_ROLES` and a tip in `data/tags.jsonc` in the same change.',
     ],
   },

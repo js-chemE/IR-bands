@@ -16,9 +16,9 @@ from pathlib import Path
 from ir_bands.schema import (
     Band, BasedOn, Dataset, Group, GroupSet, Molecule, Reference,
     Region, Species, Surface, Topology, Vibration, VibrationMode, Vibrations,
-    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES,
+    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES, VALID_ISOTOPES,
     VALID_TECHNIQUES,
-    DESCRIPTION_MAX_WORDS, REFERENCE_NOTE_MAX_WORDS,
+    DESCRIPTION_MAX_WORDS, ISOTOPE_TAGS, REFERENCE_NOTE_MAX_WORDS,
     MARKUP_EXEMPT_VIBRATION_FIELDS, SUBSCRIPT_CHARS,
 )
 
@@ -307,6 +307,9 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
             errors.append(f"Band {b.id}: width={b.width!r} not in {VALID_WIDTHS}")
         if b.confidence is not None and b.confidence not in VALID_CONFIDENCES:
             errors.append(f"Band {b.id}: confidence={b.confidence!r} not in {VALID_CONFIDENCES}")
+        # Closed, because each value derives a tag of its own.
+        if b.isotope is not None and b.isotope not in VALID_ISOTOPES:
+            errors.append(f"Band {b.id}: isotope={b.isotope!r} not in {sorted(VALID_ISOTOPES)}")
 
     # 6. fermi_partner / fermi_partner_group cross-references resolve, aren't
     #    self-referential, and aren't both set on the same band
@@ -351,6 +354,27 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                 )
         elif b.isotope:
             errors.append(f"Band {b.id}: isotope={b.isotope!r} is set but isotopologue_of is missing")
+
+    # 6c. An isotopologue is the same mode with a heavier nucleus. It therefore
+    #     belongs to the same species, moves the same atoms and is the same kind
+    #     of vibration; only the position changes. `branch` is left out of the
+    #     check on purpose: a shifted band is sometimes drawn as the whole
+    #     R-to-P envelope where the parent is resolved into branches.
+    for b_ in dataset.bands:
+        if b_.isotopologue_of is None or b_.isotopologue_of not in id_set:
+            continue
+        parent = dataset.band_by_id(b_.isotopologue_of)
+        for field, mine, theirs in (
+            ("species", b_.species, parent.species),
+            ("atoms", b_.atoms, parent.atoms),
+            ("vibration.category", b_.vibration.category, parent.vibration.category),
+            ("vibration.subtype", b_.vibration.subtype, parent.vibration.subtype),
+        ):
+            if mine != theirs:
+                errors.append(
+                    f"Band {b_.id}: {field}={mine!r} but its parent {parent.id} has "
+                    f"{theirs!r}; an isotopologue is the same mode, so these must match"
+                )
 
     # 7. wn_start/wn_end sanity
     for b in dataset.bands:
@@ -603,8 +627,13 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
 
 
 def tag_isotopologues(dataset: Dataset) -> list[str]:
-    """Auto-assign the "isotope" tag to every band that declares an
+    """Auto-assign the substitution tag to every band that declares an
     isotopologue_of link — and only to those.
+
+    The tag names the substitution ("deuterium", "carbon-13", "oxygen-18")
+    rather than the fact of being one, so a deuteration experiment can be
+    filtered apart from an 18-O one. ISOTOPE_TAGS in schema.py is the mapping,
+    and the isotope field is validated against its keys.
 
     Unlike tag_fermi_pairs/tag_branch_groups this link is deliberately
     one-directional (see Band.isotopologue_of): the natural-abundance parent
@@ -620,8 +649,13 @@ def tag_isotopologues(dataset: Dataset) -> list[str]:
     all three identically.
     """
     for b in dataset.bands:
-        if b.isotopologue_of and "isotope" not in b.tags:
-            b.tags.append("isotope")
+        if not b.isotopologue_of or not b.isotope:
+            continue
+        # The umbrella first, then the substitution: one answers "is this a
+        # labelled band at all", the other "which label".
+        for tag in ("isotope", ISOTOPE_TAGS[b.isotope]):
+            if tag not in b.tags:
+                b.tags.append(tag)
     return []
 
 

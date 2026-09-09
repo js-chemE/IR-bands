@@ -254,6 +254,14 @@ export const ATOMS_PALETTE: Record<string, string> = {
  */
 const CAVEAT_STYLE = { background: '#FBE0DC', border: '#E1897C', color: '#A4382A' };
 
+/**
+ * The isotopologue bands, one tag per substitution. They share a style because
+ * they are one family: what matters at a glance is that the band is a labelled
+ * twin, and which label it is, is in the word. Also the stroke colour for the
+ * hatch those bands get in the chart.
+ */
+export const ISOTOPE_STYLE = { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' };
+
 export const TAG_STYLES: Record<string, { background: string; border: string; color: string }> = {
   // Warm orange/red, an infrared/heat association. Distinguishable from
   // raman-active's cool violet, and from the neutral grey default reserved
@@ -269,7 +277,10 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   // four: an isotopologue is the same mode as its parent, only heavier, so it
   // should not shout louder than the activity tags above. Pairs with the
   // diagonal hatch fill these bands get in the chart.
-  isotope:           { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' },
+  isotope:           ISOTOPE_STYLE,
+  deuterium:         ISOTOPE_STYLE,
+  'carbon-13':       ISOTOPE_STYLE,
+  'oxygen-18':       ISOTOPE_STYLE,
   // The caveat role, and the only role that gets a colour for being a role
   // rather than for what the individual tag means: a warning has to read as a
   // warning at a glance. Red, the same warm family as ir-active but pushed off
@@ -355,7 +366,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'tip-wn',        label: 'Wavenumber range', usage: 'Monospace so digits line up between bands',     size: '12px',   weight: 400, color: 'ink-700',    family: 'mono' },
       { key: 'tip-group',     label: 'Group',            usage: 'Uppercase, tinted with the band colour',        size: '11px',   weight: 700, color: 'ink-500',    tt: 'uppercase', ls: '0.05em' },
       { key: 'tip-tag',       label: 'Qualifier pill',   usage: 'intensity / confidence / width, then tags',     size: '11px',   weight: 400, color: 'pill-fg' },
-      { key: 'tip-desc',      label: 'Description',      usage: 'The band description field, 100 to 120 words',  size: '12px',   weight: 400, color: 'ink-500',    lh: '1.4' },
+      { key: 'tip-desc',      label: 'Description',      usage: 'The band description field, 120 words at most',  size: '12px',   weight: 400, color: 'ink-500',    lh: '1.4' },
       { key: 'tip-refs-head', label: 'References label', usage: 'Uppercase divider above the citation boxes',    size: '10.5px', weight: 700, color: 'ink-100',    tt: 'uppercase', ls: '0.06em' },
       { key: 'tip-ref-title', label: 'Citation',         usage: 'Author and year, IEEE short form',              size: '12px',   weight: 600, color: 'ink-800' },
       { key: 'tip-badge',     label: 'Badge',            usage: 'Wavenumber (mono) and site (sans) badges',      size: '11.5px', weight: 400, color: 'badge-wn-fg' },
@@ -458,7 +469,7 @@ export const CHART_LAYOUT = {
 export const CHART_LAYOUT_DOCS: { name: string; value: string; usage: string }[] = [
   { name: 'laneHeight',      value: '1.2 y-units',      usage: 'One lane of the stack; lanes are packed by wavenumber range in layout.py' },
   { name: 'barFraction',     value: '0.25',             usage: 'Band rectangle fills a quarter of its lane, the rest is breathing room' },
-  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1. The R/P/Q branches of one transition move as a single unit, so they always share a sub-lane; more than 3-way overlap is dropped and logged' },
+  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1. The R/P/Q branches of one transition move as a single unit, so they always share a sub-lane; a fourth overlapping band falls back to the centre line and is logged, which is the signal that the data has been split too finely' },
   { name: 'margins',         value: '200 / 20 / 12 / 12 px', usage: 'left / right / top / bottom. The 200px left margin holds the lane labels; top and bottom are just breathing room, since the x axis is a separate strip' },
   { name: 'vertical padding', value: 'half a lane, top and bottom', usage: 'The y domain ends half a lane pitch beyond the outermost bar edge, so the stack is not floating in empty space' },
   { name: 'axis strip',      value: '50px, sticky',     usage: 'Drawn as a separate plot pinned above the scrolling lane stack, sharing width and margins' },
@@ -484,15 +495,16 @@ export interface ContentLimit {
 export const CONTENT_LIMITS: ContentLimit[] = [
   {
     field: 'band.description',
-    target: '100 to 120 words',
+    target: 'as short as the general part allows, 120 words at most',
     hard: 120,
-    rule: 'What the mode is, where it sits, what it gets confused with. Nothing that belongs to one single paper.',
+    rule: 'What the mode is, where it sits, what moves it, what it gets confused with. Nothing that belongs to one single paper, and nothing added to reach a length.',
     how: [
       'Short sentences, one clause each.',
       'Semicolon lists beat comma-spliced prose.',
       'Drop the hedging ("it is generally observed that").',
       'Numbers, not adjectives: "1580 to 1620 cm⁻¹" beats "fairly broad".',
       'Paper-specific detail belongs in that reference\'s note instead.',
+      'There is no minimum: a mode with little to say about it gets two sentences.',
     ],
   },
   {

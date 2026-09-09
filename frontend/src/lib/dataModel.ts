@@ -98,7 +98,7 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'vibration', type: '{category, subtype, branch}', req: 'req', note: 'Closed enums, validated in schema.py.' },
       { name: 'atoms', type: 'string', req: 'req', note: 'Bond environment (O=C=O, M-O, diverse). Drives the atoms colormap.' },
       { name: 'wn_start / wn_end', type: 'int', req: 'req', note: 'The band’s window in cm⁻¹. wn_min/max/center derive from it.' },
-      { name: 'short / description', type: 'string', req: 'opt', note: 'Label and the 100 to 120 word general description.' },
+      { name: 'short / description', type: 'string', req: 'opt', note: 'Label, and the general description: what the mode is and what it is confused with, 120 words at most.' },
       { name: 'references[]', type: 'Assignment[]', req: 'opt', note: 'The per-source claims. See the Assignment entity.' },
       { name: 'based_on[]', type: 'BasedOn[]', req: 'opt', note: 'Parent modes of a combination or overtone, with a multiplier.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Free-form. Four of them are derived by build.py and must not be authored.' },
@@ -460,7 +460,7 @@ export const SELF_LINKS: SelfLinkSpec[] = [
    proper home.
    --------------------------------------------------------------------------- */
 
-export type TagRole = 'structure' | 'phase' | 'activity' | 'technique' | 'evidence' | 'caveat' | 'other';
+export type TagRole = 'structure' | 'isotope' | 'phase' | 'activity' | 'technique' | 'evidence' | 'caveat' | 'other';
 
 /**
  * Reading order, and the only place it is decided.
@@ -472,8 +472,20 @@ export type TagRole = 'structure' | 'phase' | 'activity' | 'technique' | 'eviden
  * sentence. Everything that renders tags in sequence sorts by this.
  */
 export const TAG_ROLE_ORDER: TagRole[] = [
-  'structure', 'phase', 'activity', 'technique', 'evidence', 'caveat', 'other',
+  'structure', 'isotope', 'phase', 'activity', 'technique', 'evidence', 'caveat', 'other',
 ];
+
+/**
+ * Within a role, the tag named after the role itself leads.
+ *
+ * Only the isotope role has one: `isotope` says a band is a labelled twin at
+ * all, and the three substitutions answer which label. Sorting the umbrella
+ * ahead of them by name rather than by count keeps the general chip in front
+ * of the specific ones however the counts fall.
+ */
+export function isUmbrellaTag(tag: string, role: TagRole): boolean {
+  return tag === role;
+}
 
 /** Index of a role in TAG_ROLE_ORDER, for sort comparators. */
 export function tagRoleRank(role: TagRole): number {
@@ -483,6 +495,7 @@ export function tagRoleRank(role: TagRole): number {
 
 export const TAG_ROLE_LABEL: Record<TagRole, string> = {
   structure: 'Structure',
+  isotope: 'Isotope',
   phase: 'Phase and behaviour',
   activity: 'Selection rule',
   technique: 'Technique',
@@ -493,11 +506,12 @@ export const TAG_ROLE_LABEL: Record<TagRole, string> = {
 
 export const TAG_ROLE_NOTE: Record<TagRole, string> = {
   structure: 'A fact about the band itself. Mostly derived by build.py from the link fields.',
+  isotope: 'The band is a labelled twin of another one, not the ordinary molecule. All derived from band.isotope, with the umbrella tag first and the substitution behind it.',
   phase: 'What the species is doing. "gas-phase" is derived from band.phase now.',
   activity: 'IR / Raman selection rule, derived by the loader from the mode’s booleans.',
   technique: 'How the spectrum was taken. Now derived from assignment.technique.',
   evidence: 'What backs the claim up. Genuinely per-citation, correctly a tag.',
-  caveat: 'A warning about the assignment. Exists at both band and citation level, which is right. The only role with a colour of its own, because it is the only one that asks the reader to slow down.',
+  caveat: 'A warning about how to read the band: a position that is a known trap, or one that moves with the surface. It goes on the band rather than on a claim, since it is a property of where the band sits and not of the paper that happened to notice. The only role with a colour of its own, because it is the only one that asks the reader to slow down.',
   other: 'Not yet classified.',
 };
 
@@ -507,7 +521,11 @@ export const TAG_ROLES: Record<string, TagRole> = {
   overtone: 'structure',
   'fermi-resonance': 'structure',
   'rotational-branches': 'structure',
-  isotope: 'structure',
+  // Isotope: the umbrella, then which substitution.
+  isotope: 'isotope',
+  deuterium: 'isotope',
+  'carbon-13': 'isotope',
+  'oxygen-18': 'isotope',
   degenerated: 'structure',
   // Phase and behaviour: what the species is doing.
   'gas-phase': 'phase',
@@ -520,6 +538,8 @@ export const TAG_ROLES: Record<string, TagRole> = {
   // How it was measured.
   drifts: 'technique',
   transmission: 'technique',
+  atr: 'technique',
+  ftir: 'technique',
   computational: 'technique',
   'direct-dosing': 'evidence',
   'isotope-labeling': 'evidence',
@@ -535,10 +555,15 @@ export const DERIVED_TAGS: Record<string, string> = {
   'gas-phase': 'band.phase',
   drifts: 'assignment.technique',
   transmission: 'assignment.technique',
+  atr: 'assignment.technique',
+  ftir: 'assignment.technique',
   computational: 'assignment.technique',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',
   isotope: 'band.isotopologue_of',
+  deuterium: 'band.isotope',
+  'carbon-13': 'band.isotope',
+  'oxygen-18': 'band.isotope',
   'ir-active': 'mode.ir_active',
   'raman-active': 'mode.raman_active',
 };
@@ -566,11 +591,9 @@ export interface TechniqueSpec {
 
 export const TECHNIQUES: TechniqueSpec[] = [
   { key: 'drifts', label: 'DRIFTS', tag: 'drifts', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
-  { key: 'transmission', label: 'Transmission', tag: 'transmission', note: 'Self-supporting wafer, beam straight through. What the old bare "ftir" tag meant in practice, now spelled as what it is.' },
+  { key: 'transmission', label: 'Transmission', tag: 'transmission', note: 'Self-supporting wafer, beam straight through.' },
   { key: 'atr', label: 'ATR', tag: 'atr', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
-  { key: 'irras', label: 'IRRAS / RAIRS', tag: 'irras', note: 'Grazing-incidence reflection off a flat single crystal. The surface-science counterpart, relevant to the Fe₃O₄ facets.' },
-  { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', note: 'Polarisation-modulated IRRAS, where p- and s-polarised components are resolved separately. The case the multi-valued wn field exists for.' },
-  { key: 'emission', label: 'Emission / photoacoustic', tag: 'emission', note: 'Rarer geometries, listed so the vocabulary is closed rather than open-ended.' },
+  { key: 'ftir', label: 'FTIR (unspecified)', tag: 'ftir', note: 'The placeholder: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Use it when the paper genuinely does not say, and replace it once it does.' },
   { key: 'computational', label: 'Calculated', tag: 'computational', note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];
 

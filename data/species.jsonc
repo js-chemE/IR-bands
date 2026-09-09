@@ -99,17 +99,11 @@
     // environments. That environment changes the frequency and the line shape,
     // and it is neither a phase nor a binding geometry, so it stays as two
     // species rather than becoming a fourth axis for the sake of two bands.
-    "hydroxyl_isolated": {
-      "label": "Isolated OH",
+    "hydroxyl": {
+      "label": "Surface OH",
       "formula": "OH*",
       "molecule": null,
-      "note": "Terminal hydroxyl with no hydrogen-bonded neighbour, which is why it stays sharp."
-    },
-    "hydroxyl_hbonded": {
-      "label": "H-bonded OH",
-      "formula": "OH*",
-      "molecule": null,
-      "note": "The same group hydrogen-bonded to a neighbour: lower and much broader."
+      "note": "A hydroxyl on an oxide surface. Deliberately not split into isolated and hydrogen-bonded: that split needs evidence a source actually gives, and where a paper does resolve several hydroxyls it resolves them by the cation they sit on, which the claim records as its site."
     },
     "hydride": {
       "label": "Hydride",

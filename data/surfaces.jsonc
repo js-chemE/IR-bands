@@ -118,13 +118,24 @@
       "element": "Ru",
       "oxidation_state": 0
     },
-    "ga_0": {
+    "ga": {
       "label": "Ga",
       "level": "site",
-      "kind": "metal",
       "element": "Ga",
-      "oxidation_state": 0,
-      "note": "Written without a charge in the source; read as reduced gallium rather than Ga³⁺."
+      "parts": ["ga_tet", "ga_oct"],
+      "note": "A Ga centre carrying a hydride, written as Ga-H with no charge in the sources that report it. Neither Ga⁰ nor Ga³⁺ is asserted, which is why this entry has no kind and no oxidation state; use ga_3p only where the paper states the cation. The two coordinations below are the resolved forms of it: a claim that says only Ga is a claim that did not separate them."
+    },
+    "ga_tet": {
+      "label": "Ga(t)",
+      "level": "site",
+      "element": "Ga",
+      "note": "Tetrahedrally coordinated gallium, the Ga(t) of β-Ga₂O₃. Its hydride and hydroxyl sit about 25 and 150 cm⁻¹ above those of the octahedral site, which is how the two are told apart."
+    },
+    "ga_oct": {
+      "label": "Ga(o)",
+      "level": "site",
+      "element": "Ga",
+      "note": "Octahedrally coordinated gallium, the Ga(o) of β-Ga₂O₃. Coordinatively unsaturated at the surface, which is why it, and not the saturated tetrahedral site, is where H₂ dissociates in the calculations."
     },
     "cu_1p": {
       "label": "Cu⁺",
@@ -258,6 +269,21 @@
       "elements": ["Zn", "O"],
       "parts": ["zn_2p"]
     },
+    "zro2": {
+      "label": "ZrO₂",
+      "level": "phase",
+      "formula": "ZrO₂",
+      "elements": ["Zr", "O"],
+      "parts": ["zr_4p"]
+    },
+    "ga2o3": {
+      "label": "Ga₂O₃",
+      "level": "phase",
+      "formula": "Ga₂O₃",
+      "elements": ["Ga", "O"],
+      "parts": ["ga_3p", "ga_tet", "ga_oct"],
+      "note": "Gallia, as a constituent of a promoted catalyst and as a sample in its own right. The β polymorph carries both gallium coordinations, which is why hydride and hydroxyl bands on it come in pairs."
+    },
     "sio2": {
       "label": "SiO₂",
       "level": "phase",
@@ -286,13 +312,21 @@
       "elements": ["Cu", "Zn", "O"],
       "parts": ["cu_0", "cu_1p", "zn_2p", "zno"]
     },
-    "cugazrox": {
-      "label": "CuGaZrOx",
+    "cu_gazrox": {
+      "label": "Cu-GaZrOₓ",
       "level": "sample",
-      "composition": "CuGaZrOx",
+      "composition": "Cu-GaZrOₓ",
       "elements": ["Cu", "Ga", "Zr", "O"],
-      "parts": ["cu_0", "cu_1p", "ga_3p", "zr_4p"],
-      "note": "Mixed oxide: written as one formula in the literature, but a multi-component sample."
+      "parts": ["cu_0", "cu_1p", "ga", "ga_3p", "zr_4p"],
+      "note": "Coprecipitated Cu-Ga-Zr mixed oxide, around 20 wt% Cu. Sources publish it as a series with different Ga and Zr loadings, written Cu-GaZrOₓ-Z where Z is Zr/(Zr+Cu+Ga) as a molar percentage; the family is recorded here and the individual member named in the note, since the distinction the spectra turn on is against the Cu-free GaZrOₓ rather than between members."
+    },
+    "gazrox": {
+      "label": "GaZrOₓ",
+      "level": "sample",
+      "composition": "GaZrOₓ",
+      "elements": ["Ga", "Zr", "O"],
+      "parts": ["ga", "ga_3p", "zr_4p"],
+      "note": "The Cu-free counterpart of the Cu-GaZrOₓ series, 48 wt% Ga and 25 wt% Zr. Run to separate what the oxide does from what Cu does."
     },
     "la_al2o3": {
       "label": "La-Al₂O₃",

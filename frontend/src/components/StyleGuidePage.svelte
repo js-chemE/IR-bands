@@ -49,6 +49,7 @@
     ATOMS_PALETTE,
     TAG_STYLES,
     DEFAULT_TAG_STYLE,
+    ISOTOPE_STYLE,
     RADII,
     SHADOWS,
     SPACING,
@@ -531,10 +532,12 @@
       <section class="section" id="chart-layout" data-sg-section="chart-layout">
         <h3>Chart layout</h3>
         <p>
-          Bands are packed into lanes by wavenumber range; a <code>pair</code> value
-          forces two bands to share one. Overlaps inside a lane stagger into
-          sub-lanes 0, +1, &minus;1, in that order. A fourth overlapping band is
-          dropped and logged rather than drawn on top of its neighbours.
+          Bands are packed into lanes by the <code>lanes</code> table, which names the
+          groups sharing each row. Overlaps inside a lane stagger into sub-lanes
+          0, +1, &minus;1, in that order. A fourth overlapping band falls back to the
+          centre line and is logged by the build, which is usually the signal that one
+          mode has been split into more bands than it needs: several isotopologues of
+          one band belong on one band, with the positions in the assignment.
         </p>
         <table class="spec-table">
           <tbody>
@@ -612,7 +615,7 @@
         </div>
         <div class="mark-row">
           <svg class="mark-svg" viewBox="0 0 120 14" aria-hidden="true">
-            <path d="M 4 12 V 4 H 116 V 12" fill="none" stroke={TAG_STYLES['isotope'].color}
+            <path d="M 4 12 V 4 H 116 V 12" fill="none" stroke={ISOTOPE_STYLE.color}
                   stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
           </svg>
           <span>isotopologue to parent</span>
@@ -671,7 +674,7 @@
                 The same normal mode on a heavier molecule. Authored as
                 <code>isotopologue_of</code> plus an <code>isotope</code> label,
                 child to parent, one step, never a chain.
-                <code>build.py</code> adds <code>isotope</code> to the
+                <code>build.py</code> adds the substitution tag (<code>deuterium</code>, <code>carbon-13</code>, <code>oxygen-18</code>) to the
                 child alone.
               </td>
             </tr>
@@ -742,7 +745,7 @@
           <!-- isotopologue -->
           <rect x="262" y="240" width="60" height="12" rx="1" fill={ATOMS_PALETTE['C-H']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
           <rect x="352" y="240" width="56" height="12" rx="1" fill="url(#sg-iso-hatch)" stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
-          <path d="M 292 240 V 226 H 380 V 240" fill="none" stroke={TAG_STYLES['isotope'].color} stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
+          <path d="M 292 240 V 226 H 380 V 240" fill="none" stroke={ISOTOPE_STYLE.color} stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
           <text x="262" y="268" class="link-lbl">ν(C–H)</text>
           <text x="352" y="268" class="link-lbl">ν(C–D)</text>
         </svg>
@@ -810,7 +813,7 @@
         </div>
 
         <div class="tip-desc">
-          Description &middot; 12px / 400 &middot; ink-500 &middot; 100 to 120 words.
+          Description &middot; 12px / 400 &middot; ink-500 &middot; 120 words at most.
           What the mode is, where it sits, what it is confused with. Short sentences;
           semicolon lists; numbers instead of adjectives. Nothing that is true of
           only one paper.
@@ -1038,7 +1041,7 @@
         <table class="spec-table">
           <tbody>
             <tr><th>short</th><td class="spec-val">a few words</td><td>The label a reader scans. No sentence, no full stop.</td></tr>
-            <tr><th>description</th><td class="spec-val">100 to 120 words</td><td>Everything true of the band in general.</td></tr>
+            <tr><th>description</th><td class="spec-val">≤ 120 words</td><td>Everything true of the band in general, and nothing else. No minimum.</td></tr>
             <tr><th>references[].wn</th><td class="spec-val">number or list</td><td>The wavenumber that paper reported. Never in prose.</td></tr>
             <tr><th>species</th><td class="spec-val">a species key</td><td>Chemical identity only, from data/species.jsonc. Phase, binding geometry and isotopologue each have their own field.</td></tr>
             <tr><th>phase</th><td class="spec-val">gas / adsorbed / surface</td><td>Omit when the band covers both the free molecule and its adsorbed form. Derives the "gas-phase" tag.</td></tr>

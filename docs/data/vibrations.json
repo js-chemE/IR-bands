@@ -927,8 +927,7 @@
           "wn_end": 1610,
           "bands": [
             "formate_asym",
-            "formate_combo_bend_asym",
-            "formate_combo_high"
+            "formate_combo_bend_asym"
           ]
         },
         {
@@ -1028,8 +1027,7 @@
           "wn_start": 1450,
           "wn_end": 1490,
           "bands": [
-            "carbonate_monodentate_asym",
-            "carbonate_monodentate_asym_overtone"
+            "carbonate_monodentate_asym"
           ]
         },
         {
@@ -1196,8 +1194,7 @@
           "wn_start": 1250,
           "wn_end": 1320,
           "bands": [
-            "carbonate_bidentate_asym",
-            "carbonate_bidentate_asym_overtone"
+            "carbonate_bidentate_asym"
           ]
         },
         {
@@ -1340,7 +1337,8 @@
           "wn_start": 1610,
           "wn_end": 1670,
           "bands": [
-            "bicarbonate_asym"
+            "bicarbonate_asym",
+            "bicarbonate_18o_asym"
           ]
         },
         {
@@ -1366,7 +1364,8 @@
           "wn_start": 1396,
           "wn_end": 1500,
           "bands": [
-            "bicarbonate_sym"
+            "bicarbonate_sym",
+            "bicarbonate_18o_sym"
           ]
         },
         {
@@ -1391,7 +1390,9 @@
           "wn_start": 1220,
           "wn_end": 1269,
           "bands": [
-            "bicarbonate_coh_bend"
+            "bicarbonate_coh_bend",
+            "bicarbonate_cod_bend",
+            "bicarbonate_18o_coh_bend"
           ]
         },
         {
@@ -2068,7 +2069,8 @@
           "wn_start": 3000,
           "wn_end": null,
           "bands": [
-            "meoh_stretch_a"
+            "meoh_stretch_a",
+            "meoh_cd2_stretch_sym"
           ]
         },
         {
@@ -2097,7 +2099,8 @@
             "meoh_sym",
             "meoh_ch3s_q",
             "meoh_ch3s_r",
-            "meoh_ch3s_p"
+            "meoh_ch3s_p",
+            "meoh_cd3_stretch_sym"
           ]
         },
         {
@@ -2125,6 +2128,7 @@
           "wn_end": null,
           "bands": [
             "meoh_ch_scissor",
+            "meoh_cd_scissor",
             "meoh_ch_scissor_overtone"
           ]
         },
@@ -2152,7 +2156,8 @@
           "wn_start": 1466,
           "wn_end": null,
           "bands": [
-            "meoh_ch_rock"
+            "meoh_ch_rock",
+            "meoh_cd_rock"
           ]
         },
         {
@@ -2178,7 +2183,8 @@
           "wn_start": 1455,
           "wn_end": null,
           "bands": [
-            "meoh_ch_umbrella"
+            "meoh_ch_umbrella",
+            "meoh_cd_umbrella"
           ]
         },
         {
@@ -2204,7 +2210,8 @@
           "wn_start": 1345,
           "wn_end": null,
           "bands": [
-            "meoh_oh_bend"
+            "meoh_oh_bend",
+            "meoh_od_bend"
           ]
         },
         {
@@ -2230,7 +2237,8 @@
           "wn_start": 1060,
           "wn_end": null,
           "bands": [
-            "meoh_co_scaffold"
+            "meoh_co_scaffold",
+            "meoh_cd_co_scaffold"
           ]
         },
         {
@@ -2258,7 +2266,8 @@
           "bands": [
             "meoh_co_q",
             "meoh_co_r",
-            "meoh_co_p"
+            "meoh_co_p",
+            "meoh_cd_co_stretch"
           ]
         },
         {
@@ -2284,7 +2293,8 @@
           "wn_start": 2960,
           "wn_end": null,
           "bands": [
-            "meoh_asym"
+            "meoh_asym",
+            "meoh_cd3_stretch_asym"
           ]
         },
         {
@@ -2309,7 +2319,8 @@
           "wn_start": 1145,
           "wn_end": null,
           "bands": [
-            "meoh_twist"
+            "meoh_twist",
+            "meoh_cd_twist"
           ]
         },
         {

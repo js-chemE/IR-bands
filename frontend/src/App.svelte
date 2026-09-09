@@ -274,13 +274,27 @@
   ];
 
   $: legendCats = dataset
-    ? getLegendCategories(dataset.bands, dataset.groups, enabledGroups, colorDim)
+    ? getLegendCategories(chartBands, dataset.groups, enabledGroups, colorDim)
+    : [];
+
+  // Isotopologue bands are in or out of the chart entirely, rather than
+  // hidden where they stand: with them out, the lanes and the sub-lane
+  // stagger are recomputed without them. That is the difference from the
+  // legend's own isotope chip, which only hides the bars.
+  //
+  // Off by default. A labelled twin is a control experiment rather than a
+  // band anyone is trying to identify, and switching them all on doubles the
+  // crowding in whichever region a deuteration study covered.
+  let showIsotopes = false;
+
+  $: chartBands = dataset
+    ? (showIsotopes ? dataset.bands : dataset.bands.filter(b => !b.isotopologue_of))
     : [];
 
   // Passed the live filters so a tag whose bands are all hidden by another
   // filter greys out too, rather than looking available when it is not.
   $: legendTags = dataset
-    ? getLegendTags(dataset.bands, enabledGroups, { hiddenCats, colorDim, hiddenTags, tagIsolate })
+    ? getLegendTags(chartBands, enabledGroups, { hiddenCats, colorDim, hiddenTags, tagIsolate })
     : [];
 
   $: sortedGroupKeys = (() => {
@@ -417,8 +431,10 @@
             sets={dataset.sets}
             sortedKeys={sortedGroupKeys}
             {enabledGroups}
+            {showIsotopes}
             on:groupToggle={handleGroupToggle}
             on:setSelect={handleSetSelect}
+            on:isotopeToggle={e => showIsotopes = e.detail.enabled}
           />
 
         {:else if page === 'styleguide'}
@@ -516,7 +532,7 @@
       {:else if page === 'chart'}
         <div class="chart-scroll">
           <BandChart
-            bands={dataset.bands}
+            bands={chartBands}
             groups={dataset.groups}
             {refs}
             {vibrations}

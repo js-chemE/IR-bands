@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ISOTOPE_STYLE } from '../lib/tokens';
   /**
    * The band chart's filter: a set on top, the individual groups underneath.
    *
@@ -16,6 +17,8 @@
   export let sortedKeys: string[];
   export let enabledGroups: ReadonlySet<string>;
   export let sets: Record<string, GroupSet> = {};
+  /** Whether the isotopologue bands are part of the chart at all. */
+  export let showIsotopes = false;
 
   /** Built in rather than authored: "everything" is not an editorial choice. */
   export const ALL_SET = 'all';
@@ -24,6 +27,7 @@
   const dispatch = createEventDispatcher<{
     groupToggle: { key: string; enabled: boolean };
     setSelect: { key: string };
+    isotopeToggle: { enabled: boolean };
   }>();
 
   let showGroups = false;
@@ -72,6 +76,23 @@
     Groups
     <span class="count">{enabledGroups.size} / {sortedKeys.length}</span>
   </button>
+
+  <!-- Below the set and the groups, because it is a different kind of cut:
+       the groups choose chemistry, this chooses whether the labelled twins of
+       those bands are in the picture. Off, they leave the layout entirely. -->
+  <div class="iso-filter">
+    <span class="iso-caption">Enable / disable</span>
+    <button
+      class="iso-pill"
+      class:off={!showIsotopes}
+      style="background:{ISOTOPE_STYLE.background}; border-color:{ISOTOPE_STYLE.border}; color:{ISOTOPE_STYLE.color}"
+      title={showIsotopes
+        ? 'Hide the isotopologue bands and re-lay out the lanes without them'
+        : 'Bring the isotopologue bands back'}
+      aria-pressed={showIsotopes}
+      on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
+    >isotope</button>
+  </div>
 
   {#if showGroups}
     <div class="group-list">
@@ -166,6 +187,39 @@
   }
 
   .glabel { flex: 1; }
+
+  /* The isotope switch: the tag as the chart draws it, greyed and struck when
+     off, the same idiom as a switched-off group row. */
+  .iso-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  .iso-caption {
+    font-size: var(--t-micro-label-size);
+    font-weight: var(--t-micro-label-weight);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    color: var(--t-micro-label-color);
+  }
+  .iso-pill {
+    border: 1px solid;
+    border-radius: var(--radius-sm);
+    padding: 1px 7px;
+    font: inherit;
+    font-size: var(--t-tip-tag-size);
+    cursor: pointer;
+    user-select: none;
+  }
+  .iso-pill:hover { filter: brightness(0.95); }
+  .iso-pill.off {
+    background: var(--pill-muted-bg) !important;
+    border-color: var(--pill-muted-border) !important;
+    color: var(--ink-025) !important;
+    text-decoration: line-through;
+  }
 
   /* Switched off: greyed and struck through, swatch included, so the whole
      row reads as off at a glance. */
