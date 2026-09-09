@@ -3,8 +3,8 @@
     {
       "id": "co2",
       "label": "CO₂",
-      "species": "CO₂",
       "shape": "linear",
+      "species": "co2",
       "band_groups": [
         "co2"
       ],
@@ -36,10 +36,10 @@
           "wn_start": 1388,
           "wn_end": null,
           "bands": [
-            "co2_sym_1388",
-            "co2_combo_3730_R",
-            "co2_combo_3699_P",
-            "co2_combo_2077_Q"
+            "co2_sym",
+            "co2_combo_sym_asym_r",
+            "co2_combo_sym_asym_p",
+            "co2_combo_sym_bend_q"
           ]
         },
         {
@@ -62,13 +62,13 @@
           "wn_start": 667,
           "wn_end": null,
           "bands": [
-            "co2_bend_700_R",
-            "co2_bend_667_Q",
-            "co2_bend_660_P",
-            "co2_combo_3627_R",
-            "co2_combo_3597_P",
-            "co2_combo_2077_Q",
-            "co2_bend_overtone_1285"
+            "co2_bend_r",
+            "co2_bend_q",
+            "co2_bend_p",
+            "co2_combo_2bend_asym_r",
+            "co2_combo_2bend_asym_p",
+            "co2_combo_sym_bend_q",
+            "co2_bend_overtone"
           ]
         },
         {
@@ -91,13 +91,13 @@
           "wn_start": 667,
           "wn_end": null,
           "bands": [
-            "co2_bend_700_R",
-            "co2_bend_667_Q",
-            "co2_bend_660_P",
-            "co2_combo_3627_R",
-            "co2_combo_3597_P",
-            "co2_combo_2077_Q",
-            "co2_bend_overtone_1285"
+            "co2_bend_r",
+            "co2_bend_q",
+            "co2_bend_p",
+            "co2_combo_2bend_asym_r",
+            "co2_combo_2bend_asym_p",
+            "co2_combo_sym_bend_q",
+            "co2_bend_overtone"
           ]
         },
         {
@@ -119,13 +119,13 @@
           "wn_start": 2349,
           "wn_end": null,
           "bands": [
-            "co2_asym_2360_R",
-            "co2_asym_2349_Q",
-            "co2_asym_2335_P",
-            "co2_combo_3730_R",
-            "co2_combo_3699_P",
-            "co2_combo_3627_R",
-            "co2_combo_3597_P"
+            "co2_asym_r",
+            "co2_asym_q",
+            "co2_asym_p",
+            "co2_combo_sym_asym_r",
+            "co2_combo_sym_asym_p",
+            "co2_combo_2bend_asym_r",
+            "co2_combo_2bend_asym_p"
           ]
         }
       ]
@@ -133,8 +133,8 @@
     {
       "id": "ch4",
       "label": "CH₄",
-      "species": "CH₄",
       "shape": "nonlinear",
+      "species": "ch4",
       "band_groups": [
         "ch4"
       ],
@@ -168,7 +168,7 @@
           "wn_start": 2917,
           "wn_end": null,
           "bands": [
-            "ch4g_sym_2917"
+            "ch4g_sym"
           ]
         },
         {
@@ -193,8 +193,8 @@
           "wn_start": 1534,
           "wn_end": null,
           "bands": [
-            "ch4g_bend_sym_1534",
-            "ch4g_combo_4220"
+            "ch4g_bend_sym",
+            "ch4g_combo"
           ]
         },
         {
@@ -219,8 +219,8 @@
           "wn_start": 3019,
           "wn_end": null,
           "bands": [
-            "ch4g_asym_3019",
-            "ch4g_combo_4220"
+            "ch4g_asym",
+            "ch4g_combo"
           ]
         },
         {
@@ -245,7 +245,7 @@
           "wn_start": 1306,
           "wn_end": null,
           "bands": [
-            "ch4g_bend_1306"
+            "ch4g_bend"
           ]
         }
       ]
@@ -253,8 +253,8 @@
     {
       "id": "co",
       "label": "CO",
-      "species": "CO",
       "shape": "linear",
+      "species": "co",
       "band_groups": [
         "co",
         "co_metal",
@@ -319,9 +319,9 @@
           "wn_start": 2143,
           "wn_end": null,
           "bands": [
-            "co_stretch_2170_R",
-            "co_stretch_2143_Q",
-            "co_stretch_2115_P"
+            "co_stretch_r",
+            "co_stretch_q",
+            "co_stretch_p"
           ]
         },
         {
@@ -345,9 +345,9 @@
           "wn_start": 2000,
           "wn_end": 2230,
           "bands": [
-            "co_linear_mu1_2060",
-            "co_cation_stretch_2175",
-            "co_linear_13co_2005"
+            "co_linear_mu1",
+            "co_cation_stretch",
+            "co_linear_13co"
           ]
         },
         {
@@ -437,7 +437,7 @@
           "wn_start": 1850,
           "wn_end": 2000,
           "bands": [
-            "co_bridge_mu2_1900"
+            "co_bridge_mu2"
           ]
         },
         {
@@ -503,8 +503,8 @@
           "wn_start": 1600,
           "wn_end": 1880,
           "bands": [
-            "co_3fold_mu3_1810",
-            "co_4fold_mu4_1650"
+            "co_3fold_mu3",
+            "co_4fold_mu4"
           ]
         },
         {
@@ -529,7 +529,7 @@
           "wn_start": 2020,
           "wn_end": 2200,
           "bands": [
-            "co_gemdi_sym_2035"
+            "co_gemdi_sym"
           ]
         },
         {
@@ -620,7 +620,7 @@
           "wn_start": 1980,
           "wn_end": 2150,
           "bands": [
-            "co_gemdi_asym_2095"
+            "co_gemdi_asym"
           ]
         },
         {
@@ -666,7 +666,7 @@
           "wn_start": 2105,
           "wn_end": 2125,
           "bands": [
-            "co_isocarbonyl_2220"
+            "co_isocarbonyl"
           ]
         }
       ]
@@ -674,8 +674,8 @@
     {
       "id": "formate",
       "label": "Formate",
-      "species": "HCOO*",
       "shape": "nonlinear",
+      "species": "formate",
       "band_groups": [
         "formate"
       ],
@@ -850,8 +850,8 @@
           "wn_start": 2800,
           "wn_end": 2890,
           "bands": [
-            "formate_ch_stretch_2885",
-            "formate_cd_stretch_2173"
+            "formate_ch_stretch",
+            "formate_cd_stretch"
           ]
         },
         {
@@ -877,7 +877,7 @@
           "wn_start": 1340,
           "wn_end": 1400,
           "bands": [
-            "formate_sym_1365"
+            "formate_sym"
           ]
         },
         {
@@ -926,9 +926,9 @@
           "wn_start": 1528,
           "wn_end": 1610,
           "bands": [
-            "formate_asym_1585",
-            "formate_combo_2950",
-            "formate_combo_3300"
+            "formate_asym",
+            "formate_combo_bend_asym",
+            "formate_combo_high"
           ]
         },
         {
@@ -953,8 +953,8 @@
           "wn_start": 1360,
           "wn_end": 1400,
           "bands": [
-            "formate_och_bend_1390",
-            "formate_combo_2950"
+            "formate_och_bend",
+            "formate_combo_bend_asym"
           ]
         },
         {
@@ -985,8 +985,8 @@
     {
       "id": "carbonate",
       "label": "Carbonate",
-      "species": "CO₃²⁻",
       "shape": "nonlinear",
+      "species": "carbonate",
       "band_groups": [
         "carbonate"
       ],
@@ -1028,8 +1028,8 @@
           "wn_start": 1450,
           "wn_end": 1490,
           "bands": [
-            "carbonate_monodentate_asym_1500",
-            "carbonate_monodentate_asym_overtone_2950"
+            "carbonate_monodentate_asym",
+            "carbonate_monodentate_asym_overtone"
           ]
         },
         {
@@ -1055,7 +1055,7 @@
           "wn_start": 1350,
           "wn_end": 1370,
           "bands": [
-            "carbonate_monodentate_sym_1400"
+            "carbonate_monodentate_sym"
           ]
         },
         {
@@ -1103,7 +1103,7 @@
           "wn_start": 850,
           "wn_end": 860,
           "bands": [
-            "carbonate_wagging_875"
+            "carbonate_wagging"
           ]
         },
         {
@@ -1128,7 +1128,7 @@
           "wn_start": 740,
           "wn_end": 780,
           "bands": [
-            "carbonate_scissoring_680"
+            "carbonate_scissoring"
           ]
         },
         {
@@ -1196,8 +1196,8 @@
           "wn_start": 1250,
           "wn_end": 1320,
           "bands": [
-            "carbonate_bidentate_asym_1645",
-            "carbonate_bidentate_asym_overtone_3000"
+            "carbonate_bidentate_asym",
+            "carbonate_bidentate_asym_overtone"
           ]
         },
         {
@@ -1221,8 +1221,8 @@
           "wn_start": 1000,
           "wn_end": 1070,
           "bands": [
-            "carbonate_bidentate_sym_1300",
-            "carbonate_bidentate_co_stretch_1083"
+            "carbonate_bidentate_sym",
+            "carbonate_bidentate_co_stretch"
           ]
         },
         {
@@ -1245,7 +1245,7 @@
           "wn_start": 830,
           "wn_end": 850,
           "bands": [
-            "carbonate_wagging_875"
+            "carbonate_wagging"
           ]
         },
         {
@@ -1268,7 +1268,7 @@
           "wn_start": 750,
           "wn_end": 800,
           "bands": [
-            "carbonate_scissoring_680"
+            "carbonate_scissoring"
           ]
         },
         {
@@ -1297,8 +1297,8 @@
     {
       "id": "bicarbonate",
       "label": "Bicarbonate",
-      "species": "HCO₃⁻",
       "shape": "nonlinear",
+      "species": "bicarbonate",
       "band_groups": [
         "bicarbonate"
       ],
@@ -1340,7 +1340,7 @@
           "wn_start": 1610,
           "wn_end": 1670,
           "bands": [
-            "bicarbonate_asym_1630"
+            "bicarbonate_asym"
           ]
         },
         {
@@ -1366,7 +1366,7 @@
           "wn_start": 1396,
           "wn_end": 1500,
           "bands": [
-            "bicarbonate_sym_1425"
+            "bicarbonate_sym"
           ]
         },
         {
@@ -1391,7 +1391,7 @@
           "wn_start": 1220,
           "wn_end": 1269,
           "bands": [
-            "bicarbonate_coh_bend_1220"
+            "bicarbonate_coh_bend"
           ]
         },
         {
@@ -1744,8 +1744,8 @@
     {
       "id": "methoxy",
       "label": "Methoxy",
-      "species": "CH₃O*",
       "shape": "nonlinear",
+      "species": "methoxy",
       "band_groups": [
         "methoxy"
       ],
@@ -1779,8 +1779,8 @@
           "wn_start": 2795,
           "wn_end": 2800,
           "bands": [
-            "methoxy_sym_2835",
-            "methoxy_cd_stretch_2080"
+            "methoxy_sym",
+            "methoxy_cd_stretch"
           ]
         },
         {
@@ -1804,7 +1804,7 @@
           "wn_start": 1430,
           "wn_end": 1436,
           "bands": [
-            "methoxy_bend_1441"
+            "methoxy_bend_sym"
           ]
         },
         {
@@ -1830,8 +1830,8 @@
           "wn_start": 1005,
           "wn_end": 1015,
           "bands": [
-            "methoxy_co_stretch_mono_1130",
-            "methoxy_co_stretch_bi_1045"
+            "methoxy_co_stretch_mono",
+            "methoxy_co_stretch_bi"
           ]
         },
         {
@@ -1900,7 +1900,7 @@
           "wn_start": 2910,
           "wn_end": 2970,
           "bands": [
-            "methoxy_asym_2925"
+            "methoxy_asym"
           ]
         },
         {
@@ -1925,7 +1925,7 @@
           "wn_start": 1450,
           "wn_end": 1470,
           "bands": [
-            "methoxy_bend_1375"
+            "methoxy_bend_asym"
           ]
         },
         {
@@ -2002,8 +2002,8 @@
     {
       "id": "methanol",
       "label": "Methanol",
-      "species": "CH₃OH",
       "shape": "nonlinear",
+      "species": "methanol",
       "band_groups": [
         "methanol_product"
       ],
@@ -2039,10 +2039,10 @@
           "wn_start": 3681,
           "wn_end": null,
           "bands": [
-            "meoh_oh_q_3687",
-            "meoh_oh_r_3713",
-            "meoh_oh_p_3673",
-            "meod_od_stretch_2720"
+            "meoh_oh_q",
+            "meoh_oh_r",
+            "meoh_oh_p",
+            "meod_od_stretch"
           ]
         },
         {
@@ -2068,7 +2068,7 @@
           "wn_start": 3000,
           "wn_end": null,
           "bands": [
-            "meoh_stretch_a_3000"
+            "meoh_stretch_a"
           ]
         },
         {
@@ -2094,9 +2094,10 @@
           "wn_start": 2844,
           "wn_end": null,
           "bands": [
-            "meoh_ch3s_q_2845",
-            "meoh_ch3s_r_2869",
-            "meoh_ch3s_p_2826"
+            "meoh_sym",
+            "meoh_ch3s_q",
+            "meoh_ch3s_r",
+            "meoh_ch3s_p"
           ]
         },
         {
@@ -2123,8 +2124,8 @@
           "wn_start": 1477,
           "wn_end": null,
           "bands": [
-            "meoh_ch_scissor_1477",
-            "meoh_ch_scissor_overtone_2956"
+            "meoh_ch_scissor",
+            "meoh_ch_scissor_overtone"
           ]
         },
         {
@@ -2151,7 +2152,7 @@
           "wn_start": 1466,
           "wn_end": null,
           "bands": [
-            "meoh_ch_rock_1465"
+            "meoh_ch_rock"
           ]
         },
         {
@@ -2177,7 +2178,7 @@
           "wn_start": 1455,
           "wn_end": null,
           "bands": [
-            "meoh_ch_umbrella_1455"
+            "meoh_ch_umbrella"
           ]
         },
         {
@@ -2203,7 +2204,7 @@
           "wn_start": 1345,
           "wn_end": null,
           "bands": [
-            "meoh_oh_bend_1330"
+            "meoh_oh_bend"
           ]
         },
         {
@@ -2229,7 +2230,7 @@
           "wn_start": 1060,
           "wn_end": null,
           "bands": [
-            "meoh_co_scaffold_1070"
+            "meoh_co_scaffold"
           ]
         },
         {
@@ -2255,9 +2256,9 @@
           "wn_start": 1033,
           "wn_end": null,
           "bands": [
-            "meoh_co_q_1034",
-            "meoh_co_r_1060",
-            "meoh_co_p_1012"
+            "meoh_co_q",
+            "meoh_co_r",
+            "meoh_co_p"
           ]
         },
         {
@@ -2283,7 +2284,7 @@
           "wn_start": 2960,
           "wn_end": null,
           "bands": [
-            "meoh_asym_2948"
+            "meoh_asym"
           ]
         },
         {
@@ -2308,7 +2309,7 @@
           "wn_start": 1145,
           "wn_end": null,
           "bands": [
-            "meoh_twist_1145"
+            "meoh_twist"
           ]
         },
         {
@@ -2340,8 +2341,8 @@
     {
       "id": "water",
       "label": "Water",
-      "species": "H₂O",
       "shape": "nonlinear",
+      "species": "water",
       "band_groups": [
         "water"
       ],
@@ -2377,7 +2378,7 @@
           "wn_start": 3657,
           "wn_end": null,
           "bands": [
-            "h2og_sym_3657"
+            "h2og_sym"
           ]
         },
         {
@@ -2403,7 +2404,7 @@
           "wn_start": 1595,
           "wn_end": null,
           "bands": [
-            "h2og_bend_1595"
+            "h2og_bend"
           ]
         },
         {
@@ -2429,7 +2430,7 @@
           "wn_start": 3756,
           "wn_end": null,
           "bands": [
-            "h2og_asym_3756"
+            "h2og_asym"
           ]
         }
       ]

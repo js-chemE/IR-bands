@@ -3,17 +3,20 @@
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations } from './lib/types';
   import { AXES } from './lib/units';
   import { getLegendCategories, getLegendTags } from './lib/chart';
+  import { installLookups } from './lib/labels';
+  import { GROUP_DIMS, type GroupDim } from './lib/refGrouping';
   import BandChart from './components/BandChart.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import ColorLegend from './components/ColorLegend.svelte';
   import TagLegend from './components/TagLegend.svelte';
   import AxisSelect from './components/AxisSelect.svelte';
   import ReferencesPage from './components/ReferencesPage.svelte';
-  import VibrationModesPage from './components/VibrationModesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
   import StyleGuidePage, { SECTIONS as SG_SECTIONS } from './components/StyleGuidePage.svelte';
-  import DataModelPage, { SECTIONS as DM_SECTIONS } from './components/DataModelPage.svelte';
+  import SourceGuidePage, { SECTIONS as SRC_SECTIONS } from './components/SourceGuidePage.svelte';
+  import DataModelPage, { sectionsFor, type DmView } from './components/DataModelPage.svelte';
+  import KnowledgePage, { SECTIONS as KN_SECTIONS } from './components/KnowledgePage.svelte';
   import MobileNotice from './components/MobileNotice.svelte';
 
   let dataset: Dataset | null = null;
@@ -22,22 +25,50 @@
   let tagTips: Record<string, { tip: string }> = {};
   let loading = true;
   let error: string | null = null;
-  // 'styleguide' and 'datamodel' have no sidebar entry of their own: both are
-  // reached from the Impressum page, which is where the project's meta pages
-  // live.
-  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum' | 'styleguide' | 'datamodel';
+  // Four destinations plus the meta pages. There is no 'vibration' page any
+  // more: a molecule's modes are part of what the dataset holds, so that view
+  // lives inside the Dataset page's Contents half, and the band chart's
+  // tooltip jumps there instead.
+  // 'styleguide' and 'sourceguide' have no nav entry of their own; both are
+  // reached from the Impressum, where the project's own documentation lives.
+  type Page = 'home' | 'knowledge' | 'chart' | 'references' | 'datamodel'
+            | 'impressum' | 'styleguide' | 'sourceguide';
   let page: Page = 'home';
-  let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
+  // References page: the two grouping dimensions, outer then inner. Every
+  // pair is legal except the same dimension twice, which the guard below
+  // resolves by moving the inner one along.
+  let refGroupBy: GroupDim = 'reference';
+  let refThenBy: GroupDim = 'group';
+  $: if (refThenBy === refGroupBy) {
+    refThenBy = GROUP_DIMS.find(d => d.key !== refGroupBy)!.key;
+  }
   // Style guide table of contents: which section the reader is currently in,
   // reported by the page's own scroll spy.
   let sgActive = SG_SECTIONS[0].id;
-  // Same contract for the Data model page, which has its own contents list.
-  let dmActive = DM_SECTIONS[0].id;
+  let srcActive = SRC_SECTIONS[0].id;
+  // Same contract for the two long-form pages that own a table of contents.
+  let dmView: DmView = 'structure';
+  let dmActive = sectionsFor('structure')[0].id;
+  let knActive = KN_SECTIONS[0].id;
+  $: dmSections = sectionsFor(dmView);
 
-  // Shared by the two long-form pages that own a sidebar table of contents.
-  function scrollToSection(id: string, which: 'sg' | 'dm' = 'sg') {
+  // Shared by the long-form pages that own a sidebar table of contents.
+  function scrollToSection(id: string, which: 'sg' | 'dm' | 'kn' | 'src' = 'sg') {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (which === 'dm') dmActive = id; else sgActive = id;
+    if (which === 'dm') dmActive = id;
+    else if (which === 'kn') knActive = id;
+    else if (which === 'src') srcActive = id;
+    else sgActive = id;
+  }
+
+  function handleDmViewChange(e: Event) {
+    setDmView((e.currentTarget as HTMLSelectElement).value as DmView);
+  }
+
+  function setDmView(next: DmView) {
+    dmView = next;
+    dmActive = sectionsFor(next)[0].id;
+    mainArea?.scrollTo({ top: 0 });
   }
   // Every page shares one scroll container, so opening a long page from
   // halfway down another one would start halfway down it. Reset on switch.
@@ -56,7 +87,9 @@
     colorMenuTimer = setTimeout(() => { showColorMenu = false; }, 180);
   }
 
-  const DEFAULT_OFF = new Set(['support', "support_oh", "h2", "carbonyl", "hydroxyl"]);
+  // Which set the chart opens on. A set is authored in bands.jsonc; this
+  // names the one that answers the question the atlas is about.
+  const DEFAULT_SET = 'co2_hydrogenation';
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
@@ -79,14 +112,16 @@
       if (!bRes.ok) throw new Error(`bands.json: ${bRes.status}`);
       if (!rRes.ok) throw new Error(`references.json: ${rRes.status}`);
       dataset = (await bRes.json()) as Dataset;
+      // Species and surface keys resolve to labels through this; install it
+      // before any component renders one.
+      installLookups(dataset);
       refs = (await rRes.json()) as RefMap;
       // Vibrations/tag-tooltip content is supplementary — don't fail the
       // whole app if either is missing (e.g. build.py predates the feature).
       vibrations = vRes.ok ? ((await vRes.json()) as Vibrations) : { molecules: [] };
       tagTips = tRes.ok ? ((await tRes.json()) as Record<string, { tip: string }>) : {};
-      enabledGroups = new Set(
-        Object.keys(dataset.groups).filter(k => !DEFAULT_OFF.has(k))
-      );
+      const startSet = dataset.sets?.[DEFAULT_SET];
+      enabledGroups = new Set(startSet ? startSet.groups : Object.keys(dataset.groups));
     } catch (e) {
       error = String(e);
     } finally {
@@ -100,9 +135,13 @@
     enabledGroups = next;
   }
 
-  function handleAllGroups(e: CustomEvent<{ all: boolean }>) {
+  function handleSetSelect(e: CustomEvent<{ key: string }>) {
     if (!dataset) return;
-    enabledGroups = e.detail.all ? new Set(Object.keys(dataset.groups)) : new Set();
+    // "custom" is only ever shown, never chosen: it means the selection
+    // matches no set, so picking it should leave things alone.
+    if (e.detail.key === 'custom') return;
+    const chosen = dataset.sets?.[e.detail.key];
+    enabledGroups = new Set(chosen ? chosen.groups : Object.keys(dataset.groups));
   }
 
   function setColorDim(dim: ColorDim) {
@@ -176,7 +215,8 @@
 
   function handleNavigateRef(e: CustomEvent<{ key: string }>) {
     const key = e.detail.key;
-    refViewMode = 'by-ref';
+    // The jump target only exists while a reference is one of the dimensions.
+    if (refGroupBy !== 'reference' && refThenBy !== 'reference') refGroupBy = 'reference';
     page = 'references';
     // Wait for the page to mount before scrolling
     setTimeout(() => {
@@ -218,7 +258,10 @@
   let focusModeNonce = 0;
 
   function handleNavigateMode(e: CustomEvent<{ moleculeId: string; topologyId: string; modeId: string }>) {
-    page = 'vibration';
+    // The modes live in the Dataset page's Contents half now.
+    page = 'datamodel';
+    dmView = 'contents';
+    dmActive = 'modes';
     focusModeNonce += 1;
     focusMode = { ...e.detail, nonce: focusModeNonce };
   }
@@ -234,8 +277,10 @@
     ? getLegendCategories(dataset.bands, dataset.groups, enabledGroups, colorDim)
     : [];
 
+  // Passed the live filters so a tag whose bands are all hidden by another
+  // filter greys out too, rather than looking available when it is not.
   $: legendTags = dataset
-    ? getLegendTags(dataset.bands, enabledGroups)
+    ? getLegendTags(dataset.bands, enabledGroups, { hiddenCats, colorDim, hiddenTags, tagIsolate })
     : [];
 
   $: sortedGroupKeys = (() => {
@@ -256,7 +301,9 @@
 <header class="app-header">
   <div class="header-left">
     <button class="header-title-btn" on:click={() => page = 'home'}>Spectral Band Atlas</button>
-    <span class="header-subtitle">CO₂ hydrogenation</span>
+    <!-- The framing, not the scope: what the atlas currently covers is stated
+         on the home page, where it can be widened without touching the chrome. -->
+    <span class="header-subtitle">Vibrational spectroscopy</span>
   </div>
   <div class="header-right">
     <div class="header-authors">Julius Sommer<sup>1</sup>, Evgeny Pidko<sup>1</sup>, Atsushi Urakawa<sup>1</sup></div>
@@ -286,8 +333,8 @@
         <div class="collapsed-page-nav">
           <button class="page-mini-btn" class:active={page === 'home'}
             on:click={() => page = 'home'} title="Home">H</button>
-          <button class="page-mini-btn" class:active={page === 'vibration'}
-            on:click={() => page = 'vibration'} title="Vibration modes">V</button>
+          <button class="page-mini-btn" class:active={page === 'knowledge'}
+            on:click={() => page = 'knowledge'} title="Knowledge">K</button>
           <!-- B button: click = go to chart; hover = color quick-switch -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="mini-btn-wrap"
@@ -310,15 +357,17 @@
           </div>
           <button class="page-mini-btn" class:active={page === 'references'}
             on:click={() => page = 'references'} title="References">R</button>
+          <button class="page-mini-btn" class:active={page === 'datamodel'}
+            on:click={() => page = 'datamodel'} title="Dataset">D</button>
           <button class="page-mini-btn" class:active={page === 'impressum'}
             on:click={() => page = 'impressum'} title="Impressum">I</button>
           {#if page === 'styleguide'}
             <button class="page-mini-btn active"
               on:click={() => page = 'styleguide'} title="Style guide">S</button>
           {/if}
-          {#if page === 'datamodel'}
+          {#if page === 'sourceguide'}
             <button class="page-mini-btn active"
-              on:click={() => page = 'datamodel'} title="Data model">D</button>
+              on:click={() => page = 'sourceguide'} title="Source guide">G</button>
           {/if}
         </div>
       {/if}
@@ -328,15 +377,16 @@
         <!-- Page selector -->
         <nav class="page-nav">
           <button class:active={page === 'home'}       on:click={() => page = 'home'}>Home</button>
-          <button class:active={page === 'vibration'}  on:click={() => page = 'vibration'}>Vibration modes</button>
+          <button class:active={page === 'knowledge'}  on:click={() => page = 'knowledge'}>Knowledge</button>
           <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
           <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
+          <button class:active={page === 'datamodel'}  on:click={() => page = 'datamodel'}>Dataset</button>
           <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
           {#if page === 'styleguide'}
             <button class="active" on:click={() => page = 'styleguide'}>Style guide</button>
           {/if}
-          {#if page === 'datamodel'}
-            <button class="active" on:click={() => page = 'datamodel'}>Data model</button>
+          {#if page === 'sourceguide'}
+            <button class="active" on:click={() => page = 'sourceguide'}>Source guide</button>
           {/if}
         </nav>
 
@@ -364,10 +414,11 @@
 
           <Sidebar
             groups={dataset.groups}
+            sets={dataset.sets}
             sortedKeys={sortedGroupKeys}
             {enabledGroups}
             on:groupToggle={handleGroupToggle}
-            on:allGroups={handleAllGroups}
+            on:setSelect={handleSetSelect}
           />
 
         {:else if page === 'styleguide'}
@@ -383,10 +434,31 @@
             {/each}
           </nav>
 
-        {:else if page === 'datamodel'}
+        {:else if page === 'sourceguide'}
           <h3>Contents</h3>
           <nav class="sg-toc">
-            {#each DM_SECTIONS as s}
+            {#each SRC_SECTIONS as s}
+              <button
+                class="sg-toc-item"
+                class:sg-part={s.part}
+                class:active={srcActive === s.id}
+                on:click={() => scrollToSection(s.id, 'src')}
+              >{s.label}</button>
+            {/each}
+          </nav>
+
+        {:else if page === 'datamodel'}
+          <section>
+            <h3>View</h3>
+            <select value={dmView} on:change={handleDmViewChange}>
+              <option value="structure">Structure</option>
+              <option value="contents">Contents</option>
+            </select>
+          </section>
+
+          <h3 class="toc-head">Contents</h3>
+          <nav class="sg-toc">
+            {#each dmSections as s}
               <button
                 class="sg-toc-item"
                 class:sg-part={s.part}
@@ -396,12 +468,37 @@
             {/each}
           </nav>
 
+        {:else if page === 'knowledge'}
+          <h3>Contents</h3>
+          <nav class="sg-toc">
+            {#each KN_SECTIONS as s}
+              <button
+                class="sg-toc-item"
+                class:sg-part={s.part}
+                class:active={knActive === s.id}
+                on:click={() => scrollToSection(s.id, 'kn')}
+              >{s.label}</button>
+            {/each}
+          </nav>
+
         {:else if page === 'references'}
-          <h3>View</h3>
-          <div class="sub-nav">
-            <button class:active={refViewMode === 'by-ref'}   on:click={() => refViewMode = 'by-ref'}>By reference</button>
-            <button class:active={refViewMode === 'by-group'} on:click={() => refViewMode = 'by-group'}>By group</button>
-          </div>
+          <section>
+            <h3>Group by</h3>
+            <select bind:value={refGroupBy}>
+              {#each GROUP_DIMS as d}
+                <option value={d.key} title={d.hint}>{d.label}</option>
+              {/each}
+            </select>
+          </section>
+
+          <section>
+            <h3>Then by</h3>
+            <select bind:value={refThenBy}>
+              {#each GROUP_DIMS.filter(d => d.key !== refGroupBy) as d}
+                <option value={d.key} title={d.hint}>{d.label}</option>
+              {/each}
+            </select>
+          </section>
         {/if}
 
       </div>
@@ -411,7 +508,11 @@
     <!-- ── Main content ── -->
     <div class="main-area" class:plot-area={page === 'chart'} bind:this={mainArea}>
       {#if page === 'home'}
-        <HomePage on:navigate={handleHomeNavigate} />
+        <HomePage
+          bandCount={dataset.bands.length}
+          referenceCount={refs ? Object.keys(refs).length : 0}
+          on:navigate={handleHomeNavigate}
+        />
       {:else if page === 'chart'}
         <div class="chart-scroll">
           <BandChart
@@ -461,29 +562,36 @@
           {refs}
           {vibrations}
           {sortedGroupKeys}
-          viewMode={refViewMode}
+          groupBy={refGroupBy}
+          thenBy={refThenBy}
         />
-      {:else if page === 'vibration'}
-        <VibrationModesPage
+      {:else if page === 'knowledge'}
+        <KnowledgePage
           bands={dataset.bands}
+          groups={dataset.groups}
           {refs}
-          {vibrations}
-          {sortedGroupKeys}
-          {focusMode}
-          on:navigateRef={handleNavigateRef}
+          on:active={e => knActive = e.detail.id}
           on:navigateBand={handleNavigateBand}
+          on:navigateRef={handleNavigateRef}
         />
       {:else if page === 'impressum'}
         <ImpressumPage on:navigate={handleHomeNavigate} />
       {:else if page === 'styleguide'}
         <StyleGuidePage on:active={e => sgActive = e.detail.id} />
+      {:else if page === 'sourceguide'}
+        <SourceGuidePage on:active={e => srcActive = e.detail.id} />
       {:else if page === 'datamodel'}
         <DataModelPage
           {dataset}
           {refs}
           {vibrations}
           {tagTips}
+          {sortedGroupKeys}
+          {focusMode}
+          view={dmView}
           on:active={e => dmActive = e.detail.id}
+          on:navigateRef={handleNavigateRef}
+          on:navigateBand={handleNavigateBand}
         />
       {/if}
     </div>
@@ -494,7 +602,7 @@
 <div class="hint-banner">
   <strong>Tip:</strong> hard-refresh if stale:
   <kbd>Ctrl+Shift+R</kbd> (Win/Linux) or <kbd>⌘+Shift+R</kbd> (macOS).
-  &ensp;<strong>Sidebar</strong> = toggle groups (collapses/expands lanes).
+  &ensp;<strong>Filter</strong> = pick a set, or open Groups to toggle one (collapses/expands lanes).
   &ensp;<strong>Legend</strong> = show/hide color categories.
   &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
   &ensp;Found an error, have a tip, or know an interesting paper to reference?
@@ -613,11 +721,20 @@
     width: 220px;
     height: 100%;
     box-sizing: border-box;
-    padding: 10px 14px;
+    /* The horizontal padding is small because the reserved scrollbar gutters
+       below supply most of it; together they come to the same 14px-ish inset,
+       and the content column keeps its width either way. */
+    padding: 10px 7px;
     border-right: 1px solid var(--line-soft);
     background: var(--surface-sunken);
     overflow-y: auto;
     overflow-x: hidden;
+    /* Reserve the scrollbar's width whether or not it is showing, so
+       expanding the group list does not reflow anything. `both-edges` puts
+       the same reservation on the left, so the spare room reads as even
+       padding rather than an empty column down one side, and the content
+       never moves when the scrollbar appears. */
+    scrollbar-gutter: stable both-edges;
     font-size: 14px;
     transition: width 0.18s ease, flex-basis 0.18s ease, padding 0.18s ease;
   }
@@ -793,6 +910,8 @@
   .state-msg.error { color: var(--danger); }
 
   /* ── Style guide table of contents ── */
+  .toc-head { margin-top: 14px; }
+
   .sg-toc {
     display: flex;
     flex-direction: column;
@@ -833,13 +952,13 @@
   }
 
   /* ── Page navigation ── */
-  .page-nav, .sub-nav {
+  .page-nav {
     display: flex;
     flex-direction: column;
     gap: 3px;
   }
 
-  .page-nav button, .sub-nav button {
+  .page-nav button {
     display: block;
     width: 100%;
     padding: 5px 10px;
@@ -852,9 +971,9 @@
     text-align: left;
   }
 
-  .page-nav button:hover, .sub-nav button:hover { background: var(--surface-hover); }
+  .page-nav button:hover { background: var(--surface-hover); }
 
-  .page-nav button.active, .sub-nav button.active {
+  .page-nav button.active {
     background: var(--brand-tint);
     border-color: var(--brand-tint-line);
     color: var(--brand-accent);

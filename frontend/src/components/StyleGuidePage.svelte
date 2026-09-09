@@ -612,7 +612,7 @@
         </div>
         <div class="mark-row">
           <svg class="mark-svg" viewBox="0 0 120 14" aria-hidden="true">
-            <path d="M 4 12 V 4 H 116 V 12" fill="none" stroke={TAG_STYLES['isotopic-shift'].color}
+            <path d="M 4 12 V 4 H 116 V 12" fill="none" stroke={TAG_STYLES['isotope'].color}
                   stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
           </svg>
           <span>isotopologue to parent</span>
@@ -671,7 +671,7 @@
                 The same normal mode on a heavier molecule. Authored as
                 <code>isotopologue_of</code> plus an <code>isotope</code> label,
                 child to parent, one step, never a chain.
-                <code>build.py</code> adds <code>isotopic-shift</code> to the
+                <code>build.py</code> adds <code>isotope</code> to the
                 child alone.
               </td>
             </tr>
@@ -742,7 +742,7 @@
           <!-- isotopologue -->
           <rect x="262" y="240" width="60" height="12" rx="1" fill={ATOMS_PALETTE['C-H']} stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
           <rect x="352" y="240" width="56" height="12" rx="1" fill="url(#sg-iso-hatch)" stroke="rgba(0,0,0,0.35)" stroke-width="0.5" opacity="0.85" />
-          <path d="M 292 240 V 226 H 380 V 240" fill="none" stroke={TAG_STYLES['isotopic-shift'].color} stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
+          <path d="M 292 240 V 226 H 380 V 240" fill="none" stroke={TAG_STYLES['isotope'].color} stroke-width="1.5" stroke-dasharray="1,3" stroke-linecap="round" opacity="0.85" />
           <text x="262" y="268" class="link-lbl">ν(C–H)</text>
           <text x="352" y="268" class="link-lbl">ν(C–D)</text>
         </svg>
@@ -1040,7 +1040,11 @@
             <tr><th>short</th><td class="spec-val">a few words</td><td>The label a reader scans. No sentence, no full stop.</td></tr>
             <tr><th>description</th><td class="spec-val">100 to 120 words</td><td>Everything true of the band in general.</td></tr>
             <tr><th>references[].wn</th><td class="spec-val">number or list</td><td>The wavenumber that paper reported. Never in prose.</td></tr>
-            <tr><th>references[].site</th><td class="spec-val">species or list</td><td>Most specific surface species named ("Cu⁺", "Zr⁴⁺"), otherwise the catalyst. No conditions.</td></tr>
+            <tr><th>species</th><td class="spec-val">a species key</td><td>Chemical identity only, from data/species.jsonc. Phase, binding geometry and isotopologue each have their own field.</td></tr>
+            <tr><th>phase</th><td class="spec-val">gas / adsorbed / surface</td><td>Omit when the band covers both the free molecule and its adsorbed form. Derives the "gas-phase" tag.</td></tr>
+            <tr><th>topology</th><td class="spec-val">a topology id</td><td>Binding geometry, from the species' molecule in data/vibrations.jsonc.</td></tr>
+            <tr><th>references[].measured_on</th><td class="spec-val">a surface key or list</td><td>Where this source measured it, from data/surfaces.jsonc, at whatever scale the paper stated: a site ("cu_1p"), a phase ("tio2"), a sample ("cu_zno"), or several at once. No conditions.</td></tr>
+            <tr><th>references[].technique</th><td class="spec-val">an enum value</td><td>How the spectrum was taken. Derives the technique tag chip, so never write drifts/ftir by hand.</td></tr>
             <tr><th>references[].note</th><td class="spec-val">under 150 words</td><td>Conditions, caveats, what that paper actually showed.</td></tr>
             <tr><th>references[].tags</th><td class="spec-val">per-citation</td><td>Claims about the citation, e.g. isotope-labeling as evidence. Band-level truths go in the band's own tags.</td></tr>
           </tbody>

@@ -2,14 +2,24 @@
   import { C } from '../lib/tokens';
   import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
   import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
-  import { esc, ieeeHtml, refSortKey } from '../lib/citations';
+  import { esc, ieeeHtml, refSortKey, shortCite } from '../lib/citations';
+  import { htmlToUnicode } from '../lib/notation';
+  import { speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
+  import { buildSections, type BandRef, type GroupDim } from '../lib/refGrouping';
 
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
   export let vibrations: Vibrations;
   export let sortedGroupKeys: string[];
-  export let viewMode: 'by-ref' | 'by-group';
+  // Which two dimensions the page groups by, outer then inner.
+  export let groupBy: GroupDim = 'reference';
+  export let thenBy: GroupDim = 'group';
+
+  // Neither dimension names the paper, so every claim row has to carry it
+  // itself; when a reference IS one of the dimensions the heading already
+  // says it, and repeating it on every row would be noise.
+  $: showRowCite = groupBy !== 'reference' && thenBy !== 'reference';
 
   let open = new Set<string>();
 
@@ -25,13 +35,12 @@
     if (b.short) return b.short;
     const sub    = b.vibration.subtype  ? ` ${esc(b.vibration.subtype)}`  : '';
     const branch = b.vibration.branch   ? ` ${esc(b.vibration.branch)}`   : '';
-    return `${esc(b.species)}${sub} ${esc(b.vibration.category)}${branch}`;
+    return `${esc(speciesLabel(b.species))}${sub} ${esc(b.vibration.category)}${branch}`;
   }
 
-  function siteList(ref: BandReference): string[] {
-    if (!ref.site) return [];
-    return Array.isArray(ref.site) ? ref.site : [ref.site];
-  }
+  // Label plus level, resolved from the surface keys the data carries. Most
+  // specific first, so a claim naming both reads "Cu⁺  Cu/ZnO".
+  const surfaceList = sortedMeasuredOnBadges;
 
   function wnList(ref: BandReference): number[] {
     if (ref.wn == null) return [];
@@ -60,177 +69,123 @@
     return molecule.topologies.find(t => t.id === mode.topology)?.long ?? mode.topology;
   }
 
-  // Every (molecule, mode) pair that cites at least one reference — built
-  // once and reused by both views below, the same way `bands` already
-  // carries its own references regardless of which view is showing.
-  interface ModeRef { molecule: Molecule; mode: VibrationMode; }
-  $: modeRefEntries = (() => {
-    const map = new Map<string, ModeRef[]>();
-    for (const molecule of vibrations?.molecules ?? []) {
-      for (const mode of molecule.modes) {
-        for (const key of mode.reference) {
-          if (!map.has(key)) map.set(key, []);
-          map.get(key)!.push({ molecule, mode });
-        }
-      }
-    }
-    return map;
-  })();
+  // Both levels of grouping are data now: see lib/refGrouping.ts for the
+  // dimensions and why mode-only citations only appear where a reference is
+  // one of them.
+  $: sections = buildSections(groupBy, thenBy, {
+    bands,
+    refs,
+    groups,
+    sortedGroupKeys,
+    vibrations,
+  });
 
-  // Group a refKey's citing modes by molecule, in vibrations.json's own
-  // molecule order — mirrors how groupBands below groups citing bands by
-  // chart group.
-  function moleculeModesFor(refKey: string): { molecule: Molecule; modes: VibrationMode[] }[] {
-    const entries = modeRefEntries.get(refKey) ?? [];
-    const byMolecule = new Map<string, { molecule: Molecule; modes: VibrationMode[] }>();
-    for (const e of entries) {
-      if (!byMolecule.has(e.molecule.id)) byMolecule.set(e.molecule.id, { molecule: e.molecule, modes: [] });
-      byMolecule.get(e.molecule.id)!.modes.push(e.mode);
-    }
-    return [...byMolecule.values()];
+  /** Stable per-row key, so expanding one row survives a regroup. */
+  function rowId(sectionKey: string, bucketKey: string, e: BandRef): string {
+    return `${sectionKey}|${bucketKey}|${e.band.id}|${e.ref.uid}`;
   }
 
-  // ---- By-reference view data ----
-  interface BandRef    { band: Band; ref: BandReference; }
-  interface GroupBands { key: string; label: string; color: string; entries: BandRef[]; }
-  interface MoleculeModes { molecule: Molecule; modes: VibrationMode[]; }
-  interface ByRefItem  { refKey: string; html: string; groupBands: GroupBands[]; moleculeModes: MoleculeModes[]; }
-
-  $: byRefItems = (() => {
-    if (!refs) return [] as ByRefItem[];
-    const refEntries = new Map<string, BandRef[]>();
-    for (const b of bands) {
-      for (const ref of b.references) {
-        if (!refEntries.has(ref.key)) refEntries.set(ref.key, []);
-        refEntries.get(ref.key)!.push({ band: b, ref });
-      }
-    }
-    // Union of every key cited by a band OR by a mode — a mode-only
-    // citation (no band links to it at all) still needs its own card.
-    const allKeys = new Set([...refEntries.keys(), ...modeRefEntries.keys()]);
-    return [...allKeys]
-      .sort((a, b) => refSortKey(refs![a] ?? {}).localeCompare(refSortKey(refs![b] ?? {})))
-      .map(rk => {
-        const byGroup = new Map<string, BandRef[]>();
-        for (const e of (refEntries.get(rk) ?? [])) {
-          if (!byGroup.has(e.band.group)) byGroup.set(e.band.group, []);
-          byGroup.get(e.band.group)!.push(e);
-        }
-        const groupBands: GroupBands[] = sortedGroupKeys
-          .filter(gk => byGroup.has(gk))
-          .map(gk => ({
-            key:   gk,
-            label: groups[gk]?.label ?? gk,
-            color: groups[gk]?.color ?? C['ink-600'],
-            entries: byGroup.get(gk)!.sort((a, b) => b.band.wn_max - a.band.wn_max),
-          }));
-        return { refKey: rk, html: ieeeHtml(refs![rk] ?? {}, rk), groupBands, moleculeModes: moleculeModesFor(rk) };
-      });
-  })();
-
-  // ---- By-group view data ----
-  interface ByRefEntry  { refKey: string; html: string; entries: BandRef[]; moleculeModes: MoleculeModes[]; }
-  interface ByGroupItem { key: string; label: string; color: string; refs: ByRefEntry[]; }
-
-  $: byGroupItems = (() => {
-    if (!refs) return [] as ByGroupItem[];
-    return sortedGroupKeys
-      .map(gk => {
-        const gb = bands.filter(b => b.group === gk && b.references.length > 0);
-        // Modes whose owning molecule is itself filed under this chart
-        // group, even if the molecule has no real band linked at all (e.g.
-        // a mode-only citation) — same band_groups field the vibration-
-        // modes page itself uses to order molecules against this list.
-        const groupModeKeys = new Set<string>();
-        for (const molecule of vibrations?.molecules ?? []) {
-          if (!molecule.band_groups.includes(gk)) continue;
-          for (const mode of molecule.modes) for (const key of mode.reference) groupModeKeys.add(key);
-        }
-        if (!gb.length && !groupModeKeys.size) return null;
-        const refMap = new Map<string, BandRef[]>();
-        for (const b of gb) {
-          for (const ref of b.references) {
-            if (!refMap.has(ref.key)) refMap.set(ref.key, []);
-            refMap.get(ref.key)!.push({ band: b, ref });
-          }
-        }
-        const allKeys = new Set([...refMap.keys(), ...groupModeKeys]);
-        const refEntries: ByRefEntry[] = [...allKeys]
-          .sort((a, b) => refSortKey(refs![a] ?? {}).localeCompare(refSortKey(refs![b] ?? {})))
-          .map(rk => ({
-            refKey: rk,
-            html:   ieeeHtml(refs![rk] ?? {}, rk),
-            entries: (refMap.get(rk) ?? []).sort((a, b) => b.band.wn_max - a.band.wn_max),
-            moleculeModes: moleculeModesFor(rk).filter(mm => mm.molecule.band_groups.includes(gk)),
-          }));
-        return {
-          key:   gk,
-          label: groups[gk]?.label ?? gk,
-          color: groups[gk]?.color ?? C['ink-600'],
-          refs:  refEntries,
-        };
-      })
-      .filter((x): x is ByGroupItem => x !== null);
-  })();
 </script>
 
 <main class="content">
+  {#each sections as section (section.key)}
+    <!-- The outer heading carries the group colour when it is a group, the
+         citation when it is a reference, and a plain label otherwise. -->
+    <!-- A reference section is a citation card; every other dimension gets
+         the neutral group card, tinted when it has a colour of its own. -->
+    <div
+      class={section.html ? 'ref-card' : 'group-card'}
+      id={groupBy === 'reference' ? `refcard-${section.key}` : undefined}
+      style={section.color ? `--group-color:${section.color}; border-left-color:${section.color}` : ''}
+    >
+      {#if section.html}
+        <div class="ref-card-citation">{@html section.html}</div>
+      {:else}
+        <div
+          class="group-card-header"
+          class:as-typed={groupBy !== 'group'}
+          style={section.color ? `color:${section.color}; border-bottom-color:${section.color}22` : ''}
+        >
+          {section.label}
+          {#if section.sub}<span class="header-sub">{section.sub}</span>{/if}
+        </div>
+      {/if}
 
-  {#if viewMode === 'by-ref'}
-    <!-- ── Alphabetical by reference ── -->
-    {#each byRefItems as item (item.refKey)}
-      <div class="ref-card" id="refcard-{item.refKey}">
-        <div class="ref-card-citation">{@html item.html}</div>
-        {#each item.groupBands as g (g.key)}
-          <div class="group-section">
-            <div class="group-label" style="color:{g.color}">{g.label}</div>
-            {#each g.entries as e (`${e.band.id}|${wnList(e.ref).join(',')}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
-              {@const id = `r-${item.refKey}-${e.band.id}-${wnList(e.ref).join(',')}`}
-              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-              <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
-                <div class="band-row-line">
-                  <span class="band-name">{@html bandNameHtml(e.band)}</span>
-                  {#if e.ref.wn != null}
-                    {#each wnList(e.ref) as w}
-                      <span class="badge-wn">{w} cm⁻¹</span>
-                    {/each}
-                  {:else}
-                    <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
-                  {/if}
-                  {#each siteList(e.ref) as s}
-                    <span class="badge-site">{s}</span>
+      {#each section.buckets as bucket (bucket.key)}
+        <!-- A reference bucket keeps its own nested citation card; the rest
+             are a light labelled divider, as the by-reference view always was. -->
+        <div
+          class={bucket.html ? 'ref-sub-card' : 'group-section'}
+          id={thenBy === 'reference' ? `refcard-${bucket.key}` : undefined}
+        >
+          {#if bucket.html}
+            <div class="ref-sub-citation">{@html bucket.html}</div>
+          {:else}
+            <div
+              class="group-label"
+              class:as-typed={thenBy !== 'group'}
+              style={bucket.color ? `color:${bucket.color}` : ''}
+            >
+              {bucket.label}
+              {#if bucket.sub}<span class="header-sub">{bucket.sub}</span>{/if}
+            </div>
+          {/if}
+
+          {#each bucket.entries as e (rowId(section.key, bucket.key, e))}
+            {@const id = rowId(section.key, bucket.key, e)}
+            <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+            <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+              <div class="band-row-line">
+                <span class="band-name">{@html bandNameHtml(e.band)}</span>
+                {#if e.ref.wn != null}
+                  {#each wnList(e.ref) as w}
+                    <span class="badge-wn">{w} cm⁻¹</span>
                   {/each}
-                  {#each qualityTags(e.band) as tag}
-                    <span class="badge-quality">{tag}</span>
-                  {/each}
-                  {#each e.ref.tags as tag}
-                    {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
-                    <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
-                  {/each}
-                  <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
-                </div>
-                {#if open.has(id)}
-                  <div class="band-expand">
-                    {#if e.band.description}
-                      <div class="expand-desc">{@html e.band.description}</div>
-                    {/if}
-                    {#if e.ref.wn != null}
-                      <div class="expand-note">range: {e.band.wn_min}–{e.band.wn_max} cm⁻¹</div>
-                    {/if}
-                    {#if e.ref.note}
-                      <div class="expand-note">{e.ref.note}</div>
-                    {/if}
-                  </div>
+                {:else}
+                  <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
                 {/if}
+                {#each surfaceList(e.ref) as s}
+                  <span
+                    class="badge-site"
+                    class:badge-coarse={s.level !== 'site'}
+                    title={SURFACE_LEVEL_TITLE[s.level]}
+                  >{s.label}</span>
+                {/each}
+                {#each qualityTags(e.band) as tag}
+                  <span class="badge-quality">{tag}</span>
+                {/each}
+                {#each e.ref.tags as tag}
+                  {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                  <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
+                {/each}
+                {#if showRowCite}
+                  <span class="row-cite" title={htmlToUnicode(ieeeHtml(refs?.[e.ref.key] ?? {}, e.ref.key))}>
+                    {shortCite(refs?.[e.ref.key] ?? {}, e.ref.key)}
+                  </span>
+                {/if}
+                <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
               </div>
-            {/each}
-          </div>
-        {/each}
-        {#each item.moleculeModes as mm (mm.molecule.id)}
+              {#if open.has(id)}
+                <div class="band-expand">
+                  {#if e.band.description}
+                    <div class="expand-desc">{@html e.band.description}</div>
+                  {/if}
+                  {#if e.ref.wn != null}
+                    <div class="expand-note">range: {e.band.wn_min}–{e.band.wn_max} cm⁻¹</div>
+                  {/if}
+                  {#if e.ref.note}
+                    <div class="expand-note">{e.ref.note}</div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          {/each}
+
+          {#each bucket.moleculeModes as mm (mm.molecule.id)}
           <div class="group-section">
             <div class="group-label mode-group-label">{mm.molecule.label} — vibration modes</div>
             {#each mm.modes as mode (mode.id)}
-              {@const id = `rm-${item.refKey}-${mode.id}`}
+              {@const id = `${section.key}-${bucket.key}-${mode.id}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
@@ -254,99 +209,52 @@
               </div>
             {/each}
           </div>
-        {/each}
-      </div>
-    {/each}
+          {/each}
+        </div>
+      {/each}
 
-  {:else}
-    <!-- ── By group ── -->
-    {#each byGroupItems as g (g.key)}
-      <div class="group-card" style="--group-color:{g.color}; border-left-color:{g.color}">
-        <div class="group-card-header" style="color:{g.color}; border-bottom-color:{g.color}22">{g.label}</div>
-        {#each g.refs as r (r.refKey)}
-          <div class="ref-sub-card">
-            <div class="ref-sub-citation">{@html r.html}</div>
-            {#each r.entries as e (`${e.band.id}|${wnList(e.ref).join(',')}|${Array.isArray(e.ref.site) ? e.ref.site[0] : (e.ref.site ?? '')}`)}
-              {@const id = `g-${g.key}-${r.refKey}-${e.band.id}-${wnList(e.ref).join(',')}`}
+      {#each section.moleculeModes as mm (mm.molecule.id)}
+          <div class="group-section">
+            <div class="group-label mode-group-label">{mm.molecule.label} — vibration modes</div>
+            {#each mm.modes as mode (mode.id)}
+              {@const id = `${section.key}-${mode.id}`}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
                 <div class="band-row-line">
-                  <span class="band-name">{@html bandNameHtml(e.band)}</span>
-                  {#if e.ref.wn != null}
-                    {#each wnList(e.ref) as w}
-                      <span class="badge-wn">{w} cm⁻¹</span>
-                    {/each}
-                  {:else}
-                    <span class="badge-wn">{e.band.wn_min}–{e.band.wn_max} cm⁻¹</span>
+                  <span class="band-name">{mode.label}</span>
+                  {#if mode.herzberg_notation}
+                    <span class="badge-quality">{mode.herzberg_notation}</span>
                   {/if}
-                  {#each siteList(e.ref) as s}
-                    <span class="badge-site">{s}</span>
-                  {/each}
-                  {#each qualityTags(e.band) as tag}
-                    <span class="badge-quality">{tag}</span>
-                  {/each}
-                  {#each e.ref.tags as tag}
-                    {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
-                    <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
-                  {/each}
+                  {#if topologyLabel(mm.molecule, mode)}
+                    <span class="badge-site">{topologyLabel(mm.molecule, mode)}</span>
+                  {/if}
+                  {#if modeWnLabel(mode)}
+                    <span class="badge-wn">{modeWnLabel(mode)}</span>
+                  {/if}
                   <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
                 </div>
-                {#if open.has(id)}
+                {#if open.has(id) && mode.note}
                   <div class="band-expand">
-                    {#if e.band.description}
-                      <div class="expand-desc">{@html e.band.description}</div>
-                    {/if}
-                    {#if e.ref.wn != null}
-                      <div class="expand-note">range: {e.band.wn_min}–{e.band.wn_max} cm⁻¹</div>
-                    {/if}
-                    {#if e.ref.note}
-                      <div class="expand-note">{e.ref.note}</div>
-                    {/if}
+                    <div class="expand-desc">{mode.note}</div>
                   </div>
                 {/if}
               </div>
             {/each}
-            {#each r.moleculeModes as mm (mm.molecule.id)}
-              <div class="mode-subgroup">
-                <div class="group-label mode-group-label">{mm.molecule.label} — vibration modes</div>
-                {#each mm.modes as mode (mode.id)}
-                  {@const id = `gm-${g.key}-${r.refKey}-${mode.id}`}
-                  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-                  <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
-                    <div class="band-row-line">
-                      <span class="band-name">{mode.label}</span>
-                      {#if mode.herzberg_notation}
-                        <span class="badge-quality">{mode.herzberg_notation}</span>
-                      {/if}
-                      {#if topologyLabel(mm.molecule, mode)}
-                        <span class="badge-site">{topologyLabel(mm.molecule, mode)}</span>
-                      {/if}
-                      {#if modeWnLabel(mode)}
-                        <span class="badge-wn">{modeWnLabel(mode)}</span>
-                      {/if}
-                      <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
-                    </div>
-                    {#if open.has(id) && mode.note}
-                      <div class="band-expand">
-                        <div class="expand-desc">{mode.note}</div>
-                      </div>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            {/each}
           </div>
-        {/each}
-      </div>
-    {/each}
-  {/if}
+      {/each}
+    </div>
+  {/each}
 
+  {#if sections.length === 0}
+    <p class="empty">Nothing to show for this grouping.</p>
+  {/if}
 </main>
 
 <style>
   .content {
     padding: 24px 40px;
     max-width: 900px;
+    margin: 0 auto;
     box-sizing: border-box;
     font-size: 14px;
     line-height: 1.55;
@@ -374,6 +282,12 @@
     font-size: 11.5px;
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  /* Hollow variant of the site badge: a phase or a sample, coarser than the
+     atom-scale spot, so the scale of the claim reads at a glance. */
+  .badge-coarse {
+    background: var(--badge-site-bg-soft);
   }
 
   .badge-quality {
@@ -420,6 +334,19 @@
   }
   .band-name :global(sub), .band-name :global(sup) { font-size: 0.75em; }
 
+  /* Pushed to the right edge of the row: it identifies the row rather than
+     describing the band, so it reads as an attribution, not another badge.
+     The full citation is on the tooltip. */
+  .row-cite {
+    margin-left: auto;
+    padding-left: 10px;
+    font-size: 11.5px;
+    color: var(--ink-200);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .expand-arrow {
     font-size: 10px;
     color: var(--ink-050);
@@ -427,6 +354,8 @@
     flex-shrink: 0;
     padding-left: 4px;
   }
+  /* Only one of the two claims the free space. */
+  .row-cite + .expand-arrow { margin-left: 0; }
 
   .band-expand {
     padding: 2px 4px 6px 8px;
@@ -486,16 +415,28 @@
      chart group, since a mode isn't a band) rather than reusing g.color. */
   .mode-group-label { color: var(--accent-violet); }
 
-  .mode-subgroup { margin-top: 7px; }
 
-  /* ── By-group view ── */
-  .group-card {
-    border: 1px solid var(--line-soft);
-    border-left: 4px solid var(--ink-200);
-    border-radius: 6px;
-    padding: 14px 16px 10px;
-    margin-bottom: 20px;
-    background: var(--surface);
+  /* Only a group name is upper-cased, as it always was. A site, a sample or
+     an element is written the way chemistry writes it: upper-casing "Cu⁺"
+     gives "CU⁺", and "Co" gives carbon monoxide instead of cobalt. */
+  .group-card-header.as-typed,
+  .group-label.as-typed { text-transform: none; }
+
+  /* Composition, kind, elements: the detail under a heading that is not a
+     citation and not a coloured group. */
+  .header-sub {
+    display: block;
+    margin-top: 3px;
+    font-size: var(--t-code-size);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ink-300);
+  }
+
+  .empty {
+    color: var(--ink-300);
+    font-size: 13.5px;
   }
 
   .group-card-header {

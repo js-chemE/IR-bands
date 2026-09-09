@@ -56,6 +56,42 @@
   </section>
 
   <section class="section">
+    <h2>Style guide</h2>
+    <p>
+      How the atlas is put together: type scale, colour tokens, colormaps, page
+      layout, and the rules for what goes into a band entry and how long it may be.
+      Every value on that page is read from the same token module the interface
+      itself uses.
+    </p>
+    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'styleguide' })}>
+      <div class="dl-icon">&rarr;</div>
+      <div class="dl-body">
+        <div class="dl-name">Open the style guide</div>
+        <div class="dl-desc">Design tokens, typography, band-chart layout and content rules</div>
+        <code class="dl-file">frontend/src/lib/tokens.ts</code>
+      </div>
+    </button>
+  </section>
+
+  <section class="section">
+    <h2>Source guide</h2>
+    <p>
+      How a paper becomes an entry: what to take out of it, which field each fact belongs
+      in, how the surface it was measured on is recorded at the right level, how isotope
+      work is kept separate from the ordinary bands, and what to check when the same paper
+      is read again later.
+    </p>
+    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'sourceguide' })}>
+      <div class="dl-icon">&rarr;</div>
+      <div class="dl-body">
+        <div class="dl-name">Open the source guide</div>
+        <div class="dl-desc">Reading a paper into the atlas, and reading it again</div>
+        <code class="dl-file">frontend/src/lib/sourceGuide.ts</code>
+      </div>
+    </button>
+  </section>
+
+  <section class="section">
     <h2>Download Data</h2>
     <p class="dl-intro">The underlying dataset is available in several formats:</p>
 
@@ -104,6 +140,28 @@
     </div>
 
     <div class="dl-row">
+      <div class="dl-row-label">Species &amp; surfaces</div>
+      <div class="dl-cards">
+        <a class="dl-card" href="data/species.jsonc" download="species.jsonc">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">Species</div>
+            <div class="dl-desc">Chemical identities, with the link to the vibration-modes page</div>
+            <code class="dl-file">species.jsonc</code>
+          </div>
+        </a>
+        <a class="dl-card" href="data/surfaces.jsonc" download="surfaces.jsonc">
+          <div class="dl-icon">↓</div>
+          <div class="dl-body">
+            <div class="dl-name">Surfaces</div>
+            <div class="dl-desc">Sites, phases and samples in one table, and what each one contains</div>
+            <code class="dl-file">surfaces.jsonc</code>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="dl-row">
       <div class="dl-row-label">References</div>
       <div class="dl-cards">
         <a class="dl-card" href="data/references.bib" download="references.bib">
@@ -124,42 +182,6 @@
         </a>
       </div>
     </div>
-  </section>
-
-  <section class="section">
-    <h2>Style guide</h2>
-    <p>
-      How the atlas is put together: type scale, colour tokens, colormaps, page
-      layout, and the rules for what goes into a band entry and how long it may be.
-      Every value on that page is read from the same token module the interface
-      itself uses.
-    </p>
-    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'styleguide' })}>
-      <div class="dl-icon">&rarr;</div>
-      <div class="dl-body">
-        <div class="dl-name">Open the style guide</div>
-        <div class="dl-desc">Design tokens, typography, band-chart layout and content rules</div>
-        <code class="dl-file">frontend/src/lib/tokens.ts</code>
-      </div>
-    </button>
-  </section>
-
-  <section class="section">
-    <h2>Data model</h2>
-    <p>
-      What the atlas is made of: bands, the per-paper assignments hanging off them,
-      references, vibration modes, and the sites, species and techniques that are still
-      written as bare strings. Every count and every inventory on that page is read out
-      of the shipped JSON, so it shows the data as it actually stands.
-    </p>
-    <button class="sg-card" on:click={() => dispatch('navigate', { page: 'datamodel' })}>
-      <div class="dl-icon">&rarr;</div>
-      <div class="dl-body">
-        <div class="dl-name">Open the data model</div>
-        <div class="dl-desc">Entities, relations, band-to-band links and the live site inventory</div>
-        <code class="dl-file">frontend/src/lib/dataModel.ts</code>
-      </div>
-    </button>
   </section>
 
   <section class="section">

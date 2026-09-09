@@ -48,7 +48,7 @@
 // A combination/overtone band doesn't need its own vibration_modes entry at
 // all: if it has none, but its `based_on` points (one level) at a band that
 // DOES link to a mode, it's automatically included in that mode's `bands`
-// list too — e.g. CO₂'s νₛ+νₐₛ combination band is based_on co2_sym_1388
+// list too — e.g. CO₂'s νₛ+νₐₛ combination band is based_on co2_sym
 // (which links to co2_stretch_symmetric) and the ν₃ branch_group (which
 // links to co2_stretch_asymmetric), so it shows up under both fundamentals'
 // "Bands" sections without being listed here at all. The same resolution
@@ -78,18 +78,16 @@
 //                 selector's pill buttons and the big title at the top of
 //                 the molecule card. Optimized for being compact/readable at
 //                 a glance, not for chemical precision.
-//   species     — LONG form: the actual chemical formula, e.g. "HCOO*",
-//                 "CO₃²⁻" (the asterisk marks a surface-bound species, same
-//                 convention as bands.jsonc). More explicit than `label`,
-//                 used in the one-line subtitle under a mode's title. For
-//                 small molecules whose formula is already maximally short
-//                 (CO, CO₂), label and species are identical — there's no
-//                 separate "common name" worth showing.
-//                 Neither label nor species is used to resolve any
-//                 cross-reference — they're both purely descriptive. (Note
-//                 species here is NOT required to equal bands.jsonc's own
-//                 `species` field for the same chemical — that one follows
-//                 its own short-common-name convention, e.g. "Formate*".)
+//   species:      NOT AUTHORED HERE. The species key that owns this molecule,
+//                 back-filled by validate_vibrations() from the `molecule`
+//                 field in data/species.jsonc, and shipped in the emitted
+//                 JSON as the formula (e.g. "HCOO*") for the one-line
+//                 subtitle under a mode's title. The link is authored on the
+//                 species side only, the same one-place rule that makes a
+//                 band point at its modes rather than a mode listing its
+//                 bands. It used to be a free string here and a different
+//                 free string in bands.jsonc, so the two files described the
+//                 same chemical two ways and nothing noticed.
 //   shape       — "linear" | "nonlinear", the textbook geometry
 //                 classification. Combined with the atom count from this
 //                 molecule's own entry in moleculeGeometry.ts, the frontend
@@ -198,7 +196,7 @@
 //                 motions, e.g. co2_bend/co2_bend_wagging both resolving to
 //                 the co2_nu2_branches bands) or a generic band shared across
 //                 a molecule's topology-split modes (e.g.
-//                 carbonate_wagging_875 backing both carbonate_wagging_
+//                 carbonate_wagging backing both carbonate_wagging_
 //                 bidentate AND carbonate_wagging_monodentate). The band
 //                 can't supply two different subtypes for the two modes
 //                 sharing it, so those modes keep `subtype` written here by
@@ -238,7 +236,6 @@
     {
       "id": "co2",
       "label": "CO₂",
-      "species": "CO₂",
       "shape": "linear",
       "band_groups": ["co2"],
       "topologies": [
@@ -300,7 +297,6 @@
     {
       "id": "ch4",
       "label": "CH₄",
-      "species": "CH₄",
       "shape": "nonlinear",
       "band_groups": ["ch4"],
       "topologies": [
@@ -360,7 +356,6 @@
     {
       "id": "co",
       "label": "CO",
-      "species": "CO",
       "shape": "linear",
       "band_groups": ["co", "co_metal", "co_cation"],
       "topologies": [
@@ -623,7 +618,6 @@
     {
       "id": "formate",
       "label": "Formate",
-      "species": "HCOO*",
       "shape": "nonlinear",
       "band_groups": ["formate"],
       "topologies": [
@@ -821,7 +815,6 @@
     {
       "id": "carbonate",
       "label": "Carbonate",
-      "species": "CO₃²⁻",
       "shape": "nonlinear",
       "band_groups": ["carbonate"],
       "topologies": [
@@ -1015,7 +1008,6 @@
     {
       "id": "bicarbonate",
       "label": "Bicarbonate",
-      "species": "HCO₃⁻",
       "shape": "nonlinear",
       "band_groups": ["bicarbonate"],
       "topologies": [
@@ -1308,7 +1300,6 @@
     {
       "id": "methoxy",
       "label": "Methoxy",
-      "species": "CH₃O*",
       "shape": "nonlinear",
       "band_groups": ["methoxy"],
       "topologies": [
@@ -1462,7 +1453,6 @@
     {
       "id": "methanol",
       "label": "Methanol",
-      "species": "CH₃OH",
       "shape": "nonlinear",
       "band_groups": ["methanol_product"],
       "topologies": [
@@ -1659,7 +1649,6 @@
     {
       "id": "water",
       "label": "Water",
-      "species": "H₂O",
       "shape": "nonlinear",
       "band_groups": ["water"],
       "topologies": [

@@ -1,0 +1,121 @@
+// =============================================================================
+// Species: the chemical identity a band belongs to.
+// -----------------------------------------------------------------------------
+// This file is JSONC (JSON with Comments). The build step strips // and /* */
+// comments before shipping clean JSON to the browser.
+//
+// WHY THIS FILE EXISTS
+// `band.species` used to be a display label, and it quietly carried five
+// different facts at once: the chemical identity, the phase ("Methanol" vs
+// "Methanol (gas)" vs "Methanol adsorbed (CH₃OH*)"), the binding geometry
+// ("Monodentate carbonate*", "CO bridge (μ₂)"), the isotopologue
+// ("Formate-d* (DCOO*)") and occasionally even the site ("CO/cation site").
+// Thirty-three labels described about fifteen molecules, three branch groups
+// disagreed with themselves about which species they were, and nothing could
+// be validated because no two of the strings were related.
+//
+// Each of those facts now has one home:
+//   species     this file, keyed from band.species
+//   phase       band.phase          (gas | adsorbed | surface, optional)
+//   topology    band.topology       (a Topology id in vibrations.jsonc)
+//   isotope     band.isotope + band.isotopologue_of  (already existed)
+//   surface     band.references[].measured_on  (see data/surfaces.jsonc)
+//
+// IDS ARE ASCII, LABELS CARRY THE UNICODE
+// Same convention as band ids, group keys and surface keys.
+//
+// -----------------------------------------------------------------------------
+// SCHEMA
+//   <key>:      ASCII identifier, referenced by band.species
+//     label:    display text, Unicode (required). What the chart, the tooltip
+//               and the references page show.
+//     formula:  Unicode formula (required). A trailing * marks a surface
+//               species, matching the convention in the group labels.
+//     molecule: the matching molecule id in data/vibrations.jsonc, or null
+//               when that species has no vibration-modes page yet (optional).
+//               This is the link that used to be a coincidence of spelling:
+//               build.py now checks it resolves.
+//     note:     one sentence, for a distinction the label cannot carry
+//               (optional).
+//
+// KEEP IN SYNC: adding, renaming or removing a key here means updating
+// data/bands.jsonc in the same change. build.py fails on an unresolved key.
+// =============================================================================
+{
+  "species": {
+    // ── Gas-phase reactants and products ──
+    "co2":      { "label": "CO₂",      "formula": "CO₂",   "molecule": "co2" },
+    "co":       { "label": "CO",       "formula": "CO",    "molecule": "co" },
+    "ch4":      { "label": "CH₄",      "formula": "CH₄",   "molecule": "ch4" },
+    "water":    { "label": "H₂O",      "formula": "H₂O",   "molecule": "water" },
+    "methanol": { "label": "Methanol", "formula": "CH₃OH", "molecule": "methanol" },
+
+    // ── Surface intermediates ──
+    "methoxy": {
+      "label": "Methoxy",
+      "formula": "CH₃O*",
+      "molecule": "methoxy"
+    },
+    "formate": {
+      "label": "Formate",
+      "formula": "HCOO*",
+      "molecule": "formate"
+    },
+    "carbonate": {
+      "label": "Carbonate",
+      "formula": "CO₃²⁻*",
+      "molecule": "carbonate",
+      "note": "Monodentate and bidentate coordination are `topology` on the band, not separate species."
+    },
+    "bicarbonate": {
+      "label": "Bicarbonate",
+      "formula": "HCO₃⁻*",
+      "molecule": "bicarbonate"
+    },
+    "formaldehyde": {
+      "label": "Formaldehyde",
+      "formula": "H₂CO*",
+      "molecule": null
+    },
+    "formyl": {
+      "label": "Formyl",
+      "formula": "HCO*",
+      "molecule": null
+    },
+    "hydroxymethyl": {
+      "label": "Hydroxymethyl",
+      "formula": "H₂COH*",
+      "molecule": null
+    },
+    "acyl": {
+      "label": "Acyl",
+      "formula": "R-C=O*",
+      "molecule": null,
+      "note": "Generic acyl group; the R is left open because the sources do not fix it."
+    },
+
+    // ── Groups belonging to the solid rather than to an adsorbate ──
+    // Both hydroxyls are the same OH group in two hydrogen-bonding
+    // environments. That environment changes the frequency and the line shape,
+    // and it is neither a phase nor a binding geometry, so it stays as two
+    // species rather than becoming a fourth axis for the sake of two bands.
+    "hydroxyl_isolated": {
+      "label": "Isolated OH",
+      "formula": "OH*",
+      "molecule": null,
+      "note": "Terminal hydroxyl with no hydrogen-bonded neighbour, which is why it stays sharp."
+    },
+    "hydroxyl_hbonded": {
+      "label": "H-bonded OH",
+      "formula": "OH*",
+      "molecule": null,
+      "note": "The same group hydrogen-bonded to a neighbour: lower and much broader."
+    },
+    "hydride": {
+      "label": "Hydride",
+      "formula": "M-H*",
+      "molecule": null,
+      "note": "Metal hydride from heterolytic H₂ dissociation. Written metal-generic; the band names the element."
+    }
+  }
+}

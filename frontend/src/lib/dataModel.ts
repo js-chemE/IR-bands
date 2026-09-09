@@ -1,64 +1,66 @@
 /**
  * The atlas data model, written down.
  *
- * The atlas is really six small databases that reference each other:
- * bands.jsonc, vibrations.jsonc, references.bib, tags.jsonc, plus two sets of
- * lookups (groups, regions) that live inside bands.jsonc. Some of what they
- * hold is a proper record with an id; the rest is a bare string repeated in
- * many places (a site, a species, an author, a technique). This module states
- * which is which, how the records link up, and what the cardinality of each
- * link is, so that the Data model page can render it and so that anything
- * built on top (site filtering, a site page, a materials list) starts from an
- * agreed vocabulary instead of a fresh guess.
+ * The atlas is a handful of small databases that reference each other:
+ * bands.jsonc, species.jsonc, surfaces.jsonc, vibrations.jsonc, references.bib
+ * and tags.jsonc, plus two lookups (groups, regions) inside bands.jsonc. This
+ * module states what each of them holds, how the records link up, what the
+ * cardinality of each link is, and which links the build actually enforces.
  *
  * Two halves:
- *   1. The *specification* below (ENTITIES, RELATIONS, SELF_LINKS, TAG_ROLES).
- *      Hand-authored, the single source of truth for the page's prose.
+ *   1. The *specification* below (ENTITIES, RELATIONS, SELF_LINKS, TAG_ROLES,
+ *      TECHNIQUES). Hand-authored, the single source of truth for the page's
+ *      prose.
  *   2. `analyse()`, which reads the live JSON and fills the specification in
- *      with real counts and, for the string-valued entities, the full
- *      inventory of distinct values. That inventory doubles as the to-do list
- *      for promoting one of them to a real record.
+ *      with real counts, per-record usage and the integrity checks the build
+ *      does not make yet.
  *
  * Keep this in step with schema.py and types.ts: adding a field there means
  * adding it here, same as the JSONC preambles.
  */
 
-import type { Band, Dataset, RefMap, Vibrations } from './types';
+import type { Band, Dataset, RefMap, SurfaceLevel, Vibrations } from './types';
 
 /* ---------------------------------------------------------------------------
    Specification
    --------------------------------------------------------------------------- */
 
 /**
- * How real an entity is today.
- *   record   — has its own object with an id, in a data file
- *   lookup   — has its own object, but nested inside another file's header
- *   inline   — exists only as fields on a parent record, no id of its own
- *   string   — exists only as a repeated bare string, no record anywhere
- *   derived  — not authored at all; computed at load or render time
+ * How real an entity is.
+ *   record:  has its own object with a key, in its own data file
+ *   lookup:  has its own object with a key, nested in another file's header
+ *   inline:  a structured object owned by its parent
+ *   enum:    a closed vocabulary in schema.py, validated but not a table
+ *   string:  only ever a repeated bare string, no record anywhere
+ *   derived: never authored, computed at load or render time
  */
-export type EntityStatus = 'record' | 'lookup' | 'inline' | 'string' | 'derived';
+export type EntityStatus = 'record' | 'lookup' | 'inline' | 'enum' | 'string' | 'derived';
 
 export const STATUS_LABEL: Record<EntityStatus, string> = {
   record: 'Record',
   lookup: 'Lookup',
   inline: 'Inline',
+  enum: 'Enum',
   string: 'Bare string',
   derived: 'Derived',
 };
 
 export const STATUS_NOTE: Record<EntityStatus, string> = {
-  record: 'Own object with its own id, in its own data file.',
+  record: 'Own object with its own key, in its own data file. The build fails on an unresolved key.',
   lookup: 'Own object with a key, but nested in another file’s header block.',
-  inline: 'A structured object, but owned by its parent and with no id of its own.',
+  inline: 'A structured object, but owned by its parent rather than stored on its own.',
+  enum: 'A closed vocabulary in schema.py. Validated, but it carries no attributes of its own.',
   string: 'Only ever a repeated bare string. Nothing can be attached to it, nothing validates it.',
   derived: 'Never authored. Computed from other records at load or render time.',
 };
 
+/** Statuses in order of how formal they are, for the map legend. */
+export const STATUS_ORDER: EntityStatus[] = ['record', 'lookup', 'inline', 'enum', 'string', 'derived'];
+
 export interface FieldSpec {
   name: string;
   type: string;
-  /** required | optional | computed | authored elsewhere */
+  /** required | optional | computed */
   req: 'req' | 'opt' | 'calc';
   note: string;
 }
@@ -71,11 +73,11 @@ export interface EntitySpec {
   source: string;
   /** What identifies one instance. */
   id: string;
-  /** One sentence: what one instance of this is. */
+  /** What one instance of this is. */
   blurb: string;
   fields: FieldSpec[];
-  /** Set when the entity is a string/inline one and promoting it would unlock something. */
-  promote?: string;
+  /** What is still open about this entity, if anything. */
+  open?: string;
 }
 
 export const ENTITIES: EntitySpec[] = [
@@ -84,42 +86,48 @@ export const ENTITIES: EntitySpec[] = [
     label: 'Band',
     status: 'record',
     source: 'data/bands.jsonc',
-    id: 'id (append-only; renaming breaks based_on)',
+    id: 'id, built from what the band is and never from where it sits',
     blurb:
       'One vibrational feature of one species, with the wavenumber window it is reported in. The hub of the whole dataset.',
     fields: [
-      { name: 'id', type: 'string', req: 'req', note: 'Stable key, referenced by based_on, fermi_partner, isotopologue_of.' },
-      { name: 'species', type: 'string', req: 'req', note: 'Bare string today. See the Species entity.' },
-      { name: 'group', type: 'string', req: 'req', note: 'Foreign key into the groups lookup.' },
+      { name: 'id', type: 'string', req: 'req', note: 'Species, mode and whatever qualifier separates it from its siblings. Never a wavenumber: the position gets refined, and an id that encodes it forces a rename every time. Referenced by based_on, fermi_partner and isotopologue_of.' },
+      { name: 'species', type: 'species key', req: 'req', note: 'Into species.jsonc. The chemical identity only.' },
+      { name: 'phase', type: 'gas | adsorbed | surface', req: 'opt', note: 'Omitted on purpose when the band covers both the free molecule and its adsorbed form. Derives the "gas-phase" tag.' },
+      { name: 'topology', type: 'topology id', req: 'opt', note: 'Binding geometry, as a Topology declared by this species’ molecule in vibrations.jsonc.' },
+      { name: 'group', type: 'group key', req: 'req', note: 'Into the groups lookup. Drives lane order and the default colour dimension.' },
       { name: 'vibration', type: '{category, subtype, branch}', req: 'req', note: 'Closed enums, validated in schema.py.' },
       { name: 'atoms', type: 'string', req: 'req', note: 'Bond environment (O=C=O, M-O, diverse). Drives the atoms colormap.' },
       { name: 'wn_start / wn_end', type: 'int', req: 'req', note: 'The band’s window in cm⁻¹. wn_min/max/center derive from it.' },
       { name: 'short / description', type: 'string', req: 'opt', note: 'Label and the 100 to 120 word general description.' },
       { name: 'references[]', type: 'Assignment[]', req: 'opt', note: 'The per-source claims. See the Assignment entity.' },
       { name: 'based_on[]', type: 'BasedOn[]', req: 'opt', note: 'Parent modes of a combination or overtone, with a multiplier.' },
-      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Free-form; some auto-assigned by build.py.' },
-      { name: 'intensity / width / confidence', type: 'enum', req: 'opt', note: 'Observation-dependent, but authored on the band. See Open questions.' },
-      { name: 'vibration_modes[]', type: 'string[]', req: 'opt', note: 'Link up into vibrations.jsonc. Back-filled for derived bands.' },
+      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Free-form. Four of them are derived by build.py and must not be authored.' },
+      { name: 'intensity / width / confidence', type: 'enum', req: 'opt', note: 'Observation-dependent, but still authored on the band. See what is still open.' },
+      { name: 'vibration_modes[]', type: 'mode id[]', req: 'opt', note: 'Link up into vibrations.jsonc. Back-filled for derived bands.' },
       { name: 'lane / sub_lane', type: 'int', req: 'calc', note: 'Set in place by layout.py, not authored.' },
     ],
+    open:
+      'intensity, width and confidence describe an observation but are authored once per band. They belong on the assignment, with the band keeping a rollup for the chart.',
   },
   {
     key: 'assignment',
     label: 'Assignment',
     status: 'inline',
     source: 'data/bands.jsonc → band.references[]',
-    id: 'none (position in the array)',
+    id: 'uid, computed as "<band id>::<citekey>"',
     blurb:
-      'One paper’s claim about one band: the wavenumber it reports, the surface it saw it on, the caveat it attaches. The join between Band and Reference, and already the natural home for everything observation-dependent.',
+      'One paper’s claim about one band: the wavenumber it reports, the surface it saw it on, how it was measured, the caveat it attaches. The join between Band and Reference, and the home of everything observation-dependent.',
     fields: [
-      { name: 'key', type: 'string', req: 'req', note: 'Foreign key into references.bib.' },
+      { name: 'key', type: 'citekey', req: 'req', note: 'Into references.bib.' },
       { name: 'wn', type: 'int | int[]', req: 'opt', note: 'This source’s reported position. An array means several resolved components.' },
-      { name: 'site', type: 'string | string[]', req: 'opt', note: 'Bare string today. See the Site entity.' },
-      { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions live here as prose.' },
-      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band. Mixes technique, evidence and caveat. See Tag roles.' },
+      { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
+      { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives the technique tag.' },
+      { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
+      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
+      { name: 'uid', type: 'string', req: 'calc', note: 'Computed by build.py, with an ordinal when one paper makes several claims about the same band.' },
     ],
-    promote:
-      'Give it an id and it becomes addressable: a site page can list claims, a claim can carry its own confidence, and the wn/site arrays can split into one row per claim.',
+    open:
+      'Reaction conditions (temperature, pressure, feed, pretreatment) are still prose inside note. Structuring them only pays off with several times the current number of claims.',
   },
   {
     key: 'reference',
@@ -136,46 +144,83 @@ export const ENTITIES: EntitySpec[] = [
     ],
   },
   {
-    key: 'site',
-    label: 'Site',
-    status: 'string',
-    source: 'data/bands.jsonc → band.references[].site',
-    id: 'none (the display string is the identity)',
+    key: 'vibration',
+    label: 'Vibration',
+    status: 'inline',
+    source: 'data/bands.jsonc → band.vibration',
+    id: 'none (one per band)',
     blurb:
-      'Where the band was observed. Written as a display string, so nothing can be attached to it and nothing checks that two spellings mean the same surface.',
+      'What the band’s atoms are doing: the motion, its symmetry, and which rotational branch of it this band is. Three closed enums in one object, validated in schema.py, and the only descriptor on a band that is fully vocabulary-controlled.',
     fields: [
-      { name: '(the string)', type: 'string | string[]', req: 'opt', note: 'An array when one source reports the band on several surfaces.' },
+      { name: 'category', type: 'stretch | bend | combination | lattice', req: 'req', note: 'An overtone is not a category: it uses the parent’s and adds the "overtone" tag.' },
+      { name: 'subtype', type: 'symmetric | asymmetric | scissoring | rocking | wagging | twisting', req: 'opt', note: 'Never on a combination, which is not itself symmetric or asymmetric.' },
+      { name: 'branch', type: 'R | P | Q', req: 'opt', note: 'Which rotational branch. Set together with branch_group, and only on gas-phase bands.' },
     ],
-    promote:
-      'The values in use are not one kind of thing: cations, reduced metals, oxide surfaces, facets, interfaces, defect ensembles and whole catalysts all share the field. Splitting Site from Material is what makes "every band seen on Cu⁺" answerable.',
   },
   {
-    key: 'material',
-    label: 'Material',
+    key: 'atoms',
+    label: 'Atoms',
     status: 'string',
-    source: 'data/bands.jsonc → the catalyst-shaped values in site',
-    id: 'none',
+    source: 'data/bands.jsonc → band.atoms',
+    id: 'none (the string is the identity)',
     blurb:
-      'The sample: active phase, promoter, support. Currently indistinguishable from a Site because both are written into the same field.',
+      'Which atoms actually move: the bond environment, written as a small formula (O=C=O, C-H, M-O, M-O-C), with "diverse" for a combination whose parents involve unrelated groups. Drives the atoms colormap and the chip on the vibration-modes page.',
     fields: [
-      { name: '(the string)', type: 'string', req: 'opt', note: 'Cu/ZnO, Ru/"Na₂O"/Al₂O₃, La-Al₂O₃, CuGaZrOx …' },
+      { name: '(the string)', type: 'string', req: 'req', note: 'Free text. Nothing validates it, so a new spelling silently gets the fallback colour instead of failing.' },
     ],
-    promote:
-      'A material declaring which sites it exposes is what lets a band cited on Cu/ZnO show up under Cu⁰ and Cu⁺ without anyone re-typing the link.',
+    open:
+      'The obvious next record: a table keyed by the string, carrying the elements that move (C, O, H) and a flag for the generic metal M. That would validate the spelling, and would answer "every band whose moving atoms include H". Keep those elements a separate axis from a sample’s elements though: carbon in the bond and copper in the catalyst are different questions, and merging them into one Element filter would mislead.',
   },
   {
     key: 'species',
     label: 'Species',
-    status: 'string',
-    source: 'data/bands.jsonc → band.species, data/vibrations.jsonc → molecule.species',
-    id: 'none (matched by string equality between two files)',
+    status: 'record',
+    source: 'data/species.jsonc',
+    id: 'key',
     blurb:
-      'The adsorbate or gas molecule the band belongs to. The only thing tying a band to a molecule on the vibration-modes page is that the two strings are spelled identically, and mostly they are not: bands.jsonc writes a display label ("Methoxy (CH₃O*)"), vibrations.jsonc writes a formula ("CH₃O*").',
+      'The chemical identity a band belongs to, and nothing else. The old free-text label carried five facts at once (identity, phase, binding geometry, isotopologue, sometimes the site); each of those now has its own field.',
     fields: [
-      { name: '(the string)', type: 'string', req: 'req', note: 'Free text. Nothing validates it, in either file.' },
+      { name: 'key', type: 'string', req: 'req', note: 'ASCII identifier, referenced by band.species.' },
+      { name: 'label', type: 'string', req: 'req', note: 'Display name, Unicode. Resolved by lib/labels.ts wherever a band is named.' },
+      { name: 'formula', type: 'string', req: 'req', note: 'Unicode formula. A trailing * marks a surface species.' },
+      { name: 'molecule', type: 'molecule id | null', req: 'opt', note: 'Into vibrations.jsonc. Authored here and only here: Molecule.species is computed back from it.' },
+      { name: 'note', type: 'string', req: 'opt', note: 'For a distinction the label cannot carry (the two hydroxyls).' },
     ],
-    promote:
-      'A species record makes the band ↔ molecule link a real foreign key instead of a coincidence, separates the formula from the display label, and gives phase (gas or adsorbed) somewhere to live.',
+  },
+  {
+    key: 'surface',
+    label: 'Surface',
+    status: 'record',
+    source: 'data/surfaces.jsonc',
+    id: 'key',
+    blurb:
+      'Where a band was measured, at whatever scale the paper stated. One table rather than a Site table and a Material table, because the same entry genuinely plays both roles: TiO₂ is the sample when a paper measures bare titania and a constituent when that titania supports Pt. `level` records how specific the entry is (site, phase, sample), and the badge is drawn from it: a site is filled, a phase or sample hollow.',
+    fields: [
+      { name: 'key', type: 'string', req: 'req', note: 'ASCII, element plus charge for a site (cu_1p). Element-symbol keys here always mean the element.' },
+      { name: 'label', type: 'string', req: 'req', note: 'Display text, Unicode (Cu⁺).' },
+      { name: 'level', type: 'site | phase | sample', req: 'req', note: 'How specific this entry is. A site is the atom-scale spot, a phase a constituent named by composition, a sample what was in the cell.' },
+      { name: 'kind', type: 'enum', req: 'opt', note: 'Sites only: metal | cation | defect | interface | bronsted.' },
+      { name: 'element / oxidation_state', type: 'string / int', req: 'opt', note: 'On a site. What makes "every Cu site regardless of oxidation state" answerable.' },
+      { name: 'formula / composition', type: 'string', req: 'opt', note: 'The phase’s formula, or the sample as the literature writes it. Deliberately not parsed.' },
+      { name: 'elements[]', type: 'symbol[]', req: 'opt', note: 'What this entry alone contains, authored rather than parsed out of the composition string.' },
+      { name: 'facet', type: 'string', req: 'opt', note: 'Crystallographic termination, on a single crystal. A facet says how the sample was cut, so it never sits on a site.' },
+      { name: 'parts[]', type: 'surface key[]', req: 'opt', note: 'The single containment link, pointing down the scale: a sample lists its phases and sites, a phase the sites within it, a composite site the simpler sites it is built from. It is what lets a site query reach the bands whose paper named only the catalyst.' },
+      { name: 'all_elements[]', type: 'symbol[]', req: 'calc', note: 'elements unioned over the whole parts tree, computed by build.py. What the Element view runs against, so a band assigned to Zr⁴⁺ on CuGaZrOx answers a query for Cu.' },
+    ],
+    open:
+      'A phase’s parts are mostly empty: TiO₂ really means a Ti⁴⁺ or a surface O, but those site records are only worth adding when a paper actually distinguishes them.',
+  },
+  {
+    key: 'technique',
+    label: 'Technique',
+    status: 'enum',
+    source: 'schema.py → VALID_TECHNIQUES',
+    id: 'the enum value',
+    blurb:
+      'How the spectrum was taken. Used to be three tags mixed in with evidence and caveat tags; it is a field on the assignment now, with a closed vocabulary.',
+    fields: [
+      { name: '(value)', type: 'enum', req: 'opt', note: 'One per claim. Derives the tag chip the chart legend filters on.' },
+    ],
   },
   {
     key: 'author',
@@ -187,20 +232,7 @@ export const ENTITIES: EntitySpec[] = [
     fields: [
       { name: '(name)', type: 'string', req: 'req', note: 'Last, First or First Last, joined by " and ".' },
     ],
-    promote: 'Cheap to derive in build.py if a "who reports what" view is ever wanted. Nothing depends on it today.',
-  },
-  {
-    key: 'technique',
-    label: 'Technique',
-    status: 'string',
-    source: 'data/bands.jsonc → band.references[].tags',
-    id: 'none (a tag string)',
-    blurb:
-      'How the observation was made: DRIFTS, transmission FTIR, a calculation. Currently smuggled in as a per-citation tag alongside evidence and caveat tags that are not techniques at all.',
-    fields: [
-      { name: '(a tag)', type: 'string', req: 'opt', note: 'drifts, ftir, computational …' },
-    ],
-    promote: 'A field on the assignment rather than a tag: one value per claim, closed vocabulary, filterable without string matching against the tag list.',
+    open: 'Cheap to derive in build.py if a "who reports what" view is ever wanted. Nothing depends on it today, so it stays underived.',
   },
   {
     key: 'group',
@@ -216,13 +248,44 @@ export const ENTITIES: EntitySpec[] = [
     ],
   },
   {
+    key: 'set',
+    label: 'Set',
+    status: 'lookup',
+    source: 'data/bands.jsonc → sets',
+    id: 'key',
+    blurb:
+      'A named selection of groups, offered by the band chart\u2019s filter. Which families belong to one question is an editorial judgement about the dataset, the same kind of statement as a group\u2019s colour, so it lives with the data rather than in the frontend.',
+    fields: [
+      { name: 'key', type: 'string', req: 'req', note: 'ASCII identifier. Nothing points at a set: it is a view over the groups, not a property of a band.' },
+      { name: 'label', type: 'string', req: 'req', note: 'What the filter shows.' },
+      { name: 'groups[]', type: 'group key[]', req: 'req', note: 'The groups this set turns on. Validated; an empty set is an error, since it would render as a filter that hides everything.' },
+      { name: 'note', type: 'string', req: 'opt', note: 'One sentence under the selector, saying what the set leaves out and why.' },
+    ],
+    open:
+      '"All groups" is built into the filter rather than authored here, and a selection that matches no set shows as "Custom". Neither is a record.',
+  },
+  {
+    key: 'lane',
+    label: 'Lane',
+    status: 'lookup',
+    source: 'data/bands.jsonc → lanes',
+    id: 'position in the list',
+    blurb:
+      'One row of the chart, naming the groups that share it. Two groups share a row when they read as one family on screen: CO with CH₄, methoxy with the methanol it turns into.',
+    fields: [
+      { name: '(the list)', type: 'group key[]', req: 'req', note: 'Every group sits in exactly one lane, and the build fails otherwise. Order in the file is order on screen, top to bottom.' },
+    ],
+    open:
+      'This replaced a per-band `pair` integer that said the same thing 92 times over and left the row order falling out of the numbering rather than being written down.',
+  },
+  {
     key: 'region',
     label: 'Region',
     status: 'derived',
     source: 'data/bands.jsonc → regions (membership is computed)',
     id: 'key',
     blurb:
-      'A named stretch of the spectrum. A band is not assigned one: Band.region_for() picks whichever region contains the band centre, so the two can never disagree.',
+      'A named stretch of the spectrum. A band is not assigned one: Band.region_for() picks whichever region contains the band centre, so the two can never disagree. The pattern the rest of the model copies.',
     fields: [
       { name: 'key / label', type: 'string', req: 'req', note: 'Identity and display name.' },
       { name: 'wn_min / wn_max', type: 'int', req: 'req', note: 'The window. Membership follows from it.' },
@@ -235,12 +298,12 @@ export const ENTITIES: EntitySpec[] = [
     source: 'data/tags.jsonc',
     id: 'the tag string',
     blurb:
-      'A label attached to a band, an assignment or a vibration mode. tags.jsonc is a tooltip lookup only: it does not gate which tags are allowed, so the namespace is open.',
+      'A label attached to a band, an assignment or a vibration mode. tags.jsonc is a tooltip lookup only: it does not gate which tags are allowed, so the namespace stays open.',
     fields: [
       { name: 'tag', type: 'string', req: 'req', note: 'The exact string as written in the data.' },
-      { name: 'tip', type: 'string', req: 'req', note: 'One sentence, shown on the chip. Missing entry means no tooltip, not an error.' },
+      { name: 'tip', type: 'string', req: 'req', note: 'One sentence, shown on the chip. A missing entry means no tooltip, not an error.' },
     ],
-    promote: 'One flat namespace holds five different kinds of statement. See Tag roles below.',
+    open: 'One flat namespace still holds six different kinds of statement. Half of them are now derived from fields rather than authored.',
   },
   {
     key: 'molecule',
@@ -251,10 +314,10 @@ export const ENTITIES: EntitySpec[] = [
     blurb: 'A molecule on the vibration-modes page, with its shape, its binding geometries and its normal modes.',
     fields: [
       { name: 'id / label', type: 'string', req: 'req', note: 'Identity and display name.' },
-      { name: 'species', type: 'string', req: 'req', note: 'Meant to match a band.species string. Not actually checked: validate_vibrations() validates band_groups, topology ids and citekeys, but never species.' },
+      { name: 'species', type: 'species key', req: 'calc', note: 'Computed: back-filled from Species.molecule, so the two files cannot drift.' },
       { name: 'shape', type: 'linear | nonlinear', req: 'req', note: 'Feeds the 3N−5 / 3N−6 mode count.' },
-      { name: 'band_groups[]', type: 'string[]', req: 'opt', note: 'Foreign keys into the groups lookup.' },
-      { name: 'topologies[]', type: 'Topology[]', req: 'req', note: 'At least one. Keys the diagram geometry.' },
+      { name: 'band_groups[]', type: 'group key[]', req: 'opt', note: 'Into the groups lookup.' },
+      { name: 'topologies[]', type: 'Topology[]', req: 'req', note: 'At least one. Keys the diagram geometry, and now also band.topology.' },
       { name: 'modes[]', type: 'VibrationMode[]', req: 'opt', note: 'Owned, not referenced.' },
     ],
   },
@@ -264,9 +327,10 @@ export const ENTITIES: EntitySpec[] = [
     status: 'inline',
     source: 'data/vibrations.jsonc → molecule.topologies[]',
     id: 'id (unique within its molecule)',
-    blurb: 'One binding geometry of a molecule: monodentate, bidentate, or just "gas phase". Carries its own point group, because geometry changes it.',
+    blurb:
+      'One binding geometry of a molecule: monodentate, bidentate, linear, bridged, and so on. Carries its own point group, because geometry changes it. Now does double duty as the vocabulary for band.topology.',
     fields: [
-      { name: 'id', type: 'string', req: 'req', note: 'Keys moleculeGeometry.ts alongside the molecule id.' },
+      { name: 'id', type: 'string', req: 'req', note: 'Keys moleculeGeometry.ts alongside the molecule id, and referenced by band.topology.' },
       { name: 'short / long', type: 'string', req: 'req', note: 'Selector pill and its tooltip.' },
       { name: 'point_group', type: 'string', req: 'opt', note: 'One of the two fields allowed literal <sub>/<sup> markup.' },
     ],
@@ -281,12 +345,12 @@ export const ENTITIES: EntitySpec[] = [
       'One named normal mode. Bands point up at modes rather than modes listing bands, so the link is authored in exactly one place; category, atoms and often subtype are then derived from the linked bands.',
     fields: [
       { name: 'id / label', type: 'string', req: 'req', note: 'Identity and display name.' },
-      { name: 'topology', type: 'string | null', req: 'opt', note: 'null means "applies to every topology". Otherwise a Topology.id on the owning molecule.' },
+      { name: 'topology', type: 'topology id | null', req: 'opt', note: 'null means "applies to every topology".' },
       { name: 'category / subtype / atoms', type: 'enum', req: 'opt', note: 'Manual fallback only: overwritten from the linked bands when there are any.' },
+      { name: 'ir_active / raman_active', type: 'bool', req: 'opt', note: 'The selection-rule tags are derived from these by the loader, never authored.' },
       { name: 'herzberg_notation / symmetry', type: 'string', req: 'opt', note: 'ν₁ and the Mulliken label. symmetry is the second markup-exempt field.' },
       { name: 'wn_start / wn_end', type: 'float', req: 'opt', note: 'The mode’s own canonical position. Deliberately not validated against the linked bands.' },
-      { name: 'reference[]', type: 'string[]', req: 'opt', note: 'Citekeys, validated against references.bib.' },
-      { name: 'bands[]', type: 'string[]', req: 'calc', note: 'Computed by _link_modes_to_bands(), including a one-level based_on chase.' },
+      { name: 'bands[]', type: 'band id[]', req: 'calc', note: 'Computed by _link_modes_to_bands(), including a one-level based_on chase.' },
     ],
   },
 ];
@@ -309,19 +373,27 @@ export interface RelationSpec {
   note: string;
   /** true when the link only exists because two strings happen to match. */
   weak?: boolean;
+  /** true when nothing authors it: it falls out of records that already exist. */
+  derived?: boolean;
 }
 
 export const RELATIONS: RelationSpec[] = [
   { from: 'band', to: 'assignment', card: '1:N', via: 'band.references[]', note: 'A band collects one claim per citing paper. 0 for an uncited band.' },
   { from: 'reference', to: 'assignment', card: '1:N', via: 'assignment.key', note: 'One paper can be cited by many bands. This plus the row above is what makes Assignment a join.' },
-  { from: 'assignment', to: 'site', card: 'N:M', via: 'assignment.site', note: 'Scalar or array. The array form is why a claim cannot currently pin one wavenumber to one surface.', weak: true },
-  { from: 'site', to: 'material', card: 'N:1', via: '(none yet)', note: 'Proposed. A site sits on a material; a material exposes several sites.', weak: true },
-  { from: 'assignment', to: 'technique', card: 'N:1', via: 'assignment.tags[]', note: 'A technique tag on the claim. Not enforced, not exclusive.', weak: true },
+  { from: 'assignment', to: 'surface', card: 'N:M', via: 'assignment.measured_on', note: 'Scalar or array, at any level. An array means one source named several surfaces: both the site and the catalyst, or two samples it compared.' },
+  { from: 'surface', to: 'surface', card: 'N:M', via: 'surface.parts[]', note: 'Containment, pointing down the scale: a sample lists its phases and sites, a phase the sites within it, a composite site (an interface, a defect ensemble) the simpler sites it is built from. This is what lets a query for Cu⁺ reach the bands whose paper named only Cu/ZnO.' },
+  { from: 'assignment', to: 'technique', card: 'N:1', via: 'assignment.technique', note: 'One value per claim, closed vocabulary. Derives the technique tag chip.' },
   { from: 'reference', to: 'author', card: 'N:M', via: 'reference.author', note: 'Parsed at render time, never stored.', weak: true },
+  { from: 'band', to: 'species', card: 'N:1', via: 'band.species', note: 'Required and validated. The label and formula are resolved from the record at render time.' },
+  { from: 'species', to: 'molecule', card: '1:1', via: 'species.molecule', note: 'Authored on the species side only; Molecule.species is computed back from it. Used to be two unrelated free strings that mostly disagreed.' },
+  { from: 'band', to: 'topology', card: 'N:1', via: 'band.topology', note: 'Binding geometry, validated against the topologies this species’ molecule declares.' },
   { from: 'band', to: 'group', card: 'N:1', via: 'band.group', note: 'Required, validated. Drives lane order and the default colour dimension.' },
-  { from: 'band', to: 'region', card: 'N:1', via: 'Band.region_for(regions)', note: 'Computed from the band centre. Deliberately not stored on the band.' },
-  { from: 'band', to: 'species', card: 'N:1', via: 'band.species', note: 'String equality only.', weak: true },
-  { from: 'molecule', to: 'species', card: 'N:1', via: 'molecule.species', note: 'String equality against band.species, and unchecked: most molecule species strings match no band at all, because bands.jsonc writes species as a display label and vibrations.jsonc writes it as a formula.', weak: true },
+  { from: 'set', to: 'group', card: 'N:M', via: 'set.groups[]', note: 'A set names the groups it turns on: a saved filter, not a fact about the chemistry.' },
+  { from: 'lane', to: 'group', card: '1:N', via: 'lanes[]', note: 'A lane names the groups sharing one row of the chart. Every group is in exactly one lane, validated, and the order in the file is the order on screen.' },
+  { from: 'band', to: 'vibration', card: 'N:1', via: 'band.vibration', note: 'Owned, not referenced: one vibration object per band, with three closed enums inside it.' },
+  { from: 'band', to: 'atoms', card: 'N:1', via: 'band.atoms', note: 'String equality only, and nothing checks it.', weak: true },
+  { from: 'band', to: 'region', card: 'N:1', via: 'Band.region_for(regions)', note: 'Computed from the band centre. Deliberately not stored on the band.', derived: true },
+  { from: 'species', to: 'group', card: 'N:M', via: '(the bands that carry both)', note: 'Real, and deliberately not authored. It is N:M rather than N:1 in both directions: CO appears under co, co_metal and co_cation, while carbonyl holds formaldehyde, formyl, hydroxymethyl and acyl. Since every band already names a species and a group, an authored copy could only ever disagree with the bands.', derived: true },
   { from: 'band', to: 'mode', card: 'N:M', via: 'band.vibration_modes[]', note: 'Authored on the band. Usually 0 or 1 entries; 2 for a real degenerate pair.' },
   { from: 'molecule', to: 'mode', card: '1:N', via: 'molecule.modes[]', note: 'Ownership, not reference: a mode belongs to exactly one molecule.' },
   { from: 'molecule', to: 'topology', card: '1:N', via: 'molecule.topologies[]', note: 'At least one per molecule.' },
@@ -335,7 +407,7 @@ export const TAG_TARGETS = ['band', 'assignment', 'mode'];
 /* ---------------------------------------------------------------------------
    Band-to-band links
 
-   Six of them, all inside one file, each with different reciprocity rules.
+   Five of them, all inside one file, each with different reciprocity rules.
    They are documented in schema.py docstrings and nowhere a reader can see.
    --------------------------------------------------------------------------- */
 
@@ -368,77 +440,107 @@ export const SELF_LINKS: SelfLinkSpec[] = [
     label: 'Rotational branch siblings',
     field: 'branch_group',
     shape: 'undirected set',
-    note: 'Every band sharing a non-null branch_group is a branch of the same vibrational transition: 2-way for R/P, 3-way when Q is IR-allowed. tag_branch_groups() tags all members.',
+    note: 'Every band sharing a non-null branch_group is a branch of the same vibrational transition: 2-way for R/P, 3-way when Q is IR-allowed. Since it is one transition of one species, the build checks that the siblings agree on species and phase. Rotational structure exists only for a freely rotating gas molecule, so an adsorbed sibling is a contradiction rather than a typo.',
   },
   {
     key: 'isotopologue',
     label: 'Isotopologue of',
     field: 'isotopologue_of + isotope',
     shape: 'directed, child → parent, no chains',
-    note: 'The same normal mode measured on a substituted molecule. Deliberately one-directional: the parent belongs to the ordinary molecule and is not relabelled because someone measured its heavy twin. Only the child gets the "isotopic-shift" tag. Not to be confused with the per-citation "isotope-labeling" tag, which says isotopes were used as evidence for an ordinary band.',
-  },
-  {
-    key: 'pair',
-    label: 'Lane pair',
-    field: 'pair',
-    shape: 'undirected set',
-    note: 'Layout only, not chemistry: bands sharing a pair value are packed into the same lane by assign_lanes(). Marked legacy in schema.py.',
+    note: 'The same normal mode measured on a substituted molecule. Deliberately one-directional: the parent belongs to the ordinary molecule and is not relabelled because someone measured its heavy twin. Only the child gets the "isotope" tag. Not to be confused with the per-citation "isotope-labeling" tag, which says isotopes were used as evidence for an ordinary band.',
   },
 ];
 
 /* ---------------------------------------------------------------------------
    Tag roles
 
-   tags.jsonc is one flat namespace, but the tags in it make five different
-   kinds of statement. Classifying them costs nothing today and is the
-   groundwork for splitting the ones that are really fields (technique) or
-   really structure (overtone) out of the free-form pile.
+   tags.jsonc is one flat namespace, but the tags in it make six different
+   kinds of statement. Half are now derived from a field by build.py rather
+   than authored, which is what a tag should be when the fact behind it has a
+   proper home.
    --------------------------------------------------------------------------- */
 
-export type TagRole = 'technique' | 'evidence' | 'caveat' | 'structure' | 'phase' | 'activity' | 'other';
+export type TagRole = 'structure' | 'phase' | 'activity' | 'technique' | 'evidence' | 'caveat' | 'other';
+
+/**
+ * Reading order, and the only place it is decided.
+ *
+ * It runs from what the band is, through how it was measured, to how far to
+ * trust it: structure and phase describe the band itself, activity is the
+ * selection rule, technique and evidence are the measurement, and a caveat is
+ * the warning that comes last for the same reason a caveat comes last in a
+ * sentence. Everything that renders tags in sequence sorts by this.
+ */
+export const TAG_ROLE_ORDER: TagRole[] = [
+  'structure', 'phase', 'activity', 'technique', 'evidence', 'caveat', 'other',
+];
+
+/** Index of a role in TAG_ROLE_ORDER, for sort comparators. */
+export function tagRoleRank(role: TagRole): number {
+  const i = TAG_ROLE_ORDER.indexOf(role);
+  return i < 0 ? TAG_ROLE_ORDER.length : i;
+}
 
 export const TAG_ROLE_LABEL: Record<TagRole, string> = {
+  structure: 'Structure',
+  phase: 'Phase and behaviour',
+  activity: 'Selection rule',
   technique: 'Technique',
   evidence: 'Evidence',
   caveat: 'Caveat',
-  structure: 'Structure',
-  phase: 'Phase / behaviour',
-  activity: 'Selection rule',
   other: 'Unclassified',
 };
 
 export const TAG_ROLE_NOTE: Record<TagRole, string> = {
-  technique: 'How the spectrum was taken. Belongs on the assignment as a field, not as a tag.',
+  structure: 'A fact about the band itself. Mostly derived by build.py from the link fields.',
+  phase: 'What the species is doing. "gas-phase" is derived from band.phase now.',
+  activity: 'IR / Raman selection rule, derived by the loader from the mode’s booleans.',
+  technique: 'How the spectrum was taken. Now derived from assignment.technique.',
   evidence: 'What backs the claim up. Genuinely per-citation, correctly a tag.',
-  caveat: 'A warning about the assignment. Exists at both band and citation level, which is right.',
-  structure: 'A fact about the band itself, several of them auto-assigned by build.py from the link fields.',
-  phase: 'What the species is doing. A property of the band, arguably of the species.',
-  activity: 'IR / Raman selection rule. A property of the mode.',
+  caveat: 'A warning about the assignment. Exists at both band and citation level, which is right. The only role with a colour of its own, because it is the only one that asks the reader to slow down.',
   other: 'Not yet classified.',
 };
 
 export const TAG_ROLES: Record<string, TagRole> = {
-  drifts: 'technique',
-  ftir: 'technique',
-  computational: 'technique',
-  'direct-dosing': 'evidence',
-  'isotope-labeling': 'evidence',
-  'misassignment-warning': 'caveat',
-  'drifts-artifact': 'caveat',
+  // Structure: what the band is.
   combination: 'structure',
   overtone: 'structure',
   'fermi-resonance': 'structure',
   'rotational-branches': 'structure',
-  'isotopic-shift': 'structure',
+  isotope: 'structure',
   degenerated: 'structure',
+  // Phase and behaviour: what the species is doing.
   'gas-phase': 'phase',
   'molecular-adsorption': 'phase',
-  'site-sensitive': 'phase',
-  'hydride-marker': 'phase',
   'frustrated-mode': 'phase',
+  // Selection rule.
   'ir-active': 'activity',
   'ir-inactive': 'activity',
   'raman-active': 'activity',
+  // How it was measured.
+  drifts: 'technique',
+  transmission: 'technique',
+  computational: 'technique',
+  'direct-dosing': 'evidence',
+  'isotope-labeling': 'evidence',
+  // What to watch out for. A site-sensitive band moves with the surface it is
+  // on, so a shifted position is not by itself a different species: that is a
+  // warning about reading the number, not a statement about the species.
+  'misassignment-warning': 'caveat',
+  'site-sensitive': 'caveat',
+};
+
+/** Tags build.py or the loader writes from a field. Authoring one is an error. */
+export const DERIVED_TAGS: Record<string, string> = {
+  'gas-phase': 'band.phase',
+  drifts: 'assignment.technique',
+  transmission: 'assignment.technique',
+  computational: 'assignment.technique',
+  'fermi-resonance': 'band.fermi_partner',
+  'rotational-branches': 'band.branch_group',
+  isotope: 'band.isotopologue_of',
+  'ir-active': 'mode.ir_active',
+  'raman-active': 'mode.raman_active',
 };
 
 export function tagRole(tag: string): TagRole {
@@ -448,184 +550,106 @@ export function tagRole(tag: string): TagRole {
 /* ---------------------------------------------------------------------------
    Measurement technique
 
-   Today three tags carry this: "drifts", "ftir" and "computational". They do
-   not describe the same axis. DRIFTS and ATR are sampling geometries; FTIR is
-   the interferometer, which almost every one of these measurements uses
-   whatever the geometry; and "computational" is not a measurement at all. A
-   technique field would separate the two questions a reader actually asks:
-   how was the sample presented to the beam, and was this measured or
-   calculated.
-
-   The vocabulary below is a proposal, not something the data uses yet. The
-   Data model page marks which entries already appear as a tag.
+   DRIFTS and ATR are sampling geometries; FTIR is the interferometer, which
+   nearly every one of these measurements uses whatever the geometry, so it is
+   not a value here: a claim says how the sample met the beam, or that the
+   number was calculated. Mirror of VALID_TECHNIQUES in schema.py.
    --------------------------------------------------------------------------- */
 
 export interface TechniqueSpec {
   key: string;
   label: string;
-  /** The tag that currently stands in for it, if any. */
-  currentTag?: string;
+  /** The tag this technique derives, so the legend chips keep working. */
+  tag: string;
   note: string;
 }
 
-export const PROPOSED_TECHNIQUES: TechniqueSpec[] = [
-  { key: 'drifts', label: 'DRIFTS', currentTag: 'drifts', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts, and the most common tag in the data.' },
-  { key: 'transmission', label: 'Transmission', currentTag: 'ftir', note: 'Self-supporting wafer, beam straight through. What the bare "ftir" tag usually means in practice.' },
-  { key: 'atr', label: 'ATR', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces; not yet in the data.' },
-  { key: 'irras', label: 'IRRAS / RAIRS', note: 'Grazing-incidence reflection off a flat single crystal. The surface-science counterpart, relevant for the Fe₃O₄(001) and (111) entries.' },
-  { key: 'pm-irras', label: 'PM-IRRAS', note: 'Polarisation-modulated IRRAS, which is where p- and s-polarised components get resolved separately. Exactly the case the multi-valued wn field was added for.' },
-  { key: 'emission', label: 'Emission / photoacoustic', note: 'Rarer geometries, listed so the vocabulary is closed rather than open-ended.' },
-  { key: 'computational', label: 'Calculated', currentTag: 'computational', note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate "origin" field, measured or calculated, rather than a technique value.' },
+export const TECHNIQUES: TechniqueSpec[] = [
+  { key: 'drifts', label: 'DRIFTS', tag: 'drifts', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
+  { key: 'transmission', label: 'Transmission', tag: 'transmission', note: 'Self-supporting wafer, beam straight through. What the old bare "ftir" tag meant in practice, now spelled as what it is.' },
+  { key: 'atr', label: 'ATR', tag: 'atr', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
+  { key: 'irras', label: 'IRRAS / RAIRS', tag: 'irras', note: 'Grazing-incidence reflection off a flat single crystal. The surface-science counterpart, relevant to the Fe₃O₄ facets.' },
+  { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', note: 'Polarisation-modulated IRRAS, where p- and s-polarised components are resolved separately. The case the multi-valued wn field exists for.' },
+  { key: 'emission', label: 'Emission / photoacoustic', tag: 'emission', note: 'Rarer geometries, listed so the vocabulary is closed rather than open-ended.' },
+  { key: 'computational', label: 'Calculated', tag: 'computational', note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];
 
 /* ---------------------------------------------------------------------------
-   Site classification
-
-   A heuristic, not a decision. It reads the 30-odd strings currently in the
-   site field and proposes what kind of thing each one is, so the split into
-   Site and Material starts from a sorted list instead of a blank file. Every
-   row is marked sure or guess; nothing here writes back to the data.
+   Surface levels and site kinds
    --------------------------------------------------------------------------- */
 
-export type SiteKind =
-  | 'metal' | 'cation' | 'oxide' | 'facet' | 'interface' | 'defect' | 'bronsted' | 'material';
+export const SURFACE_LEVELS: SurfaceLevel[] = ['site', 'phase', 'sample'];
+
+export const LEVEL_LABEL: Record<SurfaceLevel, string> = {
+  site: 'Site',
+  phase: 'Phase',
+  sample: 'Sample',
+};
+
+export const LEVEL_NOTE: Record<SurfaceLevel, string> = {
+  site: 'The atom-scale spot the molecule is bonded to: a cation, a reduced metal atom, a vacancy, a proton, or a named ensemble of those.',
+  phase: 'A constituent of a sample, named by composition. Strictly the molecule sits on some site within it, but papers very often report only the phase, and recording that honestly beats guessing.',
+  sample: 'What was actually in the cell. The same entry can be a phase or a sample depending on the paper: bare titania is a sample, the titania under Pt is a phase.',
+};
+
+/** A kind is a site's own subdivision; a phase and a sample have none. */
+export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
 
 export const SITE_KIND_LABEL: Record<SiteKind, string> = {
   metal: 'Reduced metal',
   cation: 'Cation',
-  oxide: 'Oxide surface',
-  facet: 'Facet',
+  defect: 'Defect',
   interface: 'Interface',
-  defect: 'Defect ensemble',
   bronsted: 'Brønsted site',
-  material: 'Material',
 };
 
 export const SITE_KIND_NOTE: Record<SiteKind, string> = {
   metal: 'A metal atom in the zero oxidation state, e.g. Cu⁰.',
   cation: 'A Lewis-acidic cation at a stated oxidation state, e.g. Zn²⁺.',
-  oxide: 'An oxide surface named by its formula, e.g. TiO₂. One metal element.',
-  facet: 'A specific crystallographic termination, e.g. Fe₃O₄(001).',
-  interface: 'The boundary between two phases, e.g. Pt⁰-CeO₂.',
-  defect: 'A named defect or ensemble around one, e.g. Zn–Vₒ–Hf.',
+  defect: 'A vacancy, or an ensemble built around one.',
+  interface: 'The boundary between two phases, e.g. Pt⁰-CeO₂. The one site that may name a phase among its parts.',
   bronsted: 'A proton-donating surface hydroxyl.',
-  material: 'Not a site at all: a whole sample, with an active phase and a support.',
 };
-
-/** Element symbols that turn up in site and species strings. Parsing only. */
-const ELEMENT_SYMBOLS = new Set([
-  'H', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'K', 'Ca',
-  'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br',
-  'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I',
-  'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir',
-  'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Th', 'U',
-]);
-
-const NON_METALS = new Set(['H', 'C', 'N', 'O', 'F', 'P', 'S', 'Cl', 'Se', 'Br', 'I', 'Si', 'B']);
-
-const SUP_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
-const SUB_DIGITS = '₀₁₂₃₄₅₆₇₈₉';
-
-/**
- * Strip everything that is not part of a formula, so the element scan does not
- * read words as symbols. Parenthesised text goes first: without that,
- * "H⁺ (Brønsted)" yields bromine.
- */
-function plainFormula(value: string): string {
-  const withoutWords = value
-    .replace(/\([^)]*\)/g, ' ')
-    .replace(/Vₒ|V_O/g, ' ');       // an oxygen vacancy, not vanadium
-  return [...withoutWords]
-    .filter(c => !SUP_DIGITS.includes(c) && !SUB_DIGITS.includes(c))
-    .join('')
-    .replace(/["'⁺⁻]/g, '');
-}
-
-/** Element symbols appearing in a site or species string, in order, deduplicated. */
-export function elementsOf(value: string): string[] {
-  const out: string[] = [];
-  for (const m of plainFormula(value).matchAll(/[A-Z][a-z]?/g)) {
-    const sym = m[0];
-    if (ELEMENT_SYMBOLS.has(sym) && !out.includes(sym)) out.push(sym);
-  }
-  return out;
-}
-
-export interface SiteClass {
-  kind: SiteKind;
-  /** false when the rule that fired is a fallback rather than a positive match. */
-  sure: boolean;
-}
-
-export function classifySite(value: string): SiteClass {
-  const v = value.trim();
-  if (/interface/i.test(v)) return { kind: 'interface', sure: true };
-  if (/\(\d{3}\)/.test(v)) return { kind: 'facet', sure: true };
-  if (/brønsted|bronsted/i.test(v) || /^H⁺/.test(v)) return { kind: 'bronsted', sure: true };
-  if (/Vₒ|V_O|vacancy/i.test(v)) return { kind: 'defect', sure: true };
-  // Cu⁰, Pd⁰ — a bare element carrying an explicit zero charge.
-  if (/^[A-Z][a-z]?⁰$/.test(v)) return { kind: 'metal', sure: true };
-  // Cu⁺, Zn²⁺, Hf⁴⁺ — a bare element carrying an explicit charge.
-  if (new RegExp(`^[A-Z][a-z]?[${SUP_DIGITS}]*[⁺⁻]$`).test(v)) return { kind: 'cation', sure: true };
-  // Anything written as a composite (Cu/ZnO, La-Al₂O₃) is a sample, not a site.
-  if (/[/]/.test(v) || /[-–]/.test(v)) return { kind: 'material', sure: true };
-
-  const els = elementsOf(v);
-  // One element plus oxygen is a simple oxide (TiO₂, SiO₂); several is a mixed
-  // oxide, which is a sample rather than a site (CuGaZrOx).
-  const others = els.filter(e => e !== 'O');
-  if (els.includes('O') && others.length === 1) return { kind: 'oxide', sure: true };
-  if (els.includes('O') && others.length >= 2) return { kind: 'material', sure: true };
-  // A bare element symbol with no charge given: metallic, most likely.
-  if (others.length === 1 && !NON_METALS.has(others[0])) return { kind: 'metal', sure: false };
-  return { kind: 'material', sure: false };
-}
 
 /* ---------------------------------------------------------------------------
    Live analysis
    --------------------------------------------------------------------------- */
 
-/** One distinct value of a string-valued entity, with everywhere it is used. */
+/** One record of a lookup table, with everywhere it is used. */
 export interface ValueRow {
+  /** The key as written in the data. */
   value: string;
-  /** Number of times the value is used (assignments for a site, bands for a species…). */
+  /** Display label from the record, falling back to the key. */
+  label: string;
+  /** Claims (for a site/material/technique) or bands (for a species). */
   uses: number;
   bands: string[];
   refs: string[];
-  /** Site only. */
+  /** A short characterisation: oxidation state, formula, molecule link. */
+  detail?: string;
   kind?: SiteKind;
-  sure?: boolean;
-  elements?: string[];
-  /** Species only: the molecule id whose species string matches, if any. */
+  /** Surfaces only: how specific this entry is. */
+  level?: SurfaceLevel;
+  /** Surfaces one scale down, straight off the record. */
+  parts?: string[];
+  /** Claims that reach this surface only through a coarser one's parts list. */
+  viaContainer?: number;
   molecule?: string | null;
-  /** Tag only. */
   role?: TagRole;
   scopes?: string[];
   hasTip?: boolean;
+  derivedFrom?: string;
 }
 
 export interface ModelStats {
-  /** Instance count per entity key, for the diagram boxes. */
   counts: Record<string, number>;
-  sites: ValueRow[];
   species: ValueRow[];
-  authors: ValueRow[];
+  /** Every level in one list; the page splits it by `level` where it helps. */
+  surfaces: ValueRow[];
   techniques: ValueRow[];
+  authors: ValueRow[];
   tags: ValueRow[];
-  /** Integrity checks that the build does not currently make. */
   checks: { label: string; detail: string; hits: string[] }[];
-}
-
-function push(map: Map<string, ValueRow>, value: string, band?: string, ref?: string): ValueRow {
-  let row = map.get(value);
-  if (!row) {
-    row = { value, uses: 0, bands: [], refs: [] };
-    map.set(value, row);
-  }
-  row.uses += 1;
-  if (band && !row.bands.includes(band)) row.bands.push(band);
-  if (ref && !row.refs.includes(ref)) row.refs.push(ref);
-  return row;
 }
 
 const asArray = <T,>(v: T | T[] | null | undefined): T[] =>
@@ -633,7 +657,7 @@ const asArray = <T,>(v: T | T[] | null | undefined): T[] =>
 
 const byUses = (a: ValueRow, b: ValueRow) => b.uses - a.uses || a.value.localeCompare(b.value);
 
-/** Last names out of a BibTeX author field, same splitting rule as citations.ts. */
+/** Names out of a BibTeX author field, same splitting rule as citations.ts. */
 function authorNames(raw: string): string[] {
   return raw
     .split(/\s+and\s+/i)
@@ -648,111 +672,241 @@ export function analyse(
   tagTips: Record<string, { tip: string }>,
 ): ModelStats {
   const bands: Band[] = dataset.bands;
-  const sites = new Map<string, ValueRow>();
-  const species = new Map<string, ValueRow>();
+  const speciesTable = dataset.species ?? {};
+  const surfaceTable = dataset.surfaces ?? {};
+
+  /** Everything below `key` in the parts tree, the surface itself excluded. */
+  const partsBelow = (key: string): string[] => {
+    const out = new Set<string>();
+    const walk = (k: string) => {
+      for (const child of surfaceTable[k]?.parts ?? []) {
+        if (out.has(child)) continue;
+        out.add(child);
+        walk(child);
+      }
+    };
+    walk(key);
+    return [...out];
+  };
+
+  const mk = (key: string, label: string): ValueRow => ({
+    value: key, label, uses: 0, bands: [], refs: [],
+  });
+
+  const species = new Map<string, ValueRow>(
+    Object.entries(speciesTable).map(([k, v]) => [k, mk(k, v.label)]),
+  );
+  const surfaces = new Map<string, ValueRow>(
+    Object.entries(surfaceTable).map(([k, v]) => [k, mk(k, v.label)]),
+  );
+  const techniques = new Map<string, ValueRow>(
+    TECHNIQUES.map(t => [t.key, mk(t.key, t.label)]),
+  );
   const authors = new Map<string, ValueRow>();
-  const techniques = new Map<string, ValueRow>();
   const tags = new Map<string, ValueRow>();
 
+  const touch = (map: Map<string, ValueRow>, key: string, band?: string, ref?: string) => {
+    let row = map.get(key);
+    if (!row) {
+      row = mk(key, key);
+      map.set(key, row);
+    }
+    row.uses += 1;
+    if (band && !row.bands.includes(band)) row.bands.push(band);
+    if (ref && !row.refs.includes(ref)) row.refs.push(ref);
+    return row;
+  };
+
   const tagScope = (value: string, scope: string, band?: string) => {
-    const row = push(tags, value, band);
+    const row = touch(tags, value, band);
     row.scopes = row.scopes ?? [];
     if (!row.scopes.includes(scope)) row.scopes.push(scope);
     row.role = tagRole(value);
     row.hasTip = Boolean(tagTips[value]);
+    row.derivedFrom = DERIVED_TAGS[value];
   };
 
   let assignments = 0;
-  const multiSite: string[] = [];
+  const noSurface: string[] = [];
   const ambiguousClaim: string[] = [];
   const uncited: string[] = [];
+  const noPhase: string[] = [];
+  const noTechnique: string[] = [];
+  const gasWithSite: string[] = [];
 
   for (const b of bands) {
-    push(species, b.species, b.id);
+    touch(species, b.species, b.id);
     for (const t of b.tags) tagScope(t, 'band', b.id);
     if (b.references.length === 0) uncited.push(b.id);
+    if (b.phase == null) noPhase.push(b.id);
     for (const r of b.references) {
       assignments += 1;
-      const siteValues = asArray(r.site);
+      const surfaceKeys = asArray(r.measured_on);
+      const siteKeys = surfaceKeys.filter(k => surfaceTable[k]?.level === 'site');
       const wnValues = asArray(r.wn);
-      if (siteValues.length > 1) multiSite.push(`${b.id} · ${r.key}`);
-      if (siteValues.length > 1 && wnValues.length > 1) ambiguousClaim.push(`${b.id} · ${r.key}`);
-      for (const s of siteValues) push(sites, s, b.id, r.key);
-      for (const t of r.tags) {
-        tagScope(t, 'assignment', b.id);
-        if (tagRole(t) === 'technique') push(techniques, t, b.id, r.key);
+      if (!surfaceKeys.length) noSurface.push(r.uid || `${b.id}::${r.key}`);
+      if (b.phase === 'gas' && siteKeys.length) {
+        gasWithSite.push(`${b.id} → ${siteKeys.join(', ')}`);
+      }
+      if (siteKeys.length > 1 && wnValues.length > 1) ambiguousClaim.push(r.uid || `${b.id}::${r.key}`);
+      for (const k of surfaceKeys) touch(surfaces, k, b.id, r.key);
+      if (r.technique) touch(techniques, r.technique, b.id, r.key);
+      else noTechnique.push(r.uid || `${b.id}::${r.key}`);
+      for (const t of r.tags) tagScope(t, 'assignment', b.id);
+    }
+  }
+
+  // Claims that reach a surface only through a coarser one they named: the
+  // paper said Cu/ZnO, and the parts list is what carries that to Cu⁺. This is
+  // the number the containment link exists to make visible.
+  for (const b of bands) {
+    for (const r of b.references) {
+      const direct = new Set(asArray(r.measured_on));
+      for (const key of direct) {
+        for (const below of partsBelow(key)) {
+          if (direct.has(below)) continue;
+          const row = surfaces.get(below);
+          if (row) row.viaContainer = (row.viaContainer ?? 0) + 1;
+        }
       }
     }
   }
 
-  const moleculeBySpecies = new Map<string, string>();
   let modes = 0;
   let topologies = 0;
+  const topologyIds = new Set<string>();
   for (const m of vibrations.molecules) {
-    moleculeBySpecies.set(m.species, m.id);
     topologies += m.topologies.length;
+    for (const t of m.topologies) topologyIds.add(t.id);
     modes += m.modes.length;
     for (const mode of m.modes) for (const t of mode.tags) tagScope(t, 'mode');
   }
-  for (const row of species.values()) row.molecule = moleculeBySpecies.get(row.value) ?? null;
 
   for (const [key, entry] of Object.entries(refs ?? {})) {
-    for (const name of authorNames(entry['author'] ?? '')) push(authors, name, undefined, key);
+    for (const name of authorNames(entry['author'] ?? '')) touch(authors, name, undefined, key);
   }
 
-  for (const row of sites.values()) {
-    const c = classifySite(row.value);
-    row.kind = c.kind;
-    row.sure = c.sure;
-    row.elements = elementsOf(row.value);
+  // ── Record detail, read off the tables rather than guessed from a string ──
+  for (const [key, row] of species) {
+    const rec = speciesTable[key];
+    row.detail = rec?.formula ?? '';
+    row.molecule = rec?.molecule ?? null;
+  }
+  for (const [key, row] of surfaces) {
+    const rec = surfaceTable[key];
+    row.level = rec?.level;
+    row.kind = rec?.kind ?? undefined;
+    row.parts = rec?.parts ?? [];
+    // What characterises the entry differs by level, so read the field that
+    // level actually fills: a charge for a site, a formula or composition
+    // above it.
+    row.detail = rec
+      ? rec.level === 'site'
+        ? rec.element
+          ? `${rec.element}${rec.oxidation_state != null ? ` (${rec.oxidation_state >= 0 ? '+' : ''}${rec.oxidation_state})` : ''}`
+          : ''
+        : [rec.composition ?? rec.formula ?? '', rec.facet ?? ''].filter(Boolean).join(' ')
+      : '';
+  }
+  for (const t of TECHNIQUES) {
+    const row = techniques.get(t.key);
+    if (row) row.detail = t.note;
   }
 
-  const siteRows = [...sites.values()].sort(byUses);
-  const materialRows = siteRows.filter(r => r.kind === 'material');
+  // ── Integrity checks the build does not make ──
+  const molecules = vibrations.molecules;
+  const moleculeById = new Map(molecules.map(m => [m.id, m]));
 
-  // Site strings whose element also turns up inside a material string. These
-  // are exactly the pairs a materials file would have to declare explicitly.
-  const impliedBySample: string[] = [];
-  for (const s of siteRows) {
-    if (s.kind === 'material') continue;
-    const el = (s.elements ?? [])[0];
-    if (!el) continue;
-    const hosts = materialRows.filter(m => (m.elements ?? []).includes(el));
-    if (hosts.length) impliedBySample.push(`${s.value} ⊂ ${hosts.map(h => h.value).join(', ')}`);
+  const branchGroups = new Map<string, Band[]>();
+  for (const b of bands) {
+    if (b.branch_group) {
+      const list = branchGroups.get(b.branch_group) ?? [];
+      list.push(b);
+      branchGroups.set(b.branch_group, list);
+    }
   }
+  const branchDisagreements: string[] = [];
+  for (const [key, members] of branchGroups) {
+    const sp = new Set(members.map(m => m.species));
+    const ph = new Set(members.filter(m => m.phase != null).map(m => m.phase));
+    if (sp.size > 1) branchDisagreements.push(`${key}: species ${[...sp].join(' vs ')}`);
+    if (ph.size > 1) branchDisagreements.push(`${key}: phase ${[...ph].join(' vs ')}`);
+  }
+
+  const undeclaredTopology: string[] = [];
+  for (const b of bands) {
+    if (!b.topology) continue;
+    const molId = speciesTable[b.species]?.molecule;
+    const declared = molId ? moleculeById.get(molId)?.topologies.map(t => t.id) ?? [] : [];
+    if (!declared.includes(b.topology)) {
+      undeclaredTopology.push(`${b.id} → ${b.topology} (${molId ?? 'no molecule'})`);
+    }
+  }
+
+  const unusedSurfaces = [...surfaces.values()]
+    .filter(r => r.uses === 0)
+    .map(r => `${r.label}${r.viaContainer ? ` (${r.viaContainer} via a container)` : ' (unused)'}`);
 
   const checks = [
     {
-      label: 'Site values that are really materials',
+      label: 'Surfaces reached only through a coarser one',
       detail:
-        'A whole sample written into the site field. Under a Site/Material split these move to the material side and their real sites get named.',
-      hits: materialRows.map(r => `${r.value} (${r.uses}×)`),
+        'The claim named the catalyst, not the site, and the parts list is what connects the two. Without it these bands would be invisible to any site query.',
+      hits: [...surfaces.values()]
+        .filter(r => (r.viaContainer ?? 0) > 0)
+        .sort((a, b) => (b.viaContainer ?? 0) - (a.viaContainer ?? 0))
+        .map(r => `${r.label}: ${r.viaContainer} claims`),
     },
     {
-      label: 'Sites implied by a material, not stated',
-      detail:
-        'The site string names an element that also appears in a material string. Today nothing connects the two, so a query for the site misses every band cited on the sample.',
-      hits: impliedBySample,
+      label: 'Claims that name no surface',
+      detail: 'The source did not say what it was measured on, or the field has not been filled in yet.',
+      hits: noSurface,
     },
     {
-      label: 'Claims with several sites',
+      label: 'Gas-phase claims that name a site',
       detail:
-        'One citation, several surfaces. Fine as a claim, but it means the site cannot be paired with one wavenumber.',
-      hits: multiSite,
+        'A free molecule sits on nothing. Naming the sample is fine, since the gas was measured over it, but a site-level key is either a leftover from before the band was known to be gas phase or a claim that belongs on an adsorbed band instead.',
+      hits: gasWithSite,
+    },
+    {
+      label: 'Claims with no technique',
+      detail: 'Nothing says how the spectrum was taken. These are the ones to check against the paper first.',
+      hits: noTechnique,
+    },
+    {
+      label: 'Branch groups that disagree with themselves',
+      detail:
+        'R/P/Q branches are one transition of one species, so siblings must agree on species and phase. Rotational structure also only exists for a freely rotating gas molecule, which makes an adsorbed branch sibling a contradiction rather than a typo.',
+      hits: branchDisagreements,
+    },
+    {
+      label: 'Topologies the molecule does not declare',
+      detail:
+        'The band names a binding geometry that its species’ molecule has no Topology for, so the vibration-modes page cannot draw it. A to-do for vibrations.jsonc, not an error in the band.',
+      hits: undeclaredTopology,
+    },
+    {
+      label: 'Bands with no phase',
+      detail:
+        'Deliberate where the band covers both the free molecule and its adsorbed form, which is the case for several methanol fundamentals. Worth a look anywhere else.',
+      hits: noPhase,
+    },
+    {
+      label: 'Surfaces never named directly',
+      detail:
+        'Present in the table but never written into a claim. Fine for an entry that only exists inside another one’s parts list.',
+      hits: unusedSurfaces,
     },
     {
       label: 'Claims with several sites and several wavenumbers',
       detail:
-        'Ambiguous today: nothing says which peak was seen on which surface. Splitting the assignment into one row per claim resolves it.',
+        'Still ambiguous: nothing says which peak was seen on which site. Splitting the claim into one row per site resolves it.',
       hits: ambiguousClaim,
     },
     {
-      label: 'Molecules whose species string matches no band',
-      detail:
-        'The two files spell the same species differently, and nothing checks it, so the band ↔ molecule bridge silently does not exist for these. The explicit band.vibration_modes link is what actually holds the vibration-modes page together.',
-      hits: vibrations.molecules
-        .filter(m => !species.has(m.species))
-        .map(m => `${m.id} → "${m.species}"`),
+      label: 'Species with no molecule',
+      detail: 'No vibration-modes page for this species yet. Not an error, just work not done.',
+      hits: Object.values(speciesTable).filter(s => !s.molecule).map(s => s.label),
     },
     {
       label: 'Tags with no tooltip in tags.jsonc',
@@ -768,27 +922,31 @@ export function analyse(
 
   const counts: Record<string, number> = {
     band: bands.length,
+    // One vibration object per band; atoms counts the distinct strings in use.
+    vibration: bands.length,
+    atoms: new Set(bands.map(b => b.atoms)).size,
     assignment: assignments,
     reference: Object.keys(refs ?? {}).length,
-    site: siteRows.filter(r => r.kind !== 'material').length,
-    material: materialRows.length,
     species: species.size,
+    surface: surfaces.size,
+    technique: [...techniques.values()].filter(t => t.uses > 0).length,
     author: authors.size,
-    technique: techniques.size,
     group: Object.keys(dataset.groups).length,
+    set: Object.keys(dataset.sets ?? {}).length,
+    lane: (dataset.lanes ?? []).length,
     region: Object.keys(dataset.regions).length,
     tag: tags.size,
-    molecule: vibrations.molecules.length,
+    molecule: molecules.length,
     topology: topologies,
     mode: modes,
   };
 
   return {
     counts,
-    sites: siteRows,
     species: [...species.values()].sort(byUses),
-    authors: [...authors.values()].sort(byUses),
+    surfaces: [...surfaces.values()].sort(byUses),
     techniques: [...techniques.values()].sort(byUses),
+    authors: [...authors.values()].sort(byUses),
     tags: [...tags.values()].sort(byUses),
     checks,
   };

@@ -6,6 +6,8 @@ import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
+import { speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
+import { TAG_ROLE_LABEL, tagRole, tagRoleRank, type TagRole } from './dataModel';
 
 // Geometry lives in tokens.ts with the rest of the design system; these are
 // re-exported so existing importers of './chart' keep working.
@@ -47,7 +49,45 @@ export function computeLaneMetrics(bands: Band[], enabledGroups: ReadonlySet<str
 // re-centers/re-compacts the stagger to match what's actually on screen —
 // the exact same algorithm, just re-run client-side on a filtered set
 // instead of once over the full dataset.
+//
+// "The exact same algorithm" is load-bearing: this is a second implementation
+// of assign_sub_lanes, and it is the one the chart actually renders from. A
+// change to the Python side that is not mirrored here has no visible effect
+// at all. Both sides place a branch_group as ONE unit, so the R/P/Q branches
+// of a transition always share a sub-lane.
 const SUB_LANE_PRIORITY = [0, 1, -1] as const;
+
+interface PlacementUnit {
+  bands: Band[];
+  /** Sort key, mirroring layout.py: group first, then position. */
+  group: string;
+  min: number;
+  max: number;
+}
+
+/**
+ * Group a lane's bands into the units that get staggered as one.
+ *
+ * The R/P/Q branches of one vibrational transition are three views of the
+ * same feature and read as one band with satellites, so they belong on the
+ * same sub-lane whether or not the packing needs them there. Everything else
+ * is a unit of one. Mirrors _placement_units() in layout.py.
+ */
+function placementUnits(laneBands: Band[]): PlacementUnit[] {
+  const byKey = new Map<string, Band[]>();
+  for (const b of laneBands) {
+    const key = b.branch_group ? `branch:${b.branch_group}` : `band:${b.id}`;
+    const existing = byKey.get(key);
+    if (existing) existing.push(b);
+    else byKey.set(key, [b]);
+  }
+  return [...byKey.values()].map(bands => ({
+    bands,
+    group: bands.reduce((lowest, b) => (b.group < lowest ? b.group : lowest), bands[0].group),
+    min: Math.min(...bands.map(b => b.wn_min)),
+    max: Math.max(...bands.map(b => b.wn_max)),
+  }));
+}
 
 function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map<string, number> {
   const byLane = new Map<number, Band[]>();
@@ -59,25 +99,27 @@ function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map
 
   const subLane = new Map<string, number>();
   for (const laneBands of byLane.values()) {
-    // Two-step sort: group first (so one group's bands consistently claim
+    // Two-step sort: group first (so one group's units consistently claim
     // the same sub-lane priority before a second group sharing this lane is
     // considered), then by wavenumber within that group — matches
     // layout.py's own assign_sub_lanes() ordering.
-    const sorted = [...laneBands].sort((a, b) =>
-      a.group !== b.group ? a.group.localeCompare(b.group) : a.wn_min - b.wn_min
+    const units = placementUnits(laneBands).sort((a, b) =>
+      a.group !== b.group ? a.group.localeCompare(b.group) : a.min - b.min
     );
     const subLaneEnds = new Map<number, number>(SUB_LANE_PRIORITY.map(sl => [sl, -Infinity]));
-    for (const b of sorted) {
+    for (const u of units) {
       for (const sl of SUB_LANE_PRIORITY) {
-        if (subLaneEnds.get(sl)! < b.wn_min) {
-          subLane.set(b.id, sl);
-          subLaneEnds.set(sl, b.wn_max);
+        if (subLaneEnds.get(sl)! < u.min) {
+          for (const b of u.bands) subLane.set(b.id, sl);
+          subLaneEnds.set(sl, u.max);
           break;
         }
       }
-      // Bands that don't fit any of the 3 sub-lanes (4-way+ overlap) are
+      // Units that don't fit any of the 3 sub-lanes (4-way+ overlap) are
       // left unset — the caller falls back to 0, same as the dataclass
-      // default for a band layout.py itself couldn't place.
+      // default for a band layout.py itself couldn't place. A branch group
+      // is skipped whole rather than split, since keeping its members
+      // together is the point of treating it as a unit.
     }
   }
   return subLane;
@@ -149,7 +191,9 @@ export interface TipRef {
   key: string;
   short: string;       // "Fehr & Krossing, 2020"
   wn: number | number[] | null;
-  site: string | string[] | null;
+  // Already resolved to label plus level: the tooltip renders them straight,
+  // and the level is what decides whether a badge is filled or hollow.
+  surfaces: SurfaceBadge[];
   note: string | null;
   tags: string[];
 }
@@ -161,7 +205,7 @@ export function getBandTags(b: Band): string[] {
   if (b.based_on?.some(bo => bo.multiplier > 1)) auto.push('overtone');
   // Mirrors loader.py's tag_isotopologues() — the child of an
   // isotopologue_of link, never its natural-abundance parent.
-  if (b.isotopologue_of) auto.push('isotopic-shift');
+  if (b.isotopologue_of) auto.push('isotope');
   // auto-tags first, then explicit tags (deduped)
   return [...auto, ...explicit.filter(t => !auto.includes(t))];
 }
@@ -171,36 +215,102 @@ export const UNTAGGED_KEY = '__untagged__';
 export interface LegendTag {
   key: string;
   label: string;
+  /** Bands carrying this tag within the enabled groups. */
   count: number;
+  /** How many of those survive the filters currently applied to the chart. */
+  visibleCount: number;
+  /** What kind of statement the tag makes. Drives the order of the legend. */
+  role: TagRole;
+  roleLabel: string;
   background: string;
   border: string;
   color: string;
 }
 
+/**
+ * Tag chips for the legend, with both a total and a currently-visible count.
+ *
+ * The visible count exists so the legend can say what is actually on screen:
+ * hiding "gas-phase" also empties "rotational-branches", because every band
+ * carrying one carries the other, and a chip that can no longer bring
+ * anything back should not look clickable-and-live. `filters` mirrors the
+ * display filter in buildChart exactly; leave it out and every band counts as
+ * visible.
+ */
 export function getLegendTags(
   bands: Band[],
   enabledGroups: ReadonlySet<string>,
+  filters: {
+    hiddenCats?: ReadonlySet<string>;
+    colorDim?: ColorDim;
+    hiddenTags?: ReadonlySet<string>;
+    tagIsolate?: string | null;
+  } = {},
 ): LegendTag[] {
+  const { hiddenCats, colorDim, hiddenTags, tagIsolate } = filters;
   const counts = new Map<string, number>();
+  const visible = new Map<string, number>();
   let untaggedCount = 0;
+  let untaggedVisible = 0;
+
   for (const b of bands) {
     if (!enabledGroups.has(b.group)) continue;
     const tags = getBandTags(b);
+
+    // Same order and the same rules as buildChart's own filter, so
+    // "visible" here means "drawn there".
+    let shown = true;
+    if (hiddenCats && colorDim && hiddenCats.has(getCat(b, colorDim))) {
+      shown = false;
+    } else if (tagIsolate) {
+      shown = tags.length === 0
+        ? tagIsolate === UNTAGGED_KEY
+        : tags.includes(tagIsolate);
+    } else if (hiddenTags && hiddenTags.size > 0) {
+      shown = tags.length === 0
+        ? !hiddenTags.has(UNTAGGED_KEY)
+        : !tags.some(t => hiddenTags.has(t));
+    }
+
     if (tags.length === 0) {
       untaggedCount++;
+      if (shown) untaggedVisible++;
     } else {
-      for (const t of tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+      for (const t of tags) {
+        counts.set(t, (counts.get(t) ?? 0) + 1);
+        if (shown) visible.set(t, (visible.get(t) ?? 0) + 1);
+      }
     }
   }
+
   const result: LegendTag[] = [...counts.entries()].map(([key, count]) => {
     const style = TAG_STYLES[key] ?? DEFAULT_TAG_STYLE;
-    return { key, label: key, count, ...style };
+    const role = tagRole(key);
+    return {
+      key, label: key, count, visibleCount: visible.get(key) ?? 0,
+      role, roleLabel: TAG_ROLE_LABEL[role], ...style,
+    };
   });
+
+  // Role order first, so the legend reads the way the model is written: what
+  // the band is, then what it is doing, then the rule, the measurement, and
+  // the caveat last. Within a role the commonest tag leads, which keeps the
+  // long tail of one-band tags out of the way.
+  result.sort((a, b) =>
+    tagRoleRank(a.role) - tagRoleRank(b.role) ||
+    b.count - a.count ||
+    a.key.localeCompare(b.key));
+
   if (untaggedCount > 0) {
+    // Not a tag and not a role: the bands with nothing to say, so they trail
+    // everything, after the 'other' role rather than inside it.
     result.push({
       key: UNTAGGED_KEY,
       label: 'others',
       count: untaggedCount,
+      visibleCount: untaggedVisible,
+      role: 'other',
+      roleLabel: 'Untagged',
       background: C['pill-muted-bg'],
       border: C['pill-muted-border'],
       color: C['ink-050'],
@@ -248,6 +358,8 @@ export interface PlotBandHit {
   py1: number; py2: number;
   tipData: TipData;
   color: string;
+  /** Drawn hatched, and stays hatched under the hover highlight. */
+  isotopologue: boolean;
 }
 
 export interface ChartResult {
@@ -283,7 +395,7 @@ function formatShortRef(ref: Record<string, string | undefined>, key: string): s
 function bandName(b: Band): string {
   if (b.short) return htmlToUnicode(b.short);
   const sub = b.vibration.subtype ? ` ${b.vibration.subtype}` : '';
-  return `${b.species}${sub} ${b.vibration.category}`;
+  return `${speciesLabel(b.species)}${sub} ${b.vibration.category}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -305,7 +417,27 @@ interface PlotBand {
 // spending a colour on it. One neutral white-line pattern works over every
 // group colour, which is why it's an overlay rect rather than a per-colour
 // patterned fill.
-const HATCH_ID = 'iso-hatch';
+/**
+ * The isotopologue hatch, in one place.
+ *
+ * It is drawn twice: into the chart SVG here, and again into the hover
+ * highlight overlay in BandChart.svelte, which paints a solid rect over the
+ * band and would otherwise wipe the pattern off exactly the bands whose
+ * pattern is the point. Same geometry both times, so the band does not change
+ * appearance under the cursor.
+ */
+export const HATCH = {
+  id: 'iso-hatch',
+  size: 5,
+  angle: 45,
+  stroke: C['surface'],
+  strokeOpacity: 0.9,
+  strokeWidth: 2,
+  /** Opacity of the hatch layer over the band's own fill. */
+  fillOpacity: 0.85,
+} as const;
+
+const HATCH_ID = HATCH.id;
 
 function appendHatchPattern(svg: SVGElement): void {
   const ns = 'http://www.w3.org/2000/svg';
@@ -316,17 +448,18 @@ function appendHatchPattern(svg: SVGElement): void {
   }
   const pattern = document.createElementNS(ns, 'pattern');
   pattern.setAttribute('id', HATCH_ID);
-  pattern.setAttribute('width', '5');
-  pattern.setAttribute('height', '5');
+  pattern.setAttribute('width', String(HATCH.size));
+  pattern.setAttribute('height', String(HATCH.size));
   pattern.setAttribute('patternUnits', 'userSpaceOnUse');
-  pattern.setAttribute('patternTransform', 'rotate(45)');
+  pattern.setAttribute('patternTransform', `rotate(${HATCH.angle})`);
   const line = document.createElementNS(ns, 'line');
   line.setAttribute('x1', '0');
   line.setAttribute('y1', '0');
   line.setAttribute('x2', '0');
-  line.setAttribute('y2', '5');
-  line.setAttribute('stroke', 'rgba(255,255,255,0.9)');
-  line.setAttribute('stroke-width', '2');
+  line.setAttribute('y2', String(HATCH.size));
+  line.setAttribute('stroke', HATCH.stroke);
+  line.setAttribute('stroke-opacity', String(HATCH.strokeOpacity));
+  line.setAttribute('stroke-width', String(HATCH.strokeWidth));
   pattern.appendChild(line);
   defs.appendChild(pattern);
 }
@@ -480,7 +613,10 @@ export function buildChart(
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
-          return { key: ref.key, short, wn: ref.wn, site: ref.site, note: ref.note, tags: ref.tags };
+          return {
+            key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
+            surfaces: sortedMeasuredOnBadges(ref),
+          };
         })
       : [];
 
@@ -543,9 +679,22 @@ export function buildChart(
     laneLabels.push({ yCenter, segments });
   }
 
-  const yMax = (newNLanes > 0 ? newNLanes : 1) * LANE_HEIGHT;
-  const yPadBottom = LANE_HEIGHT / 2;
-  const height = Math.max(300, Math.round((newNLanes * LANE_HEIGHT + yPadBottom) * 55)) + 60;
+  // Vertical extent: exactly the bars, plus half a lane pitch of air at each
+  // end. The domain used to run to a whole lane height above the top bar and
+  // pad a fixed amount below, which left a visibly empty strip at both ends.
+  const subLaneOffset = LANE_HEIGHT * SUB_LANE_OFFSET_FRAC * BAR_FRACTION;
+  const laneCount = newNLanes > 0 ? newNLanes : 1;
+  const barTop = (laneCount - 1) * LANE_HEIGHT + LANE_HEIGHT * BAR_FRACTION + subLaneOffset;
+  const yPad = LANE_HEIGHT / 2;
+  const yLo = -subLaneOffset - yPad;
+  const yHi = barTop + yPad;
+  const yDataSpan = yHi - yLo;
+  const height = Math.max(
+    300,
+    Math.round(yDataSpan * CHART_LAYOUT.pxPerYUnit)
+      + CHART_LAYOUT.marginTop
+      + CHART_LAYOUT.marginBottom,
+  );
 
   const svg = Plot.plot({
     width,
@@ -568,7 +717,7 @@ export function buildChart(
       axis: null,
     },
     y: {
-      domain: [-yPadBottom, yMax],
+      domain: [yLo, yHi],
       axis: null,
     },
     marks: [
@@ -625,23 +774,22 @@ export function buildChart(
     appendHatchPattern(svg);
     hatchRects.forEach(el => {
       el.setAttribute('fill', `url(#${HATCH_ID})`);
-      el.setAttribute('opacity', '0.85');
+      el.setAttribute('opacity', String(HATCH.fillOpacity));
     });
   }
 
   // Observable Plot's text mark only supports a single fill per element.
   // Append lane labels manually as <text>/<tspan> so each group segment gets its own color.
-  const MARGIN_LEFT  = 200;
-  const MARGIN_RIGHT = 20;
-  const MARGIN_TOP   = 30;
-  const MARGIN_BOT   = 50;
+  const MARGIN_LEFT  = CHART_LAYOUT.marginLeft;
+  const MARGIN_RIGHT = CHART_LAYOUT.marginRight;
+  const MARGIN_TOP   = CHART_LAYOUT.marginTop;
+  const MARGIN_BOT   = CHART_LAYOUT.marginBottom;
   const innerW = width - MARGIN_LEFT - MARGIN_RIGHT;
   const innerH = height - MARGIN_TOP - MARGIN_BOT;
-  const yDataSpan = yMax + yPadBottom; // domain spans from -yPadBottom to yMax
   const xRange = xDomain[1] - xDomain[0];
   const ns = 'http://www.w3.org/2000/svg';
   for (const d of laneLabels) {
-    const yPx = MARGIN_TOP + innerH * (1 - (d.yCenter + yPadBottom) / yDataSpan);
+    const yPx = MARGIN_TOP + innerH * (1 - (d.yCenter - yLo) / yDataSpan);
     const text = document.createElementNS(ns, 'text');
     text.setAttribute('text-anchor', 'end');
     text.setAttribute('dominant-baseline', 'middle');
@@ -660,7 +808,7 @@ export function buildChart(
 
   // Pixel-space hit rectangles for each visible band (used by BandChart.svelte for hover/select)
   const tX = (v: number) => MARGIN_LEFT + (v - xDomain[0]) / xRange * innerW;
-  const tY = (v: number) => MARGIN_TOP + innerH * (1 - (v + yPadBottom) / yDataSpan);
+  const tY = (v: number) => MARGIN_TOP + innerH * (1 - (v - yLo) / yDataSpan);
   const clampX = (v: number) => Math.max(MARGIN_LEFT, Math.min(MARGIN_LEFT + innerW, v));
   const HIT_PAD = 3; // extra px top/bottom so thin bands are easier to hover
   const hitBands: PlotBandHit[] = plotBands.map(b => ({
@@ -670,6 +818,7 @@ export function buildChart(
     py2: Math.max(tY(b.y1), tY(b.y0)) + HIT_PAD,
     tipData: b.tipData,
     color: b.color,
+    isotopologue: b.isotopologue,
   }));
 
   const laneHeightPx = innerH * (LANE_HEIGHT / yDataSpan);

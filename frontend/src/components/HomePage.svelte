@@ -1,35 +1,45 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+
+  /** Live scope line: what the atlas currently covers, and how much of it. */
+  export let bandCount = 0;
+  export let referenceCount = 0;
+
   const dispatch = createEventDispatcher<{ navigate: { page: string } }>();
 </script>
 
 <main class="home">
   <div class="hero">
     <h1 class="hero-title">Spectral Band Atlas</h1>
-    <p class="hero-tagline">CO₂ hydrogenation &middot; in-situ IR spectroscopy</p>
+    <p class="hero-tagline">Vibrational spectroscopy &middot; infrared and Raman</p>
     <p class="hero-desc">
-      A curated, interactive reference for IR absorption bands across CO₂ reduction
-      catalysis — gas-phase molecules, surface intermediates, support species, and adsorbates.
+      On a working catalyst or in a bulk fluid, every band overlaps something else. This
+      atlas tells them apart: what each one is, what it was measured on, and who
+      reported it.
+    </p>
+    <p class="hero-scope">
+      Covering CO₂ hydrogenation, in the infrared{#if bandCount}&nbsp;&middot; {bandCount} bands from {referenceCount} papers{/if}
     </p>
   </div>
 
   <div class="cards">
-    <!-- Vibration Modes -->
-    <button class="card" on:click={() => dispatch('navigate', { page: 'vibration' })}>
-      <div class="card-icon" style="background:var(--accent-teal-bg); color:var(--accent-teal-fg)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    <!-- Knowledge -->
+    <button class="card" on:click={() => dispatch('navigate', { page: 'knowledge' })}>
+      <div class="card-icon" style="background:var(--accent-green-bg); color:var(--accent-green-fg)">
+        <!-- A brain: two lobes over a stem, with the fold down the middle. -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
              stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <path d="M3 12 C5 6 7 6 9 12 C11 18 13 18 15 12 C17 6 19 6 21 12"/>
-          <circle cx="3" cy="12" r="1.8" fill="currentColor" stroke="none"/>
-          <circle cx="21" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+          <path d="M12 5.5a3 3 0 0 0-5.6-1.4A2.7 2.7 0 0 0 3.6 8a3 3 0 0 0 .5 4.6A2.9 2.9 0 0 0 6 17.4a3 3 0 0 0 6 .6z"/>
+          <path d="M12 5.5a3 3 0 0 1 5.6-1.4A2.7 2.7 0 0 1 20.4 8a3 3 0 0 1-.5 4.6A2.9 2.9 0 0 1 18 17.4a3 3 0 0 1-6 .6z"/>
+          <path d="M12 5.5V21"/>
         </svg>
       </div>
-      <h2 class="card-title">Vibration Modes</h2>
+      <h2 class="card-title">Knowledge</h2>
       <p class="card-desc">
-        Reference guide to vibrational mode types, symmetry labels, and spectroscopic
-        notation used throughout this atlas.
+        What the spectra mean: Fermi resonance, isotopic shifts, rotational branches and
+        the rest, each pointing back at the bands in this atlas that show it.
       </p>
-      <span class="card-cta" style="color:var(--accent-teal-fg)">Open modes →</span>
+      <span class="card-cta" style="color:var(--accent-green-fg)">Open knowledge →</span>
     </button>
 
     <!-- Band Chart -->
@@ -66,6 +76,25 @@
         source or by spectral group, with expandable per-band notes and site tags.
       </p>
       <span class="card-cta" style="color:var(--accent-amber-fg)">Open references →</span>
+    </button>
+
+    <!-- Dataset -->
+    <button class="card" on:click={() => dispatch('navigate', { page: 'datamodel' })}>
+      <div class="card-icon" style="background:var(--accent-red-bg); color:var(--accent-red-fg)">
+        <!-- Stacked records, the usual shorthand for a dataset. -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
+          <ellipse cx="12" cy="5" rx="8" ry="3"/>
+          <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+          <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>
+        </svg>
+      </div>
+      <h2 class="card-title">Dataset</h2>
+      <p class="card-desc">
+        Browse what is in the atlas: molecules and their modes, species, sites and
+        samples, techniques and tags. Plus the structure holding it together.
+      </p>
+      <span class="card-cta" style="color:var(--accent-red-fg)">Open dataset →</span>
     </button>
   </div>
 </main>
@@ -112,18 +141,37 @@
     margin: 0;
   }
 
+  /* Deliberately quiet: the scope will widen, the framing above it will not. */
+  .hero-scope {
+    margin: 14px 0 0;
+    font-size: var(--t-code-size);
+    color: var(--ink-200);
+  }
+
+  /* Four destinations in one row where there is room for it, so the whole
+     atlas is one glance. It steps down to 2x2 and then to a stack rather than
+     letting a flex row wrap unevenly. Column width lands near the 265px the
+     cards were designed at. */
   .cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 22px;
     justify-content: center;
-    flex-wrap: wrap;
-    max-width: 860px;
+    max-width: 1120px;
     width: 100%;
   }
 
+  @media (max-width: 1240px) {
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; }
+  }
+
+  @media (max-width: 720px) {
+    .cards { grid-template-columns: 1fr; max-width: 340px; }
+  }
+
   .card {
-    flex: 1 1 240px;
-    max-width: 265px;
+    /* Grid cells now, so the card fills its column instead of sizing itself. */
+    max-width: none;
     background: white;
     border: 1px solid var(--line-slate);
     border-radius: 12px;

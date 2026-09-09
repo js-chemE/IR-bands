@@ -1,19 +1,20 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode } from '../lib/types';
-  import { buildChart, buildAxisStrip } from '../lib/chart';
+  import { buildChart, buildAxisStrip, HATCH } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
   import { C, CHART_LAYOUT } from '../lib/tokens';
+  import { SURFACE_LEVEL_TITLE } from '../lib/labels';
 
   // Connector strokes drawn as SVG presentation attributes, which cannot read
   // a CSS custom property, so they take their colour from the token module
-  // directly. ISO_STROKE deliberately reuses the isotopic-shift tag colour so
+  // directly. ISO_STROKE deliberately reuses the isotope tag colour so
   // the connector and the pill always match.
   const CONN_STROKE = C['ink-500'];
   const CONN_LABEL = C['ink-300'];
-  const ISO_STROKE = TAG_STYLES['isotopic-shift'].color;
+  const ISO_STROKE = TAG_STYLES['isotope'].color;
   import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
 
@@ -84,6 +85,8 @@
     const synthetic: PlotBandHit = {
       px1: pos.px, px2: pos.px, py1: pos.py, py2: pos.py,
       color: C['ink-100'],
+      // Only ever an anchor for a connector, never drawn, so the hatch is moot.
+      isotopologue: false,
       tipData: {
         id: band.id, name: '', vib: '', wnRange: '', group: '', color: C['ink-100'],
         noteLines: [], tags: [], description: '', refs: [], partners: [],
@@ -754,6 +757,15 @@
           <filter id="glow-blur" x="-80%" y="-200%" width="260%" height="500%">
             <feGaussianBlur stdDeviation="5"/>
           </filter>
+          <!-- The highlight paints a solid rect over the band, which would
+               wipe the hatch off exactly the bands whose hatch is the point.
+               Same pattern as the chart's own, redrawn here. -->
+          <pattern id="glow-hatch" width={HATCH.size} height={HATCH.size}
+                   patternUnits="userSpaceOnUse" patternTransform="rotate({HATCH.angle})">
+            <line x1="0" y1="0" x2="0" y2={HATCH.size}
+                  stroke={HATCH.stroke} stroke-opacity={HATCH.strokeOpacity}
+                  stroke-width={HATCH.strokeWidth}/>
+          </pattern>
         </defs>
         {#each connectors as c}
           {#if c.kind === 'branch'}
@@ -795,6 +807,11 @@
           <rect {x} {y} width={w} height={h}
                 fill={hit.color} opacity="1"
                 stroke="white" stroke-width="1.5" rx="0.5"/>
+          {#if hit.isotopologue}
+            <rect {x} {y} width={w} height={h}
+                  fill="url(#glow-hatch)" opacity={HATCH.fillOpacity}
+                  stroke="none"/>
+          {/if}
         {/each}
       </svg>
     {/if}
@@ -878,20 +895,18 @@
                     <span class="tip-ref-chevron" class:open={expanded}>▸</span>
                   {/if}
                 </div>
-                {#if ref.wn != null || ref.site}
+                {#if ref.wn != null || ref.surfaces.length}
                   <div class="tip-ref-badges">
                     {#each wnList(ref.wn) as w}
                       <span class="badge-wn">{w} cm⁻¹</span>
                     {/each}
-                    {#if ref.site}
-                      {#if Array.isArray(ref.site)}
-                        {#each ref.site as s}
-                          <span class="badge-site">{s}</span>
-                        {/each}
-                      {:else}
-                        <span class="badge-site">{ref.site}</span>
-                      {/if}
-                    {/if}
+                    {#each ref.surfaces as s}
+                      <span
+                        class="badge-site"
+                        class:badge-coarse={s.level !== 'site'}
+                        title={SURFACE_LEVEL_TITLE[s.level]}
+                      >{s.label}</span>
+                    {/each}
                   </div>
                 {/if}
                 {#if ref.tags.length}
@@ -1190,6 +1205,13 @@
     padding: 1px 6px;
     font-size: var(--t-tip-badge-size);
     white-space: nowrap;
+  }
+
+  /* A phase or a sample is coarser than a site: same amber pair, hollow
+     instead of filled, so the scale of the claim reads at a glance. A variant
+     of the site badge, not a second pill style. */
+  .badge-coarse {
+    background: var(--badge-site-bg-soft);
   }
 
   .tip-ref-tags {

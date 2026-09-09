@@ -20,13 +20,18 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from ir_bands.layout import assign_lanes, assign_sub_lanes
 from ir_bands.loader import (
+    assign_reference_uids,
     load_dataset,
     load_references,
+    load_surfaces,
+    load_species,
     load_tags,
     load_vibrations,
     tag_branch_groups,
     tag_fermi_pairs,
     tag_isotopologues,
+    tag_phase,
+    tag_techniques,
     validate_dataset,
     validate_vibrations,
 )
@@ -47,6 +52,8 @@ BANDS_SRC = DATA_DIR / "bands.jsonc"
 REFS_SRC = DATA_DIR / "references.bib"
 VIBRATIONS_SRC = DATA_DIR / "vibrations.jsonc"
 TAGS_SRC = DATA_DIR / "tags.jsonc"
+SURFACES_SRC = DATA_DIR / "surfaces.jsonc"
+SPECIES_SRC = DATA_DIR / "species.jsonc"
 
 BANDS_OUT = DOCS_DATA / "bands.json"
 REFS_OUT = DOCS_DATA / "references.json"
@@ -595,6 +602,35 @@ def _band_to_dict(b) -> dict:
     return d                  # lane and sub_lane are kept (frontend uses them)
 
 
+
+def _surface_to_dict(surface, surfaces: dict) -> dict:
+    """Serialise a surface, adding the element closure the frontend queries on.
+
+    `elements` is authored: it says what the author knew about that entry
+    alone. `all_elements` walks `parts` and unions everything below, so a
+    query for Cu reaches the Pt-CeO2 interface, the composite defect site and
+    the sample alike without the frontend re-deriving containment.
+    """
+    seen: set[str] = set()
+    elements: set[str] = set()
+
+    def walk(key: str) -> None:
+        if key in seen:
+            return
+        seen.add(key)
+        node = surfaces.get(key)
+        if node is None:
+            return
+        elements.update(node.all_elements)
+        for part in node.parts:
+            walk(part)
+
+    walk(surface.key)
+    out = asdict(surface)
+    out["all_elements"] = sorted(elements)
+    return out
+
+
 def main() -> int:
     DOCS_DATA.mkdir(parents=True, exist_ok=True)
 
@@ -602,10 +638,27 @@ def main() -> int:
     references = load_references(REFS_SRC)
     print(f"  {len(references)} reference entries")
 
+    print(f"→ Loading surfaces from {SURFACES_SRC.relative_to(ROOT)}")
+    surfaces = load_surfaces(SURFACES_SRC)
+    levels = {lv: sum(1 for s in surfaces.values() if s.level == lv)
+              for lv in ("site", "phase", "sample")}
+    print(f"  {len(surfaces)} surfaces ("
+          + ", ".join(f"{n} {lv}" for lv, n in levels.items()) + ")")
+
+    print(f"→ Loading species from {SPECIES_SRC.relative_to(ROOT)}")
+    species = load_species(SPECIES_SRC)
+    print(f"  {len(species)} species")
+
     print(f"→ Loading bands from {BANDS_SRC.relative_to(ROOT)}")
-    dataset = load_dataset(BANDS_SRC)
+    # Validation is deferred until the species and surfaces tables are
+    # attached below, so every cross-file key is checked in one pass.
+    dataset = load_dataset(BANDS_SRC, validate=False)
     print(f"  {len(dataset.bands)} bands, {len(dataset.groups)} groups, "
           f"{len(dataset.regions)} regions")
+
+    # Attached before validation so every cross-file key is checked in one pass.
+    dataset.surfaces = surfaces
+    dataset.species = species
 
     validate_dataset(dataset, references=references)
 
@@ -621,7 +674,13 @@ def main() -> int:
     for w in isotopologue_warnings:
         print(f"  ⚠ {w}", file=sys.stderr)
 
-    assign_lanes(dataset.bands)
+    # Fields first, tags derived from them: phase -> "gas-phase",
+    # technique -> "drifts"/"ftir"/"computational".
+    tag_phase(dataset)
+    tag_techniques(dataset)
+    assign_reference_uids(dataset)
+
+    assign_lanes(dataset.bands, dataset.lanes)
     skipped = assign_sub_lanes(dataset.bands)
     print(f"  {dataset.n_lanes()} lanes"
           + (f", {len(skipped)} bands skipped (>3-way overlap)" if skipped else ""))
@@ -630,7 +689,8 @@ def main() -> int:
     vibrations = load_vibrations(VIBRATIONS_SRC)
     n_modes = sum(len(m.modes) for m in vibrations.molecules)
     print(f"  {len(vibrations.molecules)} molecules, {n_modes} modes")
-    validate_vibrations(vibrations, dataset, references=references)
+    for w in validate_vibrations(vibrations, dataset, references=references):
+        print(f"  ⚠ {w}", file=sys.stderr)
 
     print(f"→ Loading tags from {TAGS_SRC.relative_to(ROOT)}")
     tags = load_tags(TAGS_SRC)
@@ -640,6 +700,13 @@ def main() -> int:
         "metadata": dataset.metadata,
         "regions": {k: asdict(v) for k, v in dataset.regions.items()},
         "groups": {k: asdict(v) for k, v in dataset.groups.items()},
+        "sets": {k: asdict(v) for k, v in dataset.sets.items()},
+        "lanes": dataset.lanes,
+        # Small enough to ship in the same file the frontend already fetches,
+        # and needed on every page that renders a band label or a site badge.
+        "species": {k: asdict(v) for k, v in dataset.species.items()},
+        "surfaces": {k: _surface_to_dict(v, dataset.surfaces)
+                     for k, v in dataset.surfaces.items()},
         "bands": [_band_to_dict(b) for b in dataset.bands],
     }
     BANDS_OUT.write_text(
@@ -675,6 +742,8 @@ def main() -> int:
         (VIBRATIONS_SRC, DOCS_DATA / "vibrations.jsonc"),
         (REFS_SRC, DOCS_DATA / "references.bib"),
         (TAGS_SRC, DOCS_DATA / "tags.jsonc"),
+        (SURFACES_SRC, DOCS_DATA / "surfaces.jsonc"),
+        (SPECIES_SRC, DOCS_DATA / "species.jsonc"),
     ]:
         shutil.copy(src, dst)
         print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
