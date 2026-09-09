@@ -48,11 +48,14 @@ frontend/src/
     AxisSelect.svelte        ← x-axis property and unit selectors
     ReferencesPage.svelte    ← tabular view of all references and cited bands
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
+    DataModelPage.svelte     ← data model: entities, relations, live inventories (linked from Impressum)
     VibrationModesPage.svelte← vibration-modes page: molecule selector + mode list/detail panel
     vibration/               ← MoleculeViewer, MoleculeSelector, ModeList, ModeDetailPanel
   lib/
     tokens.ts             ← DESIGN TOKENS: every color, type role, radius, shadow,
                               chart dimension and editorial limit, in one place
+    dataModel.ts          ← DATA MODEL: entities, relations, band-to-band links, tag
+                              roles, plus analyse() which counts the live JSON
     notation.ts           ← sub/superscript character maps + htmlToUnicode()
     chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
@@ -147,6 +150,30 @@ verbatim.
 `species` or a reference `note`, and when an underscored word in any of those
 (or in a reference `site`) is not a known identifier. The underscore warning
 carries the corrected spelling.
+
+## Data model page
+
+`frontend/src/lib/dataModel.ts` is to the data what `tokens.ts` is to the
+design: a written-down specification of every entity (Band, Assignment,
+Reference, Site, Species, Tag, Molecule, VibrationMode, …), how they link and
+with what cardinality, which links are enforced and which only hold because
+two strings match. `DataModelPage.svelte` renders itself out of it, plus an
+`analyse()` pass over the shipped JSON, so every count, every distinct site and
+every unmatched species on the page is the real current state rather than a
+snapshot somebody has to remember to update.
+
+Rules:
+
+- **Change a field in `schema.py` or `types.ts`, change it in `dataModel.ts`
+  too** — same obligation as the JSONC preambles. A stale entity spec is worse
+  than none.
+- The page is reached from the Impressum (`page = 'datamodel'`), like the style
+  guide, and shows its own table of contents in the sidebar from the `SECTIONS`
+  array it exports.
+- `classifySite()` proposes what kind of thing each `site` string is (cation,
+  reduced metal, oxide surface, facet, interface, defect, Brønsted, material).
+  It is a heuristic for triage, marked sure or guess on the page, and never
+  writes back to the data.
 
 ## Key design decisions
 

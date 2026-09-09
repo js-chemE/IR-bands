@@ -13,6 +13,7 @@
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
   import StyleGuidePage, { SECTIONS as SG_SECTIONS } from './components/StyleGuidePage.svelte';
+  import DataModelPage, { SECTIONS as DM_SECTIONS } from './components/DataModelPage.svelte';
   import MobileNotice from './components/MobileNotice.svelte';
 
   let dataset: Dataset | null = null;
@@ -21,19 +22,28 @@
   let tagTips: Record<string, { tip: string }> = {};
   let loading = true;
   let error: string | null = null;
-  // 'styleguide' has no sidebar entry of its own: it is reached from the
-  // Impressum page, which is where the project's meta pages live.
-  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum' | 'styleguide';
+  // 'styleguide' and 'datamodel' have no sidebar entry of their own: both are
+  // reached from the Impressum page, which is where the project's meta pages
+  // live.
+  type Page = 'home' | 'chart' | 'references' | 'vibration' | 'impressum' | 'styleguide' | 'datamodel';
   let page: Page = 'home';
   let refViewMode: 'by-ref' | 'by-group' = 'by-ref';
   // Style guide table of contents: which section the reader is currently in,
   // reported by the page's own scroll spy.
   let sgActive = SG_SECTIONS[0].id;
+  // Same contract for the Data model page, which has its own contents list.
+  let dmActive = DM_SECTIONS[0].id;
 
-  function scrollToSection(id: string) {
+  // Shared by the two long-form pages that own a sidebar table of contents.
+  function scrollToSection(id: string, which: 'sg' | 'dm' = 'sg') {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    sgActive = id;
+    if (which === 'dm') dmActive = id; else sgActive = id;
   }
+  // Every page shares one scroll container, so opening a long page from
+  // halfway down another one would start halfway down it. Reset on switch.
+  let mainArea: HTMLElement | null = null;
+  $: if (page) mainArea?.scrollTo({ top: 0 });
+
   let sidebarOpen = true;
   let showColorMenu = false;
   let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
@@ -306,6 +316,10 @@
             <button class="page-mini-btn active"
               on:click={() => page = 'styleguide'} title="Style guide">S</button>
           {/if}
+          {#if page === 'datamodel'}
+            <button class="page-mini-btn active"
+              on:click={() => page = 'datamodel'} title="Data model">D</button>
+          {/if}
         </div>
       {/if}
 
@@ -320,6 +334,9 @@
           <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
           {#if page === 'styleguide'}
             <button class="active" on:click={() => page = 'styleguide'}>Style guide</button>
+          {/if}
+          {#if page === 'datamodel'}
+            <button class="active" on:click={() => page = 'datamodel'}>Data model</button>
           {/if}
         </nav>
 
@@ -366,6 +383,19 @@
             {/each}
           </nav>
 
+        {:else if page === 'datamodel'}
+          <h3>Contents</h3>
+          <nav class="sg-toc">
+            {#each DM_SECTIONS as s}
+              <button
+                class="sg-toc-item"
+                class:sg-part={s.part}
+                class:active={dmActive === s.id}
+                on:click={() => scrollToSection(s.id, 'dm')}
+              >{s.label}</button>
+            {/each}
+          </nav>
+
         {:else if page === 'references'}
           <h3>View</h3>
           <div class="sub-nav">
@@ -379,7 +409,7 @@
     </aside>
 
     <!-- ── Main content ── -->
-    <div class="main-area" class:plot-area={page === 'chart'}>
+    <div class="main-area" class:plot-area={page === 'chart'} bind:this={mainArea}>
       {#if page === 'home'}
         <HomePage on:navigate={handleHomeNavigate} />
       {:else if page === 'chart'}
@@ -447,6 +477,14 @@
         <ImpressumPage on:navigate={handleHomeNavigate} />
       {:else if page === 'styleguide'}
         <StyleGuidePage on:active={e => sgActive = e.detail.id} />
+      {:else if page === 'datamodel'}
+        <DataModelPage
+          {dataset}
+          {refs}
+          {vibrations}
+          {tagTips}
+          on:active={e => dmActive = e.detail.id}
+        />
       {/if}
     </div>
 {/if}
