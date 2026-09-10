@@ -38,3 +38,31 @@ export function htmlToUnicode(text: string): string {
       [...inner].map(c => SUP_CHARS[c] ?? c).join(''))
     .replace(/<[^>]+>/g, ''); // strip any remaining tags
 }
+
+/**
+ * Letter subscripts Unicode has no characters for are written in brackets in
+ * the source (`μ(ind)`, per the notation rule), and the pages that can set a
+ * real subscript show them as one. This splits a string into the parts to
+ * set as plain text and the parts to set lowered. Only the symbols listed
+ * here are converted, so an ordinary bracket in prose is left alone.
+ */
+const SUBSCRIPTED = /(μ)\((ind)\)/g;
+
+export interface SubPart {
+  text: string;
+  sub?: boolean;
+}
+
+export function splitSubscripts(text: string): SubPart[] {
+  const out: SubPart[] = [];
+  let last = 0;
+  for (const m of text.matchAll(SUBSCRIPTED)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push({ text: text.slice(last, at) });
+    out.push({ text: m[1] });
+    out.push({ text: m[2], sub: true });
+    last = at + m[0].length;
+  }
+  if (last < text.length) out.push({ text: text.slice(last) });
+  return out;
+}

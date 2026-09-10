@@ -176,6 +176,13 @@ export const COLOR_GROUPS: ColorGroup[] = [
       'accent-blue-soft-line':   { value: '#c8d6f0', usage: 'Active topology button border' },
       'accent-blue-soft-bg':     { value: '#eaf1fc', usage: 'Isolated tag in the legend' },
       'accent-blue-soft-bg-alt': { value: '#deeafb', usage: 'Isolated tag in the legend, hovered' },
+      'diagram-photon':          { value: '#c0572f', usage: 'Incoming infrared photon in the Knowledge diagrams: warm, and apart from the green transition arrow it drives' },
+      'diagram-laser':           { value: '#1f9d55', usage: 'Raman diagram: the laser photon and the Rayleigh light that keeps its colour. A bright emerald, apart from the dark green accent' },
+      'diagram-stokes':          { value: '#c8323f', usage: 'Raman diagram: Stokes light, redder than the laser by one vibrational quantum' },
+      'diagram-anti-stokes':     { value: '#3563c9', usage: 'Raman diagram: anti-Stokes light, bluer than the laser by one vibrational quantum' },
+      'charge-negative':         { value: '#cf3a3a', usage: 'Knowledge diagrams: a negative (partial) charge, δ− or −q. Red for negative, as in electrostatic-potential maps' },
+      'charge-positive':         { value: '#2f67c7', usage: 'Knowledge diagrams: a positive (partial) charge, δ+ or +q. Blue for positive, the same convention' },
+      'diagram-heat':            { value: '#9a8478', usage: 'Non-radiative relaxation (the wavy arrow down) in the Knowledge diagrams: a dull warm grey, energy leaving as heat rather than as light' },
     },
   },
   {
@@ -312,6 +319,8 @@ export const DEFAULT_TAG_STYLE = {
 export const FONTS = {
   sans: 'system-ui, -apple-system, "Segoe UI", sans-serif',
   mono: 'ui-monospace, "Courier New", monospace',
+  // Formulas only: a maths face, so ∂μ/∂Q reads as an equation, not a label.
+  serif: '"Cambria Math", "STIX Two Math", "Latin Modern Math", Cambria, Georgia, serif',
 };
 
 export interface TypeRole {
@@ -323,7 +332,7 @@ export interface TypeRole {
   weight: number;
   /** Colour token name from COLOR_GROUPS. */
   color: string;
-  family?: 'sans' | 'mono';
+  family?: 'sans' | 'mono' | 'serif';
   lh?: string;
   ls?: string;
   /** text-transform */
@@ -351,6 +360,17 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'label',        label: 'Field label',      usage: 'Left column of a key/value grid',           size: '14px',   weight: 600, color: 'ink-500',     lh: '1.5' },
       { key: 'micro-label',  label: 'Micro label',      usage: 'Tiny uppercase label above a row of cards', size: '11px',   weight: 700, color: 'ink-slate-400', tt: 'uppercase', ls: '0.06em' },
       { key: 'code',         label: 'Code / file name', usage: 'File names, JSON keys, enum values',        size: '12px',   weight: 400, color: 'ref-code-fg', family: 'mono' },
+    ],
+  },
+  {
+    key: 'card',
+    title: 'Cards',
+    note: 'The large clickable cards: the four destinations on the home page and the Basics cards on the Knowledge page. Same roles, same size (CARD_LAYOUT), so the two read as one family.',
+    roles: [
+      { key: 'card-title', label: 'Card title',          usage: 'One line, names the destination or the idea',   size: '18px',   weight: 700, color: 'ink-slate-900' },
+      { key: 'card-desc',  label: 'Card text',           usage: 'Two to five lines under the title',             size: '14px',   weight: 400, color: 'ink-slate-600', lh: '1.58' },
+      { key: 'card-cta',   label: 'Card call to action', usage: 'Bottom line, coloured with the section accent', size: '13.5px', weight: 600, color: 'ink-slate-600' },
+      { key: 'formula',    label: 'Formula',             usage: 'One line of a formula box in an opened Knowledge card', size: '17px', weight: 400, color: 'ink-slate-900', family: 'serif', lh: '1.5' },
     ],
   },
   {
@@ -401,9 +421,11 @@ export const RADII: Record<string, ScaleToken> = {
   'radius':    { value: '4px', usage: 'Buttons, selects, reference boxes' },
   'radius-md': { value: '6px', usage: 'Tooltip, legend box' },
   'radius-lg': { value: '8px', usage: 'Download cards, large panels' },
+  'radius-xl': { value: '12px', usage: 'Home page and Knowledge cards' },
 };
 
 export const SHADOWS: Record<string, ScaleToken> = {
+  'shadow-card': { value: '0 6px 22px rgba(30,60,110,0.12)', usage: 'Home page and Knowledge card, hovered (blue-tinted, lifted 3px)' },
   'shadow-sm': { value: '0 3px 10px rgba(0,0,0,0.12)', usage: 'Dropdown menu' },
   'shadow-md': { value: '0 4px 16px rgba(0,0,0,0.13)', usage: 'Tooltip, hovered card' },
   'shadow-lg': { value: '0 4px 20px rgba(0,0,0,0.22)', usage: 'Tooltip while pinned open' },
@@ -429,12 +451,20 @@ export const GRADIENTS: Record<string, ScaleToken> = {
    Page layout
    --------------------------------------------------------------------------- */
 
+/** One card size for the home page and the Knowledge page (--card-w, --card-h). */
+export const CARD_LAYOUT = {
+  width: 264,
+  /** A minimum: a card with more text grows rather than clipping. */
+  height: 300,
+};
+
 export const PAGE_LAYOUT: Record<string, ScaleToken> = {
   'Content column': { value: '760px max-width', usage: 'Prose pages: Impressum, this guide. Never full-bleed text.' },
   'Page padding':   { value: '28px 48px 48px',  usage: 'Top / sides / bottom of a prose page' },
   'Sidebar':        { value: '220px, 36px collapsed', usage: 'Fixed width, animates over 0.18s' },
   'Header':         { value: '14px 28px padding', usage: 'Brand gradient, title left, authors right' },
   'Section gap':    { value: '36px',            usage: 'Between two page sections' },
+  'Card':           { value: `${CARD_LAYOUT.width}px × ${CARD_LAYOUT.height}px`, usage: 'Home page destination card and Knowledge Basics card. Home cards fill a grid column of about this width; Knowledge cards are fixed at it and packed 12px apart' },
 };
 
 /* ---------------------------------------------------------------------------
@@ -552,6 +582,7 @@ export function tokenCss(): string {
   const lines: string[] = [':root {'];
   lines.push(`  --font-sans: ${FONTS.sans};`);
   lines.push(`  --font-mono: ${FONTS.mono};`);
+  lines.push(`  --font-serif: ${FONTS.serif};`);
   for (const g of COLOR_GROUPS) {
     for (const [name, t] of Object.entries(g.tokens)) lines.push(`  --${name}: ${t.value};`);
   }
@@ -561,6 +592,8 @@ export function tokenCss(): string {
   }
   lines.push(`  --tip-width: ${CHART_LAYOUT.tooltipWidth}px;`);
   lines.push(`  --tip-refs-max-h: ${CHART_LAYOUT.refsScrollMaxHeight}px;`);
+  lines.push(`  --card-w: ${CARD_LAYOUT.width}px;`);
+  lines.push(`  --card-h: ${CARD_LAYOUT.height}px;`);
   lines.push('}');
   return lines.join('\n');
 }

@@ -299,6 +299,13 @@
         </div>
         <div class="specimen-stack">{FONTS.mono}</div>
       </div>
+      <div class="specimen">
+        <div class="specimen-name">Serif &middot; <code>--font-serif</code> &middot; formulas only</div>
+        <div class="specimen-sample" style="font-family: var(--font-serif)">
+          (∂μ / ∂Q)₀ ≠ 0 &middot; A = ε · c · l
+        </div>
+        <div class="specimen-stack">{FONTS.serif}</div>
+      </div>
 
       {#each generalTypeGroups as g}
         <div class="role-group">

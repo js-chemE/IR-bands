@@ -38,6 +38,13 @@
   // pair is legal except the same dimension twice, which the guard below
   // resolves by moving the inner one along.
   let refGroupBy: GroupDim = 'reference';
+  // What lists its citations on the References page: bands, modes, Knowledge.
+  let refIncludeBands = true;
+  let refIncludeModes = false;
+  let refIncludeKnowledge = true;
+  // A Knowledge card to open when arriving from a References-page link.
+  let knOpen: string | null = null;
+  $: if (page !== 'knowledge') knOpen = null;
   let refThenBy: GroupDim = 'group';
   $: if (refThenBy === refGroupBy) {
     refThenBy = GROUP_DIMS.find(d => d.key !== refGroupBy)!.key;
@@ -213,8 +220,16 @@
     page = e.detail.page as Page;
   }
 
+  function handleNavigateKnowledge(e: CustomEvent<{ key: string }>) {
+    knOpen = e.detail.key;
+    page = 'knowledge';
+  }
+
   function handleNavigateRef(e: CustomEvent<{ key: string }>) {
     const key = e.detail.key;
+    // A paper no band cites (a textbook the Knowledge page draws on) only has
+    // a card of its own while Knowledge citations are shown.
+    if (!dataset?.bands.some(b => b.references.some(r => r.key === key))) refIncludeKnowledge = true;
     // The jump target only exists while a reference is one of the dimensions.
     if (refGroupBy !== 'reference' && refThenBy !== 'reference') refGroupBy = 'reference';
     page = 'references';
@@ -515,6 +530,24 @@
               {/each}
             </select>
           </section>
+
+          <!-- What lists its papers here: the bands, the modes, the Knowledge cards. -->
+          <section>
+            <h3>Include</h3>
+            <label class="include-row" title="Every band that cites the paper, with its wavenumber and surface">
+              <input type="checkbox" bind:checked={refIncludeBands} />
+              Band assignments
+            </label>
+            <label class="include-row" title="Vibration modes that cite a paper without a band attached">
+              <input type="checkbox" bind:checked={refIncludeModes} />
+              Vibration modes
+            </label>
+            <label class="include-row" title="Knowledge cards that cite a paper, with the chapter and page">
+              <input type="checkbox" bind:checked={refIncludeKnowledge} />
+              Knowledge
+            </label>
+            <p class="include-hint">Modes and Knowledge show under each reference when grouping by reference first.</p>
+          </section>
         {/if}
 
       </div>
@@ -580,9 +613,14 @@
           {sortedGroupKeys}
           groupBy={refGroupBy}
           thenBy={refThenBy}
+          includeBands={refIncludeBands}
+          includeModes={refIncludeModes}
+          includeKnowledge={refIncludeKnowledge}
+          on:navigateKnowledge={handleNavigateKnowledge}
         />
       {:else if page === 'knowledge'}
         <KnowledgePage
+          openOnMount={knOpen}
           bands={dataset.bands}
           groups={dataset.groups}
           {refs}
@@ -622,7 +660,7 @@
   &ensp;<strong>Legend</strong> = show/hide color categories.
   &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
   &ensp;Found an error, have a tip, or know an interesting paper to reference?
-  Please contact <a class="contact" href="mailto:j.sommer@tudellft.nl">j.sommer@tudellft.nl</a>.
+  Please contact <a class="contact" href="mailto:j.sommer@tudelft.nl">j.sommer@tudelft.nl</a>.
 </div>
 </div><!-- app-root -->
 
@@ -932,6 +970,23 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
+  }
+
+  /* References page: what else lists its citations. */
+  .include-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 2px 0;
+    font-size: var(--t-nav-size);
+    color: var(--t-nav-color);
+    cursor: pointer;
+  }
+  .include-hint {
+    margin: 6px 0 0;
+    font-size: var(--t-code-size);
+    line-height: 1.4;
+    color: var(--ink-050);
   }
 
   .sg-toc-item {
