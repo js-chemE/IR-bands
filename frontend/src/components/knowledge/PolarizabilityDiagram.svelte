@@ -1,29 +1,24 @@
 <script lang="ts">
   /**
    * Polarizability: how easily a field pulls an electron cloud off-centre,
-   * and whether a vibration changes that. The Raman card takes it from there.
+   * and whether a vibration changes that. The Induced dipole card shows the
+   * pulling itself; the Raman card what a changing α does to light.
    *
-   * The cloud is drawn as a density, not as a ball that moves: in a field it
-   * stays where it is, but grows denser (darker) on the side the electrons
-   * are pushed to and thinner on the other, while the nuclei shift slightly
-   * the opposite way. The two sides are marked δ− and δ+, and the induced
-   * dipole μ(ind) runs from − to +. A cloud that slid bodily would read as a
-   * vibration, which is exactly what this is not.
+   * Clouds are drawn as a density, as on the Induced dipole card: denser on
+   * the side the electrons are pushed to, δ− there and δ+ opposite.
    *
-   *   t = 0  the card: a light wave runs slowly across N₂. Its field,
-   *          perpendicular to the way it travels, polarizes the cloud up and
-   *          down, and μ(ind) follows it.
-   *   t = 1  the opened card builds α up in three rows, one field for all:
-   *            what α is: a tight cloud and a loose one in the same field; the
-   *              loose one polarizes more, and its induced dipole is larger;
-   *            it depends on direction: N₂'s cloud gives more along the bond
-   *              than across it (the ellipsoid);
-   *            it can change as the molecule vibrates: N₂'s stretch (α(Q) has
-   *              a slope, Raman ✓), where the card's N₂ lands; CO₂'s
-   *              asymmetric stretch (bottom of a parabola, Raman ✗).
-   *
-   * μ(ind) rather than the Raman chapter's P: it is a dipole moment like the
-   * Dipole card's μ, only induced by the field instead of carried.
+   *   t = 0  the card: a tight cloud and a loose one in the same slowly
+   *          swinging field. The loose one polarizes more, and its induced
+   *          dipole is larger: that difference is α.
+   *   t = 1  the opened card, three rows, one field for all:
+   *            same field, two clouds: the card's pair, grown;
+   *            along the bond or across it: N₂'s cloud gives more along the
+   *              bond (the ellipsoid);
+   *            as the molecule vibrates, in a field along the bond: N₂'s cloud
+   *              breathes with the bond and polarizes more when it is long,
+   *              Δα(Q) has a slope (Raman ✓); CO₂'s asymmetric stretch sits at
+   *              the bottom of a bowl, because +Q and −Q are mirror images
+   *              (Raman ✗).
    */
   import { onDestroy } from 'svelte';
   import { colorForElement } from '../../lib/elementColors';
@@ -38,9 +33,8 @@
   // Gradient ids must be unique in the document; every instance gets its own.
   const uid = `pol${Math.random().toString(36).slice(2, 8)}`;
 
-  // The card's N₂ becomes the opened card's third row.
-  const S = { W: 220, H: 100, px: 238 / 220, mx: 110, my: 52, bond: 20, rN: 4.8, rx: 30, ry: 16, waveX0: 8, waveX1: 212, amp: 15, lambda: 80 };
-  const F = { W: 480, H: 438, mx: 100, my: 306, bond: 26, rN: 6, rx: 38, ry: 18, waveX0: 14, waveX1: 186, amp: 18, lambda: 96 };
+  const S = { W: 220, H: 100, px: 238 / 220 };
+  const F = { W: 480, H: 640 };
 
   $: W = lerp(S.W, F.W, t);
   $: H = lerp(S.H, F.H, t);
@@ -68,77 +62,57 @@
   }
   onDestroy(() => raf && cancelAnimationFrame(raf));
 
-  // Slow enough to watch the charge move: one swing of the field in two
-  // seconds, one vibration in eight.
-  const NU_L = 0.5;
-  const NU_V = 0.125;
+  // Two clocks: the light's field swings four times per vibration (in life
+  // about eight for N₂ in visible light), so the cloud plainly follows the
+  // field, and the vibration only sets how far each swing goes.
+  const NU_L = 1;
+  const NU_V = 0.25;
   $: time = running ? clock / 1000 : 0;
-  // The card shows the light alone; the vibration arrives as the card opens.
-  $: vibOn = ramp(t, 0.3, 0.9);
+  // At rest the field points up at full strength.
+  $: e = Math.cos(2 * Math.PI * NU_L * time); // positive: pointing up (or right)
 
-  /* ── The light wave, and the field it puts at the molecule ── */
-  $: cx = lerp(S.mx, F.mx, t);
-  $: cy = lerp(S.my, F.my, t);
-  $: amp = lerp(S.amp, F.amp, t);
-  $: lambda = lerp(S.lambda, F.lambda, t);
-  $: wx0 = lerp(S.waveX0, F.waveX0, t);
-  $: wx1 = lerp(S.waveX1, F.waveX1, t);
-  // A wave travelling to the right, phased so that at rest the field at the
-  // molecule is at its peak.
-  const field = (x: number, lam: number, mx: number, tt: number) =>
-    Math.cos(2 * Math.PI * ((x - mx) / lam - NU_L * tt));
-  $: wavePath = (() => {
-    const pts: string[] = [];
-    for (let x = wx0; x <= wx1; x += 1) {
-      pts.push(`${x.toFixed(1)},${(cy - amp * field(x, lambda, cx, time)).toFixed(1)}`);
-    }
-    return 'M' + pts.join(' L');
-  })();
-  // One field for the whole opened card, so every row polarizes in step.
-  // Positive: pointing up (or, in the along-the-bond case, to the right).
-  $: e = field(cx, lambda, cx, time);
-
-  /**
-   * Where the densest point of a cloud sits, as a fraction of its box: the
-   * electrons gather against the field, so an upward field moves it down.
-   */
+  /** Densest point of a cloud, as a fraction of its box: against the field. */
   const focus = (pol: number) => 0.5 + 0.44 * Math.max(-1, Math.min(1, pol));
+  const sign = (pol: number, side: 'field' | 'against') =>
+    (pol > 0) === (side === 'field') ? 'δ+' : 'δ−';
+  const signCls = (pol: number, side: 'field' | 'against') =>
+    sign(pol, side) === 'δ+' ? 'pos' : 'neg';
+  const signOpacity = (pol: number) => Math.min(1, Math.abs(pol) * 1.6);
 
   const vHead = (x: number, y: number, dir: number, sz = 4) =>
     `M${x - sz * 0.75},${y + dir * sz} L${x},${y} L${x + sz * 0.75},${y + dir * sz}`;
   const hHead = (x: number, y: number, dir: number, sz = 4) =>
     `M${x - dir * sz},${y - sz * 0.75} L${x},${y} L${x - dir * sz},${y + sz * 0.75}`;
 
-  /* ── Row 3 (and the card): N₂ in its cloud, vibrating ── */
-  $: q = Math.sin(2 * Math.PI * NU_V * time) * vibOn; // the stretch, −1 … 1
-  // The cloud grows with the bond, so α follows Q.
-  $: alphaN2 = 1 + 0.25 * q;
-  $: polN2 = 0.9 * alphaN2 * e;
-  $: bond = lerp(S.bond, F.bond, t) * (1 + 0.14 * q);
-  $: nShift = -lerp(1.6, 2, t) * polN2; // nuclei go with the field: up is −y
-  $: rx = lerp(S.rx, F.rx, t) * (1 + 0.3 * (alphaN2 - 1));
-  $: ry = lerp(S.ry, F.ry, t) * (1 + 0.3 * (alphaN2 - 1));
-  $: arrowX = cx + rx + lerp(14, 16, t);
-
-  /* ── Row 1: same field, two clouds ── */
-  const R1 = {
-    y: 60,
-    fieldX: 36,
-    tight: { key: 't', x: 116, r: 12, pol: 0.3, nuc: 0.8 },
-    loose: { key: 'l', x: 226, r: 22, pol: 1, nuc: 2.4 },
-  };
+  /* ── Row 1 (and the card): same field, two clouds ── */
+  // Card positions morph into the opened ones.
+  $: r1y = lerp(54, 60, t);
+  $: fieldX = lerp(26, 36, t);
+  $: clouds = [
+    { key: 't', x: lerp(88, 116, t), r: 12, pol: 0.3, nuc: 0.8 },
+    { key: 'l', x: lerp(160, 226, t), r: 22, pol: 1, nuc: 2.4 },
+  ];
 
   /* ── Row 2: along the bond, across it ── */
-  const R2 = { y: 190, along: 110, across: 250, bond: 24, rx: 32, ry: 14, polAlong: 1, polAcross: 0.4 };
+  const R2 = { y: 184, along: 110, across: 250, bond: 24, rx: 32, ry: 14, polAlong: 1, polAcross: 0.4 };
 
-  /* ── Row 3b: CO₂, asymmetric stretch ── */
-  const CO2 = { x: 100, y: 390, bond: 22 };
+  /* ── Row 3: as the molecule vibrates ── */
+  const N2 = { x: 100, y: 296, bond: 26, rx: 36, ry: 16 };
+  const CO2 = { x: 100, y: 372, bond: 22 };
   const C_RATIO = (2 * 16) / 12;
+  $: q = Math.sin(2 * Math.PI * NU_V * time); // the stretch, −1 … 1
+  $: n2Bond = N2.bond * (1 + 0.14 * q);
+  // N₂: the cloud grows with the bond, so α follows Q, and the same field
+  // polarizes it more when the bond is long.
+  $: n2Alpha = 1 + 0.4 * q;
+  $: n2Pol = 0.75 * n2Alpha * e;
   $: aCO2 = 2 * Math.sin(2 * Math.PI * NU_V * time);
-  // α changes with Q² only: bigger at both ends, the same either way.
+  // CO₂: α changes with Q² only, the same either way, so its polarization
+  // hardly changes over the swing.
   $: alphaCO2 = 1 + 0.1 * (aCO2 / 2) ** 2;
+  $: co2Pol = 0.75 * alphaCO2 * e;
 
-  /* ── α(Q) lines ── */
+  /* ── Δα(Q) lines ── */
   const PX0 = 250;
   const PX1 = 350;
   const qToX = (v: number) => PX0 + ((v + 1) / 2) * (PX1 - PX0);
@@ -151,12 +125,39 @@
     return 'M' + pts.join(' L');
   })();
 
-  /** δ+ where the field pulls the cloud away from, δ− where it piles up. */
-  const sign = (pol: number, side: 'field' | 'against') =>
-    (pol > 0) === (side === 'field') ? 'δ+' : 'δ−';
-  const signOpacity = (pol: number) => Math.min(1, Math.abs(pol) * 1.6);
-  const signClass = (pol: number, side: 'field' | 'against') =>
-    sign(pol, side) === 'δ+' ? 'pos' : 'neg';
+  /* ── Row 4: both molecules frozen at +Q and −Q ── */
+  // N₂: long bond, big loose cloud; short bond, small tight one. Two
+  // different shapes, so two different α.
+  const R4N = { y: 494, a: 112, b: 252 };
+  // Frozen in a field pointing right, so α shows as it does everywhere else:
+  // how far the density shifts and how long μ(ind) is.
+  const n2Snaps = [
+    // Long: electrons spread out and loosely held, so the field shifts them a
+    // lot. Short: compact and tightly held, so they move only a little.
+    { key: 'n2long', x: R4N.a, bond: 34, rx: 33, ry: 17, pol: 1, label: '+Q: long' },
+    { key: 'n2short', x: R4N.b, bond: 20, rx: 21, ry: 10, pol: 0.3, label: '−Q: short' },
+  ];
+  const CO2_FROZEN_POL = 0.7;
+  // CO₂: the mirror between them.
+  // Oxygens fixed, carbon shifted: one C=O short, the other long. Each bond
+  // gets its own lobe of cloud, looser (bigger) the longer the bond.
+  const R4 = { y: 584, a: 112, b: 252, half: 28, shift: 7 };
+  const lobes = (cx: number, dir: 1 | -1) => {
+    const c = cx - dir * R4.shift; // +Q: carbon to the left
+    const oL = cx - R4.half;
+    const oR = cx + R4.half;
+    return {
+      c,
+      oL,
+      oR,
+      parts: [
+        { x: (oL + c) / 2, len: c - oL },
+        { x: (c + oR) / 2, len: oR - c },
+      ].map(b => ({ x: b.x, rx: b.len / 2 + 8, ry: 7 + (b.len - 21) * 0.55 })),
+    };
+  };
+  const snapA = lobes(R4.a, 1);
+  const snapB = lobes(R4.b, -1);
 
   const N_FILL = colorForElement('N');
   const O_FILL = colorForElement('O');
@@ -172,61 +173,57 @@
   height={H * scale}
   viewBox="0 0 {W} {H}"
   role="img"
-  aria-label="Polarizability: a field makes an electron cloud denser on one side and thinner on the other, a dipole with δ− and δ+ ends; a loose cloud polarizes more than a tight one, and N₂'s cloud more along its bond than across it; N₂'s cloud changes as it stretches, CO₂'s asymmetric stretch the same way on both sides"
+  aria-label="Polarizability: in the same field a loose electron cloud polarizes more than a tight one, and N₂'s cloud more along its bond than across it; N₂'s cloud changes as it stretches, CO₂'s asymmetric stretch the same way on both sides"
 >
-  <!-- One gradient per cloud: its densest point follows the polarization. -->
   <defs>
     {#each [
-      { id: 'r1t', fx: 0.5, fy: focus(R1.tight.pol * e) },
-      { id: 'r1l', fx: 0.5, fy: focus(R1.loose.pol * e) },
+      { id: 'r1t', fx: 0.5, fy: focus(0.3 * e) },
+      { id: 'r1l', fx: 0.5, fy: focus(e) },
       { id: 'r2a', fx: focus(-R2.polAlong * e), fy: 0.5 },
       { id: 'r2c', fx: 0.5, fy: focus(R2.polAcross * e) },
-      { id: 'n2', fx: 0.5, fy: focus(polN2) },
+      { id: 'n2long', fx: focus(-1), fy: 0.5, kind: 'spread' },
+      { id: 'n2short', fx: focus(-0.3), fy: 0.5, kind: 'compact' },
+      { id: 'co2f', fx: focus(-CO2_FROZEN_POL), fy: 0.5 },
+      { id: 'n2v', fx: focus(-n2Pol), fy: 0.5 },
+      { id: 'co2v', fx: focus(-co2Pol), fy: 0.5 },
     ] as g (g.id)}
       <radialGradient id="{uid}-{g.id}" cx="0.5" cy="0.5" r="0.62" fx={g.fx} fy={g.fy}>
-        <stop offset="0" class="dense" />
-        <stop offset="0.45" class="mid" />
+        <stop offset="0" class="dense {g.kind ?? ''}" />
+        <stop offset="0.45" class="mid {g.kind ?? ''}" />
         <stop offset="1" class="thin" />
       </radialGradient>
     {/each}
-    <radialGradient id="{uid}-co2" cx="0.5" cy="0.5" r="0.6">
-      <stop offset="0" class="dense soft" />
-      <stop offset="1" class="thin" />
-    </radialGradient>
   </defs>
 
-  <!-- ── Row 1: what α is. Same field, two clouds. ── -->
-  <g style="opacity:{fullOpacity}">
-    {#if Math.abs(e) > 0.08}
-      <line class="field" x1={R1.fieldX} x2={R1.fieldX} y1={R1.y + 16 * e} y2={R1.y - 16 * e} />
-      <path class="field-head" d={vHead(R1.fieldX, R1.y - 16 * e, Math.sign(e))} />
+  <!-- ── Row 1 (and the card): what α is. Same field, two clouds. ── -->
+  {#if Math.abs(e) > 0.08}
+    <line class="field" x1={fieldX} x2={fieldX} y1={r1y + 16 * e} y2={r1y - 16 * e} />
+    <path class="field-head" d={vHead(fieldX, r1y - 16 * e, Math.sign(e))} />
+  {/if}
+  <text class="sym field-lbl" x={fieldX - 8} y={r1y + 4} text-anchor="end">E</text>
+  {#each clouds as a (a.key)}
+    {@const pol = a.pol * e}
+    <circle class="cloud" cx={a.x} cy={r1y} r={a.r} fill="url(#{uid}-r1{a.key})" />
+    <circle class="nucleus" cx={a.x} cy={r1y - a.nuc * e} r="3" />
+    <text class="charge {signCls(pol, 'field')}" x={a.x} y={r1y - a.r - 4} text-anchor="middle" style="opacity:{signOpacity(pol)}">{sign(pol, 'field')}</text>
+    <text class="charge {signCls(pol, 'against')}" x={a.x} y={r1y + a.r + 12} text-anchor="middle" style="opacity:{signOpacity(pol)}">{sign(pol, 'against')}</text>
+    {#if Math.abs(pol) > 0.06}
+      {@const L = 12 * pol}
+      <line class="induced" x1={a.x + a.r + 12} x2={a.x + a.r + 12} y1={r1y + L} y2={r1y - L} />
+      <path class="induced-head" d={vHead(a.x + a.r + 12, r1y - L, Math.sign(L), 3.5)} />
     {/if}
-    {#each [R1.tight, R1.loose] as a (a.key)}
-      {@const pol = a.pol * e}
-      <circle class="cloud" cx={a.x} cy={R1.y} r={a.r} fill="url(#{uid}-r1{a.key})" />
-      <circle class="nucleus" cx={a.x} cy={R1.y - a.nuc * e} r="3" />
-      <text class="charge {signClass(pol, 'field')}" x={a.x} y={R1.y - a.r - 4} text-anchor="middle" style="opacity:{signOpacity(pol)}">{sign(pol, 'field')}</text>
-      <text class="charge {signClass(pol, 'against')}" x={a.x} y={R1.y + a.r + 12} text-anchor="middle" style="opacity:{signOpacity(pol)}">{sign(pol, 'against')}</text>
-      {#if Math.abs(pol) > 0.06}
-        {@const L = 12 * pol}
-        <line class="induced" x1={a.x + a.r + 12} x2={a.x + a.r + 12} y1={R1.y + L} y2={R1.y - L} />
-        <path class="induced-head" d={vHead(a.x + a.r + 12, R1.y - L, Math.sign(L), 3.5)} />
-      {/if}
-    {/each}
-  </g>
+  {/each}
   <g style="opacity:{labelOpacity}">
     <text class="lbl name" x="14" y="16">Same field, two clouds</text>
-    <text class="sym field-lbl" x={R1.fieldX - 8} y={R1.y + 4} text-anchor="end">E</text>
-    <text class="lbl faint" x={R1.tight.x} y={R1.y + 44} text-anchor="middle">tight: small α</text>
-    <text class="lbl faint" x={R1.loose.x} y={R1.y + 44} text-anchor="middle">loose: large α</text>
-    <text class="lbl strong" x="336" y={R1.y - 4}>α = μ<tspan class="sub" dy="4">ind</tspan><tspan dy="-4"> / E</tspan></text>
-    <text class="lbl faint" x="336" y={R1.y + 14}>how far a field</text>
-    <text class="lbl faint" x="336" y={R1.y + 28}>polarizes the cloud</text>
+    <text class="lbl faint" x={clouds[0].x} y={r1y + 44} text-anchor="middle">tight: small α</text>
+    <text class="lbl faint" x={clouds[1].x} y={r1y + 44} text-anchor="middle">loose: large α</text>
+    <text class="lbl strong" x="336" y={r1y - 4}>α = μ<tspan class="sub" dy="4">ind</tspan><tspan dy="-4"> / E</tspan></text>
+    <text class="lbl faint" x="336" y={r1y + 14}>how far a field</text>
+    <text class="lbl faint" x="336" y={r1y + 28}>polarizes the cloud</text>
   </g>
 
-  <!-- ── Row 2: it depends on direction. ── -->
+  <!-- ── Row 2 (opened): it depends on direction. ── -->
   <g style="opacity:{fullOpacity}">
-    <!-- Field along the bond: the cloud gives a lot. -->
     {#if Math.abs(e) > 0.08}
       <line class="field" x1={R2.along - 16 * e} x2={R2.along + 16 * e} y1={R2.y - 28} y2={R2.y - 28} />
       <path class="field-head" d={hHead(R2.along + 16 * e, R2.y - 28, Math.sign(e))} />
@@ -237,10 +234,9 @@
     {/each}
     <circle cx={R2.along - R2.bond / 2 + 2 * e} cy={R2.y} r="5.6" fill={N_FILL} />
     <circle cx={R2.along + R2.bond / 2 + 2 * e} cy={R2.y} r="5.6" fill={N_FILL} />
-    <text class="charge {signClass(R2.polAlong * e, 'field')}" x={R2.along + R2.rx + 5} y={R2.y + 4} style="opacity:{signOpacity(R2.polAlong * e)}">{sign(R2.polAlong * e, 'field')}</text>
-    <text class="charge {signClass(R2.polAlong * e, 'against')}" x={R2.along - R2.rx - 5} y={R2.y + 4} text-anchor="end" style="opacity:{signOpacity(R2.polAlong * e)}">{sign(R2.polAlong * e, 'against')}</text>
+    <text class="charge {signCls(R2.polAlong * e, 'field')}" x={R2.along + R2.rx + 5} y={R2.y + 4} style="opacity:{signOpacity(R2.polAlong * e)}">{sign(R2.polAlong * e, 'field')}</text>
+    <text class="charge {signCls(R2.polAlong * e, 'against')}" x={R2.along - R2.rx - 5} y={R2.y + 4} text-anchor="end" style="opacity:{signOpacity(R2.polAlong * e)}">{sign(R2.polAlong * e, 'against')}</text>
 
-    <!-- Field across the bond: the cloud gives less. -->
     {#if Math.abs(e) > 0.08}
       <line class="field" x1={R2.across - R2.rx - 14} x2={R2.across - R2.rx - 14} y1={R2.y + 16 * e} y2={R2.y - 16 * e} />
       <path class="field-head" d={vHead(R2.across - R2.rx - 14, R2.y - 16 * e, Math.sign(e))} />
@@ -251,8 +247,8 @@
     {/each}
     <circle cx={R2.across - R2.bond / 2} cy={R2.y - 0.8 * e} r="5.6" fill={N_FILL} />
     <circle cx={R2.across + R2.bond / 2} cy={R2.y - 0.8 * e} r="5.6" fill={N_FILL} />
-    <text class="charge {signClass(R2.polAcross * e, 'field')}" x={R2.across} y={R2.y - R2.ry - 4} text-anchor="middle" style="opacity:{signOpacity(R2.polAcross * e)}">{sign(R2.polAcross * e, 'field')}</text>
-    <text class="charge {signClass(R2.polAcross * e, 'against')}" x={R2.across} y={R2.y + R2.ry + 12} text-anchor="middle" style="opacity:{signOpacity(R2.polAcross * e)}">{sign(R2.polAcross * e, 'against')}</text>
+    <text class="charge {signCls(R2.polAcross * e, 'field')}" x={R2.across} y={R2.y - R2.ry - 4} text-anchor="middle" style="opacity:{signOpacity(R2.polAcross * e)}">{sign(R2.polAcross * e, 'field')}</text>
+    <text class="charge {signCls(R2.polAcross * e, 'against')}" x={R2.across} y={R2.y + R2.ry + 12} text-anchor="middle" style="opacity:{signOpacity(R2.polAcross * e)}">{sign(R2.polAcross * e, 'against')}</text>
   </g>
   <g style="opacity:{labelOpacity}">
     <text class="lbl name" x="14" y={R2.y - 46}>Along the bond, or across it</text>
@@ -263,42 +259,43 @@
     <text class="lbl faint" x="336" y={R2.y + 28}>an ellipsoid</text>
   </g>
 
-  <!-- ── Row 3: as the molecule vibrates. The card's N₂ lands here. ── -->
-  <path class="wave" d={wavePath} />
-  <ellipse class="cloud" cx={cx} cy={cy} rx={rx} ry={ry} fill="url(#{uid}-n2)" />
-  {#each [-lerp(1.8, 2.2, t), 0, lerp(1.8, 2.2, t)] as off}
-    <line class="bond" x1={cx - bond / 2} x2={cx + bond / 2} y1={cy + off + nShift} y2={cy + off + nShift} />
-  {/each}
-  <circle cx={cx - bond / 2} cy={cy + nShift} r={lerp(S.rN, F.rN, t)} fill={N_FILL} />
-  <circle cx={cx + bond / 2} cy={cy + nShift} r={lerp(S.rN, F.rN, t)} fill={N_FILL} />
-  <text class="charge {signClass(polN2, 'field')}" x={cx} y={cy - ry - 4} text-anchor="middle" style="opacity:{signOpacity(polN2)}">{sign(polN2, 'field')}</text>
-  <text class="charge {signClass(polN2, 'against')}" x={cx} y={cy + ry + 12} text-anchor="middle" style="opacity:{signOpacity(polN2)}">{sign(polN2, 'against')}</text>
-  {#if Math.abs(e) > 0.08}
-    {@const L = lerp(14, 15, t) * e}
-    {@const x = cx - rx - lerp(12, 14, t)}
-    <line class="field" x1={x} x2={x} y1={cy + L} y2={cy - L} />
-    <path class="field-head" d={vHead(x, cy - L, Math.sign(L))} />
-  {/if}
-  {#if Math.abs(polN2) > 0.06}
-    {@const L = 15 * polN2}
-    <line class="induced" x1={arrowX} x2={arrowX} y1={cy + L} y2={cy - L} />
-    <path class="induced-head" d={vHead(arrowX, cy - L, Math.sign(L))} />
-  {/if}
-  <text class="sym field-lbl" x={cx - rx - lerp(20, 22, t)} y={cy + 4} text-anchor="end">E</text>
-  <text class="sym" x={arrowX + 7} y={cy + 4}>μ<tspan class="sub" dy="4">ind</tspan></text>
-
+  <!-- ── Row 3 (opened): as the molecule vibrates, in a field along the bond,
+       so the induced shift runs along the molecule like the motion. α is
+       seen through what the field does: how far it shifts the density, and
+       how long the induced dipole grows. ── -->
   <g style="opacity:{fullOpacity}">
-    <line class="axis-line" x1={PX0} x2={PX1} y1={F.my} y2={F.my} />
-    <line class="axis-line" x1={qToX(0)} x2={qToX(0)} y1={F.my - 16} y2={F.my + 16} />
-    <line class="a-line" x1={PX0} x2={PX1} y1={F.my + 12} y2={F.my - 12} />
-    <circle class="cursor" cx={qToX(q)} cy={F.my - 12 * q} r="2.6" />
+    {#each [{ x: N2.x, y: N2.y }, { x: CO2.x, y: CO2.y }] as m}
+      {#if Math.abs(e) > 0.08}
+        <line class="field" x1={m.x - 16 * e} x2={m.x + 16 * e} y1={m.y - 28} y2={m.y - 28} />
+        <path class="field-head" d={hHead(m.x + 16 * e, m.y - 28, Math.sign(e))} />
+      {/if}
+    {/each}
+    <ellipse class="cloud" cx={N2.x} cy={N2.y} rx={N2.rx * (1 + 0.3 * (n2Alpha - 1))} ry={N2.ry * (1 + 0.3 * (n2Alpha - 1))} fill="url(#{uid}-n2v)" />
+    {#each [-2.2, 0, 2.2] as off}
+      <line class="bond" x1={N2.x - n2Bond / 2} x2={N2.x + n2Bond / 2} y1={N2.y + off} y2={N2.y + off} />
+    {/each}
+    <circle cx={N2.x - n2Bond / 2} cy={N2.y} r="6" fill={N_FILL} />
+    <circle cx={N2.x + n2Bond / 2} cy={N2.y} r="6" fill={N_FILL} />
+    {#if Math.abs(n2Pol) > 0.06}
+      <line class="induced" x1={N2.x - 14 * n2Pol} x2={N2.x + 14 * n2Pol} y1={N2.y + 27} y2={N2.y + 27} />
+      <path class="induced-head" d={hHead(N2.x + 14 * n2Pol, N2.y + 27, Math.sign(n2Pol), 3.5)} />
+    {/if}
 
-    <ellipse class="cloud" cx={CO2.x} cy={CO2.y} rx={40 * alphaCO2} ry={15 * alphaCO2} fill="url(#{uid}-co2)" />
+    <line class="axis-line" x1={PX0} x2={PX1} y1={N2.y} y2={N2.y} />
+    <line class="axis-line" x1={qToX(0)} x2={qToX(0)} y1={N2.y - 16} y2={N2.y + 16} />
+    <line class="a-line" x1={PX0} x2={PX1} y1={N2.y + 12} y2={N2.y - 12} />
+    <circle class="cursor" cx={qToX(q)} cy={N2.y - 12 * q} r="2.6" />
+
+    <ellipse class="cloud" cx={CO2.x} cy={CO2.y} rx={40 * alphaCO2} ry={15 * alphaCO2} fill="url(#{uid}-co2v)" />
     <line class="bond thick" x1={CO2.x - CO2.bond + aCO2} x2={CO2.x - C_RATIO * aCO2} y1={CO2.y} y2={CO2.y} />
     <line class="bond thick" x1={CO2.x - C_RATIO * aCO2} x2={CO2.x + CO2.bond + aCO2} y1={CO2.y} y2={CO2.y} />
     <circle cx={CO2.x - CO2.bond + aCO2} cy={CO2.y} r="5.6" fill={O_FILL} />
     <circle cx={CO2.x + CO2.bond + aCO2} cy={CO2.y} r="5.6" fill={O_FILL} />
     <circle cx={CO2.x - C_RATIO * aCO2} cy={CO2.y} r="5.9" fill={C_FILL} />
+    {#if Math.abs(co2Pol) > 0.06}
+      <line class="induced" x1={CO2.x - 14 * co2Pol} x2={CO2.x + 14 * co2Pol} y1={CO2.y + 27} y2={CO2.y + 27} />
+      <path class="induced-head" d={hHead(CO2.x + 14 * co2Pol, CO2.y + 27, Math.sign(co2Pol), 3.5)} />
+    {/if}
 
     <line class="axis-line" x1={PX0} x2={PX1} y1={CO2.y + 10} y2={CO2.y + 10} />
     <line class="axis-line" x1={qToX(0)} x2={qToX(0)} y1={CO2.y - 14} y2={CO2.y + 16} />
@@ -306,17 +303,78 @@
     <circle class="cursor flat" cx={qToX(aCO2 / 2)} cy={CO2.y + 10 - 20 * (aCO2 / 2) ** 2} r="2.6" />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y={F.my - 46}>As the molecule vibrates</text>
-    <text class="sym" x={PX0 - 4} y={F.my - 10} text-anchor="end">Δα</text>
-    <text class="sym" x={PX1 + 4} y={F.my + 4}>Q</text>
-    <text class="lbl faint" x={(PX0 + PX1) / 2} y={F.my + 30} text-anchor="middle">N₂ stretch: slope ≠ 0</text>
-    <text class="verdict yes" x="378" y={F.my + 4}>Raman ✓</text>
+    <text class="lbl name" x="14" y={N2.y - 42}>As the molecule vibrates</text>
+    <text class="lbl faint" x="206" y={N2.y - 42}>E fast (light), Q slow (vibration)</text>
+    <text class="sym field-lbl" x={N2.x - 24} y={N2.y - 24} text-anchor="end">E</text>
+    <text class="sym field-lbl" x={CO2.x - 24} y={CO2.y - 24} text-anchor="end">E</text>
+    <text class="charge {signCls(n2Pol, 'field')}" x={N2.x + 52} y={N2.y + 4} style="opacity:{signOpacity(n2Pol)}">{sign(n2Pol, 'field')}</text>
+    <text class="charge {signCls(n2Pol, 'against')}" x={N2.x - 52} y={N2.y + 4} text-anchor="end" style="opacity:{signOpacity(n2Pol)}">{sign(n2Pol, 'against')}</text>
+    <text class="charge {signCls(co2Pol, 'field')}" x={CO2.x + 50} y={CO2.y + 4} style="opacity:{signOpacity(co2Pol)}">{sign(co2Pol, 'field')}</text>
+    <text class="charge {signCls(co2Pol, 'against')}" x={CO2.x - 50} y={CO2.y + 4} text-anchor="end" style="opacity:{signOpacity(co2Pol)}">{sign(co2Pol, 'against')}</text>
+    <text class="sym" x={PX0 - 4} y={N2.y - 10} text-anchor="end">Δα</text>
+    <text class="sym" x={PX1 + 4} y={N2.y + 4}>Q</text>
+    <text class="lbl faint" x={(PX0 + PX1) / 2} y={N2.y + 30} text-anchor="middle">N₂ stretch: slope ≠ 0</text>
+    <text class="verdict yes" x="378" y={N2.y + 4}>Raman ✓</text>
 
     <text class="sym" x={PX0 - 4} y={CO2.y - 8} text-anchor="end">Δα</text>
     <text class="sym" x={PX1 + 4} y={CO2.y + 14}>Q</text>
     <text class="lbl faint" x={(PX0 + PX1) / 2} y={CO2.y + 32} text-anchor="middle">CO₂ asym.: slope = 0 at rest</text>
-    <text class="lbl faint" x="14" y={CO2.y + 32}>+Q and −Q: mirror images</text>
+    <text class="lbl faint" x="14" y={CO2.y + 48}>+Q and −Q: mirror images</text>
     <text class="verdict" x="378" y={CO2.y + 14}>Raman ✗</text>
+  </g>
+  <!-- ── Row 4 (opened): frozen at the two extremes ── -->
+  <g style="opacity:{fullOpacity}">
+    <!-- N₂: two different shapes. -->
+    {#each [R4N.y, R4.y] as fy}
+      <line class="field" x1="22" x2="50" y1={fy - 26} y2={fy - 26} />
+      <path class="field-head" d={hHead(50, fy - 26, 1)} />
+    {/each}
+    {#each n2Snaps as n (n.key)}
+      <ellipse class="cloud" cx={n.x} cy={R4N.y} rx={n.rx} ry={n.ry} fill="url(#{uid}-{n.key})" />
+      <line class="induced" x1={n.x - 14 * n.pol} x2={n.x + 14 * n.pol} y1={R4N.y + n.ry + 8} y2={R4N.y + n.ry + 8} />
+      <path class="induced-head" d={hHead(n.x + 14 * n.pol, R4N.y + n.ry + 8, 1, 3.5)} />
+      {#each [-2.2, 0, 2.2] as off}
+        <line class="bond" x1={n.x - n.bond / 2} x2={n.x + n.bond / 2} y1={R4N.y + off} y2={R4N.y + off} />
+      {/each}
+      <circle cx={n.x - n.bond / 2} cy={R4N.y} r="5.6" fill={N_FILL} />
+      <circle cx={n.x + n.bond / 2} cy={R4N.y} r="5.6" fill={N_FILL} />
+    {/each}
+
+    <!-- CO₂: the same shape, flipped. -->
+    {#each [snapA, snapB] as snap}
+      {#each snap.parts as lobe}
+        <ellipse class="cloud" cx={lobe.x} cy={R4.y} rx={lobe.rx} ry={lobe.ry} fill="url(#{uid}-co2f)" />
+      {/each}
+      <line class="induced" x1={(snap.oL + snap.oR) / 2 - 14 * CO2_FROZEN_POL} x2={(snap.oL + snap.oR) / 2 + 14 * CO2_FROZEN_POL} y1={R4.y + 20} y2={R4.y + 20} />
+      <path class="induced-head" d={hHead((snap.oL + snap.oR) / 2 + 14 * CO2_FROZEN_POL, R4.y + 20, 1, 3.5)} />
+      <line class="bond thick" x1={snap.oL} x2={snap.oR} y1={R4.y} y2={R4.y} />
+      <circle cx={snap.oL} cy={R4.y} r="5.6" fill={O_FILL} />
+      <circle cx={snap.oR} cy={R4.y} r="5.6" fill={O_FILL} />
+      <circle cx={snap.c} cy={R4.y} r="5.9" fill={C_FILL} />
+    {/each}
+    <line class="mirror" x1={(R4.a + R4.b) / 2} x2={(R4.a + R4.b) / 2} y1={R4.y - 24} y2={R4.y + 22} />
+  </g>
+  <g style="opacity:{labelOpacity}">
+    <text class="lbl name" x="14" y={R4N.y - 44}>Frozen at the two extremes, in a field</text>
+    <text class="sym field-lbl" x="56" y={R4N.y - 22}>E</text>
+    <text class="sym field-lbl" x="56" y={R4.y - 22}>E</text>
+
+    {#each n2Snaps as n (n.key)}
+      <text class="charge neg" x={n.x - n.rx - 4} y={R4N.y + 4} text-anchor="end" style="opacity:{signOpacity(n.pol)}">δ−</text>
+      <text class="charge pos" x={n.x + n.rx + 4} y={R4N.y + 4} style="opacity:{signOpacity(n.pol)}">δ+</text>
+    {/each}
+    <text class="lbl" x={R4N.a} y={R4N.y + 40} text-anchor="middle">{n2Snaps[0].label}</text>
+    <text class="lbl" x={R4N.b} y={R4N.y + 40} text-anchor="middle">{n2Snaps[1].label}</text>
+    <text class="lbl strong" x={(R4N.a + R4N.b) / 2 + 6} y={R4N.y + 5} text-anchor="middle">≠</text>
+    <text class="lbl strong" x="330" y={R4N.y - 4}>N₂: two shapes,</text>
+    <text class="lbl strong" x="330" y={R4N.y + 12}>two α: Raman ✓</text>
+
+    <text class="lbl" x={R4.a} y={R4.y + 40} text-anchor="middle">+Q</text>
+    <text class="lbl" x={R4.b} y={R4.y + 40} text-anchor="middle">−Q</text>
+    <text class="lbl faint" x={(R4.a + R4.b) / 2} y={R4.y + 40} text-anchor="middle">mirror</text>
+    <text class="lbl strong" x="330" y={R4.y - 4}>CO₂: mirror images,</text>
+    <text class="lbl strong" x="330" y={R4.y + 12}>one α: Raman ✗</text>
+    <text class="lbl faint" x="330" y={R4.y + 30}>big lobe: long bond</text>
   </g>
 </svg>
 
@@ -328,17 +386,14 @@
     overflow: visible;
   }
 
-  .wave {
-    fill: none;
-    stroke: var(--diagram-laser);
-    stroke-width: 1.2;
-    stroke-opacity: 0.35;
-  }
-
-  /* The electron density: dense where the electrons gather, thin elsewhere. */
+  /* The electron density, as on the Induced dipole card. */
   .dense { stop-color: var(--diagram-laser); stop-opacity: 0.85; }
-  .dense.soft { stop-opacity: 0.35; }
   .mid { stop-color: var(--diagram-laser); stop-opacity: 0.3; }
+  /* N₂ frozen long: electrons spread thin; frozen short: packed tight. */
+  .dense.spread { stop-opacity: 0.6; }
+  .mid.spread { stop-opacity: 0.16; }
+  .dense.compact { stop-opacity: 0.95; }
+  .mid.compact { stop-opacity: 0.6; }
   .thin { stop-color: var(--diagram-laser); stop-opacity: 0.02; }
 
   .cloud {
@@ -348,6 +403,7 @@
     stroke-dasharray: 3 2;
   }
   .nucleus { fill: var(--ink-slate-500); }
+  .mirror { stroke: var(--ink-slate-400); stroke-width: 1; stroke-dasharray: 4 3; }
   .bond { stroke: var(--ink-slate-400); stroke-width: 1.1; }
   .bond.thick { stroke-width: 2.2; }
 

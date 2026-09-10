@@ -108,7 +108,7 @@ export const FUNDAMENTALS: Fundamental[] = [
     section: 'basics',
     label: 'Dipole moment',
     teaser:
-      'Charge pulled apart makes a dipole. IR light can only drive a vibration that makes it swing.',
+      'Charge pulled apart makes a dipole: a positive end and a negative end, a distance apart.',
     body: [
       'A dipole moment measures how far a molecule’s positive and negative charge sit apart. Two charges +q and −q a distance d apart give μ = q·d, pointing from the negative charge to the positive one. A bond between two different atoms shares its electrons unevenly and carries a dipole; a bond between two identical atoms carries none.',
       {
@@ -116,6 +116,7 @@ export const FUNDAMENTALS: Fundamental[] = [
         lines: ['μ = q · d', 'μ = Σ qᵢ rᵢ   (any set of charges)'],
         note: 'Unit: the debye, 1 D = 3.336 × 10⁻³⁰ C·m.',
       },
+      'The dipole so far is permanent: CO carries it with no field around. A field can also make one where there was none, by pulling a molecule’s electron cloud off-centre: an induced dipole, which lasts only while the field acts. The second row of the diagram shows the two side by side; the Induced dipole card shows how it happens.',
       'For infrared light the dipole itself is not what counts: its change is. The light’s oscillating electric field can only drive a motion that makes the dipole swing, so a mode absorbs when the dipole differs between the extremes of the motion, a polar mode [@busca, p. 4].',
       {
         label: 'IR selection rule',
@@ -139,27 +140,47 @@ export const FUNDAMENTALS: Fundamental[] = [
     ],
   },
   {
-    key: 'polarizability',
+    key: 'induced',
     section: 'basics',
-    label: 'Polarizability',
+    label: 'Induced dipole',
     teaser:
-      'How easily light pushes an electron cloud. When a vibration changes it, Raman light appears.',
+      'A field pulls the electron cloud off-centre and makes a dipole, even where there was none.',
     body: [
-      'Every molecule is a set of nuclei inside a cloud of electrons. Put it in an electric field and the field pushes the two kinds of charge apart: the electrons against the field, the nuclei with it. The cloud stays where it is but grows denser on one side and thinner on the other, and the nuclei shift a little towards the thin side. The side with extra electrons is δ−; the side where the nuclei are left less covered is δ+. The field has induced a dipole moment [@moon, p. 77]. The attraction between the nuclei and their electrons is what pulls back and keeps the shift small.',
-      'The polarizability α says how easily that happens: how far a given field pushes the cloud, and so how large a dipole it induces [@moon, p. 77]. A large, loosely held cloud gives a lot and has a large α; a small, tightly held one hardly moves. The top row of the diagram shows the two side by side, in the same field.',
+      'Every molecule is a set of nuclei inside a cloud of electrons. Put it in an electric field and the field pushes the two kinds of charge apart: the electrons against the field, the nuclei with it. The cloud stays where it is but grows denser on one side and thinner on the other, and the nuclei shift a little towards the thin side. The side with extra electrons is δ−; the side where the nuclei are left less covered is δ+. The field has induced a dipole moment [@moon, p. 77]. The attraction between the nuclei and their electrons pulls back and keeps the shift small.',
       {
-        label: 'Polarizability',
-        lines: ['μ(ind) = α · E', 'α = μ(ind) / E'],
-        note: 'μ(ind) is a dipole moment like the μ of the Dipole moment card, only made by the field instead of carried by the molecule; the Raman chapter writes it P [@moon, p. 77].',
+        label: 'Induced dipole',
+        lines: ['μ(ind) = α · E'],
+        note: 'Proportional to the field, and gone when the field is. α, the polarizability, says how easily it happens: the next card. The Raman chapter writes μ(ind) as P [@moon, p. 77].',
       },
-      'The cloud of a linear molecule such as N₂ or CO₂ is not a sphere but elongated, with a circular cross-section: an ellipsoid [@moon, p. 77]. It gives more easily along the bond than across it, so α depends on the direction of the field, which makes it in full a tensor rather than a single number [@stair, p. 132]. That is the middle row.',
-      'Light is such a field. Its electric field points across the direction it travels and swings back and forth at the light’s frequency, so as it passes the cloud swings with it and the induced dipole oscillates. An oscillating dipole radiates: the molecule scatters the light, and the more strongly the higher the frequency, with its fourth power [@stair, p. 132].',
+      'Any molecule gets one, with or without a dipole of its own. N₂ has none, yet it polarizes like any other. A permanent dipole is carried; an induced one is lent by the field and lasts only while the field acts.',
+      'The field can come from anything. Light is one. An ion is another, or a charged site on a surface: a cation polarizes a molecule adsorbed on it this way. So is the permanent dipole of a neighbour, and even the fleeting dipole of a neighbour’s own fluctuating cloud, which is what holds non-polar molecules together (the dispersion force). The bottom row of the diagram shows an ion and a neighbour’s dipole at work.',
+      'Light is an electric field that swings back and forth, across the direction it travels. As it passes, the induced dipole swings with it at the light’s frequency, and an oscillating dipole radiates: the molecule sends light out in every direction. That is scattering, and it grows steeply with the frequency, with its fourth power [@stair, p. 132].',
       {
         label: 'Scattered intensity',
         lines: ['I ∝ ν⁴ · |μ(ind)|² = ν⁴ · α² · E₀²'],
         note: 'ν: frequency of the light, so I ∝ (1/λ)⁴. Against a 785 nm laser, 532 nm scatters about 4.7 times as much and 244 nm over 100 times [@stair, p. 132].',
       },
-      'Now let the molecule vibrate. If the size, shape or orientation of the ellipsoid changes with the motion, α changes with it [@moon, p. 77]. Stretching N≡N makes the cloud larger when the bond is long and smaller when it is short, so α follows the motion. N₂ has no dipole for the IR to drive, yet its polarizability changes, and that is the condition for Raman activity. That is the bottom row.',
+      'Almost all of that scattered light keeps the frequency of the light that made it. When a vibration changes how easily the cloud is pushed, a little of it does not: that is the Raman effect, and the subject of the Polarizability and Raman spectroscopy cards.',
+    ],
+    related: [
+      { key: 'ir-inactive', why: 'No dipole of its own, yet one can be induced' },
+    ],
+  },
+  {
+    key: 'polarizability',
+    section: 'basics',
+    label: 'Polarizability',
+    teaser:
+      'How easily the cloud is pulled off-centre. When a vibration changes that, Raman appears.',
+    body: [
+      'The polarizability α says how easily a field induces a dipole: how far it pulls the electron cloud off-centre [@moon, p. 77]. A large, loosely held cloud gives a lot and has a large α; a small, tightly held one hardly moves. The top row of the diagram shows the two side by side, in the same field.',
+      {
+        label: 'Polarizability',
+        lines: ['α = μ(ind) / E'],
+        note: 'The induced dipole per unit of field. The Induced dipole card shows the dipole itself [@moon, p. 77].',
+      },
+      'The cloud of a linear molecule such as N₂ or CO₂ is not a sphere but elongated, with a circular cross-section: an ellipsoid [@moon, p. 77]. It gives more easily along the bond than across it, so α depends on the direction of the field, which makes it in full a tensor rather than a single number [@stair, p. 132]. That is the middle row.',
+      'Now let the molecule vibrate. If the size, shape or orientation of the ellipsoid changes with the motion, α changes with it [@moon, p. 77]. Stretching N≡N makes the cloud larger when the bond is long and smaller when it is short, so α follows the motion. N₂ has no dipole for the IR to drive, yet its polarizability changes, and that is the condition for Raman activity. That is the bottom row. Two clocks run there: the light’s field swings the cloud far faster than the nuclei move (for N₂ in visible light about eight times), so the cloud follows the light, and the vibration only sets how far each swing goes.',
       {
         label: 'Raman condition',
         lines: ['α = α₀ + (∂α / ∂Q)₀ · Q + …', '(∂α / ∂Q)₀ ≠ 0'],
@@ -167,60 +188,11 @@ export const FUNDAMENTALS: Fundamental[] = [
         tone: 'raman',
       },
       'The asymmetric stretch of CO₂ is the opposite case, and not because CO₂ is hard to polarize: it is more polarizable than N₂. One C=O bond lengthens while the other shortens, so what the cloud gains on one side it loses on the other, and to first order α does not change at all. Symmetry makes it exact: the molecule pushed one way is the mirror image of the molecule pushed the other way, and mirror images have the same α. So α can only rise equally on both sides of rest, like the bottom of a bowl, never tilt; its slope at rest is zero and the mode is silent in Raman [@moon, p. 77]. In the symmetric stretch, both bonds long and both bonds short are two different molecules, their α differs, and the slope is there.',
-      'The plots in the diagram show the change in α, Δα, not its size. What a changing α does to the scattered light, the Stokes and anti-Stokes lines, is on the Raman spectroscopy card.',
+      'The plots in the diagram show the change in α, Δα, not its size. The bottom row freezes both molecules at the two ends of their motion: N₂ long and N₂ short are two different shapes, while CO₂ at +Q and at −Q is one shape seen in a mirror. What a changing α does to the scattered light, the Stokes and anti-Stokes lines, is on the Raman spectroscopy card.',
     ],
     related: [
       { key: 'ir-inactive', why: 'Silent in the IR, visible through α' },
       { key: 'fermi', why: 'Two Raman lines where one mode was expected' },
-    ],
-  },
-  {
-    key: 'selection',
-    section: 'basics',
-    label: 'Selection rules',
-    teaser:
-      'IR needs the dipole to change, Raman the electron cloud. In CO₂ no vibration does both.',
-    body: [
-      'Whether a vibration shows up at all depends on what it does to the charge, and IR and Raman ask two different questions [@busca, pp. 4–6].',
-      {
-        label: 'IR absorption',
-        lines: ['Δv = ±1', '(∂μ / ∂Q)₀ ≠ 0'],
-        note: 'The dipole moment μ must change as the atoms move along the normal coordinate Q [@busca, Eqs. (1.5), (1.6)].',
-        tone: 'ir',
-      },
-      {
-        label: 'Raman scattering',
-        lines: ['Δv = ±1', '(∂α / ∂Q)₀ ≠ 0'],
-        note: 'The polarizability α must change as the atoms move [@busca, p. 5] [@moon, p. 77].',
-        tone: 'raman',
-      },
-      'Δv = ±1 holds for a harmonic oscillator in both and is relaxed by anharmonicity [@busca, pp. 4–5]. The second rule is where the two part: a mode that changes the dipole absorbs in the IR; one that changes only the polarizability is Raman-active and IR-inactive [@busca, p. 6].',
-      'CO₂ shows both at work. In the symmetric stretch both C=O bonds lengthen together: the dipole stays zero while the cloud swells and shrinks, so the mode is Raman-active and silent in the IR. In the asymmetric stretch and the bend the dipole swings back and forth, so both absorb, at 2349 and 667 cm⁻¹. The cloud changes size in the asymmetric stretch too, but identically on either side of rest, so (∂α/∂Q)₀ is zero and it is silent in Raman [@moon, p. 77].',
-      {
-        label: 'Mutual exclusion rule (centre of symmetry)',
-        lines: ['Raman-active ⇒ IR-inactive', 'IR-active ⇒ Raman-inactive'],
-        note: 'A mode can still be neither. Without a centre of symmetry a mode can be both [@busca, p. 5].',
-      },
-      'That is the mutual exclusion rule. Group theory shows that for a species with a centre of symmetry, Raman-active modes are IR-inactive and the reverse [@busca, p. 5]. Some modes are active in neither, and without a centre of symmetry a mode can be active in both [@busca, pp. 5–6], so a band at the same wavenumber in both spectra rules a centre of symmetry out. In most cases the two techniques are therefore complementary [@busca, p. 5].',
-      'The symmetric stretch appears in Raman not as one line but as two, at 1388 and 1285 cm⁻¹. It sits so close to the first overtone of the bend that the two mix and share the intensity: a Fermi resonance, recorded in the atlas as a partner pair.',
-      'On a surface the rules shift. An adsorbed, bent CO₂ has lost its centre of symmetry, so the symmetric stretch can turn up weakly in the IR near 1380 cm⁻¹, which is one reason that band carries a misassignment warning in the atlas. On a metal the surface dipole selection rule applies on top [@trenary, p. 54].',
-    ],
-    related: [
-      { key: 'ir-inactive', why: 'Silent in the IR, by symmetry' },
-      { key: 'fermi', why: 'Why ν₁ of CO₂ is two Raman lines' },
-      { key: 'degeneracy', why: 'The bend is two motions at one frequency' },
-      { key: 'branches', why: 'The P and R lobes of the IR bands' },
-    ],
-    // IR: ν₃ as its P and R branches, ν₂ with its Q. Raman: the Fermi pair,
-    // with the heights the atlas does not record (the upper line is stronger).
-    examples: [
-      'co2_asym_p',
-      'co2_asym_r',
-      'co2_bend_p',
-      'co2_bend_q',
-      'co2_bend_r',
-      { id: 'co2_sym', raman: true, depth: 1 },
-      { id: 'co2_bend_overtone', raman: true, depth: 0.62 },
     ],
   },
   {
@@ -305,6 +277,55 @@ export const FUNDAMENTALS: Fundamental[] = [
       { key: 'ir-inactive', why: 'Silent in the IR, often strong in Raman' },
       { key: 'fermi', why: 'CO₂’s Raman lines come as a Fermi pair' },
       { key: 'isotopologue', why: 'Same rule as IR: heavier isotope, smaller shift' },
+    ],
+  },
+  {
+    key: 'selection',
+    section: 'spectroscopy',
+    label: 'Selection rules',
+    teaser:
+      'IR needs the dipole to change, Raman the electron cloud. In CO₂ no vibration does both.',
+    body: [
+      'Whether a vibration shows up at all depends on what it does to the charge, and IR and Raman ask two different questions [@busca, pp. 4–6].',
+      {
+        label: 'IR absorption',
+        lines: ['Δv = ±1', '(∂μ / ∂Q)₀ ≠ 0'],
+        note: 'The dipole moment μ must change as the atoms move along the normal coordinate Q [@busca, Eqs. (1.5), (1.6)].',
+        tone: 'ir',
+      },
+      {
+        label: 'Raman scattering',
+        lines: ['Δv = ±1', '(∂α / ∂Q)₀ ≠ 0'],
+        note: 'The polarizability α must change as the atoms move [@busca, p. 5] [@moon, p. 77].',
+        tone: 'raman',
+      },
+      'Δv = ±1 holds for a harmonic oscillator in both and is relaxed by anharmonicity [@busca, pp. 4–5]. The second rule is where the two part: a mode that changes the dipole absorbs in the IR; one that changes only the polarizability is Raman-active and IR-inactive [@busca, p. 6].',
+      'CO₂ shows both at work. In the symmetric stretch both C=O bonds lengthen together: the dipole stays zero while the cloud swells and shrinks, so the mode is Raman-active and silent in the IR. In the asymmetric stretch and the bend the dipole swings back and forth, so both absorb, at 2349 and 667 cm⁻¹. The cloud changes size in the asymmetric stretch too, but identically on either side of rest, so (∂α/∂Q)₀ is zero and it is silent in Raman [@moon, p. 77].',
+      {
+        label: 'Mutual exclusion rule (centre of symmetry)',
+        lines: ['Raman-active ⇒ IR-inactive', 'IR-active ⇒ Raman-inactive'],
+        note: 'A mode can still be neither. Without a centre of symmetry a mode can be both [@busca, p. 5].',
+      },
+      'That is the mutual exclusion rule. Group theory shows that for a species with a centre of symmetry, Raman-active modes are IR-inactive and the reverse [@busca, p. 5]. Some modes are active in neither, and without a centre of symmetry a mode can be active in both [@busca, pp. 5–6], so a band at the same wavenumber in both spectra rules a centre of symmetry out. In most cases the two techniques are therefore complementary [@busca, p. 5].',
+      'The symmetric stretch appears in Raman not as one line but as two, at 1388 and 1285 cm⁻¹. It sits so close to the first overtone of the bend that the two mix and share the intensity: a Fermi resonance, recorded in the atlas as a partner pair.',
+      'On a surface the rules shift. An adsorbed, bent CO₂ has lost its centre of symmetry, so the symmetric stretch can turn up weakly in the IR near 1380 cm⁻¹, which is one reason that band carries a misassignment warning in the atlas. On a metal the surface dipole selection rule applies on top [@trenary, p. 54].',
+    ],
+    related: [
+      { key: 'ir-inactive', why: 'Silent in the IR, by symmetry' },
+      { key: 'fermi', why: 'Why ν₁ of CO₂ is two Raman lines' },
+      { key: 'degeneracy', why: 'The bend is two motions at one frequency' },
+      { key: 'branches', why: 'The P and R lobes of the IR bands' },
+    ],
+    // IR: ν₃ as its P and R branches, ν₂ with its Q. Raman: the Fermi pair,
+    // with the heights the atlas does not record (the upper line is stronger).
+    examples: [
+      'co2_asym_p',
+      'co2_asym_r',
+      'co2_bend_p',
+      'co2_bend_q',
+      'co2_bend_r',
+      { id: 'co2_sym', raman: true, depth: 1 },
+      { id: 'co2_bend_overtone', raman: true, depth: 0.62 },
     ],
   },
 ];

@@ -4,8 +4,11 @@
    *
    *   t = 0  the card, the phenomenon itself: C–O with its partial charges
    *          and a dipole arrow that grows and shrinks as the bond stretches.
-   *   t = 1  the opened card, three rows:
+   *   t = 1  the opened card, four rows:
    *            what a dipole is: +q and −q a distance d apart, μ = q·d;
+   *            permanent or induced: CO carries its dipole with no field; N₂
+   *              has none until a field polarizes its cloud (the Polarizability
+   *              card's density picture), and loses it when the field passes zero;
    *            the two molecules vibrating beside their μ(Q) lines, a slope
    *              for CO and a flat line for N₂: (∂μ/∂Q)₀ ≠ 0 or not;
    *            on a metal: the reflected field stands along the surface
@@ -26,7 +29,10 @@
     Math.max(0, Math.min(1, (k - from) / (to - from)));
 
   const S = { W: 220, H: 100, px: 238 / 220, co: { x: 110, y: 46 }, bond: 34, rC: 7.2, rO: 6.8 };
-  const F = { W: 480, H: 350, co: { x: 80, y: 128 }, nn: { x: 80, y: 180 }, bond: 30, rC: 7, rO: 6.6, rN: 6.6, surf: 320 };
+  const F = { W: 480, H: 492, co: { x: 80, y: 268 }, nn: { x: 80, y: 320 }, bond: 30, rC: 7, rO: 6.6, rN: 6.6, surf: 466 };
+
+  // Gradient ids must be unique in the document; every instance gets its own.
+  const uid = `dip${Math.random().toString(36).slice(2, 8)}`;
 
   $: W = lerp(S.W, F.W, t);
   $: H = lerp(S.H, F.H, t);
@@ -65,7 +71,6 @@
   // N₂ only belongs to the opened card, as the molecule with nothing to swing.
   const nnC = F.nn;
   $: nnOpacity = ramp(t, 0.3, 0.75);
-  // Hydrogen is sixteen times lighter, so it does nearly all the moving.
   $: stretch = lerp(4, 3.6, t) * s;
   // Each atom moves in proportion to the other's mass (C 12, O 16), so the
   // centre of mass stays put.
@@ -101,6 +106,17 @@
   $: coStretch = 2.6 * s;
   $: upO = F.surf - 9 - 26 - coStretch;
 
+  /* ── Permanent or induced ── */
+  const PERM = { x: 110, y: 164, bond: 28 };
+  const IND = { x: 318, y: 164, bond: 24, rx: 30, ry: 14 };
+  // The field that induces: the same swing as everything else on the card.
+  $: e = s;
+  $: indFocus = 0.5 + 0.4 * e; // electrons gather against the field: down when E is up
+  const signFor = (pol: number, side: 'field' | 'against') =>
+    (pol > 0) === (side === 'field') ? 'δ+' : 'δ−';
+  const signCls = (pol: number, side: 'field' | 'against') =>
+    signFor(pol, side) === 'δ+' ? 'pos' : 'neg';
+
   const O_FILL = colorForElement('O');
   const C_FILL = colorForElement('C');
   const N_FILL = colorForElement('N');
@@ -118,24 +134,76 @@
   role="img"
   aria-label="CO carries a dipole that changes as the bond stretches, so it absorbs infrared light; N≡N has none and does not; on a metal only a dipole change along the surface normal is seen"
 >
+  <defs>
+    <radialGradient id="{uid}-ind" cx="0.5" cy="0.5" r="0.62" fx="0.5" fy={indFocus}>
+      <stop offset="0" class="dense" />
+      <stop offset="0.45" class="mid" />
+      <stop offset="1" class="thin" />
+    </radialGradient>
+  </defs>
+
   <!-- ── Row 1 (opened): what a dipole is ── -->
   <g style="opacity:{fullOpacity}">
-    <line class="dim" x1="60" x2="160" y1="18" y2="18" />
-    <line class="dim" x1="60" x2="60" y1="14" y2="22" />
-    <line class="dim" x1="160" x2="160" y1="14" y2="22" />
-    <circle class="charge neg" cx="60" cy="42" r="10" />
-    <circle class="charge pos" cx="160" cy="42" r="10" />
-    <line class="mu" x1="60" x2="158" y1="66" y2="66" />
-    <path class="mu-head" d={arrowHead(160, 66, 1, 0, 5)} />
+    <line class="dim" x1="60" x2="160" y1="44" y2="44" />
+    <line class="dim" x1="60" x2="60" y1="40" y2="48" />
+    <line class="dim" x1="160" x2="160" y1="40" y2="48" />
+    <circle class="charge neg" cx="60" cy="68" r="10" />
+    <circle class="charge pos" cx="160" cy="68" r="10" />
+    <line class="mu" x1="60" x2="158" y1="92" y2="92" />
+    <path class="mu-head" d={arrowHead(160, 92, 1, 0, 5)} />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="sign neg" x="60" y="46" text-anchor="middle">−</text>
-    <text class="sign pos" x="160" y="46" text-anchor="middle">+</text>
-    <text class="sym" x="110" y="13" text-anchor="middle">d</text>
-    <text class="sym neg" x="40" y="46" text-anchor="end">−q</text>
-    <text class="sym pos" x="180" y="46">+q</text>
-    <text class="lbl strong" x="250" y="46">μ = q · d</text>
-    <text class="lbl faint" x="250" y="64">from − to +</text>
+    <text class="lbl name" x="14" y="16">A dipole</text>
+    <text class="sign neg" x="60" y="72" text-anchor="middle">−</text>
+    <text class="sign pos" x="160" y="72" text-anchor="middle">+</text>
+    <text class="sym" x="110" y="39" text-anchor="middle">d</text>
+    <text class="sym neg" x="40" y="72" text-anchor="end">−q</text>
+    <text class="sym pos" x="180" y="72">+q</text>
+    <text class="lbl strong" x="250" y="72">μ = q · d</text>
+    <text class="lbl faint" x="250" y="90">from − to +</text>
+  </g>
+
+  <!-- ── Row 2 (opened): permanent, or induced by a field ── -->
+  <g style="opacity:{fullOpacity}">
+    <!-- CO: its dipole is there with no field at all. -->
+    {#each [-1.6, 0, 1.6] as off}
+      <line class="bond thin" x1={PERM.x - PERM.bond / 2} x2={PERM.x + PERM.bond / 2} y1={PERM.y + off} y2={PERM.y + off} />
+    {/each}
+    <circle cx={PERM.x - PERM.bond / 2} cy={PERM.y} r={F.rC} fill={C_FILL} />
+    <circle cx={PERM.x + PERM.bond / 2} cy={PERM.y} r={F.rO} fill={O_FILL} />
+    <line class="mu" x1={PERM.x + 15} x2={PERM.x - 14} y1={PERM.y + 17} y2={PERM.y + 17} />
+    <path class="mu-head" d={arrowHead(PERM.x - 15, PERM.y + 17, -1, 0, 4)} />
+
+    <!-- N₂: none of its own; the field pulls the cloud off-centre and makes one. -->
+    <ellipse class="cloud" cx={IND.x} cy={IND.y} rx={IND.rx} ry={IND.ry} fill="url(#{uid}-ind)" />
+    {#each [-2.2, 0, 2.2] as off}
+      <line class="bond thin" x1={IND.x - IND.bond / 2} x2={IND.x + IND.bond / 2} y1={IND.y + off - 1.8 * e} y2={IND.y + off - 1.8 * e} />
+    {/each}
+    <circle cx={IND.x - IND.bond / 2} cy={IND.y - 1.8 * e} r="5.6" fill={N_FILL} />
+    <circle cx={IND.x + IND.bond / 2} cy={IND.y - 1.8 * e} r="5.6" fill={N_FILL} />
+    {#if Math.abs(e) > 0.08}
+      <line class="efield" x1={IND.x - IND.rx - 14} x2={IND.x - IND.rx - 14} y1={IND.y + 15 * e} y2={IND.y - 15 * e} />
+      <path class="efield-head" d={arrowHead(IND.x - IND.rx - 14, IND.y - 15 * e, 0, -Math.sign(e), 3.5)} />
+      <line class="induced" x1={IND.x + IND.rx + 14} x2={IND.x + IND.rx + 14} y1={IND.y + 12 * e} y2={IND.y - 12 * e} />
+      <path class="induced-head" d={arrowHead(IND.x + IND.rx + 14, IND.y - 12 * e, 0, -Math.sign(e), 3.5)} />
+    {/if}
+  </g>
+  <g style="opacity:{labelOpacity}">
+    <text class="lbl name" x="14" y="124">Permanent or induced</text>
+    <text class="delta pos" x={PERM.x - PERM.bond / 2} y={PERM.y - 13} text-anchor="middle">δ+</text>
+    <text class="delta neg" x={PERM.x + PERM.bond / 2} y={PERM.y - 13} text-anchor="middle">δ−</text>
+    <text class="lbl faint" x={PERM.x} y={PERM.y + 42} text-anchor="middle">permanent: needs no field</text>
+
+    <text class="delta {signCls(e, 'field')}" x={IND.x} y={IND.y - IND.ry - 4} text-anchor="middle" style="opacity:{Math.min(1, Math.abs(e) * 1.6)}">{signFor(e, 'field')}</text>
+    <text class="delta {signCls(e, 'against')}" x={IND.x} y={IND.y + IND.ry + 12} text-anchor="middle" style="opacity:{Math.min(1, Math.abs(e) * 1.6)}">{signFor(e, 'against')}</text>
+    <text class="sym efield-lbl" x={IND.x - IND.rx - 22} y={IND.y + 4} text-anchor="end">E</text>
+    <text class="sym ind-lbl" x={IND.x + IND.rx + 22} y={IND.y + 4}>μ<tspan class="sub" dy="4">ind</tspan><tspan dy="-4"> = αE</tspan></text>
+    <text class="lbl faint" x={IND.x} y={PERM.y + 42} text-anchor="middle">induced: only in a field</text>
+  </g>
+
+  <g style="opacity:{labelOpacity}">
+    <text class="lbl name" x="14" y="232">As the molecule vibrates</text>
+    <text class="lbl name" x="14" y="364">On a metal</text>
   </g>
 
   <!-- ── Row 2: CO and N≡N vibrating ── -->
@@ -217,9 +285,9 @@
     <path class="mu-head off" d={arrowHead(FLAT.x + 14, F.surf - 26, 1, 0, 4)} />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl faint" x="14" y="238">field of reflected p-polarized light</text>
-    <text class="verdict yes" x={UP.x} y="262" text-anchor="middle">standing: seen ✓</text>
-    <text class="verdict" x={FLAT.x} y="262" text-anchor="middle">lying flat: not seen ✗</text>
+    <text class="lbl faint" x="14" y="384">field of reflected p-polarized light</text>
+    <text class="verdict yes" x={UP.x} y="408" text-anchor="middle">standing: seen ✓</text>
+    <text class="verdict" x={FLAT.x} y="408" text-anchor="middle">lying flat: not seen ✗</text>
     <text class="lbl faint" x="466" y={F.surf + 12} text-anchor="end">metal</text>
   </g>
 </svg>
@@ -233,6 +301,14 @@
   }
 
   .bond { stroke: var(--ink-slate-400); stroke-width: 2.2; }
+
+  /* The induced row borrows the Polarizability card's cloud and field. */
+  .cloud { stroke: var(--diagram-laser); stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 3 2; }
+  .dense { stop-color: var(--diagram-laser); stop-opacity: 0.85; }
+  .mid { stop-color: var(--diagram-laser); stop-opacity: 0.3; }
+  .thin { stop-color: var(--diagram-laser); stop-opacity: 0.02; }
+  .efield, .efield-head { stroke: var(--diagram-laser); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .induced, .induced-head { stroke: var(--brand-700); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .bond.thin { stroke-width: 1.1; }
 
   .mu { stroke: var(--diagram-photon); stroke-width: 1.7; }
@@ -268,6 +344,10 @@
   }
   .sym { font-style: italic; }
   .sym.mu-lbl { fill: var(--diagram-photon); }
+  .sym.efield-lbl { fill: var(--diagram-laser); }
+  .sym.ind-lbl { fill: var(--brand-700); }
+  .sub { font-size: 0.75em; font-style: normal; }
+  .lbl.name { fill: var(--ink-slate-900); }
   .sign { font-weight: var(--t-label-weight); fill: var(--ink-slate-900); }
   /* Shared with the Polarizability and Selection rules cards: same face,
      same weight, red for negative and blue for positive. */

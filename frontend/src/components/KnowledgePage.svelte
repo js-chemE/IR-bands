@@ -54,6 +54,7 @@
   import SelectionDiagram from './knowledge/SelectionDiagram.svelte';
   import DipoleDiagram from './knowledge/DipoleDiagram.svelte';
   import PolarizabilityDiagram from './knowledge/PolarizabilityDiagram.svelte';
+  import InducedDiagram from './knowledge/InducedDiagram.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
   import { citer, summarizeLocators, type Cited, type Segment } from '../lib/cite';
@@ -97,12 +98,14 @@
     | typeof VibrationDiagram
     | typeof DipoleDiagram
     | typeof SpectrumDiagram
+    | typeof InducedDiagram
     | typeof PolarizabilityDiagram
     | typeof RamanDiagram
     | typeof SelectionDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
     vibration: VibrationDiagram,
     dipole: DipoleDiagram,
+    induced: InducedDiagram,
     spectrum: SpectrumDiagram,
     polarizability: PolarizabilityDiagram,
     raman: RamanDiagram,
@@ -148,10 +151,17 @@
       { text: 'Shown: one photon in five shifted. Real: about one in ten million.' },
     ],
     dipole: [
-      { swatch: 'photon', text: 'dipole μ, and the IR light that drives it' },
+      { swatch: 'photon', text: 'a permanent dipole μ, and the IR light that drives it' },
+      { swatch: 'laser', text: 'a field E, and the electron density it shifts' },
+      { swatch: 'trace', text: 'an induced dipole μ(ind)' },
+    ],
+    induced: [
+      { swatch: 'laser', text: 'the field E, and the electron density it shifts' },
+      { swatch: 'trace', text: 'the induced dipole μ(ind)' },
+      { swatch: 'photon', text: 'a permanent dipole μ' },
     ],
     polarizability: [
-      { swatch: 'laser', text: 'the light’s field E, and the cloud it pushes' },
+      { swatch: 'laser', text: 'the field E, and the electron density it shifts' },
       { swatch: 'trace', text: 'the induced dipole μ(ind)' },
     ],
     selection: [
