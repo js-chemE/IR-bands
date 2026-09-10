@@ -123,6 +123,12 @@
       "molecule": null,
       "note": "A missing lattice oxygen in a reducible oxide, and the electrons left behind with it. Not a molecule and it has no normal modes; it is here because the electron trapped in it absorbs infrared light, which puts a band on the chart that belongs to no adsorbate."
     },
+    "silica": {
+      "label": "Silica framework",
+      "formula": "SiO₂",
+      "molecule": null,
+      "note": "The Si-O-Si network of a silica or silicate support itself, not anything adsorbed on it. Here for the same reason as the oxygen vacancy: its overtones put bands on the chart that no adsorbate made."
+    },
     "hydride": {
       "label": "Hydride",
       "formula": "M-H*",

@@ -1665,7 +1665,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_bend",
@@ -1677,7 +1677,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_stretch_asymmetric",
@@ -1689,7 +1689,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
         }
       ]
     }

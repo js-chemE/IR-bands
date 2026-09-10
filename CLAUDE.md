@@ -74,6 +74,13 @@ frontend/src/
     refGrouping.ts        ← the References page's two-level grouping dimensions
     phenomena.ts          ← the Knowledge page's phenomena: prose slots (empty for now)
                               plus resolvers that find the bands showing each one
+    fundamentals.ts       ← the Knowledge page's Basics cards: teaser, full text (paragraphs
+                              and formula boxes), links to the phenomena; diagrams in
+                              components/knowledge/. The text follows the Springer Handbook
+                              of Advanced Catalyst Characterization, cited per chapter
+    cite.ts               ← `[@alias, locator]` citation markers → numbered superscripts and
+                              the reference list under each card; SOURCES maps aliases to
+                              citekeys and chapters
     notation.ts           ← sub/superscript character maps + htmlToUnicode()
     chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts

@@ -5,7 +5,9 @@
   import { esc, ieeeHtml, refSortKey, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
   import { speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
+  import { createEventDispatcher } from 'svelte';
   import { buildSections, type BandRef, type GroupDim } from '../lib/refGrouping';
+  import { knowledgeLinks } from '../lib/fundamentals';
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -15,6 +17,13 @@
   // Which two dimensions the page groups by, outer then inner.
   export let groupBy: GroupDim = 'reference';
   export let thenBy: GroupDim = 'group';
+  // What else, besides bands, may list the papers it cites (sidebar switches).
+  export let includeBands = true;
+  export let includeModes = false;
+  export let includeKnowledge = true;
+
+  const dispatch = createEventDispatcher<{ navigateKnowledge: { key: string } }>();
+  const KNOWLEDGE = knowledgeLinks();
 
   // Neither dimension names the paper, so every claim row has to carry it
   // itself; when a reference IS one of the dimensions the heading already
@@ -78,6 +87,9 @@
     groups,
     sortedGroupKeys,
     vibrations,
+    includeBands,
+    includeModes,
+    knowledge: includeKnowledge ? KNOWLEDGE : null,
   });
 
   /** Stable per-row key, so expanding one row survives a regroup. */
@@ -212,6 +224,22 @@
           {/each}
         </div>
       {/each}
+
+      <!-- The Knowledge cards that cite this paper, each one a way back to it. -->
+      {#if section.knowledge.length}
+        <div class="group-section">
+          <div class="group-label knowledge-label">Knowledge</div>
+          {#each section.knowledge as k (k.key)}
+            <button class="band-row knowledge-row" on:click={() => dispatch('navigateKnowledge', { key: k.key })}>
+              <span class="band-row-line">
+                <span class="band-name">{k.label}</span>
+                {#each k.where as w}<span class="badge-quality">{w}</span>{/each}
+                <span class="knowledge-go">open →</span>
+              </span>
+            </button>
+          {/each}
+        </div>
+      {/if}
 
       {#each section.moleculeModes as mm (mm.molecule.id)}
           <div class="group-section">
@@ -414,6 +442,23 @@
   /* Vibration-mode citations get their own neutral color (not tied to any
      chart group, since a mode isn't a band) rather than reusing g.color. */
   .mode-group-label { color: var(--accent-violet); }
+
+  /* Knowledge carries its section colour, as on the home page and the header. */
+  .knowledge-label { color: var(--accent-green-fg); }
+  .knowledge-row {
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+  }
+  .knowledge-go {
+    margin-left: auto;
+    font-size: var(--t-code-size);
+    color: var(--accent-green-fg);
+  }
 
 
   /* Only a group name is upper-cased, as it always was. A site, a sample or

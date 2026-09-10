@@ -172,9 +172,11 @@
   .card {
     /* Grid cells now, so the card fills its column instead of sizing itself. */
     max-width: none;
-    background: white;
+    min-height: var(--card-h);
+    box-sizing: border-box;
+    background: var(--surface);
     border: 1px solid var(--line-slate);
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     padding: 28px 22px 22px;
     cursor: pointer;
     text-align: left;
@@ -189,7 +191,7 @@
   }
 
   .card:hover {
-    box-shadow: 0 6px 22px rgba(30, 60, 110, 0.12);
+    box-shadow: var(--shadow-card);
     transform: translateY(-3px);
     border-color: var(--line-slate-strong);
   }
@@ -210,22 +212,22 @@
   }
 
   .card-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink-slate-900);
+    font-size: var(--t-card-title-size);
+    font-weight: var(--t-card-title-weight);
+    color: var(--t-card-title-color);
     margin: 0;
   }
 
   .card-desc {
-    font-size: 14px;
-    color: var(--ink-slate-600);
-    line-height: 1.58;
+    font-size: var(--t-card-desc-size);
+    color: var(--t-card-desc-color);
+    line-height: var(--t-card-desc-lh);
     margin: 0;
     flex: 1;
   }
 
   .card-cta {
-    font-size: 13.5px;
-    font-weight: 600;
+    font-size: var(--t-card-cta-size);
+    font-weight: var(--t-card-cta-weight);
   }
 </style>

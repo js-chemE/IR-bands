@@ -1,4 +1,18 @@
 {
+  "Wachs.SpringerHandbookAdvanced.2023": {
+    "_type": "book",
+    "location": "Cham",
+    "edition": "1st ed. 2023",
+    "title": "Springer handbook of advanced catalyst characterization",
+    "isbn": "978-3-031-07125-6",
+    "series": "Springer Handbooks",
+    "abstract": "Co-edited by world-renowned scientists in the field of catalysis, this book contains the cutting-edge in situ and operando spectroscopy characterization techniques operating under reaction conditions to determine a materials’ bulk, surface, and solution complex and their applications in the field of catalysis with emphasis on solid catalysts in powder form since such catalyst are relevant for industrial applications. The handbook covers from widely-used to cutting-edge techniques. The handbook is written for a broad audience of students and professionals who want to pursue the full capabilities available by the current state-of-the-art in characterization to fully understand how their catalysts really operate and guide the rational design of advanced catalysts.\n\nIndividuals involved in catalysis research will be interested in this handbook because it contains a catalogue of cutting-edge methods employed in characterization of catalysts.  These techniques find wide use in applications such as petroleum refining, chemical manufacture, natural gas conversion, pollution control, transportation, power generation, pharmaceuticals and food processing.",
+    "publisher": "Springer international publishing",
+    "author": "Wachs, Israel E. and Bañares, Miguel A.",
+    "date": "2023",
+    "keywords": "useful, big-deal, review",
+    "file": "Wachs-Bañares_2023_Springer handbook of advanced catalyst characterization.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Wachs-Bañares_2023_Springer handbook of advanced catalyst characterization.pdf:application/pdf"
+  },
   "VicovanBerkel.ExploitingContinuityEquation.2024": {
     "_type": "article",
     "title": "Exploiting the continuity equation for mechanistic understanding through spatially resolved {SSITKA}-{DRIFTS}: The role of carbonyls in {RWGS} over Pt/{CeO}2",
@@ -393,14 +407,23 @@
     "keywords": "reproduced/used-some-number/results",
     "file": "Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:application/pdf"
   },
-  "Herzberg.InfraredRamanSpectra.1945": {
-    "_type": "book",
-    "title": "Molecular Spectra and Molecular Structure. {II}. Infrared and Raman Spectra of Polyatomic Molecules",
-    "publisher": "D. Van Nostrand",
-    "location": "New York",
-    "author": "Herzberg, Gerhard",
-    "date": "1945",
-    "keywords": "reproduced/used-some-number/results"
+  "Herzberg.InfraredRamanSpectra.1946": {
+    "_type": "article",
+    "title": "Infrared and Raman Spectra of Polyatomic Molecules.",
+    "volume": "50",
+    "issn": "0092-7325",
+    "url": "https://doi.org/10.1021/j150447a021",
+    "doi": "10.1021/j150447a021",
+    "pages": "288--288",
+    "number": "3",
+    "journaltitle": "The Journal of Physical Chemistry",
+    "shortjournal": "J. Phys. Chem.",
+    "publisher": "American Chemical Society",
+    "author": "Herzberg, Gerhard and Crawford, Bryce L. Jr.",
+    "urldate": "2026-06-23",
+    "date": "1946-03-01",
+    "keywords": "reproduced/used-some-number/results",
+    "file": "Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:application/pdf"
   },
   "Shimanouchi.TablesMolecularVibrational.1978": {
     "_type": "article",
@@ -554,6 +577,7 @@
     "urldate": "2026-08-13",
     "date": "2026-08-08",
     "langid": "english",
+    "keywords": "useful, well-written",
     "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Phongprueksathat et al._2026_Key Drivers of Activity and Selectivity in Cu-Based Catalysts for Methanol Synthesis From CO2 Insig.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\JUYGPM4S\\\\anie.html:text/html"
   },
   "Phongprueksathat.SUPPORTKeyDrivers.2026": {

@@ -2392,7 +2392,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1945",
+            "Herzberg.InfraredRamanSpectra.1946",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",
@@ -2418,7 +2418,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1945",
+            "Herzberg.InfraredRamanSpectra.1946",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "bend",
@@ -2444,7 +2444,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1945",
+            "Herzberg.InfraredRamanSpectra.1946",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",

@@ -175,12 +175,14 @@
 //                          here: those belong in note.
 //                   technique: how the spectrum was taken. One of drifts |
 //                          transmission | atr | irras | pm_irras | emission |
-//                          computational. Every value names a real way of
-//                          taking the spectrum; there is no "FTIR, geometry
-//                          not stated" placeholder, since nearly all of these
-//                          use an interferometer and saying so distinguishes
-//                          nothing. build.py derives a tag of the same name,
-//                          so never write one by hand.
+//                          ftir | computational. Every value but one names a
+//                          sampling geometry; ftir is the placeholder for a
+//                          source that names the interferometer and not the
+//                          geometry, since nearly all of these use one and
+//                          saying so distinguishes nothing. Leave the field
+//                          out only when the paper says nothing at all.
+//                          build.py derives a tag of the same name, so never
+//                          write one by hand.
 //                   note — THIS source's specifics: experimental conditions
 //                          (catalyst, loading, temperature, pressure,
 //                          pretreatment) and any claim/finding unique to that
@@ -1014,6 +1016,35 @@
     // IR-forbidden (Σg⁺); listed for context as the explicit parent of the
       // ν₁+ν₃ combination band and the Fermi-dyad partner of 2ν₂.
     {
+      "id": "co2_ads_sym",
+      "species": "co2",
+      "phase": "adsorbed",
+      "group": "co2",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1360,
+      "wn_end": 1390,
+      "short": "νₛ(OCO) CO₂*",
+      "description": "Symmetric stretch of CO₂ held linearly on a surface cation through one oxygen, without becoming carbonate. In the free molecule this mode is infrared-forbidden and seen only in Raman; binding breaks the symmetry just enough to give it a weak infrared band. The asymmetric stretch near 2340 cm⁻¹ is far stronger and the usual marker of adsorbed CO₂, but it sits under the gas-phase band. This one falls among the carbonate and formate symmetric stretches, where it is easily read as one of them.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1370,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Fig. S56f and the accompanying SI text (ZnO reference, 20 vol% CO₂ in N₂, 320 °C, 20 bar): assigned to linearly adsorbed CO₂, CO₂*, citing earlier work. The paper names the species and not the mode; the symmetric stretch is the only CO₂ fundamental near this position. It lies between the bidentate and polydentate carbonate bands of the same spectrum."
+        }
+      ],
+      "confidence": "likely",
+      "tags": ["misassignment-warning"]
+    },
+    {
       "id": "co2_sym",
       "species": "co2",
       "phase": "gas",
@@ -1107,8 +1138,9 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2176,
-          "note": "R-branch of CO rotovibrational spectrum clearly visible at 2176 cm⁻¹ (Figs. 4–6). Band shape and width are temperature-dependent: higher T broadens the envelope via Maxwell–Boltzmann redistribution of rotational populations. Accurate gas-phase subtraction requires a SiC reference spectrum collected under identical gas composition and temperature.",
-          "tags": ["direct-dosing"]
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 5a and Section 3.3 (Spectra-Tech DRIFTS cell, 14% Co/Al₂O₃ at 220 °C, 30% CO + 60% H₂ + 10% Ar, ambient pressure). The paper uses this branch to measure the cell: over a mirror at 80 °C it is 2.97 times weaker than in a 10 cm transmission gas cell, which puts the beam's path through gas above the bed at 3.37 cm of a 3.50 cm total, leaving about 1.3 mm through the bed voids (Fig. 4). Fig. 6 shows the envelope widening as its height falls between 50 and 400 °C over SiC. The gas temperature cannot be fitted to one value, because the beam crosses gas from the 80 °C windows to the hot bed."
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
@@ -1144,13 +1176,7 @@
       "short": "ν(CO) CO (Q)",
       "description": "Gas-phase CO stretch (ν) — Q-branch at the ~2143 cm⁻¹ band origin. Forbidden by symmetry for this Σ→Σ transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
       "based_on": [],
-      "references": [
-        {
-          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
-          "wn": 2143,
-          "note": "The forbidden Q-branch position sits at the CO fundamental band origin (~2143 cm⁻¹), consistent with the midpoint of their observed P (2114 cm⁻¹) and R (2176 cm⁻¹) branch maxima (Fig. 4)."
-        }
-      ],
+      "references": [],
       "confidence": "confirmed",
       "tags": ["ir-inactive"]
     },
@@ -1176,8 +1202,9 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2114,
-          "note": "P-branch of CO rotovibrational spectrum at 2114 cm⁻¹ (Fig. 4). P/R splitting ~62 cm⁻¹ (2176−2114 cm⁻¹). Temperature-dependent lineshape; imperfect background correction using a SiC reference at the wrong temperature leaves a spurious positive artefact near 2220 cm⁻¹ (Fig. 5d–e).",
-          "tags": ["direct-dosing"]
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 5a and Section 3.3 (14% Co/Al₂O₃ at 220 °C, 30% CO + 60% H₂ + 10% Ar, ambient pressure): the P branch, on the high side of linear CO on cobalt. Subtracting a CO(g) spectrum taken over SiC at 50 °C fails at every scaling tried (Fig. 5b to 5e): too little leaves the branches positive, too much makes them negative and still leaves a spurious positive band near 2220 cm⁻¹, because the rotational envelope changes shape with temperature. A SiC reference at 220 °C in the same feed subtracts cleanly (Fig. 7b); the feed matters too, since H₂ conducts heat differently from CO and Ar."
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
@@ -1407,8 +1434,18 @@
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
           "wn": 2041,
-          "measured_on": "co_0",
-          "note": "Linear (on-top) CO on metallic Co at 2041 cm⁻¹ (Fig. 5a, Section 3.3). 14% Co/Siralox shows cobalt carbonyl signal spanning 2100–1700 cm⁻¹ with maximum at ~2059 cm⁻¹ (Fig. 4c, Section 3.2). Gas-phase CO R/P branches at 2176/2114 cm⁻¹ are simultaneously visible and must be subtracted; ill-resolved bridged/multibonded CO bands appear below 2000 cm⁻¹."
+          "measured_on": ["co_0", "co_al2o3"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 5a and Section 3.3 (14% Co/Al₂O₃ reduced in situ at 450 °C for 1 h in 60% H₂/Ar, then 220 °C, 30% CO + 60% H₂ + 10% Ar at ambient pressure, steady state, background SiC under Ar at the same temperature): a large band of linear, on-top CO on metallic cobalt, with ill-resolved bridged and multibonded CO below it. The CO(g) branches sit on its high side and only subtract cleanly against SiC at the same temperature and feed (Fig. 7b), which then leaves the same flat baseline as removing CO altogether (Fig. 7c)."
+        },
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 2059,
+          "measured_on": "co_siralox",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 4c and Section 3.2 (14% Co/Siralox reduced at 450 °C, then 80 °C, 30% CO + 60% H₂ + 10% Ar, background the same sample under Ar): the paper describes a cobalt carbonyl signal spanning 2100 to 1700 cm⁻¹ and gives only its maximum, without separating linear from bridged CO. It is recorded here because the maximum is where linear CO sits. The spectrum was taken to measure the gas path through the bed, for which the CO(g) R branch was used because it does not overlap this signal."
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
@@ -1493,11 +1530,10 @@
       "references": [
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
-          "wn": null,
-          "measured_on": "co_0",
-          "note": "Ill-resolved bands below 2000 cm⁻¹ on Co/Al₂O₃ attributed to bridged and multibonded CO (Fig. 5a, Section 3.3); not separately resolved from the dominant linear CO band at 2041 cm⁻¹. Appear as a broad shoulder below the linear CO feature.",
+          "measured_on": "co_al2o3",
           "technique": "drifts",
-          "tags": ["direct-dosing"]
+          "tags": [],
+          "note": "Fig. 5a and Section 3.3 (14% Co/Al₂O₃ at 220 °C, 30% CO + 60% H₂ + 10% Ar, ambient pressure, steady state): ill-resolved bands below 2000 cm⁻¹ that the paper associates with bridged and multibonded CO, citing its own earlier work, without giving a position or separating the two. Not resolved from the tail of the linear band."
         },
         {
           "key": "Yudanov.COAdsorptionPd.2026",
@@ -2166,28 +2202,28 @@
           "note": "Table 3 and Fig. 3. CZ, a coprecipitated Cu/ZnO with Cu:Zn 2.1:1, diluted to 8 wt% in KBr and activated in H₂ at 513 K; 3H₂/CO₂ at 20 NmL min⁻¹, 513 K, 4 cm⁻¹, 64 scans. νₐₛ(OCO) of bidentate carbonate at 1543 cm⁻¹ at 1 bar and 1511 cm⁻¹ at 30 bar. The splitting against νₛ at 1319 cm⁻¹ is 224 cm⁻¹, wide, which for a carbonate is the bidentate signature. Both values sit at the low end of the bidentate range, as is usual on ZnO and CuO rather than on a more basic oxide. Literature values cited: 1530, 1512, 1510 and 1515 cm⁻¹."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1532,
-          "measured_on": "hf_4p",
-          "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* disappears instantaneously on switching to H₂. Position shifts slightly with Zn loading: 1532 cm⁻¹ (30 mol%), 1523 cm⁻¹ (20 mol%), 1525 cm⁻¹ (90 mol%).",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": [1595, 1511],
-          "measured_on": "zno",
-          "note": "Fig. S56f (CO₂/N₂ 20 vol%, 320°C, 20 bar): carbonate adsorption on ZnO reference; weaker intensity than ZnHfOx, consistent with low CO₂ activation capacity of ZnO.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
           "wn": 1553,
           "measured_on": "fe2o3",
           "technique": "transmission",
           "tags": ["direct-dosing"],
           "note": "Fig. 3b, Gaussian fit after 120 min evacuation of nanoparticulate Fe₂O₃ dosed with CO₂ at 296 K. With gas-phase CO₂ still present the same band sits a few wavenumbers higher, at 1557 cm⁻¹, and a further band at 1590 cm⁻¹ is assigned to a less stable form of bidentate carbonate that evacuation removes entirely."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [1532, 1523, 1525],
+          "measured_on": "znhfox",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Figs. 6a, S56d and S56e (operando DRIFTS, 320 °C, 20 bar, 20 vol% CO₂ in N₂ for 1 h, background N₂ at 320 °C): bidentate carbonate at 1532 cm⁻¹ on 30ZnHfOₓ, 1523 cm⁻¹ on 20ZnHfOₓ and 1525 cm⁻¹ on 90ZnHfOₓ. The last is mostly segregated ZnO decorated with HfOₓ clusters, yet matches the solid solutions within a few wavenumbers, which the paper uses to argue that CO₂ is activated at the same kind of site on both. The band vanishes the moment H₂ replaces CO₂ and formate appears. No adsorption site is named for the carbonate."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1595,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Fig. S56f and the accompanying SI text (ZnO reference, 20 vol% CO₂ in N₂, 320 °C, 20 bar): the only bidentate carbonate on ZnO. The other bands of the same spectrum are assigned differently, polydentate carbonate at 1511 and 1324 cm⁻¹ and linearly adsorbed CO₂ at 1370 cm⁻¹. The ZnO spectrum as a whole is weaker and unlike the ZnHfOₓ ones, the paper's point that Hf changes how CO₂ binds."
         }
       ],
       "intensity": "s",
@@ -2209,7 +2245,7 @@
       },
       "atoms": "O-C-O",
       "wn_start": 1249,
-      "wn_end": 1370,
+      "wn_end": 1380,
       "short": "νₛ(OCO) b-CO₃²⁻",
       "description": "Bidentate carbonate symmetric stretch (b-CO₃²⁻*).",
       "based_on": [],
@@ -2236,34 +2272,84 @@
           "note": "Table 3 and Fig. 3A, 1 bar. CZ, a coprecipitated Cu/ZnO with Cu:Zn 2.1:1, diluted to 8 wt% in KBr and activated in H₂ at 513 K; 3H₂/CO₂ at 20 NmL min⁻¹, 513 K, 4 cm⁻¹, 64 scans. νₛ(OCO) of bidentate carbonate at 1319 cm⁻¹, the partner of νₐₛ at 1543 cm⁻¹ and the narrow half of a 224 cm⁻¹ splitting. Literature values cited: 1332, 1323 and 1325 cm⁻¹."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1358,
-          "measured_on": "hf_4p",
-          "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* νₛ(OCO); disappears instantaneously on switching to H₂.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1370,
-          "measured_on": "zno",
-          "note": "Fig. S56f (CO₂/N₂ 20 vol%, 320°C, 20 bar): carbonate νₛ on ZnO reference.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
           "wn": 1316,
           "measured_on": "fe2o3",
           "technique": "transmission",
           "tags": ["direct-dosing"],
           "note": "Fig. 3b, the symmetric partner of the 1553 cm⁻¹ band on nanoparticulate Fe₂O₃ after evacuation; 1324 cm⁻¹ with gas-phase CO₂ present. The 237 cm⁻¹ splitting is what separates this bidentate population from the monodentate one at 1446 and 1383 cm⁻¹."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [1358, 1373, 1380],
+          "measured_on": "znhfox",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Figs. 6a, S56d and S56e (operando DRIFTS, 320 °C, 20 bar, 20 vol% CO₂ in N₂ for 1 h, background N₂ at 320 °C): the symmetric partner, 1358 cm⁻¹ on 30ZnHfOₓ, 1373 cm⁻¹ on 20ZnHfOₓ and 1380 cm⁻¹ on 90ZnHfOₓ. Its splitting from νₐₛ, 145 to 174 cm⁻¹, is small for bidentate carbonate and sits between the values usually quoted for the two geometries; the paper assigns it bidentate throughout, and the window is widened to 1380 cm⁻¹ to hold the 90ZnHfOₓ value."
         }
       ],
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
       "tags": []
+    },
+    {
+      "id": "carbonate_polydentate_asym",
+      "species": "carbonate",
+      "phase": "adsorbed",
+      "group": "carbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1480,
+      "wn_end": 1530,
+      "short": "νₐₛ(OCO) p-CO₃²⁻",
+      "description": "Asymmetric OCO stretch of polydentate carbonate: a carbonate bound through more than two oxygens, or bridging several cations, typically built into the top layer of a basic oxide rather than sitting on it. It overlaps the monodentate νₐₛ band and the bottom of the bidentate one, and its splitting from the symmetric partner falls between theirs, so position and spacing alone rarely identify it. What does is stability: polydentate carbonate outlasts the other two on heating and under hydrogen. No binding-geometry field is set, because the carbonate vibration-modes page has only monodentate and bidentate forms so far.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1511,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Fig. S56f and the accompanying SI text (ZnO reference, 20 vol% CO₂ in N₂, 320 °C, 20 bar): polydentate carbonate, p-CO₃*, paired with 1324 cm⁻¹ for a splitting of 187 cm⁻¹. It sits 84 cm⁻¹ below the bidentate carbonate of the same spectrum and has no counterpart on any ZnHfOₓ catalyst."
+        }
+      ],
+      "confidence": "likely",
+      "tags": ["misassignment-warning"]
+    },
+    {
+      "id": "carbonate_polydentate_sym",
+      "species": "carbonate",
+      "phase": "adsorbed",
+      "group": "carbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1300,
+      "wn_end": 1370,
+      "short": "νₛ(OCO) p-CO₃²⁻",
+      "description": "Symmetric OCO stretch of polydentate carbonate, the partner of νₐₛ(OCO) p-CO₃²⁻. It lands in the same window as the bidentate symmetric stretch and on top of formate's, so it is the less useful of the pair: the two carbonates are told apart by their asymmetric partners and by how long they survive heating, not here.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1324,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Fig. S56f and the accompanying SI text (ZnO reference, 20 vol% CO₂ in N₂, 320 °C, 20 bar): the symmetric partner of polydentate carbonate at 1511 cm⁻¹, seen only on the Hf-free oxide."
+        }
+      ],
+      "confidence": "likely",
+      "tags": ["misassignment-warning"]
     },
     {
       "id": "carbonate_bidentate_co_stretch",
@@ -2285,20 +2371,20 @@
       "based_on": [],
       "references": [
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1083,
-          "measured_on": "hf_4p",
-          "note": "Fig. 6a (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃* band at 1083 cm⁻¹; disappears instantaneously on switching to H₂.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
           "wn": 1020,
           "measured_on": "fe2o3",
           "technique": "transmission",
           "tags": ["direct-dosing"],
           "note": "Fig. 2 (nanoparticulate Fe₂O₃, 274 mTorr CO₂ at 296 K): the symmetric C-O stretch of the bidentate carbonate, with the monodentate counterpart 20 cm⁻¹ higher. Weak beside the OCO stretches, and this pair is the lowest position reported for the mode."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1083,
+          "measured_on": "znhfox",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Fig. 6a (operando DRIFTS, 320 °C, 20 bar, 20 vol% CO₂ in N₂ for 1 h, background N₂ at 320 °C, 30ZnHfOₓ): the third bidentate carbonate band, gone as soon as H₂ is introduced like the other two. Only the 30ZnHfOₓ spectra reach this far; Fig. S56 stops at 1200 cm⁻¹."
         }
       ],
       "intensity": "m",
@@ -2422,7 +2508,7 @@
         "branch": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1610,
+      "wn_start": 1600,
       "wn_end": 1650,
       "short": "νₐₛ(OCO) HCO₃⁻*",
       "description": "Bicarbonate asymmetric OCO stretch, the strongest band of the species together with its symmetric partner. Its splitting from that partner, around 210 to 220 cm⁻¹, is the geometry diagnostic: adsorbed bicarbonate bridges two neighbouring metal sites through both of its non-protonated oxygens rather than binding through one, and the splitting comes out the same on oxides as different as iron and aluminium. Distinguishing it from carbonate rests on the COH bend near 1220 cm⁻¹ and on its disappearance under deuteration, since carbonate has no proton to lose.",
@@ -2451,20 +2537,20 @@
           "note": "Table 2, ν₂(OCO)ₐ: 1650 cm⁻¹ on α-Al₂O₃ (12.4 m² g⁻¹) and 1648 cm⁻¹ on γ-Al₂O₃ (101 m² g⁻¹), 274 mTorr CO₂ at 296 K. The two aluminas are recorded under one key because the paper's own finding is that they differ by a few wavenumbers at most, and it averages them for comparison with Fe₂O₃. On γ-Al₂O₃ the fully ¹⁸O-labelled species puts this mode at 1634 cm⁻¹."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1622,
-          "measured_on": "hf_4p",
-          "note": "Fig. 6a/S56d,e (CO₂/N₂ 20 vol%, 320°C, 20 bar): b-CO₃H* disappears instantaneously on switching to H₂. Position shifts with Zn loading: 1622 cm⁻¹ (30 mol%), 1609 cm⁻¹ (20 mol%), 1604 cm⁻¹ (90 mol%).",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Feng.GenerationSurfaceGaH.2024",
           "wn": 1633,
           "measured_on": "ga2o3",
           "technique": "drifts",
           "tags": ["direct-dosing"],
           "note": "CO₂ dosed on precipitated Ga₂O₃ at 300 °C (Fig. S12): of the three bands formed, this one is assigned to bicarbonate and the other two to carbonate. It is the least stable of them: Ar purging removes the bicarbonate while the carbonates stay, which is the paper's evidence that the carbonate, not the bicarbonate, is what the surface hydride goes on to reduce. Table S2 names the mode δ(OH) of CO₃H at 1634 cm⁻¹ rather than the OCO stretch this band records, the same label Rajput et al. use at 1650 cm⁻¹; the species is not in dispute, only which motion carries the band."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [1622, 1603, 1604],
+          "measured_on": "znhfox",
+          "technique": "drifts",
+          "tags": ["direct-dosing"],
+          "note": "Figs. 6a, S56d and S56e (operando DRIFTS, 320 °C, 20 bar, 20 vol% CO₂ in N₂ for 1 h, background N₂ at 320 °C): bidentate bicarbonate, b-CO₃H*, at 1622 cm⁻¹ on 30ZnHfOₓ, 1603 cm⁻¹ on 20ZnHfOₓ and 1604 cm⁻¹ on 90ZnHfOₓ. The paper labels the species and not the mode; this band is where the position falls. It disappears instantly under H₂ together with the carbonate. The carbonate-to-bicarbonate intensity ratio is similar on 20 and 90ZnHfOₓ, the SI's evidence that CO₂ activation does not change when the bulk becomes ZnO. The window is widened to 1600 cm⁻¹ for the two lower values."
         }
       ],
       "intensity": "s",
@@ -3020,14 +3106,6 @@
           "note": "Lower arm of the formate ν(CH) Fermi resonance doublet at 2910 cm⁻¹ on CeO₂ (upper arm at 2945 cm⁻¹); ¹³C isotopic shift confirms C-H origin. Formate pool is large but exchanges more slowly than the bidentate carbonate pool, suggesting formate is not the primary RWGS active intermediate."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": [2887, 2873],
-          "measured_on": ["zn_2p", "zno"],
-          "note": "Fig. 6b/8e/S56 (H₂:CO₂:N₂ = 3:1:1 or H₂/N₂, 320°C, 20 bar): νₛ(C–H) HCOO* on ZnHfOx at 2887 cm⁻¹; on ZnO at ~2873 cm⁻¹ (only weak formate, consistent with low CO₂ activation on ZnO). Key intermediate in formate-methoxy pathway.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [2856, 2850, 2860, 2858, 2854, 2852, 2848, 2896, 2883, 2877],
           "measured_on": ["cu_0", "zn_2p", "ga_3p", "in_3p"],
@@ -3058,6 +3136,29 @@
           "technique": "irras",
           "tags": ["direct-dosing"],
           "note": "Fig. 7b, 7d, 7f (IRRAS, UHV, room temperature): only three C-H bands here and the 2868 cm⁻¹ one is missing. Its absence is the argument: 2868 cm⁻¹ marked the upright bidentate-bridging species, which this facet cannot host, so the C-H region independently confirms what the OCO stretches say about geometry."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [2887, 2892, 2894],
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 6a, S56g and S56h (operando DRIFTS, 320 °C, 20 bar; H₂ step for 30ZnHfOₓ, H₂:CO₂:N₂ = 3:1:1 for the others): formate ν(CH) at 2887 cm⁻¹ on 30ZnHfOₓ, 2892 cm⁻¹ on 20ZnHfOₓ and 2894 cm⁻¹ on 90ZnHfOₓ, labelled νₛ(C–H) in the paper. The near-identity of 20 and 90ZnHfOₓ, against 2873 cm⁻¹ on ZnO, is its argument that both kinds of catalyst hold formate at the same Zn–Vₒ–Hf motif."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2873,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 8e and S56i (operando DRIFTS, ZnO reference, 320 °C, 20 bar, H₂:CO₂:N₂ = 3:1:1): formate on the Hf-free oxide at about 2873 cm⁻¹, some 20 cm⁻¹ below the ZnHfOₓ catalysts and in line with earlier formic-acid dosing on ZnO that the paper cites. Weak: ZnO activates CO₂ poorly, and only very weak methoxy bands form alongside."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "measured_on": "hfo2",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 8e and Section 2.9 (operando DRIFTS, bare monoclinic HfO₂ reference, 90 min at 320 °C, 20 bar, H₂:CO₂:N₂ = 3:1:1): formate forms on the Zn-free oxide, weaker than on 30ZnHfOₓ, although no methanol leaves the cell. The paper prints no position, only that the 30ZnHfOₓ band sits 4 to 5 cm⁻¹ lower, between HfO₂ and ZnO; that in-between position is its case for an intermediate bound at a site involving both Zn and Hf. No value is recorded: the figure is not labelled with one."
         }
       ],
       "intensity": "s",
@@ -3122,14 +3223,6 @@
           "note": "Table 3 and Fig. 3. CZ, a coprecipitated Cu/ZnO with Cu:Zn 2.1:1, diluted to 8 wt% in KBr and activated in H₂ at 513 K; 3H₂/CO₂ at 20 NmL min⁻¹, 513 K, 4 cm⁻¹, 64 scans. νₐₛ(OCO) at 1587 cm⁻¹ at 1 bar and 1603 cm⁻¹ at 30 bar, assigned to bidentate and to unidentate formate respectively. The splittings against νₛ agree with that split rather than contradict it: 227 cm⁻¹ for the 1 bar pair and 289 cm⁻¹ for the 30 bar pair, and a carboxylate bound through one oxygen splits wider than one chelating through both. The 30 bar formate is this paper’s spectator: strong, but its intensity does not follow the GHSV, it is still there on the catalytically inactive CZ-2000, and hours of H₂ flushing are needed to remove it."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1578,
-          "measured_on": "zn_2p",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): HCOO* ν(C=O) forms instantaneously on switching from CO₂ to H₂; intensity decreases as methoxy builds up, consistent with active intermediate in the formate-methoxy pathway.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [1590, 1544],
           "measured_on": "cu_0",
@@ -3160,6 +3253,14 @@
           "technique": "irras",
           "tags": ["direct-dosing"],
           "note": "Table 1 and Fig. 6 (IRRAS, UHV, room temperature): νₐₛ(OCO) at 1588 cm⁻¹ for the quasi-bidentate species and 1548 cm⁻¹, very weak, for the chelating one. Pairing each with its symmetric partner gives splittings of 253 and 168 cm⁻¹: the chelating geometry has the smaller O-C-O angle and the smaller splitting, which is the standard geometry diagnostic recovered here from polarization rather than from position alone."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1578,
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 6a to 6c (operando DRIFTS, 30ZnHfOₓ, 320 °C, 20 bar, switching 20 vol% CO₂ → 80 vol% H₂ → H₂:CO₂:N₂ = 3:1:1, all in N₂): the dominant formate band, which the paper calls ν(C=O). It appears the instant H₂ replaces CO₂ and fades as methoxy grows; re-admitting CO₂ restores it at once while methoxy falls, the formate-methoxy pathway read straight off the spectra. The site is the paper's postulate: the formate and methoxy bands on 30ZnHfOₓ sit 4 to 5 cm⁻¹ below those on HfO₂ and between the two single oxides (Fig. 8e), which it reads as stabilisation at a Zn–Vₒ–Hf motif. Fig. S49 repeats the sequence on 20ZnHfOₓ with the same result; its caption repeats Fig. 6's tracking positions word for word, so it is not recorded as a separate 20ZnHfOₓ position."
         }
       ],
       "intensity": "s",
@@ -3244,6 +3345,14 @@
           "technique": "drifts",
           "tags": [],
           "note": "H₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S13; also Fig. 5b under CO₂/H₂ = 1:3 from 30 to 450 °C): the lower of the two weak formate components below the dominant 1581 cm⁻¹ band. Fig. S13 marks both HCOO* without saying which is which, but Table S2 separates them, νₛ(OCO) at 1370 cm⁻¹ and δ(CH) at 1386 cm⁻¹, so the two are recorded as separate claims rather than as one pair on this band."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1371,
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 6a (30ZnHfOₓ, H₂ and H₂:CO₂ steps, 320 °C, 20 bar): a band labelled HCOO* in the figure and not discussed in the text, which names no mode for it. It is recorded here because νₛ(OCO) is what this position and its 207 cm⁻¹ splitting from 1578 cm⁻¹ point to, but δ(CH) lands in the same place and the paper does not separate them. Zn–Vₒ–Hf is the paper's postulated site for all its intermediates (Section 2.9, Fig. 8e)."
         }
       ],
       "intensity": "s",
@@ -3361,14 +3470,6 @@
           "tags": []
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 2979,
-          "measured_on": "zn_2p",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): assigned as νₐₛ(C–H) HCOO*; appears together with νₛ(C–H) at 2887 cm⁻¹ and ν(C=O) at 1578 cm⁻¹.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [2931, 2929, 2923, 2937, 2933],
           "measured_on": "cu_0",
@@ -3391,8 +3492,16 @@
           "technique": "irras",
           "tags": ["direct-dosing"],
           "note": "Fig. 7 and Table 1 (IRRAS, UHV, room temperature): assigned as a coupling of the asymmetric OCO stretch with the C-H bend, and seen on both magnetite facets at the same position. It appears in p-polarized light on Fe₃O₄(001). Recorded here rather than as a C-H fundamental because the paper treats it as the combination, consistent with the earlier assignment of a band near 2950 cm⁻¹ on Cu(110)."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2979,
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 6a (30ZnHfOₓ, H₂ step, 320 °C, 20 bar): the weaker partner of the 2887 cm⁻¹ band, assigned in the paper as νₐₛ(C–H) of formate against νₛ(C–H) at 2887 cm⁻¹. Formate has a single C–H bond and so no symmetric and asymmetric pair; the atlas files this band as the δ(CH)+νₐₛ(OCO) combination its position matches, and the νₐₛ(C–H) label is the paper's."
         }
-        ],
+      ],
       "tags": []
     },
       // FIXME: second mode unidentified. Some sources call this 2ν(C=O) overtone.,
@@ -3633,14 +3742,6 @@
           "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the C-H stretching region of CH₃O* is marked at 2970, 2876 and 2819 cm⁻¹, with 2876 cm⁻¹ belonging to formate. The paper names no site for the methoxy on the catalyst; its own reference spectra on precipitated ZrO₂ and Ga₂O₃ (Fig. S5) are what support reading it as bound to the oxide rather than to Cu."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 2933,
-          "measured_on": "zn_ovac_hf",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): νₐₛ(CH₃) H₃CO*; forms as formate is hydrogenated in the formate-methoxy pathway.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [2958, 2956, 2952],
           "measured_on": "sio2",
@@ -3655,6 +3756,14 @@
           "technique": "drifts",
           "tags": [],
           "note": "Fig. 5a (operando DRIFTS-MS, precipitated Ga₂O₃, CO₂/H₂ = 1:3, 30 to 450 °C; Table S2): νₐₛ(CH₃) of CH₃O*, marked as a shoulder 39 cm⁻¹ below the formate combination band at 2979 cm⁻¹ and paired with νₛ(CH₃) at 2834 cm⁻¹. Methoxy on an oxide carrying no metal at all: it is made from formate by the surface Ga-H hydride, and gas-phase methanol follows it into the mass spectrometer from 304 °C (Fig. S16)."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2933,
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 6a and 6b (30ZnHfOₓ, H₂ step, 320 °C, 20 bar): νₐₛ(CH₃) of methoxy, growing as formate is hydrogenated under H₂ and falling when CO₂ returns. Zn–Vₒ–Hf is the paper's postulated site: in its DFT, CH₂O* moves to the oxygen vacancy of that motif to be hydrogenated to CH₃O* (Fig. 7)."
         }
       ],
       "intensity": "m",
@@ -3719,14 +3828,6 @@
           "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): the lower of the two CH₃O* stretching peaks. The corresponding reference spectra on the single oxides (Fig. S5) put the methoxy C-H stretches between 2797 and 2935 cm⁻¹ without resolving them into symmetric and asymmetric."
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": [2827, 2825],
-          "measured_on": ["zn_ovac_hf", "zno"],
-          "note": "Fig. 6b/S49/S56 (H₂:CO₂:N₂ = 3:1:1, 320°C, 20 bar): νₛ(CH₃) H₃CO* used as key tracker band; ~2827 cm⁻¹ on 30ZnHfOx, ~2832 cm⁻¹ (20ZnHfOx), ~2834 cm⁻¹ (90ZnHfOx). On ZnO: 2825 cm⁻¹, only very weak bands (poor methoxy formation from CO₂ on pure ZnO).",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "wn": [2858, 2854, 2856, 2859],
           "measured_on": "sio2",
@@ -3741,6 +3842,29 @@
           "technique": "drifts",
           "tags": [],
           "note": "H₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S13 inset, and Fig. 5a under CO₂/H₂ = 1:3): the methoxy that formate is converted into as the temperature rises, on an oxide with no metal on it at all. It appears above roughly 250 °C and its growth follows the loss of formate (Fig. 5c). Both figures mark 2837 cm⁻¹, which is the value recorded; Table S2 lists the same band at 2834 cm⁻¹ and names the mode νₛ(CH₃). Its νₐₛ(CH₃) partner is at 2940 cm⁻¹."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": [2827, 2832, 2835],
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 6a to 6c, S56g and S56h (operando DRIFTS, 320 °C, 20 bar): νₛ(CH₃) of methoxy, the band the paper tracks with time, at 2827 cm⁻¹ on 30ZnHfOₓ, 2832 cm⁻¹ on 20ZnHfOₓ and 2835 cm⁻¹ on 90ZnHfOₓ. After switching to H₂ it grows on every Hf-containing catalyst and markedly less on ZnO, which the paper reads as Hf stabilising methoxy at the Zn–Vₒ–Hf motif."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 2825,
+          "measured_on": "zno",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Figs. 8e, S56i and S56l (ZnO reference, 320 °C, 20 bar, H₂:CO₂:N₂ = 3:1:1 then H₂): methoxy on the Hf-free oxide, very weak, and growing less under H₂ than on the Hf-containing catalysts while formate decreases. Set against the ZnHfOₓ catalysts, this is the paper's evidence that Hf in the active motif is what stabilises methoxy."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "measured_on": "hfo2",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 8e and Section 2.9 (operando DRIFTS, bare monoclinic HfO₂ reference, 90 min at 320 °C, 20 bar, H₂:CO₂:N₂ = 3:1:1): methoxy forms on the Zn-free oxide, weaker than on 30ZnHfOₓ, yet no methanol is detected in the off-gas. The paper suggests slow turnover, or methoxy that cannot be hydrogenated without Zn, which matches the poor H₂ activation of HfO₂ in its H₂-D₂ exchange. No position is printed; the 30ZnHfOₓ band sits 4 to 5 cm⁻¹ lower."
         }
       ],
       "intensity": "m",
@@ -3865,10 +3989,10 @@
         {
           "key": "Oing.RoleZnHf.2026",
           "wn": 1153,
-          "measured_on": "zn_2p",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): terminal methoxy (t-H₃CO*) ν(CO); forms as formate is hydrogenated. Assigned as terminal based on position above 1100 cm⁻¹; paired with bridged methoxy at 1052 cm⁻¹.",
+          "measured_on": ["zn_ovac_hf", "znhfox"],
           "technique": "drifts",
-          "tags": []
+          "tags": [],
+          "note": "Fig. 6a (30ZnHfOₓ, H₂ step, 320 °C, 20 bar): terminal methoxy, t-H₃CO*, appearing with the bridged form at 1052 cm⁻¹ as formate is hydrogenated. The paper names the geometry and not the mode; ν(CO) is where the position falls. It tells the two geometries apart by label only and names no site for either beyond its general postulate, Zn–Vₒ–Hf for all its intermediates (Section 2.9, Fig. 8e). Fig. S49 marks both forms on 20ZnHfOₓ in the same switching sequence, without printing positions."
         }
       ],
       "intensity": "s",
@@ -3903,20 +4027,20 @@
           "tags": ["direct-dosing"]
         },
         {
-          "key": "Oing.RoleZnHf.2026",
-          "wn": 1052,
-          "measured_on": "zn_ovac_hf",
-          "note": "Fig. 6b (H₂/N₂ 80 vol%, 320°C, 20 bar): bridged methoxy (b-H₃CO*) ν(CO); consistent with CH₃O* at a Zn–Vₒ–Hf oxygen-vacancy site. Paired with terminal methoxy at 1153 cm⁻¹.",
-          "technique": "drifts",
-          "tags": []
-        },
-        {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
           "wn": 1071,
           "measured_on": "ga2o3",
           "technique": "drifts",
           "tags": ["direct-dosing"],
           "note": "Fig. S5, reference spectrum: methanol dosed onto precipitated Ga₂O₃ at 260 °C and 1 bar, with the bubbler switched off so only adsorbed species remain. The paper puts the C-O stretch of CH₃O* at 1071 cm⁻¹ on this oxide and gives no binding geometry. It is recorded on the bidentate band because that is where the position falls, not because the paper says so."
+        },
+        {
+          "key": "Oing.RoleZnHf.2026",
+          "wn": 1052,
+          "measured_on": ["zn_ovac_hf", "znhfox"],
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 6a (30ZnHfOₓ, H₂ step, 320 °C, 20 bar): bridged methoxy, b-H₃CO*, the partner of terminal methoxy at 1153 cm⁻¹. The paper names the geometry and not the mode; ν(CO) is where the position falls. Zn–Vₒ–Hf is the paper's postulated site for all its intermediates (Section 2.9, Fig. 8e)."
         }
       ],
       "intensity": "m",
@@ -5205,6 +5329,22 @@
           "technique": "irras",
           "tags": ["direct-dosing"],
           "note": "Fig. 7 region and the accompanying text (IRRAS, UHV, room temperature): O-H stretching modes found around 3640 cm⁻¹ on both magnetite facets. The polarization gives the tilt: roughly 45° from the surface normal for surface hydroxyls and about 75° for the O-H of molecularly adsorbed formic acid. These hydroxyls are where the hydrogen released by the dissociating acid ends up. The paper cautions that O-H bands on magnetite are intrinsically very weak, so the calculated positions could not be checked against experiment."
+        },
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": 3735,
+          "measured_on": "sio2",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 1 (commercial silica, 312 m²/g, annealed in flowing Ar at 350 °C for 5 min, then cooled to 50 °C in 50 °C steps, background the SiC-filled cell): free silanols. Beside them a larger band from 3800 to 3000 cm⁻¹ of hydrogen-bonded silanols, which grows slightly on cooling, most likely as traces of water readsorb."
+        },
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": [3743, 3445],
+          "measured_on": "sio2",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 2 (the same silica at 50, 150 and 250 °C in Ar, referenced to its own spectrum at 350 °C): new free silanols at 3743 cm⁻¹ and hydrogen-bonded hydroxyls around 3445 cm⁻¹, both clearer the lower the temperature, as the surface partly rehydrates. The same difference spectra grow spurious bands in the carbonyl region (see lattice overtones SiO₂)."
         }
       ],
       "tags": []
@@ -5268,7 +5408,7 @@
       "based_on": [],
       "references": [
         {
-          "key": "Herzberg.InfraredRamanSpectra.1945",
+          "key": "Herzberg.InfraredRamanSpectra.1946",
           "wn": 3657,
           "note": "ν₁, the symmetric stretch. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }
@@ -5297,7 +5437,7 @@
       "based_on": [],
       "references": [
         {
-          "key": "Herzberg.InfraredRamanSpectra.1945",
+          "key": "Herzberg.InfraredRamanSpectra.1946",
           "wn": 1595,
           "note": "ν₂, the bend, and the strongest of the three. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }
@@ -5326,7 +5466,7 @@
       "based_on": [],
       "references": [
         {
-          "key": "Herzberg.InfraredRamanSpectra.1945",
+          "key": "Herzberg.InfraredRamanSpectra.1946",
           "wn": 3756,
           "note": "ν₃, the asymmetric stretch and the highest of the three fundamentals. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }
@@ -5502,6 +5642,39 @@
       "tags": [
         "misassignment-warning",
         "site-sensitive"
+      ]
+    },
+
+    {
+      "id": "silica_lattice_overtone",
+      "species": "silica",
+      "phase": "surface",
+      "group": "support",
+      "vibration": {
+        "category": "lattice",
+        "subtype": null,
+        "branch": null
+      },
+      "atoms": "M-O",
+      "wn_start": 1860,
+      "wn_end": 2000,
+      "short": "lattice overtones SiO₂",
+      "description": "Not an adsorbate. Overtones and combinations of the Si-O-Si framework vibrations of silica itself, which absorbs so strongly in its fundamentals that little below about 1600 cm⁻¹ survives in diffuse reflectance. The clearest pair sits near 1870 and 1985 cm⁻¹, in the window of bridged and linear metal carbonyls; silicas and zeolites carry more of the series between 1400 and 2800 cm⁻¹. Their shape and position move with temperature and with rehydration, so a difference spectrum referenced to a background at another temperature grows peaks and valleys here that belong to neither spectrum and read convincingly as adsorbed CO. A background taken on the same sample at the same temperature and humidity removes them.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "wn": [1985, 1873],
+          "measured_on": "sio2",
+          "technique": "drifts",
+          "tags": [],
+          "note": "Fig. 1 (commercial silica, 312 m²/g, annealed in Ar at 350 °C, cooled to 50 °C in 50 °C steps, background the SiC-filled cell): combination and overtone bands of the silica backbone, whose intensity and position change on cooling and rehydration. Referenced to the 350 °C spectrum instead (Fig. 2), that change shows up as new bands at 2036 and 1902 cm⁻¹ and valleys at 1947 and 1823 cm⁻¹, none at the positions of the sample spectrum. The paper warns these could be taken for CO on a silica-supported metal, and the valleys for a vanishing species. The assignment is inherited from the silica literature it cites."
+        }
+      ],
+      "confidence": "likely",
+      "tags": [
+        "overtone",
+        "misassignment-warning"
       ]
     }
   ]

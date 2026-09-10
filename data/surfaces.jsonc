@@ -302,6 +302,14 @@
       "elements": ["Zr", "O"],
       "parts": ["zr_4p"]
     },
+    "hfo2": {
+      "label": "HfO₂",
+      "level": "phase",
+      "formula": "HfO₂",
+      "elements": ["Hf", "O"],
+      "parts": ["hf_4p"],
+      "note": "Hafnia, ZrO₂'s chemical twin. Monoclinic when precipitated and calcined on its own; the Zn-doped solid solutions are cubic and are the znhfox sample, not this."
+    },
     "ga2o3": {
       "label": "Ga₂O₃",
       "level": "phase",
@@ -380,6 +388,14 @@
       "parts": ["cu_0", "cu_1p", "ga", "ga_3p", "zr_4p"],
       "note": "Coprecipitated Cu-Ga-Zr mixed oxide, around 20 wt% Cu. Sources publish it as a series with different Ga and Zr loadings, written Cu-GaZrOₓ-Z where Z is Zr/(Zr+Cu+Ga) as a molar percentage; the family is recorded here and the individual member named in the note, since the distinction the spectra turn on is against the Cu-free GaZrOₓ rather than between members."
     },
+    "znhfox": {
+      "label": "ZnHfOₓ",
+      "level": "sample",
+      "composition": "ZnHfOₓ",
+      "elements": ["Zn", "Hf", "O"],
+      "parts": ["zn_2p", "hf_4p", "zn_ovac_hf"],
+      "note": "Co-precipitated Zn–Hf mixed oxide, published as a series written xZnHfOₓ with x the Zn/(Zn+Hf) molar percentage. Up to about 35 mol% it is Zn-doped cubic HfO₂ in solid solution; above 40 mol% bulk ZnO segregates and carries HfOₓ clusters on its surface. One key for the family, with the member named in the note, because the IR bands of both regimes agree within a few wavenumbers and that agreement is the claim the spectra turn on. ZnO is not listed as a part: the low-Zn members contain none."
+    },
     "gazrox": {
       "label": "GaZrOₓ",
       "level": "sample",
@@ -417,6 +433,21 @@
       "elements": ["Ru", "Na", "Al", "O"],
       "parts": ["ru_0", "al2o3", "na_1p"],
       "note": "The sodium-promoted counterpart of Ru/Al₂O₃; the quotes are the authors' own."
+    },
+    "co_al2o3": {
+      "label": "Co/Al₂O₃",
+      "level": "sample",
+      "composition": "Co/γ-Al₂O₃",
+      "elements": ["Co", "Al", "O"],
+      "parts": ["co_0", "al2o3"]
+    },
+    "co_siralox": {
+      "label": "Co/Siralox",
+      "level": "sample",
+      "composition": "Co/Siralox",
+      "elements": ["Co", "Si", "Al", "O"],
+      "parts": ["co_0", "al2o3"],
+      "note": "Cobalt on Siralox, a commercial silica-alumina of 5% SiO₂ and 95% Al₂O₃. Kept apart from co_al2o3: the support differs, and so does the carbonyl position reported on it. SiO₂ is not listed as a part: at 5% it is a dopant of the alumina, not a phase of its own."
     }
   }
 }
