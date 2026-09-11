@@ -25,6 +25,9 @@
    *          polarizability α traced through the swing and the verdict under
    *          them; below, the IR and the Raman spectrum of CO₂, drawn from
    *          the atlas's own bands. Nothing appears in both: mutual exclusion.
+   *          Last, every mode frozen at +Q and −Q: the symmetric stretch gives
+   *          two different shapes (α differs, μ stays zero), the asymmetric
+   *          stretch and the bend give mirror images (μ flips, α does not).
    *
    * The two traces carry the argument. In the symmetric stretch μ stays at
    * zero while α follows the motion. In the asymmetric stretch and the bend
@@ -72,7 +75,7 @@
     bend: { x: 62, y: 72 }, // the bend grows out of the other IR-active mode
   };
   const F = {
-    W: 480, H: 320, x0: 52, x1: 466, bond: 18, rO: 6, rC: 6.3, rx: 36, ry: 13,
+    W: 480, H: 526, x0: 52, x1: 466, bond: 18, rO: 6, rC: 6.3, rx: 36, ry: 13,
     my: 42, muY: 82, alY: 102, verdictY: 128,
     irTop: 146, irBase: 204, raTop: 220, raBase: 278,
   };
@@ -205,6 +208,75 @@
   $: labelOpacity = ramp(t, 0.75, 1);
   const TICKS = [2500, 2000, 1500, 1000, 500];
 
+  /* ── Frozen at the two extremes ─────────────────────────────────────── */
+
+  // One line per mode: +Q on the left, −Q on the right, and between them
+  // either "≠" (two different shapes) or a mirror line. No field here: the
+  // shapes carry the argument, and μ is drawn where the motion creates one.
+  const FZ = { title: 346, head: 370, xa: 132, xb: 236, verdictX: 304 };
+  type Atom = { el: 'C' | 'O'; x: number; y: number };
+  type Blob = { x: number; y: number; rx: number; ry: number; kind: string };
+  type Snap = { atoms: Atom[]; clouds: Blob[]; mu?: { x1: number; y1: number; x2: number; y2: number } };
+  type Frozen = { m: Mode; y: number; mirror: boolean; snaps: Snap[]; lines: [string, string] };
+
+  function symSnap(cx: number, y: number, long: boolean): Snap {
+    const half = long ? 21 : 13;
+    return {
+      atoms: [
+        { el: 'O', x: cx - half, y },
+        { el: 'C', x: cx, y },
+        { el: 'O', x: cx + half, y },
+      ],
+      clouds: [{ x: cx, y, rx: long ? 34 : 23, ry: long ? 13 : 9, kind: long ? 'spread' : 'compact' }],
+    };
+  }
+  // +Q: carbon shifted left, so the left C=O is short and the right one long.
+  function asymSnap(cx: number, y: number, dir: 1 | -1): Snap {
+    const c = cx - dir * 5;
+    const oL = cx - 19;
+    const oR = cx + 19;
+    const lobe = (a: number, b: number): Blob => {
+      const len = b - a;
+      return { x: (a + b) / 2, y, rx: len / 2 + 7, ry: 5 + (len - 14) * 0.55, kind: len > 19 ? 'spread' : 'compact' };
+    };
+    return {
+      atoms: [
+        { el: 'O', x: oL, y },
+        { el: 'C', x: c, y },
+        { el: 'O', x: oR, y },
+      ],
+      clouds: [lobe(oL, c), lobe(c, oR)],
+      // From − to +: the way the δ+ carbon sits off the oxygens' centre.
+      mu: { x1: cx + 10 * dir, y1: y + 17, x2: cx - 10 * dir, y2: y + 17 },
+    };
+  }
+  // +Q: oxygens up, carbon down, so the positive centre sits low.
+  function bendSnap(cx: number, y: number, dir: 1 | -1): Snap {
+    return {
+      atoms: [
+        { el: 'O', x: cx - 18, y: y - 4 * dir },
+        { el: 'C', x: cx, y: y + 5 * dir },
+        { el: 'O', x: cx + 18, y: y - 4 * dir },
+      ],
+      clouds: [{ x: cx, y, rx: 30, ry: 13, kind: '' }],
+      mu: { x1: cx + 32, y1: y - 9 * dir, x2: cx + 32, y2: y + 9 * dir },
+    };
+  }
+  const FY = 398;
+  const FROZEN: Frozen[] = [
+    { m: 'sym', y: FY, mirror: false, snaps: [symSnap(FZ.xa, FY, true), symSnap(FZ.xb, FY, false)], lines: ['μ = 0 both: IR ✗', 'α differs: Raman ✓'] },
+    { m: 'asym', y: FY + 50, mirror: true, snaps: [asymSnap(FZ.xa, FY + 50, 1), asymSnap(FZ.xb, FY + 50, -1)], lines: ['μ flips: IR ✓', 'α same: Raman ✗'] },
+    { m: 'bend', y: FY + 100, mirror: true, snaps: [bendSnap(FZ.xa, FY + 100, 1), bendSnap(FZ.xb, FY + 100, -1)], lines: ['μ flips: IR ✓', 'α same: Raman ✗'] },
+  ];
+  const muHead = (mu: { x1: number; y1: number; x2: number; y2: number }) => {
+    const dx = mu.x2 - mu.x1;
+    const dy = mu.y2 - mu.y1;
+    const n = Math.hypot(dx, dy) || 1;
+    const ux = dx / n;
+    const uy = dy / n;
+    return `M${mu.x2 - ux * 4 - uy * 3},${mu.y2 - uy * 4 + ux * 3} L${mu.x2},${mu.y2} L${mu.x2 - ux * 4 + uy * 3},${mu.y2 - uy * 4 - ux * 3}`;
+  };
+
   const O_FILL = colorForElement('O');
   const C_FILL = colorForElement('C');
 </script>
@@ -229,6 +301,14 @@
       >
         <stop offset="0" class="dense" class:strong={mol.m === 'sym'} />
         <stop offset="0.5" class="mid" />
+        <stop offset="1" class="thin" />
+      </radialGradient>
+    {/each}
+    <!-- The frozen clouds: spread thin around a long bond, packed around a short one. -->
+    {#each ['', 'spread', 'compact'] as kind}
+      <radialGradient id="{uid}-frozen{kind}" cx="0.5" cy="0.5" r="0.62">
+        <stop offset="0" class="dense {kind}" />
+        <stop offset="0.5" class="mid {kind}" />
         <stop offset="1" class="thin" />
       </radialGradient>
     {/each}
@@ -341,6 +421,44 @@
     <text class="lbl faint" x={F.x0} y={F.raBase + 32}>← higher energy</text>
     <text class="lbl faint" x={F.x1} y={F.raBase + 32} text-anchor="end">wavenumber (cm⁻¹)</text>
   </g>
+
+  <!-- ── Opened: every mode frozen at +Q and −Q ── -->
+  <g style="opacity:{fullOpacity}">
+    {#each FROZEN as row (row.m)}
+      {#each row.snaps as snap}
+        {#each snap.clouds as c}
+          <ellipse class="cloud" cx={c.x} cy={c.y} rx={c.rx} ry={c.ry} fill="url(#{uid}-frozen{c.kind})" />
+        {/each}
+        <line class="bond" x1={snap.atoms[0].x} y1={snap.atoms[0].y} x2={snap.atoms[1].x} y2={snap.atoms[1].y} />
+        <line class="bond" x1={snap.atoms[1].x} y1={snap.atoms[1].y} x2={snap.atoms[2].x} y2={snap.atoms[2].y} />
+        {#each snap.atoms as a}
+          <circle cx={a.x} cy={a.y} r={a.el === 'C' ? 5.3 : 5} fill={a.el === 'C' ? C_FILL : O_FILL} />
+        {/each}
+        {#if snap.mu}
+          <line class="dipole" x1={snap.mu.x1} y1={snap.mu.y1} x2={snap.mu.x2} y2={snap.mu.y2} />
+          <path class="dipole-head" d={muHead(snap.mu)} />
+        {/if}
+      {/each}
+      {#if row.mirror}
+        <line class="mirror" x1={(FZ.xa + FZ.xb) / 2} x2={(FZ.xa + FZ.xb) / 2} y1={row.y - 20} y2={row.y + 20} />
+      {/if}
+    {/each}
+  </g>
+  <g style="opacity:{labelOpacity}">
+    <text class="lbl name" x="14" y={FZ.title}>Frozen at the two extremes</text>
+    <text class="lbl faint" x="212" y={FZ.title}>the mirror flips μ, not α</text>
+    <text class="lbl" x={FZ.xa} y={FZ.head} text-anchor="middle">+Q</text>
+    <text class="lbl" x={FZ.xb} y={FZ.head} text-anchor="middle">−Q</text>
+    {#each FROZEN as row (row.m)}
+      <text class="lbl name" x="14" y={row.y + 4}>{NAME[row.m]}</text>
+      {#if !row.mirror}
+        <text class="lbl strong" x={(FZ.xa + FZ.xb) / 2} y={row.y + 5} text-anchor="middle">≠</text>
+      {/if}
+      <text class="verdict" class:yes-ir={ACTIVE[row.m].ir} x={FZ.verdictX} y={row.y - 3}>{row.lines[0]}</text>
+      <text class="verdict" class:yes-raman={ACTIVE[row.m].raman} x={FZ.verdictX} y={row.y + 13}>{row.lines[1]}</text>
+    {/each}
+    <text class="lbl faint" x={(FZ.xa + FZ.xb) / 2} y={FROZEN[2].y + 32} text-anchor="middle">mirror</text>
+  </g>
 </svg>
 
 <style>
@@ -362,6 +480,14 @@
   .dense.strong { stop-opacity: 0.7; }
   .mid { stop-color: var(--diagram-laser); stop-opacity: 0.22; }
   .thin { stop-color: var(--diagram-laser); stop-opacity: 0.02; }
+  /* Frozen clouds: spread thin around a long bond, packed around a short one. */
+  .dense.spread { stop-opacity: 0.45; }
+  .mid.spread { stop-opacity: 0.14; }
+  .dense.compact { stop-opacity: 0.9; }
+  .mid.compact { stop-opacity: 0.5; }
+
+  .mirror { stroke: var(--ink-slate-400); stroke-width: 1; stroke-dasharray: 4 3; }
+  .lbl.strong { fill: var(--ink-slate-900); font-weight: var(--t-label-weight); }
 
   .delta {
     font-family: var(--font-sans);

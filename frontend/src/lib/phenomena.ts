@@ -15,6 +15,12 @@
  * Keep the resolvers in step with the link fields in schema.py: a phenomenon
  * that stops resolving to anything renders as an empty section, which is the
  * signal that the data moved on without the prose.
+ *
+ * On the Knowledge page the phenomena are cards, grouped by what a reader
+ * sees in a spectrum rather than by their physics: more bands than there are
+ * modes, fewer, or bands that sit somewhere else (PATTERN_GROUPS). A
+ * phenomenon that is really one of the basics at work says so with `into`,
+ * and its examples appear inside that card instead of on a card of its own.
  */
 
 import type { Band } from './types';
@@ -28,9 +34,31 @@ export interface Example {
   note?: string;
 }
 
+/**
+ * Why a spectrum does not show exactly one band per vibration: three answers,
+ * each a row of cards under "Band patterns".
+ */
+export type PatternGroup = 'more' | 'fewer' | 'moved';
+
+export const PATTERN_GROUPS: { key: PatternGroup; label: string; note: string }[] = [
+  { key: 'more', label: 'More bands than modes', note: 'Where extra bands come from' },
+  { key: 'fewer', label: 'Fewer bands than modes', note: 'Where bands merge' },
+  { key: 'moved', label: 'Bands that move', note: 'What shifts a band without changing the mode' },
+];
+
 export interface Phenomenon {
   key: string;
   label: string;
+  /** Its row on the Knowledge page. Absent when `into` hosts it instead. */
+  group?: PatternGroup;
+  /** One or two sentences on the card. Keep it to about 15 words. */
+  teaser: string;
+  /**
+   * A Basics or Spectroscopy card (lib/fundamentals.ts) that is this
+   * phenomenon at work: its examples are listed there, and links to the
+   * phenomenon open that card.
+   */
+  into?: string;
   /** What it is, physically. Not written yet. */
   what: string;
   /** How it shows up in a spectrum, and why it matters. Not written yet. */
@@ -50,6 +78,8 @@ function bandById(bands: Band[]): Map<string, Band> {
 export const PHENOMENA: Phenomenon[] = [
   {
     key: 'fermi',
+    group: 'more',
+    teaser: 'Two levels at nearly the same energy mix, share their intensity and push apart.',
     label: 'Fermi resonance',
     field: 'fermi_partner / fermi_partner_group',
     what: '',
@@ -77,12 +107,20 @@ export const PHENOMENA: Phenomenon[] = [
         list.push(b);
         groups.set(b.fermi_partner_group, list);
       }
+      // Both sides of such a pair usually point at each other, so one resonance
+      // would otherwise be listed twice; the band set identifies it.
+      const vibration = (b: Band) => (b.short || b.id).replace(/\s*\([PQR]\)$/, '');
+      const listed = new Set<string>();
       for (const [key, members] of groups) {
         const partners = bands.filter(b => b.branch_group === key);
         if (!partners.length) continue;
+        const all = [...new Map([...members, ...partners].map(b => [b.id, b])).values()].sort(byWn);
+        const id = all.map(b => b.id).sort().join('|');
+        if (listed.has(id)) continue;
+        listed.add(id);
         out.push({
-          label: `${members[0].short || members[0].id} + the ${key} branches`,
-          bands: [...members, ...partners].sort(byWn),
+          label: `${vibration(members[0])} + ${vibration(partners[0])}`,
+          bands: all,
           note: 'Resonance with a whole branch group: the partner vibration is itself split into R/P/Q.',
         });
       }
@@ -91,6 +129,8 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'isotopologue',
+    group: 'moved',
+    teaser: 'A heavier atom slows the vibration: the same band, shifted down, the bond unchanged.',
     label: 'Isotopic shift',
     field: 'isotopologue_of + isotope',
     what: '',
@@ -113,6 +153,8 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'branches',
+    group: 'more',
+    teaser: 'A free molecule also rotates, so its band splits into P, Q and R branches.',
     label: 'Rotational branches',
     field: 'branch_group',
     what: '',
@@ -136,6 +178,8 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'combination',
+    group: 'more',
+    teaser: 'Two rungs at once, or two modes at once: weak bands near sums of the fundamentals.',
     label: 'Combinations and overtones',
     field: 'based_on[] + the "overtone" tag',
     what: '',
@@ -162,6 +206,8 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'degeneracy',
+    group: 'fewer',
+    teaser: 'Two motions at one frequency give one band. Lower the symmetry and it can split.',
     label: 'Degeneracy',
     field: 'the "degenerated" tag',
     what: '',
@@ -175,6 +221,9 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'ir-inactive',
+    // The selection rule at work: its examples live on the Selection rules card.
+    into: 'selection',
+    teaser: 'A vibration that leaves the dipole unchanged has no IR band.',
     label: 'Infrared-inactive modes',
     field: 'the "ir-inactive" tag',
     what: '',
@@ -188,6 +237,8 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'site-sensitivity',
+    group: 'moved',
+    teaser: 'The same species on a different site vibrates at a different wavenumber.',
     label: 'Site sensitivity',
     field: 'the "site-sensitive" tag',
     what: '',

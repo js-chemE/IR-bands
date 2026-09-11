@@ -1,10 +1,41 @@
 <script context="module" lang="ts">
-  import { PHENOMENA } from '../lib/phenomena';
+  import { PHENOMENA, PATTERN_GROUPS } from '../lib/phenomena';
   import { FUNDAMENTALS, KNOWLEDGE_SECTIONS } from '../lib/fundamentals';
   import type { Fundamental } from '../lib/fundamentals';
 
-  /** The cards of one section, in their authored order. */
-  const cardsIn = (section: string) => FUNDAMENTALS.filter(f => f.section === section);
+  /** Every card on the page: the fundamentals, then the band patterns. */
+  export interface KnCard {
+    key: string;
+    label: string;
+    teaser: string;
+    /** The row it sits in: a fundamentals section or a pattern group. */
+    section: string;
+    kind: 'fundamental' | 'phenomenon';
+  }
+
+  // Within the band patterns, the simplest cause first.
+  const PATTERN_ORDER = ['combination', 'branches', 'fermi', 'degeneracy', 'isotopologue', 'site-sensitivity'];
+
+  export const CARDS: KnCard[] = [
+    ...FUNDAMENTALS.map(f => ({
+      key: f.key, label: f.label, teaser: f.teaser, section: f.section as string, kind: 'fundamental' as const,
+    })),
+    ...PHENOMENA.filter(p => p.group)
+      .sort((a, b) => PATTERN_ORDER.indexOf(a.key) - PATTERN_ORDER.indexOf(b.key))
+      .map(p => ({ key: p.key, label: p.label, teaser: p.teaser, section: p.group as string, kind: 'phenomenon' as const })),
+  ];
+
+  /** The cards of one row, in their order. */
+  const cardsIn = (section: string) => CARDS.filter(c => c.section === section);
+
+  /**
+   * The rows of cards. The fundamentals sections are parts of their own; the
+   * three pattern groups are sub-rows of one part, "Band patterns".
+   */
+  export const ROWS: { key: string; label: string; sub: boolean; note?: string }[] = [
+    ...KNOWLEDGE_SECTIONS.map(s => ({ key: s.key as string, label: s.label, sub: false })),
+    ...PATTERN_GROUPS.map(g => ({ key: g.key as string, label: g.label, sub: true, note: g.note })),
+  ];
 
   export interface KnSection {
     id: string;
@@ -12,14 +43,14 @@
     part?: boolean;
   }
 
-  /** Table of contents for the sidebar: each card section, then the phenomena. */
+  /** Table of contents for the sidebar: each part, then its cards. */
   export const SECTIONS: KnSection[] = [
     ...KNOWLEDGE_SECTIONS.flatMap(sec => [
-      { id: sec.key, label: sec.label, part: true },
-      ...cardsIn(sec.key).map(f => ({ id: f.key, label: f.label })),
+      { id: sec.key as string, label: sec.label, part: true },
+      ...cardsIn(sec.key).map(c => ({ id: c.key, label: c.label })),
     ]),
-    { id: 'phenomena', label: 'Phenomena', part: true },
-    ...PHENOMENA.map(p => ({ id: p.key, label: p.label })),
+    { id: 'patterns', label: 'Band patterns', part: true },
+    ...PATTERN_GROUPS.flatMap(g => cardsIn(g.key).map(c => ({ id: c.key, label: c.label }))),
   ];
 </script>
 
@@ -27,21 +58,18 @@
   /**
    * Knowledge: what the spectra mean, as opposed to what the atlas holds.
    *
-   * Each section is one phenomenon, and each carries its own back-relation:
-   * the bands in this dataset that actually show it, resolved live from the
-   * link fields, with the papers that reported them. So the explanation can
-   * be read forwards (what is a Fermi resonance?) and backwards (which of my
-   * bands are one, and who says so?).
+   * Three parts, all cards the size of a home page card with a diagram that
+   * plays on hover; a click grows a card to the full row, morphs its diagram
+   * into the detailed version and opens the full text.
    *
-   * The prose lives in lib/phenomena.ts and is not written yet. A section
-   * with no text says so plainly rather than looking finished; the examples
-   * underneath it are real either way.
-   *
-   * Above the phenomena sit the basics (lib/fundamentals.ts): one card each,
-   * the size of a home page card, with a diagram that plays on hover. A click
-   * grows the card to the full row, morphs its diagram into the detailed
-   * version and opens the full explanation, with links down to the phenomena
-   * that build on it.
+   *   Light–matter interaction and Spectroscopy (lib/fundamentals.ts): the
+   *     physics, written and cited, with links to the patterns built on it.
+   *   Band patterns (lib/phenomena.ts): why a spectrum does not show exactly
+   *     one band per vibration, in three rows (more bands, fewer, moved).
+   *     Each card carries its own back-relation: the bands in this dataset
+   *     that show it, resolved live from the link fields, with the papers
+   *     that reported them, in a box under the text. Their prose is not
+   *     written yet, and an empty card says so rather than looking finished.
    */
   import { createEventDispatcher, onMount, onDestroy, afterUpdate } from 'svelte';
   import { fade, slide } from 'svelte/transition';
@@ -55,6 +83,8 @@
   import DipoleDiagram from './knowledge/DipoleDiagram.svelte';
   import PolarizabilityDiagram from './knowledge/PolarizabilityDiagram.svelte';
   import InducedDiagram from './knowledge/InducedDiagram.svelte';
+  import PhenomenonDiagram from './knowledge/PhenomenonDiagram.svelte';
+  import AtlasExamples from './knowledge/AtlasExamples.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
   import { citer, summarizeLocators, type Cited, type Segment } from '../lib/cite';
@@ -62,7 +92,6 @@
   import type { SelectionExample } from './knowledge/SelectionDiagram.svelte';
   import type { SpectrumExample } from './knowledge/SpectrumDiagram.svelte';
   import { CARD_LAYOUT } from '../lib/tokens';
-  import { citekeysFor } from '../lib/phenomena';
   import { speciesLabel } from '../lib/labels';
   import { ieeeHtml, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
@@ -79,14 +108,14 @@
     navigateRef: { key: string };
   }>();
 
-  $: sections = PHENOMENA.map(p => ({ spec: p, examples: p.find(bands) }));
+  // Each phenomenon's occurrences in the atlas, resolved live.
+  $: examplesOf = Object.fromEntries(PHENOMENA.map(p => [p.key, p.find(bands)]));
+  const phenomenon = (key: string) => PHENOMENA.find(p => p.key === key);
+  /** Phenomena a fundamentals card hosts: their examples are listed there. */
+  const hosted = (key: string) => PHENOMENA.filter(p => p.into === key);
 
   function bandName(b: Band): string {
     return b.short || `${speciesLabel(b.species)} ${b.vibration.category}`;
-  }
-
-  function groupColor(b: Band): string {
-    return groups[b.group]?.color ?? 'var(--ink-400)';
   }
 
   /* ── Basics cards ──
@@ -101,7 +130,8 @@
     | typeof InducedDiagram
     | typeof PolarizabilityDiagram
     | typeof RamanDiagram
-    | typeof SelectionDiagram;
+    | typeof SelectionDiagram
+    | typeof PhenomenonDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
     vibration: VibrationDiagram,
     dipole: DipoleDiagram,
@@ -111,6 +141,7 @@
     raman: RamanDiagram,
     selection: SelectionDiagram,
   };
+  const diagramFor = (key: string): Diagram => DIAGRAMS[key] ?? PhenomenonDiagram;
 
   /* Each card's text, parsed once: paragraphs and formula boxes with their
      citations numbered in reading order, and the list those numbers point at. */
@@ -194,15 +225,19 @@
   }
 
   /** What each diagram needs beyond t and playing. */
-  $: diagramProps = (key: string) => {
+  // Each diagram takes its own extras, so the spread is typed loosely.
+  $: diagramProps = (key: string): Record<string, unknown> => {
     const f = FUNDAMENTALS.find(x => x.key === key);
     if (key === 'spectrum') return { examples: spectrumExamples(f?.examples) };
     // Gas-phase branches are narrow; a smaller floor keeps P and R apart.
     if (key === 'selection') return { examples: spectrumExamples(f?.examples, 20) };
+    if (phenomenon(key)) return { kind: key };
     return {};
   };
 
-  const phenomenonLabel = (key: string) => PHENOMENA.find(p => p.key === key)?.label ?? key;
+  /** The card a link lands on: a hosted phenomenon lands on its host. */
+  const cardFor = (key: string) => phenomenon(key)?.into ?? key;
+  const cardLabel = (key: string) => CARDS.find(c => c.key === cardFor(key))?.label ?? key;
 
   type Phase = 'closed' | 'opening' | 'open' | 'closing';
   const FADE = 140;
@@ -229,11 +264,11 @@
   const GLIDE_EASE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
   $: perRow = Math.max(1, Math.floor((rowWidth + 12) / (CARD_LAYOUT.width + 12)));
   const indexInSection = (key: string | null) => {
-    const f = FUNDAMENTALS.find(x => x.key === key);
-    return f ? cardsIn(f.section).indexOf(f) : -1;
+    const c = CARDS.find(x => x.key === key);
+    return c ? cardsIn(c.section).indexOf(c) : -1;
   };
   $: openIndex = indexInSection(openKey);
-  $: openSection = FUNDAMENTALS.find(f => f.key === openKey)?.section;
+  $: openSection = CARDS.find(c => c.key === openKey)?.section;
   $: orderFor = (section: string, i: number) =>
     section === openSection && i === openIndex ? 2 * (i - (i % perRow)) - 1 : 2 * i;
 
@@ -241,7 +276,7 @@
   const lastPos = new Map<string, { x: number; y: number }>();
 
   afterUpdate(() => {
-    for (const f of FUNDAMENTALS) {
+    for (const f of CARDS) {
       const el = cardEls[f.key];
       if (!el) continue;
       const pos = { x: el.offsetLeft, y: el.offsetTop };
@@ -287,8 +322,20 @@
     openKey = null;
   }
 
-  function goToPhenomenon(key: string) {
-    document.getElementById(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /**
+   * The sidebar's contents: a part scrolls to its heading, a card scrolls to
+   * the card and opens it. Called by App.svelte through bind:this.
+   */
+  export function goTo(id: string) {
+    if (CARDS.some(c => c.key === id)) goToCard(id);
+    else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** Follow a link to another card: bring it into view, then open it. */
+  function goToCard(key: string) {
+    const target = cardFor(key);
+    document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => openCard(target), 350);
   }
 
   // A click anywhere beside the open card closes it: on the page, or in the
@@ -334,7 +381,7 @@
   }
 
   onMount(() => {
-    if (openOnMount && FUNDAMENTALS.some(f => f.key === openOnMount)) {
+    if (openOnMount && CARDS.some(c => c.key === openOnMount)) {
       const key = openOnMount;
       requestAnimationFrame(() => {
         document.getElementById(key)?.scrollIntoView({ block: 'start' });
@@ -357,14 +404,26 @@
 <main class="content" bind:this={root}>
   <h1 class="page-title">Knowledge</h1>
   <p class="lead">
-    Why the bands behave the way they do. The basics come first, then the spectroscopy
-    built on them, one card each: hover to see it happen, click to read it. Each
-    phenomenon below them lists the bands in this atlas that show it, resolved from the
-    data rather than written down twice, and the papers that reported them.
+    Why the bands behave the way they do. First how light and matter interact, then the
+    spectroscopy built on it, then the patterns a spectrum shows: one card each, hover
+    to see it happen, click to read it. Each pattern lists the bands in this atlas that
+    show it, resolved from the data rather than written down twice, and the papers that
+    reported them.
   </p>
 
-  {#each KNOWLEDGE_SECTIONS as sec (sec.key)}
-  <h2 class="part" id={sec.key} data-kn-section={sec.key}>{sec.label}</h2>
+  {#each ROWS as sec, ri (sec.key)}
+  {#if !sec.sub}
+    <h2 class="part" id={sec.key} data-kn-section={sec.key}>{sec.label}</h2>
+  {:else}
+    {#if !ROWS[ri - 1]?.sub}
+      <h2 class="part" id="patterns" data-kn-section="patterns">Band patterns</h2>
+      <p class="part-lead">
+        Why a spectrum does not show exactly one band per vibration: more bands than
+        modes, fewer, or bands that sit somewhere else.
+      </p>
+    {/if}
+    <h3 class="row-head" id={sec.key}>{sec.label}<span class="row-note">{sec.note}</span></h3>
+  {/if}
 
   <div class="cards" bind:clientWidth={rowWidth}>
     {#each cardsIn(sec.key) as f, i (f.key)}
@@ -404,7 +463,7 @@
           {/if}
 
           <svelte:component
-            this={DIAGRAMS[f.key]}
+            this={diagramFor(f.key)}
             {t}
             playing={playingFor(f.key)}
             {...diagramProps(f.key)}
@@ -431,6 +490,26 @@
             <button class="detail-close" title="Close (Esc)" aria-label="Close"
               on:click|stopPropagation={closeCard}>×</button>
             <h3 class="detail-title">{f.label}</h3>
+            {#if f.kind === 'phenomenon'}
+              {@const p = phenomenon(f.key)}
+              {#if p?.what || p?.spotting}
+                {#if p?.what}<p>{p.what}</p>{/if}
+                {#if p?.spotting}<p>{p.spotting}</p>{/if}
+              {:else}
+                <p class="unwritten">
+                  Not written yet. The explanation goes here; the examples below are
+                  already live.
+                </p>
+              {/if}
+              <p class="field-note">Recorded as <code>{p?.field}</code></p>
+              <AtlasExamples
+                examples={examplesOf[f.key] ?? []}
+                {groups}
+                {refs}
+                on:band={e => dispatch('navigateBand', { id: e.detail.id })}
+                on:ref={e => dispatch('navigateRef', { key: e.detail.key })}
+              />
+            {:else}
             {#each RENDERED[f.key].blocks as b}
               {#if b.kind === 'p'}
                 <p><CiteText segs={b.segs} {refs} /></p>
@@ -443,20 +522,37 @@
               {/if}
             {/each}
 
-            <h4 class="related-head">Builds on this</h4>
-            <div class="related">
-              {#each f.related as r (r.key)}
-                <button class="related-link" on:click|stopPropagation={() => goToPhenomenon(r.key)}>
-                  <span class="related-name">{phenomenonLabel(r.key)} ↓</span>
-                  <span class="related-why">{r.why}</span>
-                </button>
-              {/each}
-            </div>
+            <!-- A phenomenon this card is the cause of, hosted here rather than
+                 on a card of its own (Selection rules: the IR-inactive modes). -->
+            {#each hosted(f.key) as h (h.key)}
+              <AtlasExamples
+                title="{h.label} in the atlas"
+                examples={examplesOf[h.key] ?? []}
+                {groups}
+                {refs}
+                on:band={e => dispatch('navigateBand', { id: e.detail.id })}
+                on:ref={e => dispatch('navigateRef', { key: e.detail.key })}
+              />
+            {/each}
+
+            {@const links = (FUNDAMENTALS.find(x => x.key === f.key)?.related ?? []).filter(r => cardFor(r.key) !== f.key)}
+            {#if links.length}
+              <h4 class="related-head">Builds on this</h4>
+              <div class="related">
+                {#each links as r (r.key)}
+                  <button class="related-link" on:click|stopPropagation={() => goToCard(r.key)}>
+                    <span class="related-name">{cardLabel(r.key)} →</span>
+                    <span class="related-why">{r.why}</span>
+                  </button>
+                {/each}
+              </div>
+            {/if}
+            {/if}
 
           </div>
 
           <!-- Under a thin rule: what the superscripts point at. -->
-          {#if RENDERED[f.key].cited.length}
+          {#if RENDERED[f.key]?.cited.length}
             <ol class="card-refs" transition:fade={{ duration: FADE }}>
               {#each RENDERED[f.key].cited as c (c.n)}
                 <li>
@@ -477,69 +573,6 @@
   </div>
   {/each}
 
-  <h2 class="part" id="phenomena" data-kn-section="phenomena">Phenomena</h2>
-
-  {#each sections as { spec, examples } (spec.key)}
-    <section class="section" id={spec.key} data-kn-section={spec.key}>
-      <h3>{spec.label}</h3>
-
-      <div class="spread">
-        <div class="spread-text">
-          {#if spec.what || spec.spotting}
-            {#if spec.what}<p>{spec.what}</p>{/if}
-            {#if spec.spotting}<p>{spec.spotting}</p>{/if}
-          {:else}
-            <p class="unwritten">
-              Not written yet. The explanation and its diagram go here; the examples
-              beside it are already live.
-            </p>
-          {/if}
-          <p class="field-note">Recorded as <code>{spec.field}</code></p>
-        </div>
-
-        <div class="spread-visual">
-          {#if examples.length === 0}
-            <p class="empty">No band in the atlas currently shows this.</p>
-          {:else}
-            {#each examples as ex (ex.label)}
-              <article class="example">
-                <header>
-                  <span class="ex-label">{ex.label}</span>
-                  <span class="ex-count">{ex.bands.length} band{ex.bands.length === 1 ? '' : 's'}</span>
-                </header>
-                {#if ex.note}<p class="ex-note">{ex.note}</p>{/if}
-
-                <div class="band-rows">
-                  {#each ex.bands as b (b.id)}
-                    <button class="band-row" on:click={() => dispatch('navigateBand', { id: b.id })}>
-                      <span class="dot" style="background:{groupColor(b)}"></span>
-                      <span class="band-name">{bandName(b)}</span>
-                      <span class="band-wn">{b.wn_min}–{b.wn_max} cm⁻¹</span>
-                    </button>
-                  {/each}
-                </div>
-
-                {#if refs}
-                  {@const keys = citekeysFor(ex.bands)}
-                  {#if keys.length}
-                    <div class="ex-refs">
-                      {#each keys as key (key)}
-                        <button
-                          class="ref-chip"
-                          title={htmlToUnicode(ieeeHtml(refs[key] ?? {}, key))}
-                          on:click={() => dispatch('navigateRef', { key })}
-                        >{shortCite(refs[key] ?? {}, key, { journal: false })}</button>
-                      {/each}
-                    </div>
-                  {/if}
-                {/if}
-              </article>
-            {/each}
-          {/if}
-        </div>
-      </div>
-    </section>
-  {/each}
 </main>
 
 <style>
@@ -836,28 +869,28 @@
   }
   .related-why { font-size: var(--t-code-size); color: var(--ink-300); }
 
-  .section { margin: var(--space-6) 0 48px; }
-
-  .section h3 {
+  /* A pattern group's heading: smaller than a part, with its question. */
+  .part-lead {
+    max-width: 760px;
+    color: var(--ink-slate-700);
+    margin: 10px 0 0;
+  }
+  .row-head {
     font-size: var(--t-section-head-size);
     font-weight: var(--t-section-head-weight);
     text-transform: var(--t-section-head-tt);
     letter-spacing: var(--t-section-head-ls);
     color: var(--t-section-head-color);
-    margin: 0 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--line-heading);
+    margin: 26px 0 0;
   }
-
-  .spread {
-    display: grid;
-    grid-template-columns: 340px minmax(0, 1fr);
-    gap: 32px;
-    align-items: start;
+  .row-note {
+    margin-left: 10px;
+    font-size: var(--t-code-size);
+    font-weight: var(--t-body-weight);
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ink-050);
   }
-
-  .spread-text p { margin: 0 0 10px; color: var(--ink-500); }
-  .spread-visual { min-width: 0; }
 
   /* An empty explanation says so, rather than looking finished. */
   .unwritten {
@@ -866,7 +899,7 @@
     border-radius: var(--radius);
     background: var(--surface-sunken);
     color: var(--ink-300) !important;
-    font-size: 13px;
+    font-size: var(--t-nav-size);
   }
 
   .field-note { font-size: var(--t-code-size); color: var(--ink-200); }
@@ -878,81 +911,6 @@
     color: var(--t-code-color);
     padding: 1px 5px;
     border-radius: var(--radius-sm);
-  }
-
-  .empty { color: var(--ink-300); font-size: 13.5px; }
-
-  /* ── One occurrence ── */
-  .example {
-    background: var(--surface);
-    border: 1px solid var(--line-soft);
-    border-left: 3px solid var(--accent-green-fg);
-    border-radius: var(--radius);
-    padding: 10px var(--space-4);
-    margin-bottom: 10px;
-  }
-
-  .example header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-
-  .ex-label { font-weight: 700; color: var(--ink-slate-900); font-size: 13.5px; }
-
-  .ex-count {
-    margin-left: auto;
-    font-family: var(--t-code-ff);
-    font-size: var(--t-code-size);
-    color: var(--ink-200);
-  }
-
-  .ex-note { margin: 0 0 6px; color: var(--ink-400); font-size: 13px; line-height: 1.45; }
-
-  .band-rows { display: flex; flex-direction: column; gap: 2px; }
-
-  .band-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 3px 4px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: none;
-    font: inherit;
-    font-size: 13px;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .band-row:hover { background: var(--surface-hover); }
-
-  .dot {
-    flex: 0 0 9px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-  }
-
-  .band-name { color: var(--ink-700); }
-
-  .band-wn {
-    margin-left: auto;
-    font-family: var(--t-code-ff);
-    font-size: var(--t-code-size);
-    color: var(--ink-300);
-    white-space: nowrap;
-  }
-
-  .ex-refs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 8px;
-    padding-top: 7px;
-    border-top: 1px solid var(--line-faint);
   }
 
   .ref-chip {
@@ -967,7 +925,5 @@
   }
   .ref-chip:hover { background: var(--ref-surface-hover); color: var(--ref-accent-deep); }
 
-  @media (max-width: 1000px) {
-    .spread { grid-template-columns: 1fr; gap: var(--space-4); }
-  }
+
 </style>

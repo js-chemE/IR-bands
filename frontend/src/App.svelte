@@ -60,8 +60,12 @@
   $: dmSections = sectionsFor(dmView);
 
   // Shared by the long-form pages that own a sidebar table of contents.
+  // The Knowledge page opens a card when its contents entry is a card.
+  let knPage: KnowledgePage | null = null;
+
   function scrollToSection(id: string, which: 'sg' | 'dm' | 'kn' | 'src' = 'sg') {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (which === 'kn' && knPage) knPage.goTo(id);
+    else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (which === 'dm') dmActive = id;
     else if (which === 'kn') knActive = id;
     else if (which === 'src') srcActive = id;
@@ -620,6 +624,7 @@
         />
       {:else if page === 'knowledge'}
         <KnowledgePage
+          bind:this={knPage}
           openOnMount={knOpen}
           bands={dataset.bands}
           groups={dataset.groups}
