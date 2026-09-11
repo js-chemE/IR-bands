@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import { PHENOMENA, PATTERN_GROUPS } from '../lib/phenomena';
-  import { FUNDAMENTALS, KNOWLEDGE_SECTIONS } from '../lib/fundamentals';
+  import { FUNDAMENTALS, KNOWLEDGE_SECTIONS, PLANNED } from '../lib/fundamentals';
   import type { Fundamental } from '../lib/fundamentals';
 
   /** Every card on the page: the fundamentals, then the band patterns. */
@@ -30,11 +30,16 @@
 
   /**
    * The rows of cards. The fundamentals sections are parts of their own; the
-   * three pattern groups are sub-rows of one part, "Band patterns".
+   * three pattern groups are sub-rows of one part, "Band patterns", which
+   * sits between the parts that come before it and those marked
+   * `afterPatterns` (Notation).
    */
+  const partRow = (s: (typeof KNOWLEDGE_SECTIONS)[number]) =>
+    ({ key: s.key as string, label: s.label, sub: false, note: s.lead });
   export const ROWS: { key: string; label: string; sub: boolean; note?: string }[] = [
-    ...KNOWLEDGE_SECTIONS.map(s => ({ key: s.key as string, label: s.label, sub: false })),
+    ...KNOWLEDGE_SECTIONS.filter(s => !s.afterPatterns).map(partRow),
     ...PATTERN_GROUPS.map(g => ({ key: g.key as string, label: g.label, sub: true, note: g.note })),
+    ...KNOWLEDGE_SECTIONS.filter(s => s.afterPatterns).map(partRow),
   ];
 
   export interface KnSection {
@@ -43,15 +48,15 @@
     part?: boolean;
   }
 
-  /** Table of contents for the sidebar: each part, then its cards. */
-  export const SECTIONS: KnSection[] = [
-    ...KNOWLEDGE_SECTIONS.flatMap(sec => [
-      { id: sec.key as string, label: sec.label, part: true },
-      ...cardsIn(sec.key).map(c => ({ id: c.key, label: c.label })),
-    ]),
-    { id: 'patterns', label: 'Band patterns', part: true },
-    ...PATTERN_GROUPS.flatMap(g => cardsIn(g.key).map(c => ({ id: c.key, label: c.label }))),
-  ];
+  /** Table of contents for the sidebar: each part, then its cards, in page order. */
+  export const SECTIONS: KnSection[] = ROWS.flatMap((row, i) => [
+    ...(!row.sub
+      ? [{ id: row.key, label: row.label, part: true }]
+      : !ROWS[i - 1]?.sub
+        ? [{ id: 'patterns', label: 'Band patterns', part: true }]
+        : []),
+    ...cardsIn(row.key).map(c => ({ id: c.key, label: c.label })),
+  ]).concat(PLANNED.length ? [{ id: 'planned', label: 'Still to come', part: true }] : []);
 </script>
 
 <script lang="ts">
@@ -75,7 +80,7 @@
   import { fade, slide } from 'svelte/transition';
   import { tweened } from 'svelte/motion';
   import { cubicInOut } from 'svelte/easing';
-  import type { Band, GroupMap, RefMap } from '../lib/types';
+  import type { Band, GroupMap, RefMap, Vibrations } from '../lib/types';
   import VibrationDiagram from './knowledge/VibrationDiagram.svelte';
   import SpectrumDiagram from './knowledge/SpectrumDiagram.svelte';
   import RamanDiagram from './knowledge/RamanDiagram.svelte';
@@ -84,6 +89,10 @@
   import PolarizabilityDiagram from './knowledge/PolarizabilityDiagram.svelte';
   import InducedDiagram from './knowledge/InducedDiagram.svelte';
   import PhenomenonDiagram from './knowledge/PhenomenonDiagram.svelte';
+  import ModesDiagram from './knowledge/ModesDiagram.svelte';
+  import RotationDiagram from './knowledge/RotationDiagram.svelte';
+  import NotationDiagram from './knowledge/NotationDiagram.svelte';
+  import ModeCensus from './knowledge/ModeCensus.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
@@ -99,6 +108,8 @@
   export let bands: Band[];
   export let groups: GroupMap;
   export let refs: RefMap;
+  /** The molecules and their modes: the Normal modes card lists them. */
+  export let vibrations: Vibrations = { molecules: [] };
   /** Open this card on arrival (from a Knowledge link on the References page). */
   export let openOnMount: string | null = null;
 
@@ -106,6 +117,7 @@
     active: { id: string };
     navigateBand: { id: string };
     navigateRef: { key: string };
+    navigateMode: { moleculeId: string; topologyId: string; modeId: string };
   }>();
 
   // Each phenomenon's occurrences in the atlas, resolved live.
@@ -131,8 +143,15 @@
     | typeof PolarizabilityDiagram
     | typeof RamanDiagram
     | typeof SelectionDiagram
-    | typeof PhenomenonDiagram;
+    | typeof PhenomenonDiagram
+    | typeof ModesDiagram
+    | typeof RotationDiagram
+    | typeof NotationDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
+    modes: ModesDiagram,
+    rotation: RotationDiagram,
+    labels: NotationDiagram,
+    numbering: NotationDiagram,
     vibration: VibrationDiagram,
     dipole: DipoleDiagram,
     induced: InducedDiagram,
@@ -231,6 +250,7 @@
     if (key === 'spectrum') return { examples: spectrumExamples(f?.examples) };
     // Gas-phase branches are narrow; a smaller floor keeps P and R apart.
     if (key === 'selection') return { examples: spectrumExamples(f?.examples, 20) };
+    if (key === 'labels' || key === 'numbering') return { kind: key };
     if (phenomenon(key)) return { kind: key };
     return {};
   };
@@ -404,22 +424,24 @@
 <main class="content" bind:this={root}>
   <h1 class="page-title">Knowledge</h1>
   <p class="lead">
-    Why the bands behave the way they do. First how light and matter interact, then the
-    spectroscopy built on it, then the patterns a spectrum shows: one card each, hover
-    to see it happen, click to read it. Each pattern lists the bands in this atlas that
-    show it, resolved from the data rather than written down twice, and the papers that
+    Why the bands behave the way they do. First how molecules move and how light and
+    matter interact, then the spectroscopy built on it, then the patterns a spectrum
+    shows, and last the notation it is all written in: one card each, hover to see it
+    happen, click to read it. Each pattern lists the bands in this atlas that show it,
+    resolved from the data rather than written down twice, and the papers that
     reported them.
   </p>
 
   {#each ROWS as sec, ri (sec.key)}
   {#if !sec.sub}
     <h2 class="part" id={sec.key} data-kn-section={sec.key}>{sec.label}</h2>
+    {#if sec.note}<p class="part-lead">{sec.note}</p>{/if}
   {:else}
     {#if !ROWS[ri - 1]?.sub}
       <h2 class="part" id="patterns" data-kn-section="patterns">Band patterns</h2>
       <p class="part-lead">
-        Why a spectrum does not show exactly one band per vibration: more bands than
-        modes, fewer, or bands that sit somewhere else.
+        A molecule has 3N − 6 normal modes, but a spectrum rarely shows exactly one band
+        for each: there are more bands than modes, fewer, or bands that sit somewhere else.
       </p>
     {/if}
     <h3 class="row-head" id={sec.key}>{sec.label}<span class="row-note">{sec.note}</span></h3>
@@ -522,6 +544,11 @@
               {/if}
             {/each}
 
+            <!-- The molecules the atlas draws, counted, each a way into its modes. -->
+            {#if f.key === 'modes'}
+              <ModeCensus {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
+            {/if}
+
             <!-- A phenomenon this card is the cause of, hosted here rather than
                  on a card of its own (Selection rules: the IR-inactive modes). -->
             {#each hosted(f.key) as h (h.key)}
@@ -572,6 +599,23 @@
     {/each}
   </div>
   {/each}
+
+  <!-- The plan, where the cards will go: a site note, not content. -->
+  {#if PLANNED.length}
+    <h2 class="part" id="planned" data-kn-section="planned">Still to come</h2>
+    <div class="planned">
+      <p class="planned-lead">Cards planned but not written yet. Suggestions are welcome.</p>
+      <ul>
+        {#each PLANNED as p (p.label)}
+          <li>
+            <span class="planned-name">{p.label}</span>
+            <span class="planned-part">{p.part}</span>
+            <span class="planned-what">{p.what}</span>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
 
 </main>
 
@@ -868,6 +912,30 @@
     color: var(--accent-green-fg);
   }
   .related-why { font-size: var(--t-code-size); color: var(--ink-300); }
+
+  /* The site note of planned cards: dashed, like an unwritten card's text. */
+  .planned {
+    max-width: 760px;
+    margin: 16px 0 40px;
+    padding: 12px 16px 6px;
+    border: 1px dashed var(--line-slate-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .planned-lead { margin: 0 0 8px; color: var(--ink-400); font-size: var(--t-nav-size); }
+  .planned ul { list-style: none; margin: 0; padding: 0; }
+  .planned li {
+    display: grid;
+    grid-template-columns: 13em 9em 1fr;
+    gap: 10px;
+    align-items: baseline;
+    padding: 6px 0;
+    border-top: 1px solid var(--line-faint);
+    font-size: var(--t-nav-size);
+  }
+  .planned-name { color: var(--ink-slate-900); font-weight: var(--t-label-weight); }
+  .planned-part { font-size: var(--t-code-size); color: var(--accent-green-fg); }
+  .planned-what { color: var(--ink-400); }
 
   /* A pattern group's heading: smaller than a part, with its question. */
   .part-lead {

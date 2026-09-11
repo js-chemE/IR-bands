@@ -629,9 +629,11 @@
           bands={dataset.bands}
           groups={dataset.groups}
           {refs}
+          {vibrations}
           on:active={e => knActive = e.detail.id}
           on:navigateBand={handleNavigateBand}
           on:navigateRef={handleNavigateRef}
+          on:navigateMode={handleNavigateMode}
         />
       {:else if page === 'impressum'}
         <ImpressumPage on:navigate={handleHomeNavigate} />
