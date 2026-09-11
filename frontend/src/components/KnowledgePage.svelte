@@ -35,8 +35,8 @@
    * `afterPatterns` (Notation).
    */
   const partRow = (s: (typeof KNOWLEDGE_SECTIONS)[number]) =>
-    ({ key: s.key as string, label: s.label, sub: false, note: s.lead });
-  export const ROWS: { key: string; label: string; sub: boolean; note?: string }[] = [
+    ({ key: s.key as string, label: s.label, sub: false, note: s.lead, cont: s.continues });
+  export const ROWS: { key: string; label: string; sub: boolean; note?: string; cont?: boolean }[] = [
     ...KNOWLEDGE_SECTIONS.filter(s => !s.afterPatterns).map(partRow),
     ...PATTERN_GROUPS.map(g => ({ key: g.key as string, label: g.label, sub: true, note: g.note })),
     ...KNOWLEDGE_SECTIONS.filter(s => s.afterPatterns).map(partRow),
@@ -50,13 +50,15 @@
 
   /** Table of contents for the sidebar: each part, then its cards, in page order. */
   export const SECTIONS: KnSection[] = ROWS.flatMap((row, i) => [
-    ...(!row.sub
+    ...(row.cont
+      ? []
+      : !row.sub
       ? [{ id: row.key, label: row.label, part: true }]
       : !ROWS[i - 1]?.sub
-        ? [{ id: 'patterns', label: 'Band patterns', part: true }]
+        ? [{ id: 'patterns', label: 'Band Patterns', part: true }]
         : []),
     ...cardsIn(row.key).map(c => ({ id: c.key, label: c.label })),
-  ]).concat(PLANNED.length ? [{ id: 'planned', label: 'Still to come', part: true }] : []);
+  ]).concat(PLANNED.length ? [{ id: 'planned', label: 'Still to Come', part: true }] : []);
 </script>
 
 <script lang="ts">
@@ -90,12 +92,19 @@
   import InducedDiagram from './knowledge/InducedDiagram.svelte';
   import PhenomenonDiagram from './knowledge/PhenomenonDiagram.svelte';
   import ModesDiagram from './knowledge/ModesDiagram.svelte';
+  import VibModesDiagram from './knowledge/VibModesDiagram.svelte';
+  import TranslationDiagram from './knowledge/TranslationDiagram.svelte';
+  import UnitsDiagram from './knowledge/UnitsDiagram.svelte';
+  import RepresentationsDiagram from './knowledge/RepresentationsDiagram.svelte';
   import RotationDiagram from './knowledge/RotationDiagram.svelte';
+  import FrustratedDiagram from './knowledge/FrustratedDiagram.svelte';
+  import BranchesDiagram from './knowledge/BranchesDiagram.svelte';
   import NotationDiagram from './knowledge/NotationDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
+  import FormulaLine from './knowledge/FormulaLine.svelte';
   import { citer, summarizeLocators, type Cited, type Segment } from '../lib/cite';
   import { isFormula } from '../lib/fundamentals';
   import type { SelectionExample } from './knowledge/SelectionDiagram.svelte';
@@ -104,6 +113,7 @@
   import { speciesLabel } from '../lib/labels';
   import { ieeeHtml, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
+  import { titleCase } from '../lib/titleCase';
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -145,11 +155,23 @@
     | typeof SelectionDiagram
     | typeof PhenomenonDiagram
     | typeof ModesDiagram
+    | typeof VibModesDiagram
+    | typeof TranslationDiagram
+    | typeof UnitsDiagram
+    | typeof RepresentationsDiagram
     | typeof RotationDiagram
+    | typeof FrustratedDiagram
+    | typeof BranchesDiagram
     | typeof NotationDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
     modes: ModesDiagram,
+    vibmodes: VibModesDiagram,
+    translation: TranslationDiagram,
+    units: UnitsDiagram,
+    representations: RepresentationsDiagram,
     rotation: RotationDiagram,
+    frustrated: FrustratedDiagram,
+    branches: BranchesDiagram,
     labels: NotationDiagram,
     numbering: NotationDiagram,
     vibration: VibrationDiagram,
@@ -167,12 +189,17 @@
   type Rendered =
     | { kind: 'p'; segs: Segment[] }
     | { kind: 'f'; label: Segment[]; lines: string[]; note: Segment[]; tone?: 'ir' | 'raman' };
+  // Phenomena join in once their explanation is written out as a body.
+  const WRITTEN = [
+    ...FUNDAMENTALS,
+    ...PHENOMENA.flatMap(p => (p.body ? [{ key: p.key, body: p.body }] : [])),
+  ];
   const RENDERED: Record<string, { blocks: Rendered[]; cited: Cited[] }> = Object.fromEntries(
-    FUNDAMENTALS.map(f => {
+    WRITTEN.map(f => {
       const c = citer();
       const blocks: Rendered[] = f.body.map(b =>
         isFormula(b)
-          ? { kind: 'f', label: c.parse(b.label), lines: b.lines, note: b.note ? c.parse(b.note) : [], tone: b.tone }
+          ? { kind: 'f', label: c.parse(titleCase(b.label)), lines: b.lines, note: b.note ? c.parse(b.note) : [], tone: b.tone }
           : { kind: 'p', segs: c.parse(b) },
       );
       return [f.key, { blocks, cited: c.list }];
@@ -251,7 +278,8 @@
     // Gas-phase branches are narrow; a smaller floor keeps P and R apart.
     if (key === 'selection') return { examples: spectrumExamples(f?.examples, 20) };
     if (key === 'labels' || key === 'numbering') return { kind: key };
-    if (phenomenon(key)) return { kind: key };
+    // A phenomenon without a diagram of its own is one kind of PhenomenonDiagram.
+    if (phenomenon(key) && !DIAGRAMS[key]) return { kind: key };
     return {};
   };
 
@@ -400,7 +428,30 @@
     if (!frame) frame = requestAnimationFrame(measure);
   }
 
+  /*
+   * Every closed card the same size. The width is fixed; the height is the
+   * tallest closed card's (a two-line title, a longer teaser), measured once
+   * the fonts are in, so a card with less text does not sit shorter than its
+   * neighbours. CARD_LAYOUT.height stays the floor.
+   */
+  let cardH = CARD_LAYOUT.height;
+  function equalizeCards() {
+    let tallest = CARD_LAYOUT.height;
+    for (const c of CARDS) {
+      const el = cardEls[c.key];
+      if (!el || c.key === openKey) continue;
+      const visual = el.querySelector<HTMLElement>('.card-visual');
+      const body = el.querySelector<HTMLElement>('.card-body');
+      if (!visual || !body) continue;
+      // Content plus the 1px border top and bottom, at its exact (fractional)
+      // height, so no card ends up a pixel taller than the rest.
+      tallest = Math.max(tallest, visual.getBoundingClientRect().height + body.getBoundingClientRect().height + 2);
+    }
+    cardH = Math.ceil(tallest);
+  }
+
   onMount(() => {
+    (document.fonts?.ready ?? Promise.resolve()).then(equalizeCards);
     if (openOnMount && CARDS.some(c => c.key === openOnMount)) {
       const key = openOnMount;
       requestAnimationFrame(() => {
@@ -421,7 +472,7 @@
 
 <svelte:window on:keydown={onKey} on:click={onPageClick} />
 
-<main class="content" bind:this={root}>
+<main class="content" bind:this={root} style="--card-h:{cardH}px">
   <h1 class="page-title">Knowledge</h1>
   <p class="lead">
     Why the bands behave the way they do. First how molecules move and how light and
@@ -433,12 +484,15 @@
   </p>
 
   {#each ROWS as sec, ri (sec.key)}
-  {#if !sec.sub}
+  {#if sec.cont}
+    <!-- The same part, on a new line: no heading, just the break. -->
+    <div class="row-break" id={sec.key}></div>
+  {:else if !sec.sub}
     <h2 class="part" id={sec.key} data-kn-section={sec.key}>{sec.label}</h2>
     {#if sec.note}<p class="part-lead">{sec.note}</p>{/if}
   {:else}
     {#if !ROWS[ri - 1]?.sub}
-      <h2 class="part" id="patterns" data-kn-section="patterns">Band patterns</h2>
+      <h2 class="part" id="patterns" data-kn-section="patterns">Band Patterns</h2>
       <p class="part-lead">
         A molecule has 3N − 6 normal modes, but a spectrum rarely shows exactly one band
         for each: there are more bands than modes, fewer, or bands that sit somewhere else.
@@ -514,7 +568,19 @@
             <h3 class="detail-title">{f.label}</h3>
             {#if f.kind === 'phenomenon'}
               {@const p = phenomenon(f.key)}
-              {#if p?.what || p?.spotting}
+              {#if RENDERED[f.key]}
+                {#each RENDERED[f.key].blocks as b}
+                  {#if b.kind === 'p'}
+                    <p><CiteText segs={b.segs} {refs} /></p>
+                  {:else}
+                    <div class="formula" class:ir={b.tone === 'ir'} class:raman={b.tone === 'raman'}>
+                      <div class="formula-label"><CiteText segs={b.label} {refs} /></div>
+                      {#each b.lines as line}<div class="formula-line"><FormulaLine {line} /></div>{/each}
+                      {#if b.note.length}<div class="formula-note"><CiteText segs={b.note} {refs} /></div>{/if}
+                    </div>
+                  {/if}
+                {/each}
+              {:else if p?.what || p?.spotting}
                 {#if p?.what}<p>{p.what}</p>{/if}
                 {#if p?.spotting}<p>{p.spotting}</p>{/if}
               {:else}
@@ -538,14 +604,14 @@
               {:else}
                 <div class="formula" class:ir={b.tone === 'ir'} class:raman={b.tone === 'raman'}>
                   <div class="formula-label"><CiteText segs={b.label} {refs} /></div>
-                  {#each b.lines as line}<div class="formula-line"><Subbed text={line} /></div>{/each}
+                  {#each b.lines as line}<div class="formula-line"><FormulaLine {line} /></div>{/each}
                   {#if b.note.length}<div class="formula-note"><CiteText segs={b.note} {refs} /></div>{/if}
                 </div>
               {/if}
             {/each}
 
             <!-- The molecules the atlas draws, counted, each a way into its modes. -->
-            {#if f.key === 'modes'}
+            {#if f.key === 'vibmodes'}
               <ModeCensus {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
             {/if}
 
@@ -553,7 +619,7 @@
                  on a card of its own (Selection rules: the IR-inactive modes). -->
             {#each hosted(f.key) as h (h.key)}
               <AtlasExamples
-                title="{h.label} in the atlas"
+                title="{h.label} in the Atlas"
                 examples={examplesOf[h.key] ?? []}
                 {groups}
                 {refs}
@@ -564,7 +630,7 @@
 
             {@const links = (FUNDAMENTALS.find(x => x.key === f.key)?.related ?? []).filter(r => cardFor(r.key) !== f.key)}
             {#if links.length}
-              <h4 class="related-head">Builds on this</h4>
+              <h4 class="related-head">Builds on This</h4>
               <div class="related">
                 {#each links as r (r.key)}
                   <button class="related-link" on:click|stopPropagation={() => goToCard(r.key)}>
@@ -602,7 +668,7 @@
 
   <!-- The plan, where the cards will go: a site note, not content. -->
   {#if PLANNED.length}
-    <h2 class="part" id="planned" data-kn-section="planned">Still to come</h2>
+    <h2 class="part" id="planned" data-kn-section="planned">Still to Come</h2>
     <div class="planned">
       <p class="planned-lead">Cards planned but not written yet. Suggestions are welcome.</p>
       <ul>
@@ -728,7 +794,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 14px 22px 18px;
+    /* The bottom padding holds the arrow's line: it sits in the corner. */
+    padding: 14px 22px 44px;
   }
 
   .card-title {
@@ -746,8 +813,11 @@
     color: var(--t-card-desc-color);
   }
 
+  /* Pinned to the corner, so it lines up across cards of equal height. */
   .card-cta {
-    align-self: flex-end;
+    position: absolute;
+    right: 22px;
+    bottom: 16px;
     font-size: var(--t-card-cta-size);
     font-weight: var(--t-card-cta-weight);
     color: var(--accent-green-fg);
@@ -912,6 +982,9 @@
     color: var(--accent-green-fg);
   }
   .related-why { font-size: var(--t-code-size); color: var(--ink-300); }
+
+  /* A part continuing on a new line: only the gap between two rows. */
+  .row-break { height: 0; }
 
   /* The site note of planned cards: dashed, like an unwritten card's text. */
   .planned {

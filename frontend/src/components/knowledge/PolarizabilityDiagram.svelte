@@ -214,7 +214,7 @@
     {/if}
   {/each}
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="16">Same field, two clouds</text>
+    <text class="lbl name" x="14" y="16">Same Field, Two Clouds</text>
     <text class="lbl faint" x={clouds[0].x} y={r1y + 44} text-anchor="middle">tight: small α</text>
     <text class="lbl faint" x={clouds[1].x} y={r1y + 44} text-anchor="middle">loose: large α</text>
     <text class="lbl strong" x="336" y={r1y - 4}>α = μ<tspan class="sub" dy="4">ind</tspan><tspan dy="-4"> / E</tspan></text>
@@ -251,7 +251,7 @@
     <text class="charge {signCls(R2.polAcross * e, 'against')}" x={R2.across} y={R2.y + R2.ry + 12} text-anchor="middle" style="opacity:{signOpacity(R2.polAcross * e)}">{sign(R2.polAcross * e, 'against')}</text>
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y={R2.y - 46}>Along the bond, or across it</text>
+    <text class="lbl name" x="14" y={R2.y - 46}>Along the Bond, or Across It</text>
     <text class="lbl faint" x={R2.along} y={R2.y + 34} text-anchor="middle">along: gives more</text>
     <text class="lbl faint" x={R2.across} y={R2.y + 34} text-anchor="middle">across: gives less</text>
     <text class="lbl strong" x="336" y={R2.y - 4}>α∥ > α⊥</text>
@@ -303,7 +303,7 @@
     <circle class="cursor flat" cx={qToX(aCO2 / 2)} cy={CO2.y + 10 - 20 * (aCO2 / 2) ** 2} r="2.6" />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y={N2.y - 42}>As the molecule vibrates</text>
+    <text class="lbl name" x="14" y={N2.y - 42}>As the Molecule Vibrates</text>
     <text class="lbl faint" x="206" y={N2.y - 42}>E fast (light), Q slow (vibration)</text>
     <text class="sym field-lbl" x={N2.x - 24} y={N2.y - 24} text-anchor="end">E</text>
     <text class="sym field-lbl" x={CO2.x - 24} y={CO2.y - 24} text-anchor="end">E</text>
@@ -355,7 +355,7 @@
     <line class="mirror" x1={(R4.a + R4.b) / 2} x2={(R4.a + R4.b) / 2} y1={R4.y - 24} y2={R4.y + 22} />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y={R4N.y - 44}>Frozen at the two extremes, in a field</text>
+    <text class="lbl name" x="14" y={R4N.y - 44}>Frozen at the Two Extremes, in a Field</text>
     <text class="sym field-lbl" x="56" y={R4N.y - 22}>E</text>
     <text class="sym field-lbl" x="56" y={R4.y - 22}>E</text>
 

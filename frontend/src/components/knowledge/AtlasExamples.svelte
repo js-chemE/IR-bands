@@ -16,7 +16,7 @@
   import { ieeeHtml, shortCite } from '../../lib/citations';
   import { htmlToUnicode } from '../../lib/notation';
 
-  export let title = 'In the atlas';
+  export let title = 'In the Atlas';
   export let examples: Example[];
   export let groups: GroupMap;
   export let refs: RefMap;

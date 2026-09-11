@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Dropdown from './Dropdown.svelte';
+  import LookPill from './LookPill.svelte';
   import { ISOTOPE_STYLE } from '../lib/tokens';
   /**
    * The band chart's filter: a set on top, the individual groups underneath.
@@ -11,7 +13,7 @@
    * rather than pretending a set is still active.
    */
   import { createEventDispatcher } from 'svelte';
-  import type { GroupMap, GroupSet } from '../lib/types';
+  import type { GroupMap, GroupSet, Spectroscopy } from '../lib/types';
 
   export let groups: GroupMap;
   export let sortedKeys: string[];
@@ -19,6 +21,12 @@
   export let sets: Record<string, GroupSet> = {};
   /** Whether the isotopologue bands are part of the chart at all. */
   export let showIsotopes = false;
+  /** Whether the bands the chosen spectroscopy cannot see are in the chart. */
+  export let showInactive = true;
+  /** Whether the bands with no claim standing in the chosen spectroscopy are in the chart. */
+  export let showUnreferenced = true;
+  /** IR or Raman: whose inactive bands the inactive pill means. */
+  export let spectroscopy: Spectroscopy = 'ir';
 
   /** Built in rather than authored: "everything" is not an editorial choice. */
   export const ALL_SET = 'all';
@@ -28,7 +36,11 @@
     groupToggle: { key: string; enabled: boolean };
     setSelect: { key: string };
     isotopeToggle: { enabled: boolean };
+    inactiveToggle: { enabled: boolean };
+    unreferencedToggle: { enabled: boolean };
   }>();
+
+  $: technique = spectroscopy === 'raman' ? 'Raman' : 'IR';
 
   let showGroups = false;
 
@@ -66,26 +78,42 @@
       aria-pressed={showIsotopes}
       on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
     >isotope</button>
+    <!-- The same two pills as under Color by, but here a filter: off, the
+         bands leave the chart and the lanes re-lay out without them. -->
+    <LookPill
+      look="hollow"
+      on={showInactive}
+      title={showInactive
+        ? `Hide the ${technique}-inactive bands and re-lay out the lanes without them`
+        : `Bring the ${technique}-inactive bands back`}
+      on:toggle={e => dispatch('inactiveToggle', { enabled: e.detail.on })}
+    >{technique}-inactive</LookPill>
+    <LookPill
+      look="faded"
+      on={showUnreferenced}
+      title={showUnreferenced
+        ? `Hide the bands with no ${technique} reference (none of their claims stands in ${technique}), and re-lay out the lanes without them`
+        : `Bring the bands with no ${technique} reference back`}
+      on:toggle={e => dispatch('unreferencedToggle', { enabled: e.detail.on })}
+    >unreferenced</LookPill>
   </div>
 </section>
 
 <section>
   <h3>Group Filter</h3>
 
-  <select
+  <!-- "Custom" is only offered once the selection has drifted off every set,
+       so the dropdown never invites you to pick it out of nowhere. -->
+  <Dropdown
     value={activeSet}
-    on:change={e => dispatch('setSelect', { key: e.currentTarget.value })}
-  >
-    <option value={ALL_SET}>All groups</option>
-    {#each setList as s (s.key)}
-      <option value={s.key}>{s.label}</option>
-    {/each}
-    {#if activeSet === CUSTOM}
-      <!-- Only offered once the selection has drifted off every set, so the
-           dropdown never invites you to pick "custom" out of nowhere. -->
-      <option value={CUSTOM}>Custom</option>
-    {/if}
-  </select>
+    options={[
+      { value: ALL_SET, label: 'All groups' },
+      ...setList.map(s => ({ value: s.key, label: s.label })),
+      ...(activeSet === CUSTOM ? [{ value: CUSTOM, label: 'Custom' }] : []),
+    ]}
+    label="Group filter"
+    on:change={e => dispatch('setSelect', { key: e.detail.value })}
+  />
 
   {#if activeNote}
     <p class="set-note">{activeNote}</p>
@@ -117,7 +145,7 @@
 </section>
 
 <style>
-  /* Two sections now: the isotope switch, then the group filter. They are
+  /* Two sections now: the isotope and inactive switches, then the group filter. They are
      different kinds of cut, so they get real air between them rather than a
      rule. */
   section + section { margin-top: 22px; }

@@ -6,10 +6,14 @@ export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
 export type Phase = 'gas' | 'adsorbed' | 'surface';
 export type Technique =
-  | 'drifts' | 'transmission' | 'atr' | 'ftir' | 'computational';
+  | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'emission'
+  | 'ftir' | 'raman' | 'computational';
 export type SurfaceLevel = 'site' | 'phase' | 'sample';
 export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
 export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references';
+/** Which selection rule the band chart draws: the other technique's silent bands fade. */
+export type Spectroscopy = 'ir' | 'raman';
+
 export type AxisProperty = 'wavenumber' | 'wavelength' | 'energy';
 
 export interface Vibration {
@@ -130,6 +134,8 @@ export interface GroupSet {
   label: string;
   groups: string[];
   note: string;
+  /** Optional: keep only bands of these phases; a band with no phase stays. */
+  phases?: string[];
 }
 
 export interface Region {

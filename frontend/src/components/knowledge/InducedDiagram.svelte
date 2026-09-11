@@ -171,7 +171,7 @@
     {/if}
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="16">Switch a field on</text>
+    <text class="lbl name" x="14" y="16">Switch a Field On</text>
     <text class="lbl faint" x={R1.off} y={R1.y + 36} text-anchor="middle">no field: μ = 0</text>
     <text class="lbl faint" x={R1.on} y={R1.y + 36} text-anchor="middle">in a field: a dipole</text>
     <text class="charge pos" x={R1.on} y={R1.y - R1.ry - 4} text-anchor="middle" style="opacity:{signOpacity(f)}">δ+</text>
@@ -240,7 +240,7 @@
     <path class="induced-head" d="M{R3.n2b - 7},{R3.y + 19} L{R3.n2b - 11},{R3.y + 22} L{R3.n2b - 7},{R3.y + 25}" />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="290">Any field will do</text>
+    <text class="lbl name" x="14" y="290">Any Field Will Do</text>
     <text class="ion-lbl" x={R3.ion} y={R3.y + 4} text-anchor="middle">M⁺</text>
     <text class="charge neg" x={R3.n2a - R3.rx - 3} y={R3.y - 12} text-anchor="middle">δ−</text>
     <text class="charge pos" x={R3.n2a + R3.rx + 3} y={R3.y - 12} text-anchor="middle">δ+</text>
@@ -254,7 +254,7 @@
   </g>
 
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="124">In light</text>
+    <text class="lbl name" x="14" y="124">In Light</text>
     <text class="lbl strong" x="300" y={F.my - 8}>it swings with the light</text>
     <text class="lbl faint" x="300" y={F.my + 10}>and radiates: the</text>
     <text class="lbl faint" x="300" y={F.my + 24}>molecule scatters it</text>

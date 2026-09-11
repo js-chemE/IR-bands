@@ -29,6 +29,8 @@ export const SOURCES: Record<string, Source> = {
   trenary: { key: WACHS, chapter: 'Ch. 3, R. Ranjan and M. Trenary, “Reflection Absorption Infrared Spectroscopy”' },
   moon: { key: WACHS, chapter: 'Ch. 4, J. Moon, M. Li, A. J. Ramirez-Cuesta and Z. Wu, “Raman Spectroscopy”' },
   stair: { key: WACHS, chapter: 'Ch. 6, P. C. Stair, “Ultraviolet (UV) Raman Spectroscopy”' },
+  vogt: { key: WACHS, chapter: 'Ch. 11, C. Vogt, C. S. Wondergem and B. M. Weckhuysen, “Ultraviolet-Visible (UV-Vis) Spectroscopy”' },
+  meunier: { key: 'Meunier.InadequateUnitSelection.2026' },
   li: { key: WACHS, chapter: 'Ch. 14, Q. Li, M. Anpo, J. You, T. Yan and X. Wang, “Photoluminescence (PL) Spectroscopy”' },
 };
 

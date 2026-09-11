@@ -1,24 +1,26 @@
 <script lang="ts">
   /**
-   * Rotation: free to turn in the gas, only able to rock on a surface.
+   * Rotation, and nothing else: a molecule turning as a whole.
    *
-   *   t = 0  the card: a free CO spinning beside a CO held on a surface,
-   *          which can only rock about its carbon.
-   *   t = 1  the opened card, three rows:
-   *            free: the rotational ladder, E(J) = B·J(J + 1), its first gap
-   *              set against the vibration's;
-   *            with the vibration: J changes with v, +1 (R, bluer, higher
-   *              wavenumber) or −1 (P, redder, lower), and each line of the
-   *              stick spectrum is one arrow; CO has no Q branch. Playing,
-   *              the arrows light up one after another with their lines;
-   *            held: the turn becomes a rock (frustrated rotation) and the
-   *              travel a slide (frustrated translation), vibrations of their
-   *              own with no branches.
+   *   t = 0  the card: a free CO with its three axes through the centre of
+   *          mass, turning about z, then y, then x (the bond axis, where no
+   *          atom moves), beside its ladder of rotational levels, each with a
+   *          bar for how full it is at room temperature.
+   *   t = 1  the opened card, two rows:
+   *            the same, labelled: E(J) = B·J(J + 1), CO's B, kT, and the
+   *              most filled level (J ≈ 7);
+   *            shape sets the ladder: CO₂ (linear, one B), CH₄ (a spherical
+   *              top, one B) and H₂O (three different moments), each turning.
    *
-   * Level spacings are schematic; the two ladders are not drawn to one scale.
+   * No vibration and no light here: what a photon does with these levels is
+   * the Rotational branches card, what a surface does to the turn is the
+   * Frustrated motion card.
    */
   import { onDestroy } from 'svelte';
-  import MiniMolecule from './MiniMolecule.svelte';
+  import { geometryFor } from '../../lib/moleculeGeometry';
+  import MiniMolecule, { pose } from './MiniMolecule.svelte';
+  import Axes3D from './Axes3D.svelte';
+  import { project, rotAbout, type Axis, type V3 } from './view3d';
 
   export let t = 0;
   export let playing = false;
@@ -28,7 +30,7 @@
     Math.max(0, Math.min(1, (k - from) / (to - from)));
 
   const S = { W: 220, H: 100, px: 238 / 220 };
-  const F = { W: 480, H: 476 };
+  const F = { W: 480, H: 300 };
 
   $: W = lerp(S.W, F.W, t);
   $: H = lerp(S.H, F.H, t);
@@ -57,52 +59,53 @@
   onDestroy(() => raf && cancelAnimationFrame(raf));
   $: time = running ? clock / 1000 : 0;
 
-  /* ── The two molecules ── */
-  const FREE_CO = [
-    { x: -13, y: 0, r: 5.4, el: 'C' },
-    { x: 13, y: 0, r: 5.2, el: 'O' },
-  ];
-  const HELD_CO = [
-    { x: 0, y: 0, r: 5.4, el: 'C' },
-    { x: 0, y: -26, r: 5.2, el: 'O' },
+  /* ── CO, turning about each axis through its centre of mass in turn ── */
+  // C 12, O 16, 26 apart: the centre of mass sits 11.1 from O and 14.9 from C.
+  // The bond lies along x, so turning about x moves no atom.
+  const CO_3D: { el: string; p: V3; r: number }[] = [
+    { el: 'C', p: [-14.86, 0, 0], r: 5.4 },
+    { el: 'O', p: [11.14, 0, 0], r: 5.2 },
   ];
   const CO_BOND: [number, number][] = [[0, 1]];
+  const ORDER: Axis[] = ['z', 'y', 'x'];
+  const PH = 2.4;
+  $: phase = running ? Math.floor(time / PH) % 3 : -1;
+  $: axis = phase >= 0 ? ORDER[phase] : null;
+  // One whole turn per phase, easing in and out.
+  $: angle = running ? (360 * (1 - Math.cos(Math.PI * ((time % PH) / PH)))) / 2 : 0;
+  $: coAtoms = CO_3D.map(a => {
+    const pr = project(axis ? rotAbout(axis, a.p, angle) : a.p);
+    return { x: pr.x, y: pr.y, z: pr.z, r: a.r * pr.f, el: a.el };
+  }).sort((a, b) => a.z - b.z);
+  $: co = { x: lerp(52, 70, t), y: lerp(50, 92, t) };
 
-  // Free: a steady turn. Held: a rock about the carbon, and (opened) a slide.
-  $: spin = running ? -30 + 120 * time : -30;
-  $: rock = running ? 24 * Math.sin(2 * Math.PI * 0.9 * time) : 14;
-  $: slide = running ? 8 * Math.sin(2 * Math.PI * 0.7 * time) : 0;
+  /* ── The ladder and its population ── */
+  // CO at room temperature: kT / B ≈ 207 / 1.93 ≈ 107.
+  const KT_OVER_B = 107;
+  const pop = (J: number) => (2 * J + 1) * Math.exp(-(J * (J + 1)) / KT_OVER_B);
+  const POP_MAX = pop(7);
+  $: ladder = {
+    x1: lerp(114, 190, t),
+    x2: lerp(160, 250, t),
+    y0: lerp(88, 150, t),
+    px: lerp(0.8, 1.0, t),
+    bar: lerp(40, 72, t),
+  };
+  $: maxJ = t > 0.5 ? 10 : 8;
+  $: levels = Array.from({ length: maxJ + 1 }, (_, J) => ({
+    J,
+    y: ladder.y0 - ladder.px * J * (J + 1),
+    w: (ladder.bar * pop(J)) / POP_MAX,
+  }));
 
-  $: free = { x: lerp(55, 70, t), y: lerp(50, 76, t), r: lerp(20, 24, t) };
-  $: held = { x: lerp(162, 110, t), y: lerp(76, 430, t) };
-  $: surf = { x1: lerp(120, 20, t), x2: lerp(205, 460, t), y: lerp(84, 438, t) };
-
-  /* ── Row 1: the ladder ── */
-  const LADDER = { x1: 150, x2: 246, y0: 132, px: 2.1 };
-  const LEVELS = [0, 1, 2, 3, 4, 5, 6].map(J => ({ J, y: LADDER.y0 - LADDER.px * J * (J + 1) }));
-
-  /* ── Row 2: branches ── */
-  const V0 = 294;
-  const V1 = 222;
-  const RP = 1.3;
-  const lvl = (v: number, J: number) => (v ? V1 : V0) - RP * J * (J + 1);
-  // How full a starting level is: (2J + 1) Boltzmann-weighted, schematic.
-  const pop = (J: number) => (2 * J + 1) * Math.exp(-(J * (J + 1)) / 8);
-  const POP_MAX = Math.max(...[0, 1, 2, 3, 4, 5].map(pop));
-  const ORIGIN = 370;
-  const PX_PER_2B = 13;
-  const LINES = [
-    ...[0, 1, 2, 3].map(J => ({ branch: 'R' as const, J, to: J + 1, x: ORIGIN - PX_PER_2B * (J + 1), h: 52 * pop(J) / POP_MAX, ax: 52 + 13 * J })),
-    ...[1, 2, 3, 4].map(J => ({ branch: 'P' as const, J, to: J - 1, x: ORIGIN + PX_PER_2B * J, h: 52 * pop(J) / POP_MAX, ax: 128 + 13 * J })),
-  ];
-  // Playing, one transition at a time, R then P.
-  $: lit = running ? Math.floor(time / 0.55) % LINES.length : -1;
-
-  const ROCK = (24 * Math.PI) / 180;
-  const arc = (cx: number, cy: number) =>
-    `M ${cx - 26 * Math.sin(ROCK)} ${cy - 26 * Math.cos(ROCK)} A 26 26 0 0 1 ${cx + 26 * Math.sin(ROCK)} ${cy - 26 * Math.cos(ROCK)}`;
-
-  const up = (x: number, y: number) => `M${x - 2.8},${y + 4.4} L${x},${y} L${x + 2.8},${y + 4.4}`;
+  /* ── Shape sets the ladder ── */
+  const SHAPES = [
+    { id: 'co2', x: 80, label: 'CO₂: linear', note: 'one B, 0.39 cm⁻¹' },
+    { id: 'ch4', x: 236, label: 'CH₄: spherical top', note: 'one B, 5.24 cm⁻¹' },
+    { id: 'water', x: 392, label: 'H₂O: asymmetric top', note: 'three: 27.9, 14.5, 9.3' },
+  ].map(sh => ({ ...sh, g: geometryFor(sh.id, 'gas')! }));
+  // Each turns about the middle of its own drawing.
+  const centre = (id: string) => (id === 'water' ? { x: 0, y: -4 } : { x: 0, y: 0 });
 
   $: fullOpacity = ramp(t, 0.35, 0.85);
   $: labelOpacity = ramp(t, 0.75, 1);
@@ -114,80 +117,53 @@
   height={H * scale}
   viewBox="0 0 {W} {H}"
   role="img"
-  aria-label="A free CO molecule turns on a ladder of rotational levels, which splits its vibrational band into P and R branches; held on a surface it can only rock and slide, as vibrations of their own"
+  aria-label="A free CO molecule turns about its centre of mass, on a ladder of rotational levels spread out by temperature; CO₂, CH₄ and H₂O turn differently because of their shapes"
 >
-  <!-- ── Free CO, turning ── -->
-  <circle class="path" cx={free.x} cy={free.y} r={free.r} />
-  <MiniMolecule atoms={FREE_CO} bonds={CO_BOND} x={free.x} y={free.y} rotate={spin} />
+  <!-- ── Row 1: CO turning about its axes, and its ladder ── -->
+  <Axes3D x={co.x} y={co.y} len={lerp(30, 44, t)} active={axis} rings still="x" labels={t > 0.5} />
+  <MiniMolecule atoms={coAtoms} bonds={CO_BOND} x={co.x} y={co.y} />
+  <circle class="com" cx={co.x} cy={co.y} r="1.4" />
 
-  <!-- ── Held CO, rocking ── -->
-  <line class="surface" x1={surf.x1} x2={surf.x2} y1={surf.y} y2={surf.y} style="opacity:{1 - fullOpacity}" />
-  <rect class="metal" x="20" y="438" width="440" height="14" style="opacity:{fullOpacity}" />
-  <!-- The arc the oxygen rocks along, about the carbon held to the surface. -->
-  <path class="path" d={arc(held.x, held.y - 7)} />
-  <line class="anchor" x1={held.x} x2={held.x} y1={held.y - 2} y2={surf.y} />
-  <MiniMolecule atoms={HELD_CO} bonds={CO_BOND} x={held.x} y={held.y - 7} rotate={rock} />
+  {#each levels as l (l.J)}
+    <line class="level" x1={ladder.x1} x2={ladder.x2} y1={l.y} y2={l.y} />
+    <rect class="pop" class:peak={l.J === 7} x={ladder.x2 + 5} y={l.y - 1.2} width={l.w} height="2.4" rx="1.2" />
+  {/each}
 
-  <!-- ── Row 1 (opened): the ladder ── -->
+  <g style="opacity:{labelOpacity}">
+    <text class="lbl name" x="14" y="16">Free: Turning about Its Centre of Mass</text>
+    <text class="lbl faint" class:lit={axis === 'x'} x="14" y="150">
+      {axis === 'x' ? 'about x: no motion' : 'two that count'}
+    </text>
+    {#each levels.filter(l => l.J % 4 === 0 || l.J === 10) as l (l.J)}
+      <text class="lbl faint" x={ladder.x1 - 6} y={l.y + 4} text-anchor="end">J = {l.J}</text>
+    {/each}
+    <text class="lbl strong" x="332" y="60">E(J) = B · J(J + 1)</text>
+    <text class="lbl" x="332" y="80">CO: B = 1.93 cm⁻¹</text>
+    <text class="lbl" x="332" y="100">kT(25 °C) ≈ 207 cm⁻¹</text>
+    <text class="lbl peak-lbl" x="332" y="120">most filled: J ≈ 7</text>
+    <text class="lbl faint" x="332" y="140">bars: population</text>
+  </g>
+
+  <!-- ── Row 2: shape sets the ladder ── -->
   <g style="opacity:{fullOpacity}">
-    {#each LEVELS as l (l.J)}
-      <line class="level" x1={LADDER.x1} x2={LADDER.x2} y1={l.y} y2={l.y} />
+    {#each SHAPES as sh (sh.id)}
+      <MiniMolecule
+        atoms={pose(sh.g, null)}
+        bonds={sh.g.bonds}
+        x={sh.x}
+        y={sh.id === 'water' ? 242 : 236}
+        k={sh.id === 'ch4' ? 0.8 : 1}
+        rotate={running ? 90 * time * (sh.id === 'co2' ? 1 : sh.id === 'ch4' ? 0.7 : 1.3) : 0}
+        pivot={centre(sh.id)}
+      />
     {/each}
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="16">Free: a ladder of its own</text>
-    {#each LEVELS.filter(l => l.J % 2 === 0) as l (l.J)}
-      <text class="lbl faint" x={LADDER.x2 + 6} y={l.y + 4}>J = {l.J}</text>
+    <text class="lbl name" x="14" y="190">Shape Sets the Ladder</text>
+    {#each SHAPES as sh (sh.id)}
+      <text class="lbl strong" x={sh.x} y="278" text-anchor="middle">{sh.label}</text>
+      <text class="lbl faint" x={sh.x} y="294" text-anchor="middle">{sh.note}</text>
     {/each}
-    <text class="lbl strong" x="316" y="62">E(J) = B · J(J + 1)</text>
-    <text class="lbl" x="316" y="82">CO: B = 1.93 cm⁻¹</text>
-    <text class="lbl" x="316" y="100">J 0 → 1: 3.9 cm⁻¹</text>
-    <text class="lbl faint" x="316" y="118">v 0 → 1: 2143 cm⁻¹</text>
-  </g>
-
-  <!-- ── Row 2 (opened): the branches ── -->
-  <g style="opacity:{fullOpacity}">
-    {#each [0, 1, 2, 3, 4] as J}
-      <line class="level thin" x1="40" x2="236" y1={lvl(0, J)} y2={lvl(0, J)} />
-      <line class="level thin" x1="40" x2="236" y1={lvl(1, J)} y2={lvl(1, J)} />
-    {/each}
-    {#each LINES as ln, i}
-      {@const y0 = lvl(0, ln.J)}
-      {@const y1 = lvl(1, ln.to)}
-      <g class="tr {ln.branch}" class:dim={lit >= 0 && lit !== i}>
-        <line x1={ln.ax} x2={ln.ax} y1={y0} y2={y1 + 1} />
-        <path d={up(ln.ax, y1)} />
-      </g>
-    {/each}
-
-    <line class="axis" x1="276" x2="466" y1={V0} y2={V0} />
-    {#each LINES as ln, i}
-      <line class="stick {ln.branch}" class:dim={lit >= 0 && lit !== i} x1={ln.x} x2={ln.x} y1={V0} y2={V0 - ln.h} />
-    {/each}
-    <line class="origin" x1={ORIGIN} x2={ORIGIN} y1={V0} y2={V0 - 60} />
-  </g>
-  <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="172">With the vibration: P and R</text>
-    <text class="lbl faint" x="240" y={V0 + 4}>v = 0</text>
-    <text class="lbl faint" x="240" y={V1 + 4}>v = 1</text>
-    <text class="lbl R" x={ORIGIN - 3.2 * PX_PER_2B} y={V0 - 66} text-anchor="middle">R: ΔJ = +1</text>
-    <text class="lbl P" x={ORIGIN + 3.2 * PX_PER_2B} y={V0 - 66} text-anchor="middle">P: ΔJ = −1</text>
-    <text class="lbl faint" x={ORIGIN} y={V0 + 16} text-anchor="middle">no Q for CO</text>
-    <text class="lbl faint" x="276" y={V0 + 30}>← higher wavenumber</text>
-  </g>
-
-  <!-- ── Row 3 (opened): held on a surface ── -->
-  <g style="opacity:{fullOpacity}">
-    <line class="anchor" x1={270 + slide} x2="270" y1="428" y2="438" />
-    <MiniMolecule atoms={HELD_CO} bonds={CO_BOND} x={270 + slide} y={423} />
-  </g>
-  <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="354">Held: the turn becomes a rock</text>
-    <text class="lbl faint" x="110" y="470" text-anchor="middle">frustrated rotation</text>
-    <text class="lbl faint" x="270" y="470" text-anchor="middle">frustrated translation</text>
-    <text class="lbl" x="364" y="392">a band each,</text>
-    <text class="lbl" x="364" y="410">low wavenumber,</text>
-    <text class="lbl" x="364" y="428">no P or R</text>
   </g>
 </svg>
 
@@ -199,25 +175,11 @@
     overflow: visible;
   }
 
-  .path { fill: none; stroke: var(--ink-slate-400); stroke-width: 1; stroke-dasharray: 3 2; stroke-opacity: 0.7; }
-  .surface { stroke: var(--line-slate-strong); stroke-width: 1.4; }
-  .anchor { stroke: var(--ink-slate-400); stroke-width: 1.2; stroke-dasharray: 2 1.5; }
-  .metal { fill: var(--line-slate); stroke: var(--line-slate-strong); stroke-width: 1; }
+  .com { fill: var(--ink-slate-500); }
 
-  .level { stroke: var(--ink-slate-400); stroke-width: 1.3; stroke-linecap: round; }
-  .level.thin { stroke-width: 1; stroke-opacity: 0.8; }
-
-  /* R is the bluer branch (higher energy), P the redder: the Raman card's colours. */
-  .tr line, .tr path { fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: opacity 0.2s; }
-  .tr.R line, .tr.R path { stroke: var(--diagram-anti-stokes); }
-  .tr.P line, .tr.P path { stroke: var(--diagram-stokes); }
-  .dim { opacity: 0.2; }
-
-  .axis { stroke: var(--line-slate-strong); stroke-width: 1; }
-  .stick { stroke-width: 2.2; stroke-linecap: round; transition: opacity 0.2s; }
-  .stick.R { stroke: var(--diagram-anti-stokes); }
-  .stick.P { stroke: var(--diagram-stokes); }
-  .origin { stroke: var(--ink-025); stroke-width: 1; stroke-dasharray: 2 2; }
+  .level { stroke: var(--ink-slate-400); stroke-width: 1; stroke-linecap: round; }
+  .pop { fill: var(--brand-700); fill-opacity: 0.55; }
+  .pop.peak { fill: var(--accent-green-fg); fill-opacity: 1; }
 
   .lbl {
     font-family: var(--t-code-ff);
@@ -226,6 +188,5 @@
   }
   .lbl.faint { fill: var(--ink-050); }
   .lbl.strong, .lbl.name { fill: var(--ink-slate-900); }
-  .lbl.R { fill: var(--diagram-anti-stokes); }
-  .lbl.P { fill: var(--diagram-stokes); }
+  .lbl.peak-lbl, .lbl.lit { fill: var(--accent-green-fg); }
 </style>

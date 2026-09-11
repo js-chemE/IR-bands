@@ -175,12 +175,16 @@
 //                          here: those belong in note.
 //                   technique: how the spectrum was taken. One of drifts |
 //                          transmission | atr | irras | pm_irras | emission |
-//                          ftir | computational. Every value but one names a
-//                          sampling geometry; ftir is the placeholder for a
-//                          source that names the interferometer and not the
-//                          geometry, since nearly all of these use one and
-//                          saying so distinguishes nothing. Leave the field
-//                          out only when the paper says nothing at all.
+//                          ftir | raman | computational. The infrared values
+//                          name a sampling geometry; ftir is the placeholder
+//                          for a source that names the interferometer and not
+//                          the geometry, since nearly all of these use one and
+//                          saying so distinguishes nothing. raman is a Raman
+//                          shift, whatever the geometry: the chart greys out
+//                          and folds a claim whose technique is not the one
+//                          chosen in its IR/Raman switch, and one with no
+//                          technique in both. Leave the field out only when
+//                          the paper says nothing at all.
 //                          build.py derives a tag of the same name, so never
 //                          write one by hand.
 //                   note — THIS source's specifics: experimental conditions
@@ -385,7 +389,8 @@
   // ---------------------------------------------------------------------------
   "lanes": [
     ["co2"],
-    ["co", "ch4"],
+    ["co"],
+    ["ch4"],
     ["co_metal"],
     ["co_cation"],
     ["carbonyl"],
@@ -406,6 +411,13 @@
   // question, so it lives with the data rather than in the frontend. The
   // filter offers "All groups" on top of these; that one is built in and is
   // not listed here.
+  //   label, note, groups[] — what the filter shows, one sentence on what the
+  //                  set leaves out, and the groups it turns on.
+  //   phases[]     — optional. When given, the set also keeps only bands of
+  //                  these phases (gas | adsorbed | surface); a band with no
+  //                  phase applies to both forms and always stays. Use it
+  //                  where a group holds both the free molecule and its
+  //                  adsorbed form, as co2 and methanol_product do.
   // ---------------------------------------------------------------------------
   "sets": {
     "co2_hydrogenation": {
@@ -433,6 +445,12 @@
         "carbonate", "bicarbonate",
         "co2", "co", "ch4", "h2", "co_metal", "co_cation"
       ]
+    },
+    "fluids": {
+      "label": "Gases + Fluids",
+      "note": "The free molecules only: reactants and products as gas or fluid, no surface species. Their adsorbed bands are left out too.",
+      "groups": ["co2", "co", "ch4", "h2", "methanol_product", "water"],
+      "phases": ["gas"]
     },
     "co_methanation": {
       "label": "CO methanation",
@@ -490,7 +508,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
       // Symmetry-forbidden Q-branch (Σᵤ⁺←Σg⁺ parallel transition forbids
       // ΔJ=0) — shown as a thin ir-inactive marker for the gap between the
@@ -523,7 +541,7 @@
         }
       ],
       "confidence": "confirmed",
-      "tags": ["ir-inactive"]
+      "tags": ["ir-inactive", "raman-inactive"]
     },
     {
       "id": "co2_asym_p",
@@ -555,7 +573,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
     {
       "id": "co2_bend_r",
@@ -587,7 +605,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["degenerated"]
+      "tags": ["degenerated", "raman-inactive"]
     },
     {
       "id": "co2_bend_q",
@@ -619,7 +637,7 @@
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": ["degenerated"]
+      "tags": ["degenerated", "raman-inactive"]
     },
     {
       "id": "co2_bend_p",
@@ -651,7 +669,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["degenerated"]
+      "tags": ["degenerated", "raman-inactive"]
     },
       // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
     {
@@ -691,7 +709,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
       // Pair-mate of co2_combo_sym_asym_r (P-branch).
     {
@@ -731,7 +749,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
       // Lower Fermi-resonance pair: 2ν₂+ν₃. Linked to the bending Q-branch.
     {
@@ -771,7 +789,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["overtone"]
+      "tags": ["overtone", "raman-inactive"]
     },
       // Pair-mate of co2_combo_2bend_asym_r (P-branch).
     {
@@ -812,7 +830,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": ["overtone"]
+      "tags": ["overtone", "raman-inactive"]
     },
     {
       "id": "co2_combo_sym_bend_q",
@@ -859,7 +877,7 @@
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": ["misassignment-warning"]
+      "tags": ["misassignment-warning", "raman-inactive"]
     },
 
     {
@@ -906,9 +924,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": [
-        "misassignment-warning"
-      ]
+      "tags": ["misassignment-warning", "raman-inactive"]
     },
 
     {
@@ -957,9 +973,7 @@
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": [
-        "misassignment-warning"
-      ]
+      "tags": ["misassignment-warning", "raman-inactive"]
     },
 
     {
@@ -1008,9 +1022,7 @@
       "intensity": "s",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": [
-        "misassignment-warning"
-      ]
+      "tags": ["misassignment-warning", "raman-inactive"]
     },
 
     // IR-forbidden (Σg⁺); listed for context as the explicit parent of the
@@ -1068,6 +1080,12 @@
           "technique": "drifts",
           "wn": 1388,
           "note": "Table 3 and Fig. 3: formally infrared-inactive, yet observed in DRIFTS of pure KBr once the CO₂ pressure passes roughly 10 bar, together with its Fermi partner at 1285 cm⁻¹ and with an intensity ratio near 1.0 at 30 bar. The pair is the Fermi resonance itself made visible: the deperturbed ν₁ lies at 1337 cm⁻¹ and is pushed up to 1388, while 2ν₂ falls from 1334 to 1285 cm⁻¹. Both grow with pressure and, unlike every combination band in the same spectrum, weaken as the temperature rises."
+        },
+        {
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "technique": "raman",
+          "wn": 1387,
+          "note": "Text and Fig. 2: the upper Fermi dyad band at ca. 1387 cm⁻¹, neat CO₂ flowed through a Si/glass microreactor chip, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, so across the gas, liquid and supercritical states. The position depends on pressure and temperature: read off Fig. 2, it runs from about 1389 cm⁻¹ (5 MPa, 323 K) down to about 1386 cm⁻¹ in the dense fluid, stepping abruptly at the gas–liquid (298 K, 6–7 MPa) and gas–supercritical (307 K, 7–8 MPa) transitions and falling smoothly at 323 K. The paper calls the pair the Fermi dyad without saying which component is ν₁; the split follows the atlas. With 5 % each of cyclohexene and H₂ (10 MPa, 305–318 K) the dyad sits at or below the liquid value at 305 K, which the paper reads as phase segregation."
         }
       ],
       "confidence": "confirmed",
@@ -1104,6 +1122,12 @@
           "technique": "drifts",
           "wn": 1285,
           "note": "Table 3 and Fig. 3: the lower Fermi component, formally infrared-inactive but seen in DRIFTS above roughly 10 bar of CO₂ alongside the 1388 cm⁻¹ partner. Its unperturbed position is 1334 cm⁻¹, and the resonance pushes it down to 1285. Both bands weaken with rising temperature, which is what separates them from the combination bands nearby."
+        },
+        {
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "technique": "raman",
+          "wn": 1284,
+          "note": "Text and Fig. 2: the lower Fermi dyad band at ca. 1284 cm⁻¹, the same on-chip measurement as its partner at 1387 cm⁻¹ (neat CO₂ in a Si/glass microreactor, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, through gas, liquid and supercritical CO₂). The position depends on pressure and temperature: read off Fig. 2, it runs from about 1285 cm⁻¹ (5 MPa, 323 K) down to about 1281.5 cm⁻¹ in the dense liquid, with the same abrupt steps at the phase transitions as the upper band and a smooth trend at 323 K. The paper does not say which component is 2ν₂; the split follows the atlas."
         }
       ],
       "confidence": "confirmed",
@@ -1153,7 +1177,7 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
       // Symmetry-forbidden Q-branch (Σ→Σ parallel transition forbids ΔJ=0) —
       // shown as a thin ir-inactive marker for the gap between the R/P
@@ -1217,29 +1241,31 @@
       "intensity": "vs",
       "width": "broad",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["raman-inactive"]
     },
 
     // ---------------------------------------------------------------------------
     // METHANE (gas + adsorbed)
-    // Product on methanation catalysts. Gas-phase ν₃, ν₄, plus a high-pressure combination band.
+    // Product on methanation catalysts. Gas-phase ν₃ and ν₂ with P/Q/R branches
+    // (the Q keeps the band's original id), ν₄, ν₁, plus the ν₃+ν₄ combination near 4300.
     // ---------------------------------------------------------------------------
     {
       "id": "ch4g_asym",
       "species": "ch4",
       "phase": "gas",
       "group": "ch4",
+      "branch_group": "ch4_nu3_branches",
       "vibration_modes": ["ch4_stretch_asymmetric"],
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 2980,
-      "wn_end": 3060,
-      "short": "νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric C-H stretch (νₐₛ, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "wn_start": 3010,
+      "wn_end": 3025,
+      "short": "νₐₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane asymmetric C-H stretch (νₐₛ, ν₃, T₂ mode): the sharp Q branch at the ~3019 cm⁻¹ band origin, the feature gas methane is usually recognised by. Active in both IR and Raman. Its rotational P and R branches spread either side (ch4g_asym_p, ch4g_asym_r), and the P side overlaps νₛ near 2917 cm⁻¹ in Raman.",
       "based_on": [],
       "references": [
         {
@@ -1253,11 +1279,73 @@
           "technique": "transmission",
           "tags": [],
           "note": "Table No. 71, methane, Td: selected value 3019 cm⁻¹, uncertainty code A (0 to 1 cm⁻¹), the triply degenerate f₂ stretch. This is the one methane fundamental measured cleanly in both: infrared 3018.9 cm⁻¹ and Raman 3019.5 cm⁻¹. It is the band a catalysis spectrum actually sees, since ν₁ and ν₂ have no infrared intensity of their own."
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.2 and Fig. 3: the anisotropic part of the pentad Raman spectrum is dominated by the fundamental ν₃ (F₂), whose rotational structure depends strongly on temperature (room temperature to 700 K in Fig. 3); spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The fit needed only the zeroth-order ν₃ polarisability operator. The text gives no position for the band."
         }
       ],
       "intensity": "vs",
-      "width": "broad",
+      "width": "sharp",
       "confidence": "confirmed",
+      "tags": []
+    },
+      // ν₃ rotational wings: P below and R above the Q branch (ch4g_asym).
+    {
+      "id": "ch4g_asym_p",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu3_branches",
+      "vibration_modes": ["ch4_stretch_asymmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2890,
+      "wn_end": 3010,
+      "short": "νₐₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the P branch, the rotational lines below the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. It overlaps νₛ near 2917 cm⁻¹ and the δₛ+δₐₛ combination near 2830 cm⁻¹, so a band here is not by itself νₛ. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): ν₃ dominates the anisotropic pentad spectrum, and its low-wavenumber rotational wing is this side of the sharp Q branch. The paper names neither the branches nor their positions, so no number is recorded; the wing gains lines as the temperature rises (Fig. 3, up to 700 K). Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
+        }
+      ],
+      "confidence": "likely",
+      "tags": []
+    },
+    {
+      "id": "ch4g_asym_r",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu3_branches",
+      "vibration_modes": ["ch4_stretch_asymmetric"],
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 3030,
+      "wn_end": 3160,
+      "short": "νₐₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the R branch, the rotational lines above the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): the high-wavenumber rotational wing of ν₃, the stronger of the two sides in Fig. 13. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser, room temperature to 900 K."
+        }
+      ],
+      "confidence": "likely",
       "tags": []
     },
     {
@@ -1296,24 +1384,24 @@
       "confidence": "confirmed",
       "tags": []
     },
-      // IR-forbidden (E in Td); listed for context as the explicit parent of
-      // the δₛ+νₐₛ combination band, mirroring co2_sym.
+      // IR-forbidden (E in Td); the Raman band of the dyad, mirroring co2_sym.
     {
       "id": "ch4g_bend_sym",
       "species": "ch4",
       "phase": "gas",
       "group": "ch4",
+      "branch_group": "ch4_nu2_branches",
       "vibration_modes": ["ch4_bend_e"],
       "vibration": {
         "category": "bend",
         "subtype": "symmetric",
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
       "wn_start": 1528,
       "wn_end": 1540,
-      "short": "δₛ(HCH) CH₄(g)",
-      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry: E in Td has no T₂ component, so the mode carries no dipole derivative of its own. It is still seen in the infrared, near 1533 cm⁻¹, by borrowing intensity through Coriolis coupling to the δₐₛ bend below it — a reminder that a forbidden mode is one with no dipole derivative, not one that is never observed. Listed here as the explicit parent mode for the δₛ+νₐₛ combination band (~4220 cm⁻¹).",
+      "short": "δₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry: E in Td has no T₂ component, so the mode carries no dipole derivative of its own. It is still seen in the infrared, near 1533 cm⁻¹, by borrowing intensity through Coriolis coupling to the δₐₛ bend below it — a reminder that a forbidden mode is one with no dipole derivative, not one that is never observed. In Raman it is the band that dominates the dyad. This entry is the Q branch; in Raman its P and R wings (ch4g_bend_sym_p, ch4g_bend_sym_r) spread either side.",
       "based_on": [],
       "references": [
         {
@@ -1322,9 +1410,71 @@
           "technique": "transmission",
           "tags": [],
           "note": "Table No. 71, methane, Td: selected value 1534 cm⁻¹, uncertainty code A (0 to 1 cm⁻¹). The infrared column reads \"ia, 1533\" with a footnote saying the band is observed in the infrared through Coriolis interaction with ν₄, and the Raman column gives 1533.6 cm⁻¹. So the compilation records both that the mode is formally inactive and that it is nonetheless seen: the two are not in conflict."
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.1 and Fig. 2: the Raman spectrum of the dyad (about 1300–1850 cm⁻¹) is totally anisotropic and dominated by ν₂ (E), a strong central Q branch with rotational lines on both sides; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. No number is recorded: the text’s only one, “near 1530 cm⁻¹”, is printed against ν₄, which the same paragraph calls very weak in Raman and leaves out of the fit. That it belongs to ν₂ is the atlas’s reading, not the paper’s."
         }
       ],
       "confidence": "confirmed",
+      "tags": ["ir-inactive"]
+    },
+      // ν₂ rotational wings, seen in Raman: P below and R above the Q branch (ch4g_bend_sym).
+    {
+      "id": "ch4g_bend_sym_p",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu2_branches",
+      "vibration_modes": ["ch4_bend_e"],
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1400,
+      "wn_end": 1525,
+      "short": "δₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane symmetric bend (δₛ, ν₂, E): the P branch, the rotational lines below the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. Its low end runs towards δₐₛ near 1306 cm⁻¹, which is very weak in Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.1, Fig. 2 and Fig. 13: the dyad Raman spectrum is totally anisotropic and dominated by ν₂, with rotational lines on both sides of its strong Q branch; this is the low-wavenumber side. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
+        }
+      ],
+      "confidence": "likely",
+      "tags": ["ir-inactive"]
+    },
+    {
+      "id": "ch4g_bend_sym_r",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu2_branches",
+      "vibration_modes": ["ch4_bend_e"],
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1545,
+      "wn_end": 1700,
+      "short": "δₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane symmetric bend (δₛ, ν₂, E): the R branch, the rotational lines above the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.1, Fig. 2 and Fig. 13: the high-wavenumber side of the ν₂ dyad spectrum, where Fig. 2 shows the longer, better separated series of rotational lines. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
+        }
+      ],
+      "confidence": "likely",
       "tags": ["ir-inactive"]
     },
       // IR-forbidden (A1 in Td); listed for the same reason as
@@ -1350,14 +1500,20 @@
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
           "wn": 2917,
-          "technique": "transmission",
+          "technique": "raman",
           "tags": [],
-          "note": "Table No. 71, methane, Td: selected value 2917 cm⁻¹ with uncertainty code A, the compilation's best grade at 0 to 1 cm⁻¹. The infrared column is marked ia, inactive, and the number comes from the Raman column at 2917.0 cm⁻¹, so this is a Raman position rather than an infrared one. Technique recorded as transmission because the underlying gas measurements were made that way; the compilation itself selects rather than measures."
+          "note": "Table No. 71, methane, Td: selected value 2917 cm⁻¹ with uncertainty code A, the compilation's best grade at 0 to 1 cm⁻¹. The infrared column is marked ia, inactive, and the number comes from the Raman column at 2917.0 cm⁻¹, so this is a Raman position rather than an infrared one, and the technique is recorded as raman. The compilation itself selects rather than measures."
         },
         {
           "key": "Nishimura.VibrationalExcitationsCH4.2002",
           "wn": 2920,
           "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table. Two caveats. The paper is a close-coupling calculation of electron-impact vibrational excitation and reports no infrared spectrum of its own: the mode energies are inputs it adopts from the literature, so it is a secondary source for this position. And no copy is on file and the article is paywalled, so this row could not be checked against the paper on the pass that added the compilation value above."
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "wn": 2916,
+          "note": "Sect. 4.2, Fig. 3 and conclusions: the strong isotropic ν₁ (A₁) band near 2916 cm⁻¹, a Q branch that is unresolved at the 0.3 cm⁻¹ apparatus width; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The stimulated Raman spectrum at 0.08 bar and 300 K (Fig. 8) resolves that Q branch into lines between about 2916.5 and 2918 cm⁻¹, read off the figure. From 400 K on, hot bands ν₁+nνᵢ−nνᵢ fill 2900–2920 cm⁻¹ (ν₁+ν₄−ν₄ at 2913 cm⁻¹, Fig. 10), which is what makes the band a thermometer. ν₁ is in Fermi resonance with 2ν₂ and 2ν₄ and in Dennison resonance with ν₂+ν₄."
         }
       ],
       "confidence": "confirmed",
@@ -1368,27 +1524,88 @@
       "species": "ch4",
       "phase": "gas",
       "group": "ch4",
+      "branch_group": "ch4_nu3nu4_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 4180,
-      "wn_end": 4250,
-      "short": "δₛ+νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when νₐₛ saturates. Often outside standard DRIFTS window.",
+      "wn_start": 4300,
+      "wn_end": 4325,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ) near 4300 cm⁻¹, the strongest band of the octad in the near-infrared and in Raman. F₂×F₂ gives A₁, E and F₂ components, so it is active in both. Close neighbours in the same polyad blur it: ν₁+ν₄ on the low side, ν₁+ν₂ on the high side, and ν₂+ν₃ further up near 4540 cm⁻¹, which is where δₛ+νₐₛ belongs, not here. Useful for quantification when νₐₛ saturates; often outside a standard DRIFTS window. This entry is the Q branch, the sharp centre; its P and R wings are ch4g_combo_p and ch4g_combo_r.",
       "based_on": [
         {
-          "band_id": "ch4g_bend_sym",
+          "band_id": "ch4g_bend",
           "multiplier": 1
         },
         {
-          "band_id": "ch4g_asym",
+          "branch_group": "ch4_nu3_branches",
           "multiplier": 1
         }
       ],
-      "references": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.3, Figs. 11–13 and Table 5: the octad Raman spectrum (Table 1: about 3500–4700 cm⁻¹), extremely weak, recorded over 1 h with the 300 gr/mm grating at room temperature, in the same gas cell (about one amagat, 4 W argon-ion laser). Its fit needed six first-order polarisability operators: ν₁+ν₂ (E), ν₁+ν₄ (F₂), ν₂+ν₃ (F₂) and the A₁, E and F₂ components of ν₃+ν₄, the E one the largest. The paper ties no peak to a band, so reading the main feature near 4300 cm⁻¹ as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Its neighbours ν₁+ν₄ and ν₁+ν₂ fill the wings."
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "ch4g_combo_p",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu3nu4_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 4220,
+      "wn_end": 4300,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the P branch, the rotational lines below the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₄ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
+      "based_on": [{"band_id": "ch4g_bend", "multiplier": 1}, {"branch_group": "ch4_nu3_branches", "multiplier": 1}],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.3 and Figs. 11–13: the low-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded."
+        }
+      ],
+      "confidence": "tentative",
+      "tags": []
+    },
+    {
+      "id": "ch4g_combo_r",
+      "species": "ch4",
+      "phase": "gas",
+      "group": "ch4",
+      "branch_group": "ch4_nu3nu4_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 4325,
+      "wn_end": 4420,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the R branch, the rotational lines above the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₂ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
+      "based_on": [{"band_id": "ch4g_bend", "multiplier": 1}, {"branch_group": "ch4_nu3_branches", "multiplier": 1}],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "technique": "raman",
+          "note": "Sect. 4.3 and Figs. 11–13: the high-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded."
+        }
+      ],
+      "confidence": "tentative",
       "tags": []
     },
     // ---------------------------------------------------------------------------

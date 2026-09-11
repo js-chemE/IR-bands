@@ -201,22 +201,25 @@
           "wn_end": null,
           "bands": [
             "ch4g_bend_sym",
-            "ch4g_combo"
+            "ch4g_bend_sym_p",
+            "ch4g_bend_sym_r"
           ]
         },
         {
           "id": "ch4_stretch_asymmetric",
           "label": "νₐₛ(CH₄)",
-          "note": "One C-H bond stretches while the others adjust to compensate — one component of the triply-degenerate asymmetric stretch (the other two sit at the same frequency, not separately drawn). Changes the dipole moment, making it IR-active — the dominant C-H stretching band in methane's spectrum.",
+          "note": "One C-H bond stretches while the others adjust to compensate — one component of the triply-degenerate asymmetric stretch (the other two sit at the same frequency, not separately drawn). Changes the dipole moment, making it IR-active — the dominant C-H stretching band in methane's spectrum. It is Raman-active too: in Td a T₂ mode transforms like the dipole and like part of the polarizability, so it is seen in both, and ν₃ dominates methane's depolarised Raman spectrum near 3020 cm⁻¹.",
           "ir_active": true,
-          "raman_active": null,
+          "raman_active": true,
           "tags": [
             "degenerated",
-            "ir-active"
+            "ir-active",
+            "raman-active"
           ],
           "reference": [
             "Shimanouchi.TablesMolecularVibrational.1972",
-            "Nishimura.VibrationalExcitationsCH4.2002"
+            "Nishimura.VibrationalExcitationsCH4.2002",
+            "Jourdanneau.MethaneRamanSpectrum.2005"
           ],
           "category": "stretch",
           "subtype": "asymmetric",
@@ -228,22 +231,28 @@
           "wn_end": null,
           "bands": [
             "ch4g_asym",
-            "ch4g_combo"
+            "ch4g_asym_p",
+            "ch4g_asym_r",
+            "ch4g_combo",
+            "ch4g_combo_p",
+            "ch4g_combo_r"
           ]
         },
         {
           "id": "ch4_bend_t2",
           "label": "δ(HCH)",
-          "note": "The H atoms rock back and forth relative to the central carbon — one component of the triply-degenerate bend (same caveat as ν₃ above). Also IR-active, changing the dipole moment too — together with ν₃, these are why methane absorbs so strongly in the thermal-infrared.",
+          "note": "The H atoms rock back and forth relative to the central carbon — one component of the triply-degenerate bend (same caveat as ν₃ above). Also IR-active, changing the dipole moment too — together with ν₃, these are why methane absorbs so strongly in the thermal-infrared. Being T₂, it is Raman-allowed as well, but very weak there.",
           "ir_active": true,
-          "raman_active": null,
+          "raman_active": true,
           "tags": [
             "degenerated",
-            "ir-active"
+            "ir-active",
+            "raman-active"
           ],
           "reference": [
             "Shimanouchi.TablesMolecularVibrational.1972",
-            "Nishimura.VibrationalExcitationsCH4.2002"
+            "Nishimura.VibrationalExcitationsCH4.2002",
+            "Jourdanneau.MethaneRamanSpectrum.2005"
           ],
           "category": "bend",
           "subtype": "asymmetric",
@@ -254,7 +263,10 @@
           "wn_start": 1306,
           "wn_end": null,
           "bands": [
-            "ch4g_bend"
+            "ch4g_bend",
+            "ch4g_combo",
+            "ch4g_combo_p",
+            "ch4g_combo_r"
           ]
         }
       ]

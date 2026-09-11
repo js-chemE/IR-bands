@@ -229,8 +229,8 @@
   </g>
 
   <g style="opacity:{labelOpacity}">
-    <text class="lbl ax-title" transform="translate({F.x0 - 30} {sMid}) rotate(-90)" text-anchor="middle">signal</text>
-    <text class="lbl ax-title" transform="translate({F.x0 - 30} {aMid}) rotate(-90)" text-anchor="middle">absorbance</text>
+    <text class="lbl ax-title" transform="translate({F.x0 - 30} {sMid}) rotate(-90)" text-anchor="middle">signal / a.u.</text>
+    <text class="lbl ax-title" transform="translate({F.x0 - 30} {aMid}) rotate(-90)" text-anchor="middle">absorbance / –</text>
 
     <text class="lbl sym" x={F.x0 - 10} y={F.sI0 + 4} text-anchor="end">I₀</text>
     {#if deepest && (!sweeping || scanWn >= deepest.wn)}
