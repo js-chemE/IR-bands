@@ -44,9 +44,11 @@ export function htmlToUnicode(text: string): string {
  * the source (`μ(ind)`, per the notation rule), and the pages that can set a
  * real subscript show them as one. This splits a string into the parts to
  * set as plain text and the parts to set lowered. Only the symbols listed
- * here are converted, so an ordinary bracket in prose is left alone.
+ * here are converted, so an ordinary bracket in prose is left alone: μ(ind),
+ * Mulliken labels (Σ(g)⁺, Π(u), B(1u), A(1g)) and point groups (C(2v),
+ * D(∞h), D(2h), T(d)). ν(CO) or E(J) stay as written.
  */
-const SUBSCRIPTED = /(μ)\((ind)\)/g;
+const SUBSCRIPTED = /(μ|[ΣΠΔ]|[AB]|[CDT])\((ind|[1-3]?[gu]|∞[hv]|[2-6][vhd]|d)\)/g;
 
 export interface SubPart {
   text: string;

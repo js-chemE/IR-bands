@@ -50,12 +50,16 @@ frontend/src/
     Sidebar.svelte           ← the chart's filter: a set, then the groups
     ColorLegend.svelte       ← legend swatches for the active color dimension
     AxisSelect.svelte        ← x-axis property and unit selectors
-    KnowledgePage.svelte     ← cards in rows: Light–matter interaction and Spectroscopy
-                              (fundamentals.ts), then Band patterns (phenomena.ts), in
-                              three rows: more bands than modes, fewer, bands that move
+    KnowledgePage.svelte     ← cards in rows: Molecular motion, Light–matter interaction,
+                              Spectroscopy (fundamentals.ts), then Band patterns
+                              (phenomena.ts) in three rows (more bands than modes, fewer,
+                              bands that move), then Notation
     knowledge/               ← one diagram per card (PhenomenonDiagram draws all the
-                              Band patterns ones), AtlasExamples (the "in the atlas" box),
-                              CiteText, Subbed
+                              Band patterns ones, NotationDiagram both notation cards),
+                              MiniMolecule (a moleculeGeometry.ts molecule posed along
+                              a mode), Group3D (a CH₂/CH₃ group as a perspective 3D
+                              model, for the group-frequency motions), AtlasExamples (the "in the atlas" box), ModeCensus
+                              (Normal modes → the Vibration modes view), CiteText, Subbed
     ReferencesPage.svelte    ← cited bands, grouped by any two of
                               reference / group / site / sample / element
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
@@ -87,7 +91,9 @@ frontend/src/
     cite.ts               ← `[@alias, locator]` citation markers → numbered superscripts and
                               the reference list under each card; SOURCES maps aliases to
                               citekeys and chapters
-    notation.ts           ← sub/superscript character maps + htmlToUnicode()
+    notation.ts           ← sub/superscript character maps + htmlToUnicode(); splitSubscripts()
+                              lowers the bracketed letter subscripts (μ(ind), Σ(g)⁺, C(2v))
+                              on the Knowledge page
     chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
@@ -272,8 +278,12 @@ Four destinations, plus the Impressum and the two guides behind it (style
 guide, source guide):
 
 - **Knowledge** (green): what the spectra mean, as cards that open in place.
-  Two parts of fundamentals (Light–matter interaction, Spectroscopy), then Band
-  patterns, one card per phenomenon. The phenomenon explanations in
+  Three parts of fundamentals (Molecular motion, Light–matter interaction,
+  Spectroscopy), then Band patterns, one card per phenomenon (Selection rules
+  sits in the "fewer" row, as a fundamentals card with `section: 'fewer'`),
+  then Notation, one card per notation the atlas uses. Cards planned but not
+  written are listed at the end ("Still to come") from `PLANNED` in
+  `lib/fundamentals.ts`; move an entry out of it when its card is written. The phenomenon explanations in
   `lib/phenomena.ts` are **deliberately empty for now**, while the "in the
   atlas" box under each is resolved live from the link fields, so every card
   already points at real bands and the papers behind them. Fill in `what` and

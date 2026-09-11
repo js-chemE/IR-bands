@@ -32,7 +32,8 @@
   {#if examples.length === 0}
     <p class="empty">No band in the atlas currently shows this.</p>
   {:else}
-    {#each examples as ex (ex.label)}
+    <!-- Keyed by the bands: two examples can share a heading. -->
+    {#each examples as ex (ex.bands.map(b => b.id).join('|'))}
       <article class="example">
         <header>
           <span class="ex-label">{ex.label}</span>

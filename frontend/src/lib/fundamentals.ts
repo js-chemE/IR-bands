@@ -1,5 +1,6 @@
 /**
- * The basics: what has to be understood before any phenomenon makes sense.
+ * The fundamentals: what has to be understood before any phenomenon makes
+ * sense, and the notation it is written in.
  *
  * Where lib/phenomena.ts explains the special cases (a Fermi pair, a heavy
  * twin, a branch), this module explains the ground they stand on. Each entry
@@ -18,6 +19,7 @@
  */
 
 import { citer, summarizeLocators } from './cite';
+import type { PatternGroup } from './phenomena';
 
 /** A highlighted box for a formula or a rule, between paragraphs. */
 export interface Formula {
@@ -34,20 +36,43 @@ export interface Formula {
 export type Block = string | Formula;
 
 /**
- * Where a card sits on the Knowledge page: the physics every spectrum rests
- * on, or a kind of spectroscopy built on it. Each is its own heading and row of cards.
+ * Where a card sits on the Knowledge page: how molecules move, the physics
+ * every spectrum rests on, a kind of spectroscopy built on it, or the
+ * notation the atlas writes it all in. Each is its own heading and row of
+ * cards; `afterPatterns` puts a part below the Band patterns rather than
+ * above them.
  */
-export type KnowledgeSection = 'basics' | 'spectroscopy';
+export type KnowledgeSection = 'motion' | 'basics' | 'spectroscopy' | 'notation';
 
-export const KNOWLEDGE_SECTIONS: { key: KnowledgeSection; label: string }[] = [
+export const KNOWLEDGE_SECTIONS: {
+  key: KnowledgeSection;
+  label: string;
+  lead?: string;
+  afterPatterns?: boolean;
+}[] = [
+  {
+    key: 'motion',
+    label: 'Molecular motion',
+    lead: 'What a molecule can do before any light arrives: travel, turn and vibrate, and how many ways it has of each.',
+  },
   { key: 'basics', label: 'Light–matter interaction' },
   { key: 'spectroscopy', label: 'Spectroscopy' },
+  {
+    key: 'notation',
+    label: 'Notation',
+    lead: 'Two notations for one mode: by what moves, which names every band in the atlas, and by which mode it is, which numbers the modes on the Vibration modes view.',
+    afterPatterns: true,
+  },
 ];
 
 export interface Fundamental {
   key: string;
   label: string;
-  section: KnowledgeSection;
+  /**
+   * A part of its own, or one of the Band patterns rows when the card
+   * explains a pattern (Selection rules: why bands go missing).
+   */
+  section: KnowledgeSection | PatternGroup;
   /** One or two sentences on the card. Keep it to about 25 words. */
   teaser: string;
   /**
@@ -55,7 +80,10 @@ export interface Fundamental {
    * no markup; `[@alias, locator]` cites a source (lib/cite.ts).
    */
   body: Block[];
-  /** Phenomenon keys (lib/phenomena.ts) that build on this, each with why. */
+  /**
+   * Cards that build on this, each with why: a phenomenon key
+   * (lib/phenomena.ts) or another fundamentals card.
+   */
   related: { key: string; why: string }[];
   /**
    * Band ids the diagram draws, resolved live from the dataset so their
@@ -71,6 +99,63 @@ export interface Fundamental {
 export const isFormula = (b: Block): b is Formula => typeof b !== 'string';
 
 export const FUNDAMENTALS: Fundamental[] = [
+  {
+    key: 'modes',
+    section: 'motion',
+    label: 'Normal modes',
+    teaser:
+      'N atoms can move 3N ways. Take away travelling and turning as a whole, and 3N − 6 vibrations are left.',
+    body: [
+      'Each atom can move in three directions, so a molecule of N atoms has 3N ways to move: its degrees of freedom. Three of them carry the whole molecule along without changing its shape, the translations. Three more turn it as a whole, the rotations; a linear molecule has only two, because turning it about its own axis moves no nucleus. Everything left changes the distances and angles between the atoms. Those are the vibrations.',
+      {
+        label: 'How many vibrations',
+        lines: ['3N − 6   (non-linear)', '3N − 5   (linear)'],
+        note: 'N: the number of atoms. CO has 1, H₂O 3, CO₂ 4, CH₄ 9, methanol 12.',
+      },
+      'The vibrations are not the motions of single bonds. Each is a normal mode: a pattern in which every atom moves at the same frequency and in step, all passing through rest at once, while the centre of mass stays put. How far the molecule has moved along one such pattern is its normal coordinate Q, the Q of the selection rules [@busca, p. 4]. The diagram draws the three modes of H₂O and the four of CO₂.',
+      'Normal modes are independent: exciting one leaves the others as they were. Each has its own ladder of levels and its own fundamental, v = 0 → 1, and a spectrum is mostly made of these fundamentals [@busca, p. 4]. The count is therefore the number of bands to expect, and the Band patterns part starts from it: why a spectrum shows more bands than that, or fewer, or bands in unexpected places.',
+      'CO₂ shows how the count plays out. Three atoms in a line give 3 · 3 − 5 = 4 modes: the symmetric stretch, the asymmetric stretch, and the bend twice, once in the plane of the page and once out of it. The two bends are the same motion turned by 90°, so they share one frequency: four modes, three frequencies. Only two of those absorb in the IR, at 2349 and 667 cm⁻¹; the symmetric stretch is seen only in Raman.',
+      'Symmetry sorts the modes before any spectrum is taken. Each mode belongs to a symmetry species of the molecule’s point group, and counting the modes of each species tells in advance how many can be IR-active and how many Raman-active [@busca, p. 6]. The species also give the modes their second set of names, ν₁, ν₂ … with a Mulliken label: the Herzberg numbering card.',
+      'On a surface the count changes. A molecule held by its bond can no longer travel or turn freely, so its translations and rotations become vibrations too: soft ones, against the surface, called frustrated translations and rotations. A CO standing on one metal atom therefore has six modes, not one: the C–O stretch, the metal–carbon stretch, and a degenerate pair each of frustrated rotations and frustrated translations, all but the C–O stretch below 500 cm⁻¹. The Rotation card shows the frustrated rotation.',
+      'The atlas draws the modes of every molecule it holds, animated, with the bands that document each one, in Dataset → Contents → Vibration modes. The list below counts them and opens each molecule there.',
+    ],
+    related: [
+      { key: 'degeneracy', why: 'Two modes, one frequency' },
+      { key: 'ir-inactive', why: 'A mode that leaves the dipole alone leaves no band' },
+      { key: 'combination', why: 'Two modes excited by one photon' },
+      { key: 'rotation', why: 'The degrees of freedom that are not vibrations' },
+      { key: 'numbering', why: 'The modes counted off as ν₁, ν₂, ν₃ …' },
+    ],
+  },
+  {
+    key: 'rotation',
+    section: 'motion',
+    label: 'Rotation',
+    teaser:
+      'A free molecule also turns, on a ladder far finer than the vibrational one. Held on a surface, it can only rock.',
+    body: [
+      'Besides vibrating, a free molecule turns, and rotation is quantized too: a ladder of levels numbered J = 0, 1, 2 … The rungs are close together. For CO the first gap is 3.9 cm⁻¹, against 2143 cm⁻¹ for its vibration, so at room temperature, where kT is about 200 cm⁻¹, dozens of rotational levels are filled at once while almost every molecule is still in v = 0 [@busca, p. 4].',
+      {
+        label: 'Rotational levels of a linear molecule',
+        lines: ['E(J) = B · J(J + 1)', 'gap J → J + 1:  2B(J + 1)'],
+        note: 'B: the rotational constant in cm⁻¹, small for a heavy or long molecule: CO 1.93, CO₂ 0.39. The rigid rotor; a real molecule stretches a little as it spins faster.',
+      },
+      'Rotation alone, J → J + 1 with no vibration, takes a photon in the microwave or far infrared, well below the mid-infrared window. Its rule mirrors the IR one: the molecule must carry a permanent dipole for the field to turn it. CO has one and rotates in the microwave; CO₂, N₂ and CH₄ have none. Raman sees rotation through the polarizability instead, wherever the cloud is longer than it is wide, so N₂ and CO₂ show pure rotational Raman lines close to the laser.',
+      'In the mid-infrared, rotation rides on the vibration. A vibrational transition changes J at the same time: by +1 or −1, and by 0 where the symmetry allows it. The +1 lines form the R branch, at higher wavenumber, the −1 lines the P branch, at lower, and the 0 lines a Q branch at the centre. CO has no Q branch; the CO₂ bend has one. The middle row of the diagram builds the pattern: a gas band is two lobes, or three, not one line.',
+      {
+        label: 'Branches',
+        lines: ['R:  ΔJ = +1   higher wavenumber', 'Q:  ΔJ = 0    band centre', 'P:  ΔJ = −1   lower wavenumber'],
+        note: 'A line of the R branch sits 2B(J + 1) above the band centre, a line of the P branch 2BJ below it. How tall each line is follows how full its starting level is.',
+      },
+      'Gas-phase acetylene in a reflection cell shows it: its asymmetric C–H stretch appears as a P and an R branch at 3269 and 3309 cm⁻¹ [@trenary, p. 56].',
+      'On a surface the ladder is gone. A molecule held by its bond cannot turn freely; it can only rock about its anchor. That rocking is a vibration, the frustrated rotation, with a band of its own at low wavenumber and no branches. In solids generally, rotation and translation are hindered in the same way, and vibration is what remains [@li, p. 297].',
+      'So the branches are the mark of a free molecule. An adsorbed species gives one band per mode where its gas gives an envelope, and the envelope of a gas-phase reactant in the cell is something to subtract, not a surface species. The atlas records each branch of a gas-phase band as a band of its own, grouped with its siblings.',
+    ],
+    related: [
+      { key: 'branches', why: 'P, Q and R, band by band' },
+      { key: 'modes', why: 'Rotations are three of the 3N' },
+    ],
+  },
   {
     key: 'vibration',
     section: 'basics',
@@ -281,7 +366,8 @@ export const FUNDAMENTALS: Fundamental[] = [
   },
   {
     key: 'selection',
-    section: 'spectroscopy',
+    // The most common reason a spectrum shows fewer bands than modes.
+    section: 'fewer',
     label: 'Selection rules',
     teaser:
       'IR needs the dipole to change, Raman the electron cloud. In CO₂ no vibration does both.',
@@ -327,6 +413,123 @@ export const FUNDAMENTALS: Fundamental[] = [
       { id: 'co2_sym', raman: true, depth: 1 },
       { id: 'co2_bend_overtone', raman: true, depth: 0.62 },
     ],
+  },
+  {
+    key: 'labels',
+    section: 'notation',
+    label: 'Group-frequency labels',
+    teaser:
+      'νₐₛ(OCO) HCOO*: the kind of motion, the atoms that move, the species. Every band in the atlas is named this way.',    body: [
+      'Every band in the atlas is named by what moves: a Greek letter for the kind of motion, the moving atoms in brackets, then the species, as in νₐₛ(OCO) HCOO*. The name describes a local motion, one group of atoms doing one thing, and that is what makes it portable: an OCO group stretching asymmetrically absorbs near the same place in formate on copper and in formate on zinc oxide, so one label serves every paper. A band that belongs to a group rather than a molecule is a group frequency.',
+      {
+        label: 'The motion',
+        lines: [
+          'ν   stretch: a bond length changes',
+          'δ   bend or deformation: an angle changes',
+          'ρ   rock: the group swings within its plane',
+          'ω   wag: the group swings out of its plane',
+          'τ   twist or torsion: the group turns about a bond',
+          'γ   out of plane, where ω and τ are not told apart',
+          'δₛ   umbrella: a CH₃ group folds its hydrogens in and out together',
+          'δₐₛ   asymmetric deformation: the H–C–H angles change unevenly',
+        ],
+        note: 'δ on its own is the scissoring bend. Many papers call every motion that is not a stretch δ; the atlas keeps them apart where the source does.',
+      },
+      {
+        label: 'The modifiers',
+        lines: [
+          'νₛ   symmetric: equal bonds move in step',
+          'νₐₛ   asymmetric: one lengthens as the other shortens',
+          '2δ   first overtone',
+          'νₛ+δ   combination of two modes',
+          '(R) (Q) (P)   rotational branch, gas phase',
+          'HCOO*   adsorbed: the star marks a surface species',
+        ],
+      },
+      'A CH₃ group bends in two ways a CH₂ group cannot. In the symmetric deformation, δₛ(CH₃), the three hydrogens fold towards the axis of the bond that holds the group and back out, all together, like an umbrella opening and closing, with that bond as the handle: the umbrella mode of methoxy and methanol. In the asymmetric deformation, δₐₛ(CH₃), the H–C–H angles change unevenly, one opening while another closes; with three equal hydrogens there are two such patterns at one frequency, a degenerate pair. The atlas adds the word umbrella to a label where a paper names it, as in δₛ(CH₃) umbrella MeOH. The third row of the diagram shows both.',
+      'CH₄ keeps the same symbols, δₛ(HCH) and δₐₛ(HCH), for motions of another kind. With four equal hydrogens and no bond to the rest of a molecule there is no handle and so no umbrella: its bends are patterns in which the H–C–H angles open and close against each other. The label says which kind of bend, not which motion; the motion itself is drawn on the Vibration modes view.',
+      'Where the binding geometry is what tells two bands apart, it replaces the species: ν(CO) linear (μ₁) and ν(CO) bridged (μ₂), for CO on one metal atom or bridging two. Where one molecule has two modes of the same kind, the label borrows the number from the other notation rather than inventing a letter: νₛ(CH₃) ν₂ MeOH.',
+      'The label is a description, not a derivation. In a real molecule a mode rarely moves one group alone; two groups vibrating at similar frequencies share the motion, and the label names the part that dominates. For small, symmetric molecules the other notation is exact where this one is approximate. The diagram shows the six motions of a CH₂ group and the two of a CH₃ group; its bottom row takes one label apart.',
+      'The atlas holds itself to one notation per species, and the source guide (behind the Impressum) sets the rule out in full. Spectroscopic codes such as 11101←00001 belong in a reference note, never in a label.',
+    ],
+    related: [
+      { key: 'numbering', why: 'The other notation: which mode, not what moves' },
+      { key: 'combination', why: 'What 2δ and νₛ+δ stand for' },
+      { key: 'branches', why: 'What (R), (Q) and (P) stand for' },
+    ],
+  },
+  {
+    key: 'numbering',
+    section: 'notation',
+    label: 'Herzberg numbering',
+    teaser:
+      'ν₁, ν₂, ν₃: a molecule’s modes counted off by symmetry, then by falling wavenumber. Which mode, not what moves.',
+    body: [
+      'The second notation numbers a molecule’s normal modes: ν₁, ν₂, ν₃ … It names which mode, not what moves, and it means something only within one molecule. ν₃ of H₂O is its asymmetric O–H stretch; methanol has twelve modes, and its ν₈ is the C–O stretch. For small symmetric molecules, where each mode moves every atom, the number is the exact name and a group-frequency label only an approximation.',
+      {
+        label: 'How the modes are numbered',
+        lines: ['1. by symmetry species, the totally symmetric first', '2. within a species, by falling wavenumber'],
+        note: 'Herzberg’s convention, which the Vibration modes view follows even where a cited paper numbers its figure differently.',
+      },
+      'H₂O shows the rule at work. Its two A₁ modes come first: the symmetric stretch at 3657 cm⁻¹ is ν₁, the bend at 1595 cm⁻¹ is ν₂. The B₂ asymmetric stretch comes last as ν₃, although at 3756 cm⁻¹ it is the highest of the three. The number follows the symmetry, not the position; the top row of the diagram sorts them.',
+      'CO₂ keeps an older, traditional numbering. Its modes are ν₁, the symmetric stretch; ν₂, the bend, twice; and ν₃, the asymmetric stretch. By the rule above the asymmetric stretch would be ν₂ and the bend ν₃, but in the literature the bend of a linear molecule like CO₂ is always ν₂.',
+      {
+        label: 'CO₂ in both notations',
+        lines: ['ν₁   Σ(g)⁺   νₛ(OCO)    Raman only', 'ν₂   Π(u)    δ(OCO)     667 cm⁻¹, twice', 'ν₃   Σ(u)⁺   νₐₛ(OCO)   2349 cm⁻¹'],
+        note: 'A Mulliken label needs letter subscripts Unicode does not have, so the atlas stores these labels with markup, in exactly two fields of its data.',
+      },
+      'Each number comes with its symmetry species, written as a Mulliken label. A and B mark a mode of its own, E a doubly degenerate pair, T a triple; linear molecules use Σ for a mode along the axis and Π for a degenerate pair across it. The subscripts say how the mode behaves under the molecule’s symmetry operations. Two of them carry the mutual exclusion rule, which group theory proves for any molecule with a centre of symmetry [@busca, p. 5]: g, even under inversion, and u, odd. Only u modes can absorb in the IR, only g modes can scatter in Raman.',
+      'Papers mix the two notations freely, often in one sentence. Ranjan and Trenary assign gas-phase ethylene’s band at 949 cm⁻¹ to its ρw(CH₂) mode, of B(1u) symmetry in D(2h), and the one at 2988 cm⁻¹ to its B(3u) C–H stretch [@trenary, p. 56]: a local label and a symmetry species for bands of one molecule.',
+      'In the atlas the numbers stand beside each mode’s label on the Vibration modes view, with its Mulliken label, and appear in a band name only to tell two modes of one kind apart. The band names themselves use the group-frequency form throughout, gas-phase CO₂ included, so one notation runs through the whole chart.',
+    ],
+    related: [
+      { key: 'labels', why: 'The other notation: what moves' },
+      { key: 'modes', why: 'What is being numbered' },
+      { key: 'selection', why: 'What the symmetry species decide' },
+    ],
+  },
+];
+
+/**
+ * Cards not written yet, shown as a note at the end of the Knowledge page so
+ * the plan is visible where the cards will go. Move an entry into
+ * FUNDAMENTALS (or PHENOMENA) when its card is written, and delete it here.
+ */
+export const PLANNED: { label: string; part: string; what: string }[] = [
+  {
+    label: 'Band position',
+    part: 'Molecular motion',
+    what: 'ν̃ = (1/2πc)·√(k/μ): why stretches of bonds to hydrogen sit high, how bond order moves a band, back-donation on metals.',
+  },
+  {
+    label: 'Molecules',
+    part: 'a part of its own',
+    what: 'The Vibration modes view as cards, one per molecule: its modes cycling on hover, opened into the viewer and a mode list that folds out into each mode’s bands.',
+  },
+  {
+    label: 'Hydrogen bonding',
+    part: 'Bands that move',
+    what: 'Why an OH stretch shifts down and broadens when the H is shared.',
+  },
+  {
+    label: 'Coverage and dipole coupling',
+    part: 'Bands that move',
+    what: 'Why a CO band climbs as the surface fills.',
+  },
+  {
+    label: 'TO/LO splitting',
+    part: 'Band patterns',
+    what: 'Why the lattice bands of a solid support split into two components.',
+  },
+  {
+    label: 'Wavenumbers and units',
+    part: 'Notation',
+    what: 'cm⁻¹, µm and eV, and why spectroscopists count waves per centimetre.',
+  },
+  {
+    label: 'Techniques',
+    part: 'Spectroscopy',
+    what: 'Transmission, DRIFTS, ATR and RAIRS: how the light reaches the sample, and what each geometry changes in the spectrum.',
   },
 ];
 

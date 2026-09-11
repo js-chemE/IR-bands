@@ -42,7 +42,7 @@ export type PatternGroup = 'more' | 'fewer' | 'moved';
 
 export const PATTERN_GROUPS: { key: PatternGroup; label: string; note: string }[] = [
   { key: 'more', label: 'More bands than modes', note: 'Where extra bands come from' },
-  { key: 'fewer', label: 'Fewer bands than modes', note: 'Where bands merge' },
+  { key: 'fewer', label: 'Fewer bands than modes', note: 'Where bands go silent or merge' },
   { key: 'moved', label: 'Bands that move', note: 'What shifts a band without changing the mode' },
 ];
 
@@ -167,8 +167,9 @@ export const PHENOMENA: Phenomenon[] = [
         list.push(b);
         groups.set(b.branch_group, list);
       }
-      return [...groups.entries()].map(([key, members]) => ({
-        label: key,
+      // Headed by the vibration the branches belong to, not the group id.
+      return [...groups.values()].map(members => ({
+        label: (members[0].short || members[0].id).replace(/\s*\([PQR]\)$/, ''),
         bands: members.sort(byWn),
         note: `${members.length} branches: ${members
           .map(m => m.vibration.branch ?? '?')
