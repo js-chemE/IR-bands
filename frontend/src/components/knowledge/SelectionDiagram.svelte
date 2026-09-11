@@ -445,7 +445,7 @@
     {/each}
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y={FZ.title}>Frozen at the two extremes</text>
+    <text class="lbl name" x="14" y={FZ.title}>Frozen at the Two Extremes</text>
     <text class="lbl faint" x="212" y={FZ.title}>the mirror flips μ, not α</text>
     <text class="lbl" x={FZ.xa} y={FZ.head} text-anchor="middle">+Q</text>
     <text class="lbl" x={FZ.xb} y={FZ.head} text-anchor="middle">−Q</text>

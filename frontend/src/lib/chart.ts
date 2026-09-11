@@ -1,6 +1,7 @@
 import * as Plot from '@observablehq/plot';
-import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap } from './types';
-import { getCat, getCatLabel, getCatColor, getColor, TAG_STYLES, DEFAULT_TAG_STYLE } from './colors';
+import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
+import { TECHNIQUES } from './dataModel';
+import { getCat, getCatLabel, getCatColor, getColor, fadeColor, TAG_STYLES, DEFAULT_TAG_STYLE } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
 import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
@@ -196,10 +197,52 @@ export interface TipRef {
   surfaces: SurfaceBadge[];
   note: string | null;
   tags: string[];
+  /**
+   * Greyed out and folded: 'other' when measured by the other spectroscopy
+   * than the chart shows, 'unknown' when the claim records no technique at
+   * all (in either view); null when it stands as usual.
+   */
+  off: 'other' | 'unknown' | null;
 }
 
-export function getBandTags(b: Band): string[] {
-  const explicit = b.tags ?? [];
+/** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
+export interface BandLooks {
+  inactive: boolean;
+  unreferenced: boolean;
+}
+
+/** Technique → IR or Raman, from the Technique spec. */
+const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscopy]));
+
+/**
+ * Whether a claim stands in the chosen spectroscopy, or is greyed out and
+ * folded: 'other' when its technique is the other spectroscopy, 'unknown'
+ * when it records none. A calculation stands in both.
+ */
+export function refOff(technique: Technique | null | undefined, spectroscopy: Spectroscopy): TipRef['off'] {
+  if (!technique) return 'unknown';
+  const via = TECHNIQUE_SPECTROSCOPY.get(technique);
+  return via != null && via !== spectroscopy ? 'other' : null;
+}
+
+/**
+ * Unreferenced: not one of the band's claims stands in the chosen
+ * spectroscopy. Drawn faded, and the sidebar's unreferenced pill takes
+ * these bands out of the chart.
+ */
+export function isReferenced(b: Band, spectroscopy: Spectroscopy): boolean {
+  return b.references.some(r => !refOff(r.technique, spectroscopy));
+}
+
+/**
+ * A band's tags, auto-derived ones first. With a spectroscopy, the other
+ * technique's inactive tag is left out: in the IR view "raman-inactive" says
+ * nothing about what is drawn, and the reverse. Without one (the Dataset
+ * page), both stay.
+ */
+export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): string[] {
+  const other = spectroscopy === 'ir' ? 'raman-inactive' : spectroscopy === 'raman' ? 'ir-inactive' : null;
+  const explicit = (b.tags ?? []).filter(t => t !== other);
   const auto: string[] = [];
   if (b.vibration.category === 'combination') auto.push('combination');
   if (b.based_on?.some(bo => bo.multiplier > 1)) auto.push('overtone');
@@ -245,9 +288,10 @@ export function getLegendTags(
     colorDim?: ColorDim;
     hiddenTags?: ReadonlySet<string>;
     tagIsolate?: string | null;
+    spectroscopy?: Spectroscopy;
   } = {},
 ): LegendTag[] {
-  const { hiddenCats, colorDim, hiddenTags, tagIsolate } = filters;
+  const { hiddenCats, colorDim, hiddenTags, tagIsolate, spectroscopy = 'ir' } = filters;
   const counts = new Map<string, number>();
   const visible = new Map<string, number>();
   let untaggedCount = 0;
@@ -255,7 +299,7 @@ export function getLegendTags(
 
   for (const b of bands) {
     if (!enabledGroups.has(b.group)) continue;
-    const tags = getBandTags(b);
+    const tags = getBandTags(b, spectroscopy);
 
     // Same order and the same rules as buildChart's own filter, so
     // "visible" here means "drawn there".
@@ -361,6 +405,10 @@ export interface PlotBandHit {
   color: string;
   /** Drawn hatched, and stays hatched under the hover highlight. */
   isotopologue: boolean;
+  /** Drawn hollow, and stays hollow under the hover highlight. */
+  inactive: boolean;
+  /** Drawn faded, and stays faded under the hover highlight. */
+  unreferenced: boolean;
 }
 
 export interface ChartResult {
@@ -408,7 +456,10 @@ interface PlotBand {
   y0: number; y1: number;
   cx: number; cy: number;
   color: string;
-  irInactive: boolean;
+  /** Silent in the chosen spectroscopy: drawn hollow. */
+  inactive: boolean;
+  /** No claim stands in the chosen spectroscopy: drawn faded. */
+  unreferenced: boolean;
   isotopologue: boolean;
   tipData: TipData;
 }
@@ -440,7 +491,31 @@ export const HATCH = {
 
 const HATCH_ID = HATCH.id;
 
-function appendHatchPattern(svg: SVGElement): void {
+/**
+ * A faded (unreferenced) band's colours, from its own: an opaque washed-out
+ * fill, and an edge (also its outline when hollow, and its hatch lines when
+ * an isotopologue) a step less washed out, so it still reads on the fill.
+ */
+export const fadedFill = (colour: string) => fadeColor(colour, 1);
+export const fadedEdge = (colour: string) => fadeColor(colour, 0.6);
+/** Outline of a hollow (inactive) band. */
+export const HOLLOW_STROKE = 1;
+
+/**
+ * The hatch for a hollow or faded isotopologue: the same lines in the band's
+ * own colour. White lines would vanish on a hollow band's white inside and
+ * barely show on a faded one's pale fill.
+ */
+function appendColourHatch(svg: SVGElement, id: string, colour: string): void {
+  appendHatchPattern(svg, id, colour, 1);
+}
+
+function appendHatchPattern(
+  svg: SVGElement,
+  id: string = HATCH_ID,
+  stroke: string = HATCH.stroke,
+  strokeOpacity: number = HATCH.strokeOpacity,
+): void {
   const ns = 'http://www.w3.org/2000/svg';
   let defs = svg.querySelector('defs');
   if (!defs) {
@@ -448,7 +523,7 @@ function appendHatchPattern(svg: SVGElement): void {
     svg.insertBefore(defs, svg.firstChild);
   }
   const pattern = document.createElementNS(ns, 'pattern');
-  pattern.setAttribute('id', HATCH_ID);
+  pattern.setAttribute('id', id);
   pattern.setAttribute('width', String(HATCH.size));
   pattern.setAttribute('height', String(HATCH.size));
   pattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -458,8 +533,8 @@ function appendHatchPattern(svg: SVGElement): void {
   line.setAttribute('y1', '0');
   line.setAttribute('x2', '0');
   line.setAttribute('y2', String(HATCH.size));
-  line.setAttribute('stroke', HATCH.stroke);
-  line.setAttribute('stroke-opacity', String(HATCH.strokeOpacity));
+  line.setAttribute('stroke', stroke);
+  line.setAttribute('stroke-opacity', String(strokeOpacity));
   line.setAttribute('stroke-width', String(HATCH.strokeWidth));
   pattern.appendChild(line);
   defs.appendChild(pattern);
@@ -477,8 +552,12 @@ export function buildAxisStrip(
   axisUnit: string,
   width = CHART_LAYOUT.width,
   xDomainOverride?: [number, number],
+  // With a zero (absolute wavenumber, cm⁻¹) the axis is a shift from it.
+  shiftZero: number | null = null,
+  // Large values on the left, as an IR spectrum in cm⁻¹ is drawn.
+  reversed = false,
 ): SVGElement {
-  const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit)) as [number, number];
+  const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit, shiftZero, reversed)) as [number, number];
   return Plot.plot({
     width,
     height: 50,
@@ -494,7 +573,7 @@ export function buildAxisStrip(
     },
     x: {
       domain: xDomain,
-      label: axisLabel(axisProperty, axisUnit),
+      label: axisLabel(axisProperty, axisUnit, shiftZero),
       labelArrow: 'none',
     },
     y: { domain: [0, 1], axis: null },
@@ -521,11 +600,18 @@ export function buildChart(
   // hide-if-ANY-hidden-tag rule below would also hide T's own bands
   // whenever they carry a second tag too (in practice, often ALL of them).
   tagIsolate: string | null = null,
+  // With a zero (absolute wavenumber, cm⁻¹) the axis is a shift from it.
+  shiftZero: number | null = null,
+  reversed = false,
+  // Which technique's selection rule to draw: its inactive bands are hollow.
+  spectroscopy: Spectroscopy = 'ir',
+  // Whether those looks are drawn at all (the Color by pills).
+  looks: BandLooks = { inactive: true, unreferenced: true },
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
   const dynamicSubLane = computeSubLanes(bands, enabledGroups);
 
-  const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit)) as [number, number];
+  const xDomain = (xDomainOverride ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit, shiftZero, reversed)) as [number, number];
   const xMin = Math.min(xDomain[0], xDomain[1]);
   const xMax = Math.max(xDomain[0], xDomain[1]);
 
@@ -582,8 +668,8 @@ export function buildChart(
     const compactLane = newLaneIdx.get(b.lane);
     if (compactLane === undefined) continue;
 
-    const xa = wnToValue(b.wn_min, axisProperty, axisUnit);
-    const xb = wnToValue(b.wn_max, axisProperty, axisUnit);
+    const xa = wnToValue(b.wn_min, axisProperty, axisUnit, shiftZero);
+    const xb = wnToValue(b.wn_max, axisProperty, axisUnit, shiftZero);
     const x1 = Math.min(xa, xb), x2 = Math.max(xa, xb);
 
     const laneY = (newNLanes - 1 - compactLane) * LANE_HEIGHT;
@@ -596,10 +682,10 @@ export function buildChart(
 
     if (hiddenCats.has(getCat(b, colorDim))) continue;
     if (tagIsolate) {
-      const bt = getBandTags(b);
+      const bt = getBandTags(b, spectroscopy);
       if (bt.length === 0 ? tagIsolate !== UNTAGGED_KEY : !bt.includes(tagIsolate)) continue;
     } else if (hiddenTags.size > 0) {
-      const bt = getBandTags(b);
+      const bt = getBandTags(b, spectroscopy);
       if (bt.length === 0 ? hiddenTags.has(UNTAGGED_KEY) : bt.some(t => hiddenTags.has(t))) continue;
     }
 
@@ -614,16 +700,20 @@ export function buildChart(
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
+          const off = refOff(ref.technique, spectroscopy);
           return {
             key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             surfaces: sortedMeasuredOnBadges(ref),
+            off,
           };
         })
+        // The claims of the chosen spectroscopy first, the others after.
+        .sort((a, b) => Number(!!a.off) - Number(!!b.off))
       : [];
 
     if (x2 < xMin || x1 > xMax) continue; // outside visible domain
 
-    const bandTags = getBandTags(b);
+    const bandTags = getBandTags(b, spectroscopy);
 
     plotBands.push({
       x1, x2,
@@ -631,7 +721,8 @@ export function buildChart(
       cx: (x1 + x2) / 2,
       cy: (y0 + y1) / 2,
       color,
-      irInactive: bandTags.includes('ir-inactive'),
+      inactive: looks.inactive && bandTags.includes(spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive'),
+      unreferenced: looks.unreferenced && !isReferenced(b, spectroscopy),
       isotopologue: !!b.isotopologue_of,
       tipData: {
         id:        b.id,
@@ -641,6 +732,7 @@ export function buildChart(
         group:     groups[b.group]?.label ?? b.group,
         color,
         noteLines: [
+          !isReferenced(b, spectroscopy) && `unreferenced in ${spectroscopy === 'raman' ? 'Raman' : 'IR'}`,
           b.intensity  && `intensity: ${b.intensity}`,
           b.confidence && `confidence: ${b.confidence}`,
           b.width      && `width: ${b.width}`,
@@ -723,11 +815,29 @@ export function buildChart(
     },
     marks: [
       Plot.gridX({ stroke: C['ink-025'], strokeWidth: 0.75, strokeDasharray: '1,3', strokeOpacity: 0.8 }),
-      // Normal bands and IR-inactive ones (very transparent, dashed outline —
-      // these represent modes never actually observed in IR) need different
-      // constant stroke-dasharray values, which Plot only accepts as a
-      // per-mark constant, not a per-row channel — hence two separate marks.
-      Plot.rect(plotBands.filter(d => !d.irInactive), {
+      // Four looks, one mark each, since Plot takes fill and opacity per
+      // mark here: solid (the usual), faded (unreferenced: no claim stands
+      // in the chosen spectroscopy), hollow (inactive: the chosen
+      // spectroscopy cannot see the mode), hollow and faded (both).
+      // Hollow first: an inactive band sits beneath the active ones, so
+      // where the two overlap the active band is the one on top.
+      Plot.rect(plotBands.filter(d => d.inactive && !d.unreferenced), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: C['surface'],
+        stroke: (d: PlotBand) => d.color,
+        strokeWidth: HOLLOW_STROKE,
+        clip: true,
+      }),
+      Plot.rect(plotBands.filter(d => d.inactive && d.unreferenced), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: C['surface'],
+        stroke: (d: PlotBand) => fadedEdge(d.color),
+        strokeWidth: HOLLOW_STROKE,
+        clip: true,
+      }),
+      Plot.rect(plotBands.filter(d => !d.inactive && !d.unreferenced), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
         fill: (d: PlotBand) => d.color,
@@ -736,21 +846,23 @@ export function buildChart(
         opacity: 0.85,
         clip: true,
       }),
-      Plot.rect(plotBands.filter(d => d.irInactive), {
+      // Faded: washed-out colour, opaque, so overlapping faded bands keep
+      // one flat colour and nothing shows through them.
+      Plot.rect(plotBands.filter(d => !d.inactive && d.unreferenced), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
-        fill: (d: PlotBand) => d.color,
-        stroke: (d: PlotBand) => d.color,
-        strokeWidth: 1,
-        opacity: 0.2,
+        fill: (d: PlotBand) => fadedFill(d.color),
+        stroke: (d: PlotBand) => fadedEdge(d.color),
+        strokeWidth: 0.5,
         clip: true,
       }),
-      // Hatch overlay for isotopologue bands, drawn on top of whichever of
-      // the two marks above already painted them. Plot has no way to emit a
-      // paint-server fill, so this goes out with a marker opacity that the
-      // post-processing step below swaps for the pattern reference — the
-      // same trick the IR-inactive dash pattern uses.
-      Plot.rect(plotBands.filter(d => d.isotopologue), {
+      // Hatch overlays for isotopologue bands, drawn on top of whichever
+      // mark above painted them. Plot has no way to emit a paint-server
+      // fill, so these go out with a marker opacity that the post-processing
+      // step below swaps for the pattern reference. On a solid band the
+      // hatch is white lines (0.999); on a hollow or faded one (0.998) it is
+      // lines in the band's own colour, washed out with it when faded.
+      Plot.rect(plotBands.filter(d => d.isotopologue && !d.inactive && !d.unreferenced), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
         fill: '#000',
@@ -758,18 +870,19 @@ export function buildChart(
         opacity: 0.999,
         clip: true,
       }),
+      Plot.rect(plotBands.filter(d => d.isotopologue && (d.inactive || d.unreferenced)), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: (d: PlotBand) => d.unreferenced ? fadedEdge(d.color) : d.color,
+        stroke: 'none',
+        opacity: 0.998,
+        clip: true,
+      }),
     ],
   }) as unknown as SVGElement;
 
-  // Plot's rect mark doesn't pass strokeDasharray through as a DOM attribute
-  // (unlike gridX/ruleX, where it works fine), so apply it by hand to the
-  // IR-inactive rects — identifiable by the opacity value just set above.
-  svg.querySelectorAll('rect[opacity="0.2"]').forEach(el => {
-    el.setAttribute('stroke-dasharray', '3,2');
-  });
-
-  // Same idea for the isotopologue hatch: swap the marker opacity for the
-  // pattern fill. Only add the <pattern> when something actually uses it.
+  // The isotopologue hatch: swap the marker opacity for the pattern fill.
+  // Only add a <pattern> when something actually uses it.
   const hatchRects = svg.querySelectorAll('rect[opacity="0.999"]');
   if (hatchRects.length > 0) {
     appendHatchPattern(svg);
@@ -778,6 +891,19 @@ export function buildChart(
       el.setAttribute('opacity', String(HATCH.fillOpacity));
     });
   }
+  // The coloured hatch, one pattern per band colour.
+  const colourHatches = new Map<string, string>();
+  svg.querySelectorAll('rect[opacity="0.998"]').forEach(el => {
+    const colour = el.getAttribute('fill') ?? C['ink-400'];
+    let id = colourHatches.get(colour);
+    if (!id) {
+      id = `${HATCH_ID}-${colourHatches.size}`;
+      colourHatches.set(colour, id);
+      appendColourHatch(svg, id, colour);
+    }
+    el.setAttribute('fill', `url(#${id})`);
+    el.setAttribute('opacity', '1');
+  });
 
   // Observable Plot's text mark only supports a single fill per element.
   // Append lane labels manually as <text>/<tspan> so each group segment gets its own color.
@@ -820,7 +946,12 @@ export function buildChart(
     tipData: b.tipData,
     color: b.color,
     isotopologue: b.isotopologue,
-  }));
+    inactive: b.inactive,
+    unreferenced: b.unreferenced,
+  }))
+    // In drawing order, inactive (hollow, beneath) first: the hit test takes
+    // the last match, so where bands overlap it finds the one on top.
+    .sort((a, b) => Number(b.inactive) - Number(a.inactive));
 
   const laneHeightPx = innerH * (LANE_HEIGHT / yDataSpan);
 

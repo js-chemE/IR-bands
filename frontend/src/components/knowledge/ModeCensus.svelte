@@ -44,7 +44,7 @@
 </script>
 
 <section class="census">
-  <h4 class="census-head">The molecules on the Vibration modes view</h4>
+  <h4 class="census-head">The Molecules on the Vibration Modes View</h4>
   <div class="rows">
     {#each rows as r (r.m.id)}
       <button

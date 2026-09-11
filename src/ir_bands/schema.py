@@ -42,7 +42,7 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # sample IRRAS sees only dipoles with a component along the surface normal.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "computational",
+    "ftir", "raman", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -56,7 +56,7 @@ VALID_ISOTOPES = set(ISOTOPE_TAGS)
 # rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "computational",
+    "ftir", "raman", "computational",
 }
 
 # How specific a surface is. "Where was this measured" has a scale rather than
@@ -602,6 +602,10 @@ class GroupSet:
     label: str
     groups: list[str] = field(default_factory=list)
     note: str = ""
+    # Optional: keep only bands of these phases. A band with no phase applies
+    # to both forms and always stays. For groups holding both the free
+    # molecule and its adsorbed form (co2, methanol_product).
+    phases: list[str] = field(default_factory=list)
 
 
 @dataclass

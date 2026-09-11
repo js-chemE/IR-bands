@@ -153,7 +153,7 @@
     <path class="mu-head" d={arrowHead(160, 92, 1, 0, 5)} />
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="16">A dipole</text>
+    <text class="lbl name" x="14" y="16">A Dipole</text>
     <text class="sign neg" x="60" y="72" text-anchor="middle">−</text>
     <text class="sign pos" x="160" y="72" text-anchor="middle">+</text>
     <text class="sym" x="110" y="39" text-anchor="middle">d</text>
@@ -189,7 +189,7 @@
     {/if}
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="124">Permanent or induced</text>
+    <text class="lbl name" x="14" y="124">Permanent or Induced</text>
     <text class="delta pos" x={PERM.x - PERM.bond / 2} y={PERM.y - 13} text-anchor="middle">δ+</text>
     <text class="delta neg" x={PERM.x + PERM.bond / 2} y={PERM.y - 13} text-anchor="middle">δ−</text>
     <text class="lbl faint" x={PERM.x} y={PERM.y + 42} text-anchor="middle">permanent: needs no field</text>
@@ -202,8 +202,8 @@
   </g>
 
   <g style="opacity:{labelOpacity}">
-    <text class="lbl name" x="14" y="232">As the molecule vibrates</text>
-    <text class="lbl name" x="14" y="364">On a metal</text>
+    <text class="lbl name" x="14" y="232">As the Molecule Vibrates</text>
+    <text class="lbl name" x="14" y="364">On a Metal</text>
   </g>
 
   <!-- ── Row 2: CO and N≡N vibrating ── -->

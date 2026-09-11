@@ -130,7 +130,8 @@
         "co_metal",
         "co_cation"
       ],
-      "note": "Everything the CO₂-to-oxygenates/RWGS/methanation story touches."
+      "note": "Everything the CO₂-to-oxygenates/RWGS/methanation story touches.",
+      "phases": []
     },
     "co2_hydrogenation_extended": {
       "key": "co2_hydrogenation_extended",
@@ -150,7 +151,8 @@
         "co_cation",
         "hydride"
       ],
-      "note": "Everything the CO₂-to-oxygenates/RWGS/methanation story touches."
+      "note": "Everything the CO₂-to-oxygenates/RWGS/methanation story touches.",
+      "phases": []
     },
     "co2_hydrogenation_rwgs_ch4": {
       "key": "co2_hydrogenation_rwgs_ch4",
@@ -165,7 +167,24 @@
         "co_metal",
         "co_cation"
       ],
-      "note": "Everything the RWGS and CO₂ methanation story touches."
+      "note": "Everything the RWGS and CO₂ methanation story touches.",
+      "phases": []
+    },
+    "fluids": {
+      "key": "fluids",
+      "label": "Gases + Fluids",
+      "groups": [
+        "co2",
+        "co",
+        "ch4",
+        "h2",
+        "methanol_product",
+        "water"
+      ],
+      "note": "The free molecules only: reactants and products as gas or fluid, no surface species. Their adsorbed bands are left out too.",
+      "phases": [
+        "gas"
+      ]
     },
     "co_methanation": {
       "key": "co_methanation",
@@ -179,7 +198,8 @@
         "co_metal",
         "co_cation"
       ],
-      "note": "Everything the CO₂ methanation story touches."
+      "note": "Everything the CO₂ methanation story touches.",
+      "phases": []
     }
   },
   "lanes": [
@@ -187,7 +207,9 @@
       "co2"
     ],
     [
-      "co",
+      "co"
+    ],
+    [
       "ch4"
     ],
     [
@@ -1472,6 +1494,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1523,6 +1546,7 @@
       ],
       "tags": [
         "ir-inactive",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1574,6 +1598,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1626,6 +1651,7 @@
       ],
       "tags": [
         "degenerated",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1679,6 +1705,7 @@
       ],
       "tags": [
         "degenerated",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1732,6 +1759,7 @@
       ],
       "tags": [
         "degenerated",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -1796,6 +1824,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "fermi-resonance",
         "rotational-branches",
         "gas-phase"
@@ -1861,6 +1890,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "fermi-resonance",
         "rotational-branches",
         "gas-phase"
@@ -1927,6 +1957,7 @@
       ],
       "tags": [
         "overtone",
+        "raman-inactive",
         "fermi-resonance",
         "rotational-branches",
         "gas-phase"
@@ -1995,6 +2026,7 @@
       ],
       "tags": [
         "overtone",
+        "raman-inactive",
         "fermi-resonance",
         "rotational-branches",
         "gas-phase"
@@ -2074,6 +2106,7 @@
       ],
       "tags": [
         "misassignment-warning",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -2141,6 +2174,7 @@
       ],
       "tags": [
         "misassignment-warning",
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -2211,6 +2245,7 @@
       ],
       "tags": [
         "misassignment-warning",
+        "raman-inactive",
         "gas-phase"
       ],
       "phase": "gas",
@@ -2278,6 +2313,7 @@
       ],
       "tags": [
         "misassignment-warning",
+        "raman-inactive",
         "gas-phase"
       ],
       "phase": "gas",
@@ -2372,6 +2408,17 @@
             "drifts"
           ],
           "uid": "co2_sym::Fehr.SpectroscopicSignaturesPressurized.2020"
+        },
+        {
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "wn": 1387,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Text and Fig. 2: the upper Fermi dyad band at ca. 1387 cm⁻¹, neat CO₂ flowed through a Si/glass microreactor chip, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, so across the gas, liquid and supercritical states. The position depends on pressure and temperature: read off Fig. 2, it runs from about 1389 cm⁻¹ (5 MPa, 323 K) down to about 1386 cm⁻¹ in the dense fluid, stepping abruptly at the gas–liquid (298 K, 6–7 MPa) and gas–supercritical (307 K, 7–8 MPa) transitions and falling smoothly at 323 K. The paper calls the pair the Fermi dyad without saying which component is ν₁; the split follows the atlas. With 5 % each of cyclohexene and H₂ (10 MPa, 305–318 K) the dyad sits at or below the liquid value at 305 K, which the paper reads as phase segregation.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "co2_sym::Urakawa.OnchipRamanAnalysis.2008"
         }
       ],
       "tags": [
@@ -2430,6 +2477,17 @@
             "drifts"
           ],
           "uid": "co2_bend_overtone::Fehr.SpectroscopicSignaturesPressurized.2020"
+        },
+        {
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "wn": 1284,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Text and Fig. 2: the lower Fermi dyad band at ca. 1284 cm⁻¹, the same on-chip measurement as its partner at 1387 cm⁻¹ (neat CO₂ in a Si/glass microreactor, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, through gas, liquid and supercritical CO₂). The position depends on pressure and temperature: read off Fig. 2, it runs from about 1285 cm⁻¹ (5 MPa, 323 K) down to about 1281.5 cm⁻¹ in the dense liquid, with the same abrupt steps at the phase transitions as the upper band and a smooth trend at 323 K. The paper does not say which component is 2ν₂; the split follows the atlas.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "co2_bend_overtone::Urakawa.OnchipRamanAnalysis.2008"
         }
       ],
       "tags": [
@@ -2497,6 +2555,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -2514,7 +2573,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 1,
+      "sub_lane": 0,
       "wn_min": 2165,
       "wn_max": 2185
     },
@@ -2553,7 +2612,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 1,
+      "sub_lane": 0,
       "wn_min": 2139,
       "wn_max": 2147
     },
@@ -2597,6 +2656,7 @@
         }
       ],
       "tags": [
+        "raman-inactive",
         "rotational-branches",
         "gas-phase"
       ],
@@ -2614,7 +2674,7 @@
         "co_stretch"
       ],
       "lane": 1,
-      "sub_lane": 1,
+      "sub_lane": 0,
       "wn_min": 2105,
       "wn_max": 2125
     },
@@ -2625,13 +2685,13 @@
       "vibration": {
         "category": "stretch",
         "subtype": "asymmetric",
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 2980,
-      "wn_end": 3060,
-      "short": "νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane asymmetric C-H stretch (νₐₛ, T₂ mode); sharp Q-branch at ~3019 cm⁻¹ with rotational P/R structure.",
+      "wn_start": 3010,
+      "wn_end": 3025,
+      "short": "νₐₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane asymmetric C-H stretch (νₐₛ, ν₃, T₂ mode): the sharp Q branch at the ~3019 cm⁻¹ band origin, the feature gas methane is usually recognised by. Active in both IR and Raman. Its rotational P and R branches spread either side (ch4g_asym_p, ch4g_asym_r), and the P side overlaps νₛ near 2917 cm⁻¹ in Raman.",
       "based_on": [],
       "references": [
         {
@@ -2653,28 +2713,140 @@
             "transmission"
           ],
           "uid": "ch4g_asym::Shimanouchi.TablesMolecularVibrational.1972"
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.2 and Fig. 3: the anisotropic part of the pentad Raman spectrum is dominated by the fundamental ν₃ (F₂), whose rotational structure depends strongly on temperature (room temperature to 700 K in Fig. 3); spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The fit needed only the zeroth-order ν₃ polarisability operator. The text gives no position for the band.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_asym::Jourdanneau.MethaneRamanSpectrum.2005"
         }
       ],
       "tags": [
+        "rotational-branches",
         "gas-phase"
       ],
       "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
-      "branch_group": null,
+      "branch_group": "ch4_nu3_branches",
       "isotopologue_of": null,
       "isotope": null,
       "intensity": "vs",
-      "width": "broad",
+      "width": "sharp",
       "confidence": "confirmed",
       "vibration_modes": [
         "ch4_stretch_asymmetric"
       ],
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
-      "wn_min": 2980,
-      "wn_max": 3060
+      "wn_min": 3010,
+      "wn_max": 3025
+    },
+    {
+      "id": "ch4g_asym_p",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 2890,
+      "wn_end": 3010,
+      "short": "νₐₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the P branch, the rotational lines below the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. It overlaps νₛ near 2917 cm⁻¹ and the δₛ+δₐₛ combination near 2830 cm⁻¹, so a band here is not by itself νₛ. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): ν₃ dominates the anisotropic pentad spectrum, and its low-wavenumber rotational wing is this side of the sharp Q branch. The paper names neither the branches nor their positions, so no number is recorded; the wing gains lines as the temperature rises (Fig. 3, up to 700 K). Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_asym_p::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu3_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "ch4_stretch_asymmetric"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 2890,
+      "wn_max": 3010
+    },
+    {
+      "id": "ch4g_asym_r",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 3030,
+      "wn_end": 3160,
+      "short": "νₐₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the R branch, the rotational lines above the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): the high-wavenumber rotational wing of ν₃, the stronger of the two sides in Fig. 13. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser, room temperature to 900 K.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_asym_r::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu3_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "ch4_stretch_asymmetric"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 3030,
+      "wn_max": 3160
     },
     {
       "id": "ch4g_bend",
@@ -2729,7 +2901,7 @@
       "vibration_modes": [
         "ch4_bend_t2"
       ],
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
       "wn_min": 1280,
       "wn_max": 1340
@@ -2741,13 +2913,13 @@
       "vibration": {
         "category": "bend",
         "subtype": "symmetric",
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
       "wn_start": 1528,
       "wn_end": 1540,
-      "short": "δₛ(HCH) CH₄(g)",
-      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry: E in Td has no T₂ component, so the mode carries no dipole derivative of its own. It is still seen in the infrared, near 1533 cm⁻¹, by borrowing intensity through Coriolis coupling to the δₐₛ bend below it — a reminder that a forbidden mode is one with no dipole derivative, not one that is never observed. Listed here as the explicit parent mode for the δₛ+νₐₛ combination band (~4220 cm⁻¹).",
+      "short": "δₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry: E in Td has no T₂ component, so the mode carries no dipole derivative of its own. It is still seen in the infrared, near 1533 cm⁻¹, by borrowing intensity through Coriolis coupling to the δₐₛ bend below it — a reminder that a forbidden mode is one with no dipole derivative, not one that is never observed. In Raman it is the band that dominates the dyad. This entry is the Q branch; in Raman its P and R wings (ch4g_bend_sym_p, ch4g_bend_sym_r) spread either side.",
       "based_on": [],
       "references": [
         {
@@ -2760,17 +2932,29 @@
             "transmission"
           ],
           "uid": "ch4g_bend_sym::Shimanouchi.TablesMolecularVibrational.1972"
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.1 and Fig. 2: the Raman spectrum of the dyad (about 1300–1850 cm⁻¹) is totally anisotropic and dominated by ν₂ (E), a strong central Q branch with rotational lines on both sides; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. No number is recorded: the text’s only one, “near 1530 cm⁻¹”, is printed against ν₄, which the same paragraph calls very weak in Raman and leaves out of the fit. That it belongs to ν₂ is the atlas’s reading, not the paper’s.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_bend_sym::Jourdanneau.MethaneRamanSpectrum.2005"
         }
       ],
       "tags": [
         "ir-inactive",
+        "rotational-branches",
         "gas-phase"
       ],
       "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
-      "branch_group": null,
+      "branch_group": "ch4_nu2_branches",
       "isotopologue_of": null,
       "isotope": null,
       "intensity": null,
@@ -2779,10 +2963,112 @@
       "vibration_modes": [
         "ch4_bend_e"
       ],
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
       "wn_min": 1528,
       "wn_max": 1540
+    },
+    {
+      "id": "ch4g_bend_sym_p",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1400,
+      "wn_end": 1525,
+      "short": "δₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane symmetric bend (δₛ, ν₂, E): the P branch, the rotational lines below the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. Its low end runs towards δₐₛ near 1306 cm⁻¹, which is very weak in Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.1, Fig. 2 and Fig. 13: the dyad Raman spectrum is totally anisotropic and dominated by ν₂, with rotational lines on both sides of its strong Q branch; this is the low-wavenumber side. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_bend_sym_p::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "ir-inactive",
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu2_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "ch4_bend_e"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 1400,
+      "wn_max": 1525
+    },
+    {
+      "id": "ch4g_bend_sym_r",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "bend",
+        "subtype": "symmetric",
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 1545,
+      "wn_end": 1700,
+      "short": "δₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane symmetric bend (δₛ, ν₂, E): the R branch, the rotational lines above the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.1, Fig. 2 and Fig. 13: the high-wavenumber side of the ν₂ dyad spectrum, where Fig. 2 shows the longer, better separated series of rotational lines. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_bend_sym_r::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "ir-inactive",
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu2_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "ch4_bend_e"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 1545,
+      "wn_max": 1700
     },
     {
       "id": "ch4g_sym",
@@ -2804,10 +3090,10 @@
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
           "wn": 2917,
           "measured_on": null,
-          "technique": "transmission",
-          "note": "Table No. 71, methane, Td: selected value 2917 cm⁻¹ with uncertainty code A, the compilation's best grade at 0 to 1 cm⁻¹. The infrared column is marked ia, inactive, and the number comes from the Raman column at 2917.0 cm⁻¹, so this is a Raman position rather than an infrared one. Technique recorded as transmission because the underlying gas measurements were made that way; the compilation itself selects rather than measures.",
+          "technique": "raman",
+          "note": "Table No. 71, methane, Td: selected value 2917 cm⁻¹ with uncertainty code A, the compilation's best grade at 0 to 1 cm⁻¹. The infrared column is marked ia, inactive, and the number comes from the Raman column at 2917.0 cm⁻¹, so this is a Raman position rather than an infrared one, and the technique is recorded as raman. The compilation itself selects rather than measures.",
           "tags": [
-            "transmission"
+            "raman"
           ],
           "uid": "ch4g_sym::Shimanouchi.TablesMolecularVibrational.1972"
         },
@@ -2819,6 +3105,17 @@
           "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table. Two caveats. The paper is a close-coupling calculation of electron-impact vibrational excitation and reports no infrared spectrum of its own: the mode energies are inputs it adopts from the literature, so it is a secondary source for this position. And no copy is on file and the article is paywalled, so this row could not be checked against the paper on the pass that added the compilation value above.",
           "tags": [],
           "uid": "ch4g_sym::Nishimura.VibrationalExcitationsCH4.2002"
+        },
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": 2916,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.2, Fig. 3 and conclusions: the strong isotropic ν₁ (A₁) band near 2916 cm⁻¹, a Q branch that is unresolved at the 0.3 cm⁻¹ apparatus width; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The stimulated Raman spectrum at 0.08 bar and 300 K (Fig. 8) resolves that Q branch into lines between about 2916.5 and 2918 cm⁻¹, read off the figure. From 400 K on, hot bands ν₁+nνᵢ−nνᵢ fill 2900–2920 cm⁻¹ (ν₁+ν₄−ν₄ at 2913 cm⁻¹, Fig. 10), which is what makes the band a thermometer. ν₁ is in Fermi resonance with 2ν₂ and 2ν₄ and in Dennison resonance with ν₂+ν₄.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_sym::Jourdanneau.MethaneRamanSpectrum.2005"
         }
       ],
       "tags": [
@@ -2839,8 +3136,8 @@
       "vibration_modes": [
         "ch4_stretch_symmetric"
       ],
-      "lane": 1,
-      "sub_lane": 0,
+      "lane": 2,
+      "sub_lane": 1,
       "wn_min": 2900,
       "wn_max": 2930
     },
@@ -2851,49 +3148,190 @@
       "vibration": {
         "category": "combination",
         "subtype": null,
-        "branch": null
+        "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 4180,
-      "wn_end": 4250,
-      "short": "δₛ+νₐₛ(HCH) CH₄(g)",
-      "description": "Gas methane combination band at ~4220 cm⁻¹; useful for high-pressure quantification when νₐₛ saturates. Often outside standard DRIFTS window.",
+      "wn_start": 4300,
+      "wn_end": 4325,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (Q)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ) near 4300 cm⁻¹, the strongest band of the octad in the near-infrared and in Raman. F₂×F₂ gives A₁, E and F₂ components, so it is active in both. Close neighbours in the same polyad blur it: ν₁+ν₄ on the low side, ν₁+ν₂ on the high side, and ν₂+ν₃ further up near 4540 cm⁻¹, which is where δₛ+νₐₛ belongs, not here. Useful for quantification when νₐₛ saturates; often outside a standard DRIFTS window. This entry is the Q branch, the sharp centre; its P and R wings are ch4g_combo_p and ch4g_combo_r.",
       "based_on": [
         {
-          "band_id": "ch4g_bend_sym",
+          "band_id": "ch4g_bend",
           "branch_group": null,
           "multiplier": 1,
           "label": null
         },
         {
-          "band_id": "ch4g_asym",
-          "branch_group": null,
+          "band_id": null,
+          "branch_group": "ch4_nu3_branches",
           "multiplier": 1,
           "label": null
         }
       ],
-      "references": [],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.3, Figs. 11–13 and Table 5: the octad Raman spectrum (Table 1: about 3500–4700 cm⁻¹), extremely weak, recorded over 1 h with the 300 gr/mm grating at room temperature, in the same gas cell (about one amagat, 4 W argon-ion laser). Its fit needed six first-order polarisability operators: ν₁+ν₂ (E), ν₁+ν₄ (F₂), ν₂+ν₃ (F₂) and the A₁, E and F₂ components of ν₃+ν₄, the E one the largest. The paper ties no peak to a band, so reading the main feature near 4300 cm⁻¹ as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Its neighbours ν₁+ν₄ and ν₁+ν₂ fill the wings.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_combo::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
       "tags": [
+        "rotational-branches",
         "gas-phase"
       ],
       "phase": "gas",
       "topology": null,
       "fermi_partner": null,
       "fermi_partner_group": null,
-      "branch_group": null,
+      "branch_group": "ch4_nu3nu4_branches",
       "isotopologue_of": null,
       "isotope": null,
       "intensity": null,
       "width": null,
       "confidence": null,
       "vibration_modes": [
-        "ch4_bend_e",
+        "ch4_bend_t2",
         "ch4_stretch_asymmetric"
       ],
-      "lane": 1,
+      "lane": 2,
       "sub_lane": 0,
-      "wn_min": 4180,
-      "wn_max": 4250
+      "wn_min": 4300,
+      "wn_max": 4325
+    },
+    {
+      "id": "ch4g_combo_p",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 4220,
+      "wn_end": 4300,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (P)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the P branch, the rotational lines below the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₄ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
+      "based_on": [
+        {
+          "band_id": "ch4g_bend",
+          "branch_group": null,
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": "ch4_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        }
+      ],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.3 and Figs. 11–13: the low-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_combo_p::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu3nu4_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "tentative",
+      "vibration_modes": [
+        "ch4_bend_t2",
+        "ch4_stretch_asymmetric"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 4220,
+      "wn_max": 4300
+    },
+    {
+      "id": "ch4g_combo_r",
+      "species": "ch4",
+      "group": "ch4",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "R"
+      },
+      "atoms": "H-C-H",
+      "wn_start": 4325,
+      "wn_end": 4420,
+      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (R)",
+      "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the R branch, the rotational lines above the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₂ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
+      "based_on": [
+        {
+          "band_id": "ch4g_bend",
+          "branch_group": null,
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": "ch4_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        }
+      ],
+      "references": [
+        {
+          "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "wn": null,
+          "measured_on": null,
+          "technique": "raman",
+          "note": "Sect. 4.3 and Figs. 11–13: the high-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded.",
+          "tags": [
+            "raman"
+          ],
+          "uid": "ch4g_combo_r::Jourdanneau.MethaneRamanSpectrum.2005"
+        }
+      ],
+      "tags": [
+        "rotational-branches",
+        "gas-phase"
+      ],
+      "phase": "gas",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": "ch4_nu3nu4_branches",
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "tentative",
+      "vibration_modes": [
+        "ch4_bend_t2",
+        "ch4_stretch_asymmetric"
+      ],
+      "lane": 2,
+      "sub_lane": 0,
+      "wn_min": 4325,
+      "wn_max": 4420
     },
     {
       "id": "co_linear_mu1",
@@ -3027,7 +3465,7 @@
       "vibration_modes": [
         "co_stretch_linear"
       ],
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 1,
       "wn_min": 2000,
       "wn_max": 2120
@@ -3075,7 +3513,7 @@
       "vibration_modes": [
         "co_stretch_linear"
       ],
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 1955,
       "wn_max": 2075
@@ -3152,7 +3590,7 @@
       "vibration_modes": [
         "co_stretch_bridged"
       ],
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 1,
       "wn_min": 1820,
       "wn_max": 1990
@@ -3202,7 +3640,7 @@
       "vibration_modes": [
         "co_stretch_hollow"
       ],
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 1750,
       "wn_max": 1870
@@ -3239,7 +3677,7 @@
       "vibration_modes": [
         "co_stretch_hollow"
       ],
-      "lane": 2,
+      "lane": 3,
       "sub_lane": 0,
       "wn_min": 1600,
       "wn_max": 1700
@@ -3381,7 +3819,7 @@
       "vibration_modes": [
         "co_stretch_linear"
       ],
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2120,
       "wn_max": 2230
@@ -3438,7 +3876,7 @@
       "vibration_modes": [
         "co_iso_stretch"
       ],
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 1,
       "wn_min": 2105,
       "wn_max": 2125
@@ -3489,7 +3927,7 @@
       "vibration_modes": [
         "co_geminal_stretch_asymmetric"
       ],
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2080,
       "wn_max": 2110
@@ -3540,7 +3978,7 @@
       "vibration_modes": [
         "co_geminal_stretch_symmetric"
       ],
-      "lane": 3,
+      "lane": 4,
       "sub_lane": 0,
       "wn_min": 2020,
       "wn_max": 2050
@@ -3585,7 +4023,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": -1,
       "wn_min": 1700,
       "wn_max": 1800
@@ -3618,7 +4056,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 1,
       "wn_min": 2800,
       "wn_max": 2900
@@ -3651,7 +4089,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1700,
       "wn_max": 1750
@@ -3684,7 +4122,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 2850,
       "wn_max": 2900
@@ -3717,7 +4155,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 2750,
       "wn_max": 2820
@@ -3750,7 +4188,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1480,
       "wn_max": 1520
@@ -3783,7 +4221,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1650,
       "wn_max": 1750
@@ -3831,7 +4269,7 @@
       "width": null,
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 1,
       "wn_min": 1690,
       "wn_max": 1745
@@ -3864,7 +4302,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 3500,
       "wn_max": 3650
@@ -3897,7 +4335,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 2905,
       "wn_max": 2960
@@ -3930,7 +4368,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": 0,
       "wn_min": 1050,
       "wn_max": 1100
@@ -3977,7 +4415,7 @@
       "width": null,
       "confidence": "tentative",
       "vibration_modes": [],
-      "lane": 4,
+      "lane": 5,
       "sub_lane": -1,
       "wn_min": 2890,
       "wn_max": 2930
@@ -4057,7 +4495,7 @@
       "vibration_modes": [
         "carbonate_stretch_asymmetric_monodentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1440,
       "wn_max": 1532
@@ -4140,7 +4578,7 @@
       "vibration_modes": [
         "carbonate_stretch_symmetric_monodentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 1,
       "wn_min": 1380,
       "wn_max": 1425
@@ -4250,7 +4688,7 @@
       "vibration_modes": [
         "carbonate_stretch_asymmetric_bidentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": -1,
       "wn_min": 1500,
       "wn_max": 1670
@@ -4345,7 +4783,7 @@
       "vibration_modes": [
         "carbonate_stretch_symmetric_bidentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1249,
       "wn_max": 1380
@@ -4393,7 +4831,7 @@
       "width": null,
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 1,
       "wn_min": 1480,
       "wn_max": 1530
@@ -4441,7 +4879,7 @@
       "width": null,
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 1,
       "wn_min": 1300,
       "wn_max": 1370
@@ -4501,7 +4939,7 @@
       "vibration_modes": [
         "carbonate_stretch_symmetric_bidentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 1015,
       "wn_max": 1100
@@ -4565,7 +5003,7 @@
       "width": "medium",
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 1,
       "wn_min": 1030,
       "wn_max": 1085
@@ -4615,7 +5053,7 @@
         "carbonate_wagging_bidentate",
         "carbonate_wagging_monodentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 830,
       "wn_max": 890
@@ -4651,7 +5089,7 @@
         "carbonate_scissoring_bidentate",
         "carbonate_scissoring_monodentate"
       ],
-      "lane": 5,
+      "lane": 6,
       "sub_lane": 0,
       "wn_min": 650,
       "wn_max": 715
@@ -4753,7 +5191,7 @@
       "vibration_modes": [
         "bicarbonate_stretch_asymmetric_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 1,
       "wn_min": 1600,
       "wn_max": 1650
@@ -4825,7 +5263,7 @@
       "vibration_modes": [
         "bicarbonate_stretch_symmetric_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 1,
       "wn_min": 1410,
       "wn_max": 1440
@@ -4900,7 +5338,7 @@
       "vibration_modes": [
         "bicarbonate_bend_coh_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 1,
       "wn_min": 1210,
       "wn_max": 1232
@@ -4959,7 +5397,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 3600,
       "wn_max": 3630
@@ -5005,7 +5443,7 @@
       "width": "medium",
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1000,
       "wn_max": 1020
@@ -5051,7 +5489,7 @@
       "width": "medium",
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 810,
       "wn_max": 830
@@ -5100,7 +5538,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 2660,
       "wn_max": 2685
@@ -5151,7 +5589,7 @@
       "vibration_modes": [
         "bicarbonate_bend_coh_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 960,
       "wn_max": 980
@@ -5216,7 +5654,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 1,
       "wn_min": 3604,
       "wn_max": 3618
@@ -5283,7 +5721,7 @@
       "vibration_modes": [
         "bicarbonate_stretch_asymmetric_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1595,
       "wn_max": 1638
@@ -5350,7 +5788,7 @@
       "vibration_modes": [
         "bicarbonate_stretch_symmetric_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1384,
       "wn_max": 1420
@@ -5417,7 +5855,7 @@
       "vibration_modes": [
         "bicarbonate_bend_coh_bidentate"
       ],
-      "lane": 6,
+      "lane": 7,
       "sub_lane": 0,
       "wn_min": 1200,
       "wn_max": 1221
@@ -5643,7 +6081,7 @@
       "vibration_modes": [
         "formate_ch_stretch_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2845,
       "wn_max": 2920
@@ -5811,7 +6249,7 @@
       "vibration_modes": [
         "formate_stretch_asymmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1515,
       "wn_max": 1620
@@ -5962,7 +6400,7 @@
       "vibration_modes": [
         "formate_stretch_symmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": -1,
       "wn_min": 1313,
       "wn_max": 1390
@@ -6061,7 +6499,7 @@
       "vibration_modes": [
         "formate_och_scissoring_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 1275,
       "wn_max": 1400
@@ -6193,7 +6631,7 @@
         "formate_och_scissoring_bidentate",
         "formate_stretch_asymmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 1,
       "wn_min": 2920,
       "wn_max": 2985
@@ -6269,7 +6707,7 @@
         "formate_och_scissoring_bidentate",
         "formate_stretch_symmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2720,
       "wn_max": 2790
@@ -6338,7 +6776,7 @@
       "vibration_modes": [
         "formate_ch_stretch_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 0,
       "wn_min": 2155,
       "wn_max": 2200
@@ -6388,7 +6826,7 @@
       "vibration_modes": [
         "formate_stretch_asymmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 1,
       "wn_min": 1560,
       "wn_max": 1620
@@ -6438,7 +6876,7 @@
       "vibration_modes": [
         "formate_stretch_symmetric_bidentate"
       ],
-      "lane": 7,
+      "lane": 8,
       "sub_lane": 1,
       "wn_min": 1310,
       "wn_max": 1370
@@ -6581,7 +7019,7 @@
       "vibration_modes": [
         "methoxy_stretch_asymmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 2910,
       "wn_max": 2975
@@ -6751,7 +7189,7 @@
       "vibration_modes": [
         "methoxy_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 2815,
       "wn_max": 2862
@@ -6821,7 +7259,7 @@
       "vibration_modes": [
         "methoxy_bend_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 1430,
       "wn_max": 1458
@@ -6856,7 +7294,7 @@
       "vibration_modes": [
         "methoxy_bend_asymmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 1360,
       "wn_max": 1390
@@ -6943,7 +7381,7 @@
       "vibration_modes": [
         "methoxy_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 1100,
       "wn_max": 1170
@@ -7016,7 +7454,7 @@
       "vibration_modes": [
         "methoxy_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1030,
       "wn_max": 1090
@@ -7066,7 +7504,7 @@
       "vibration_modes": [
         "methoxy_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 2072,
       "wn_max": 2088
@@ -7116,7 +7554,7 @@
       "vibration_modes": [
         "methoxy_stretch_asymmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 2150,
       "wn_max": 2210
@@ -7178,7 +7616,7 @@
       "vibration_modes": [
         "methanol_oh_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3681,
       "wn_max": 3700
@@ -7266,7 +7704,7 @@
       "vibration_modes": [
         "methanol_oh_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2700,
       "wn_max": 2745
@@ -7317,7 +7755,7 @@
       "vibration_modes": [
         "methanol_stretch_a"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 2243,
       "wn_max": 2258
@@ -7383,7 +7821,7 @@
       "vibration_modes": [
         "methanol_stretch_antisym"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2138,
       "wn_max": 2246
@@ -7445,7 +7883,7 @@
       "vibration_modes": [
         "methanol_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 2068,
       "wn_max": 2082
@@ -7507,7 +7945,7 @@
       "vibration_modes": [
         "methanol_ch_scissor"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1124,
       "wn_max": 1137
@@ -7558,7 +7996,7 @@
       "vibration_modes": [
         "methanol_bend_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1064,
       "wn_max": 1073
@@ -7609,7 +8047,7 @@
       "vibration_modes": [
         "methanol_ch_rock"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 1058,
       "wn_max": 1068
@@ -7660,7 +8098,7 @@
       "vibration_modes": [
         "methanol_co_scaffold"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 1024,
       "wn_max": 1035
@@ -7722,7 +8160,7 @@
       "vibration_modes": [
         "methanol_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 975,
       "wn_max": 987
@@ -7773,7 +8211,7 @@
       "vibration_modes": [
         "methanol_twist"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 886,
       "wn_max": 899
@@ -7835,7 +8273,7 @@
       "vibration_modes": [
         "methanol_oh_bend"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 770,
       "wn_max": 780
@@ -7885,7 +8323,7 @@
       "vibration_modes": [
         "methanol_oh_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3707,
       "wn_max": 3720
@@ -7935,7 +8373,7 @@
       "vibration_modes": [
         "methanol_oh_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 3660,
       "wn_max": 3680
@@ -7999,7 +8437,7 @@
       "vibration_modes": [
         "methanol_stretch_a"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2985,
       "wn_max": 3010
@@ -8076,7 +8514,7 @@
       "vibration_modes": [
         "methanol_stretch_antisym"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2905,
       "wn_max": 2975
@@ -8125,7 +8563,7 @@
       "vibration_modes": [
         "methanol_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 2835,
       "wn_max": 2860
@@ -8187,7 +8625,7 @@
       "vibration_modes": [
         "methanol_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2836,
       "wn_max": 2854
@@ -8237,7 +8675,7 @@
       "vibration_modes": [
         "methanol_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2858,
       "wn_max": 2876
@@ -8287,7 +8725,7 @@
       "vibration_modes": [
         "methanol_stretch_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2820,
       "wn_max": 2832
@@ -8348,7 +8786,7 @@
       "vibration_modes": [
         "methanol_ch_scissor"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1473,
       "wn_max": 1480
@@ -8405,7 +8843,7 @@
       "vibration_modes": [
         "methanol_ch_scissor"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 1,
       "wn_min": 2950,
       "wn_max": 2962
@@ -8466,7 +8904,7 @@
       "vibration_modes": [
         "methanol_ch_rock"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1462,
       "wn_max": 1469
@@ -8526,7 +8964,7 @@
       "vibration_modes": [
         "methanol_bend_symmetric"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1450,
       "wn_max": 1458
@@ -8586,7 +9024,7 @@
       "vibration_modes": [
         "methanol_oh_bend"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1310,
       "wn_max": 1350
@@ -8635,7 +9073,7 @@
       "vibration_modes": [
         "methanol_twist"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1141,
       "wn_max": 1158
@@ -8684,7 +9122,7 @@
       "vibration_modes": [
         "methanol_co_scaffold"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": -1,
       "wn_min": 1060,
       "wn_max": 1080
@@ -8767,7 +9205,7 @@
       "vibration_modes": [
         "methanol_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1020,
       "wn_max": 1050
@@ -8825,7 +9263,7 @@
       "vibration_modes": [
         "methanol_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 2030,
       "wn_max": 2080
@@ -8875,7 +9313,7 @@
       "vibration_modes": [
         "methanol_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1054,
       "wn_max": 1068
@@ -8925,7 +9363,7 @@
       "vibration_modes": [
         "methanol_co_stretch"
       ],
-      "lane": 8,
+      "lane": 9,
       "sub_lane": 0,
       "wn_min": 1006,
       "wn_max": 1019
@@ -9050,7 +9488,7 @@
       "width": null,
       "confidence": null,
       "vibration_modes": [],
-      "lane": 9,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 3400,
       "wn_max": 3750
@@ -9101,7 +9539,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 9,
+      "lane": 10,
       "sub_lane": 0,
       "wn_min": 2580,
       "wn_max": 2720
@@ -9148,7 +9586,7 @@
       "vibration_modes": [
         "h2o_stretch_symmetric"
       ],
-      "lane": 10,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 3650,
       "wn_max": 3660
@@ -9195,7 +9633,7 @@
       "vibration_modes": [
         "h2o_bend"
       ],
-      "lane": 10,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 1590,
       "wn_max": 1600
@@ -9242,7 +9680,7 @@
       "vibration_modes": [
         "h2o_stretch_asymmetric"
       ],
-      "lane": 10,
+      "lane": 11,
       "sub_lane": 0,
       "wn_min": 3750,
       "wn_max": 3760
@@ -9335,7 +9773,7 @@
       "width": "sharp",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 11,
+      "lane": 12,
       "sub_lane": 0,
       "wn_min": 1960,
       "wn_max": 2015
@@ -9389,7 +9827,7 @@
       "width": "medium",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 11,
+      "lane": 12,
       "sub_lane": 0,
       "wn_min": 1420,
       "wn_max": 1450
@@ -9438,7 +9876,7 @@
       "width": "medium",
       "confidence": "speculative",
       "vibration_modes": [],
-      "lane": 11,
+      "lane": 12,
       "sub_lane": 0,
       "wn_min": 1650,
       "wn_max": 1720
@@ -9490,7 +9928,7 @@
       "width": "very_broad",
       "confidence": "confirmed",
       "vibration_modes": [],
-      "lane": 13,
+      "lane": 14,
       "sub_lane": 0,
       "wn_min": 1000,
       "wn_max": 3000
@@ -9541,7 +9979,7 @@
       "width": null,
       "confidence": "likely",
       "vibration_modes": [],
-      "lane": 13,
+      "lane": 14,
       "sub_lane": 1,
       "wn_min": 1860,
       "wn_max": 2000

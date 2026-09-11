@@ -14,6 +14,25 @@ export { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES, DEFAULT_TAG_STYLE };
 
 const GREY = C['data-grey'];
 
+/**
+ * A colour faded: mixed with white, keeping its own hue, and returned
+ * opaque. It looks like the colour laid over white at low opacity, but it is
+ * how the chart fades a band (unreferenced) instead of opacity, so faded
+ * bands that overlap keep one flat colour and nothing shows through them.
+ * `strength` 1 is the fill, a smaller value a stronger edge in the same hue.
+ * Anything that is not a #rrggbb hex comes back unchanged.
+ */
+export function fadeColor(hex: string, strength = 1): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  // How much white goes in: 70 %, the look of the colour at 0.3 opacity.
+  const w = 0.7 * strength;
+  return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+    .map(v => Math.round(v + (255 - v) * w).toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export function vibrationKey(b: Band): string {
   const cat = b.vibration.category;
   const sub = b.vibration.subtype;

@@ -19,7 +19,7 @@
  * adding it here, same as the JSONC preambles.
  */
 
-import type { Band, Dataset, RefMap, SurfaceLevel, Vibrations } from './types';
+import type { Band, Dataset, RefMap, SurfaceLevel, Vibrations, Spectroscopy } from './types';
 
 /* ---------------------------------------------------------------------------
    Specification
@@ -260,6 +260,7 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'label', type: 'string', req: 'req', note: 'What the filter shows.' },
       { name: 'groups[]', type: 'group key[]', req: 'req', note: 'The groups this set turns on. Validated; an empty set is an error, since it would render as a filter that hides everything.' },
       { name: 'note', type: 'string', req: 'opt', note: 'One sentence under the selector, saying what the set leaves out and why.' },
+      { name: 'phases[]', type: 'phase enum[]', req: 'opt', note: 'Keeps only bands of these phases while the set is active; a band with no phase applies to both forms and stays. For groups that hold the free molecule and its adsorbed form alike (co2, methanol_product): the Gases + Fluids set uses it to drop their adsorbed bands.' },
     ],
     open:
       '"All groups" is built into the filter rather than authored here, and a selection that matches no set shows as "Custom". Neither is a record.',
@@ -535,6 +536,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
   'ir-active': 'activity',
   'ir-inactive': 'activity',
   'raman-active': 'activity',
+  'raman-inactive': 'activity',
   // How it was measured.
   drifts: 'technique',
   transmission: 'technique',
@@ -543,6 +545,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
   irras: 'technique',
   pm_irras: 'technique',
   emission: 'technique',
+  raman: 'technique',
   computational: 'technique',
   'direct-dosing': 'evidence',
   'isotope-labeling': 'evidence',
@@ -564,6 +567,7 @@ export const DERIVED_TAGS: Record<string, string> = {
   irras: 'assignment.technique',
   pm_irras: 'assignment.technique',
   emission: 'assignment.technique',
+  raman: 'assignment.technique',
   computational: 'assignment.technique',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',
@@ -593,18 +597,21 @@ export interface TechniqueSpec {
   label: string;
   /** The tag this technique derives, so the legend chips keep working. */
   tag: string;
+  /** Which spectroscopy it is, for the chart's IR/Raman switch; null for a calculation. */
+  spectroscopy: Spectroscopy | null;
   note: string;
 }
 
 export const TECHNIQUES: TechniqueSpec[] = [
-  { key: 'drifts', label: 'DRIFTS', tag: 'drifts', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
-  { key: 'transmission', label: 'Transmission', tag: 'transmission', note: 'Self-supporting wafer, beam straight through.' },
-  { key: 'atr', label: 'ATR', tag: 'atr', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
-  { key: 'ftir', label: 'FTIR (unspecified)', tag: 'ftir', note: 'The placeholder: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Use it when the paper genuinely does not say, and replace it once it does.' },
-  { key: 'irras', label: 'IRRAS', tag: 'irras', note: 'Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent.' },
-  { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', note: 'IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum.' },
-  { key: 'emission', label: 'Emission', tag: 'emission', note: 'The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries.' },
-  { key: 'computational', label: 'Calculated', tag: 'computational', note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
+  { key: 'drifts', label: 'DRIFTS', tag: 'drifts', spectroscopy: 'ir', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
+  { key: 'transmission', label: 'Transmission', tag: 'transmission', spectroscopy: 'ir', note: 'Self-supporting wafer, beam straight through.' },
+  { key: 'atr', label: 'ATR', tag: 'atr', spectroscopy: 'ir', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
+  { key: 'ftir', label: 'FTIR (unspecified)', tag: 'ftir', spectroscopy: 'ir', note: 'The placeholder: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Use it when the paper genuinely does not say, and replace it once it does.' },
+  { key: 'irras', label: 'IRRAS', tag: 'irras', spectroscopy: 'ir', note: 'Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent.' },
+  { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', spectroscopy: 'ir', note: 'IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum.' },
+  { key: 'emission', label: 'Emission', tag: 'emission', spectroscopy: 'ir', note: 'The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries.' },
+  { key: 'raman', label: 'Raman', tag: 'raman', spectroscopy: 'raman', note: 'Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. Greyed out in the chart while it is set to IR, as the infrared claims are while it is set to Raman.' },
+  { key: 'computational', label: 'Calculated', tag: 'computational', spectroscopy: null, note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];
 
 /* ---------------------------------------------------------------------------

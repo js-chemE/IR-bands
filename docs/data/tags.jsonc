@@ -44,6 +44,9 @@
     "drifts": {
       "tip": "Measured by diffuse reflectance infrared spectroscopy (DRIFTS)."
     },
+    "raman": {
+      "tip": "A Raman shift rather than an infrared absorption: the same vibrational energy, seen through the polarizability rather than the dipole. Greyed out and folded in the chart while it is set to IR."
+    },
     "irras": {
       "tip": "Measured by infrared reflection absorption spectroscopy: grazing incidence off a flat, usually single-crystal sample in vacuum. The surface selection rule applies, so only dipole components along the surface normal absorb and a missing band may mean a mode lying flat rather than a species that is absent."
     },
@@ -69,7 +72,7 @@
       "tip": "This vibrational mode is IR-allowed."
     },
     "ir-inactive": {
-      "tip": "Symmetry-forbidden in IR; included for context even though not directly observed."
+      "tip": "Symmetry-forbidden in IR; included for context even though not directly observed. Drawn hollow when the chart is set to IR."
     },
     "isotope-labeling": {
       "tip": "This source used isotope substitution as evidence for the assignment (the band itself is the ordinary, natural-abundance one)."
@@ -100,6 +103,9 @@
     },
     "raman-active": {
       "tip": "This vibrational mode is Raman-allowed."
+    },
+    "raman-inactive": {
+      "tip": "Forbidden in Raman: the vibration leaves the polarizability unchanged (for gas CO₂, every infrared band, by the mutual exclusion rule), or, for a linear molecule's P and R branches, the rotational change is one Raman does not allow. Drawn hollow when the chart is set to Raman."
     },
     "rotational-branches": {
       "tip": "Auto-tagged: one rotational branch (P/Q/R) of a multi-branch transition; see its sibling branches."

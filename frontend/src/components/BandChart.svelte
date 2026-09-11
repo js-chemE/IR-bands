@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode } from '../lib/types';
-  import { buildChart, buildAxisStrip, HATCH } from '../lib/chart';
+  import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
+  import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, type BandLooks } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
-  import { axisRange, valueToWn } from '../lib/units';
+  import { axisRange, valueToWn, wnToValue } from '../lib/units';
   import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
   import { C, CHART_LAYOUT, ISOTOPE_STYLE } from '../lib/tokens';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
@@ -51,6 +51,14 @@
   export let colorDim: ColorDim;
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
+  /** With a zero (absolute wavenumber, cm⁻¹, e.g. a laser) the axis is a shift from it; null for none. */
+  export let shiftZero: number | null = null;
+  /** Large values on the left. */
+  export let reversed = false;
+  /** IR or Raman: whose inactive bands are drawn hollow. */
+  export let spectroscopy: Spectroscopy = 'ir';
+  /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
+  export let looks: BandLooks = { inactive: true, unreferenced: true };
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
   // Set by a parent that wants to jump straight to one band (e.g. clicking
@@ -93,6 +101,8 @@
       color: C['ink-100'],
       // Only ever an anchor for a connector, never drawn, so the hatch is moot.
       isotopologue: false,
+      inactive: false,
+      unreferenced: false,
       tipData: {
         id: band.id, name: '', vib: '', wnRange: '', group: '', color: C['ink-100'],
         noteLines: [], tags: [], description: '', refs: [], partners: [],
@@ -277,8 +287,21 @@
   // Zoom stored canonically in wavenumber [lo, hi] cm⁻¹ (lo < hi).
   let wnOverride: [number, number] | null = null;
 
-  $: xDomainForChart = wnOverride
-    ? (axisRange(wnOverride[0], wnOverride[1], axisProperty, axisUnit) as [number, number])
+  // When the limits change under a zoomed window (shift switched off while
+  // it sat in the negative, a new zero), the window is shown slid back
+  // inside at its own width, against the edge it crossed, rather than cut or
+  // reset. A reactive value rather than a write back to wnOverride, so the
+  // chart below is sure to be drawn from it in the same update; the next pan
+  // or zoom starts from what is shown and stores it.
+  $: wnShown = fitInside(wnOverride, wnFloor, wnCeil);
+  function fitInside(w: [number, number] | null, floor: number, ceil: number): [number, number] | null {
+    if (!w || (w[0] >= floor && w[1] <= ceil)) return w;
+    const span = Math.min(w[1] - w[0], ceil - floor);
+    return w[0] < floor ? [floor, floor + span] : [ceil - span, ceil];
+  }
+
+  $: xDomainForChart = wnShown
+    ? (axisRange(wnShown[0], wnShown[1], axisProperty, axisUnit, shiftZero, reversed) as [number, number])
     : undefined;
 
   // ---------------------------------------------------------------------------
@@ -294,7 +317,7 @@
   // stack scrolls underneath it. See buildAxisStrip's own docstring.
   let axisContainer: HTMLDivElement;
   $: if (axisContainer) {
-    axisContainer.replaceChildren(buildAxisStrip(axisProperty, axisUnit, containerWidth, xDomainForChart));
+    axisContainer.replaceChildren(buildAxisStrip(axisProperty, axisUnit, containerWidth, xDomainForChart, shiftZero, reversed));
   }
 
   $: if (container) {
@@ -305,6 +328,10 @@
       containerWidth,
       xDomainForChart,
       tagIsolate,
+      shiftZero,
+      reversed,
+      spectroscopy,
+      looks,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
@@ -536,6 +563,20 @@
 
   const MIN_WN_SPAN = 50;
   const MAX_WN = 12000;
+  // A shift can be negative (anti-Stokes, below the zero), so its axis pans
+  // and zooms past 0; it cannot reach the zero's own energy, where the
+  // scattered light would have none left.
+  $: wnFloor = shiftZero !== null ? -MAX_WN : 1;
+  $: wnCeil = shiftZero !== null ? Math.min(MAX_WN, shiftZero - 100) : MAX_WN;
+  // The same limits on the axis as drawn. Panning and zooming are clamped
+  // here, in display units, rather than in wavenumber: clamping one end of a
+  // wavenumber range while the other kept moving squeezed the window shut
+  // near 0, and past 0 a wavelength or energy turned negative.
+  $: valueLimits = [
+    wnToValue(wnFloor, axisProperty, axisUnit, shiftZero),
+    wnToValue(wnCeil, axisProperty, axisUnit, shiftZero),
+  ].sort((a, b) => a - b) as [number, number];
+
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -566,14 +607,24 @@
   }
 
   function currentDomain(): [number, number] {
-    return xDomainForChart ?? (axisRange(450, 4050, axisProperty, axisUnit) as [number, number]);
+    return xDomainForChart ?? (axisRange(450, 4050, axisProperty, axisUnit, shiftZero, reversed) as [number, number]);
   }
 
   function domainToWnRange(d0: number, d1: number): [number, number] {
-    const a = valueToWn(d0, axisProperty, axisUnit);
-    const b = valueToWn(d1, axisProperty, axisUnit);
+    const a = valueToWn(d0, axisProperty, axisUnit, shiftZero);
+    const b = valueToWn(d1, axisProperty, axisUnit, shiftZero);
     return [Math.min(a, b), Math.max(a, b)];
   }
+
+  /** Slide a window, its width kept, back inside the axis limits. */
+  function slideInside(d0: number, d1: number): [number, number] {
+    const [vMin, vMax] = valueLimits;
+    const lo = Math.min(d0, d1), hi = Math.max(d0, d1);
+    if (hi - lo >= vMax - vMin) return d0 <= d1 ? [vMin, vMax] : [vMax, vMin];
+    const by = lo < vMin ? vMin - lo : hi > vMax ? vMax - hi : 0;
+    return [d0 + by, d1 + by];
+  }
+  const clampValue = (v: number) => Math.min(valueLimits[1], Math.max(valueLimits[0], v));
 
   // ---------------------------------------------------------------------------
   // Event handlers
@@ -586,22 +637,18 @@
       const plotWidth = containerWidth - ML - MR;
       const dx = (e.clientX - panStartClientX) / plotWidth;
       const span = panStartDomain[1] - panStartDomain[0];
-      const [lo, hi] = domainToWnRange(
-        panStartDomain[0] - dx * span,
-        panStartDomain[1] - dx * span,
-      );
-      wnOverride = [Math.max(1, lo), Math.min(MAX_WN, hi)];
+      const [d0, d1] = slideInside(panStartDomain[0] - dx * span, panStartDomain[1] - dx * span);
+      wnOverride = domainToWnRange(d0, d1);
       return;
     }
 
     if (isScaling) {
       const dx = e.clientX - scaleStartClientX;
       const factor = Math.exp(-dx * 0.006);
-      const d0 = scalePivot + (scaleStartDomain[0] - scalePivot) * factor;
-      const d1 = scalePivot + (scaleStartDomain[1] - scalePivot) * factor;
+      const d0 = clampValue(scalePivot + (scaleStartDomain[0] - scalePivot) * factor);
+      const d1 = clampValue(scalePivot + (scaleStartDomain[1] - scalePivot) * factor);
       const [lo, hi] = domainToWnRange(d0, d1);
-      const loC = Math.max(1, lo), hiC = Math.min(MAX_WN, hi);
-      if (hiC - loC >= MIN_WN_SPAN) wnOverride = [loC, hiC];
+      if (hi - lo >= MIN_WN_SPAN) wnOverride = [lo, hi];
       return;
     }
 
@@ -796,7 +843,7 @@
                   fill="none" stroke={CONN_STROKE} stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
           {/if}
         {/each}
-        {#each glowHits as hit}
+        {#each glowHits as hit, gi}
           {@const x = hit.px1}
           {@const y = hit.py1 + HIT_PAD}
           {@const w = Math.max(1, hit.px2 - hit.px1)}
@@ -809,14 +856,34 @@
           <rect {x} {y} width={w} height={h}
                 fill={hit.color} opacity="0.75"
                 filter="url(#glow-blur)"/>
-          <!-- solid band on top with white rim -->
-          <rect {x} {y} width={w} height={h}
-                fill={hit.color} opacity="1"
-                stroke="white" stroke-width="1.5" rx="0.5"/>
-          {#if hit.isotopologue}
+          {#if hit.inactive || hit.unreferenced}
+            <!-- The band in its own look, hollow or faded, over a white
+                 base that hides the halo behind it: the highlight lifts the
+                 band without turning it solid. -->
+            {@const edge = hit.unreferenced ? fadedEdge(hit.color) : hit.color}
+            <rect {x} {y} width={w} height={h} fill={C['surface']} stroke="white" stroke-width="1.5" rx="0.5"/>
             <rect {x} {y} width={w} height={h}
-                  fill="url(#glow-hatch)" opacity={HATCH.fillOpacity}
-                  stroke="none"/>
+                  fill={hit.inactive ? C['surface'] : fadedFill(hit.color)}
+                  stroke={edge}
+                  stroke-width={hit.inactive ? HOLLOW_STROKE : 0.5}/>
+            {#if hit.isotopologue}
+              <!-- Its hatch in the band's own colour, as in the chart. -->
+              <pattern id="glow-hatch-{gi}" width={HATCH.size} height={HATCH.size}
+                       patternUnits="userSpaceOnUse" patternTransform="rotate({HATCH.angle})">
+                <line x1="0" y1="0" x2="0" y2={HATCH.size} stroke={edge} stroke-width={HATCH.strokeWidth}/>
+              </pattern>
+              <rect {x} {y} width={w} height={h} fill="url(#glow-hatch-{gi})" stroke="none"/>
+            {/if}
+          {:else}
+            <!-- solid band on top with white rim -->
+            <rect {x} {y} width={w} height={h}
+                  fill={hit.color} opacity="1"
+                  stroke="white" stroke-width="1.5" rx="0.5"/>
+            {#if hit.isotopologue}
+              <rect {x} {y} width={w} height={h}
+                    fill="url(#glow-hatch)" opacity={HATCH.fillOpacity}
+                    stroke="none"/>
+            {/if}
           {/if}
         {/each}
       </svg>
@@ -882,13 +949,22 @@
 
           <div class:tip-refs-scroll={useScroll}>
             {#each refsToShow as ref, i}
-              {@const expanded = !isCollapsible || expandedRefs.has(i)}
+              <!-- A claim from the other spectroscopy, or one with no
+                   technique recorded, folds even when it is the only one,
+                   and is greyed out. -->
+              {@const foldable = isCollapsible || ref.off}
+              {@const expanded = !foldable || expandedRefs.has(i)}
               <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
               <div
                 class="tip-ref-box"
-                class:tip-ref-btn={isCollapsible}
-                on:click={isCollapsible ? () => toggleRefExpand(i) : null}
-                title={isCollapsible ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
+                class:tip-ref-btn={foldable}
+                class:tip-ref-off={ref.off}
+                on:click={foldable ? () => toggleRefExpand(i) : null}
+                title={ref.off === 'other'
+                  ? `Measured by ${spectroscopy === 'raman' ? 'infrared' : 'Raman'}, not the spectroscopy the chart shows. Click to ${expanded ? 'collapse' : 'expand'}`
+                  : ref.off === 'unknown'
+                    ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <button
                   class="tip-ref-goto-btn"
@@ -897,7 +973,7 @@
                 >↗</button>
                 <div class="tip-ref-title">
                   {ref.short}
-                  {#if isCollapsible}
+                  {#if foldable}
                     <span class="tip-ref-chevron" class:open={expanded}>▸</span>
                   {/if}
                 </div>
@@ -1152,6 +1228,14 @@
     transition: transform 0.15s;
   }
   .tip-ref-chevron.open { transform: rotate(90deg); }
+
+  /* A claim from the other spectroscopy, or with no technique: greyed out,
+     folded until clicked. */
+  .tip-ref-off {
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+  .tip-ref-off:hover { opacity: 0.8; }
 
   .tip-ref-title {
     font-size: var(--t-tip-ref-title-size);

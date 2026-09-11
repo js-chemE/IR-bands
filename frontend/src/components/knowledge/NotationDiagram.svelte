@@ -144,8 +144,8 @@
 >
   {#if kind === 'labels'}
     <g style="opacity:{labelOpacity}">
-      <text class="lbl name" x="14" y="16">Six motions of a CH₂ group</text>
-      <text class="lbl name" x="14" y="218">Two more of a CH₃ group</text>
+      <text class="lbl name" x="14" y="16">Six Motions of a CH₂ Group</text>
+      <text class="lbl name" x="14" y="218">Two More of a CH₃ Group</text>
     </g>
     {#each glyphs as g (g.m)}
       <!-- The methyl is seen from higher up, so its front hydrogen clears the carbon. -->
@@ -165,7 +165,7 @@
 
     <!-- ── The anatomy of one label ── -->
     <g style="opacity:{labelOpacity}">
-      <text class="lbl name" x="14" y="346">One label, taken apart</text>
+      <text class="lbl name" x="14" y="346">One Label, Taken Apart</text>
       {#each PARTS as p, i}
         <text class="big" class:lit={litPart === i} x={p.x} y="388" text-anchor="middle">{p.text}</text>
         <path class="bracket" class:lit={litPart === i} d="M {p.x - p.w / 2} 398 v 5 h {p.w} v -5" />
@@ -176,7 +176,7 @@
   {:else}
     <!-- ── H₂O: numbered by symmetry, then by wavenumber ── -->
     <g style="opacity:{labelOpacity}">
-      <text class="lbl name" x="14" y="16">H₂O: by symmetry, then by wavenumber</text>
+      <text class="lbl name" x="14" y="16">H₂O: By Symmetry, Then by Wavenumber</text>
     </g>
     {#each water as m (m.id)}
       <MiniMolecule atoms={pose(WATER, m.id, swing, 4)} bonds={WATER.bonds} x={m.x} y={m.y} k={m.k} />
@@ -211,7 +211,7 @@
       {/each}
     </g>
     <g style="opacity:{labelOpacity}">
-      <text class="lbl name" x="14" y="244">CO₂: the bend is always ν₂</text>
+      <text class="lbl name" x="14" y="244">CO₂: The Bend Is Always ν₂</text>
       {#each CO2_MODES as m, i (m.id)}
         <text class="lbl strong" x={72 + 116 * i} y="308" text-anchor="middle">{m.num}<tspan dx="8">{m.sp[0]}</tspan><tspan class="sub" dy="3">{m.sp[1]}</tspan><tspan dy="-3">{m.sp[2]}</tspan></text>
         <text class="lbl faint" x={72 + 116 * i} y="326" text-anchor="middle">{m.local}</text>

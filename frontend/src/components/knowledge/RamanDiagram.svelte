@@ -52,7 +52,7 @@
   };
   const XF = (shift: number) => F.x0 + ((shift + F.range) / (2 * F.range)) * (F.x1 - F.x0);
   const FULL_CX: Record<Kind, number> = { A: XF(-SHIFT), R: XF(0), S: XF(SHIFT) };
-  const LABEL: Record<Kind, string> = { A: 'anti-Stokes', R: 'Rayleigh', S: 'Stokes' };
+  const LABEL: Record<Kind, string> = { A: 'Anti-Stokes', R: 'Rayleigh', S: 'Stokes' };
   /** Where each process starts and ends on the ladder. */
   const FROM: Record<Kind, 'v0' | 'v1'> = { A: 'v1', R: 'v0', S: 'v0' };
   const TO: Record<Kind, 'v0' | 'v1'> = { A: 'v0', R: 'v0', S: 'v1' };
@@ -395,7 +395,7 @@
     {/if}
   </g>
   <g style="opacity:{labelOpacity}">
-    <text class="lbl ax-title" transform="translate({F.x0 - 24} {(F.plotTop + F.axis) / 2}) rotate(-90)" text-anchor="middle">counts</text>
+    <text class="lbl ax-title" transform="translate({F.x0 - 24} {(F.plotTop + F.axis) / 2}) rotate(-90)" text-anchor="middle">intensity / counts</text>
     <text class="lbl" x={XF(-SHIFT)} y={F.axis + 16} text-anchor="middle">−{SHIFT}</text>
     <text class="lbl" x={XF(0)} y={F.axis + 16} text-anchor="middle">0</text>
     <text class="lbl" x={XF(SHIFT)} y={F.axis + 16} text-anchor="middle">{SHIFT}</text>

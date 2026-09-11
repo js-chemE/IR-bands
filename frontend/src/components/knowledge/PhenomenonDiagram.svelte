@@ -106,14 +106,6 @@
     stretch: 3 * vib * (1 - 0.2 * k),
   };
 
-  // Branches: a rotating molecule's single line opens into P and R.
-  $: rot = running ? 2 * Math.PI * 0.35 * time * k : 0.5;
-  $: branches = [
-    { x: 160, h: 46 * (1 - k), w: 2 },
-    { x: 138, h: 26 * k, w: 7 },
-    { x: 182, h: 26 * k, w: 7 },
-  ] as Peak[];
-
   // Overtone: the weak two-rung step, and its weak band at a bit under twice.
   $: combo = [
     { x: 182, h: 44, w: 3 },
@@ -188,20 +180,6 @@
       <text class="lbl faint" x="150" y="30" text-anchor="middle">¹⁶O</text>
       <text class="lbl" x="176" y="30" text-anchor="middle">¹⁸O</text>
       <text class="lbl faint" x="50" y="76" text-anchor="middle">heavier: lower wavenumber</text>
-    </g>
-  {:else if kind === 'branches'}
-    <g transform="rotate({(rot * 180) / Math.PI} 50 50)">
-      <line class="bond" x1="34" x2="66" y1="50" y2="50" />
-      <circle cx="34" cy="50" r="5.8" fill={C_FILL} />
-      <circle cx="66" cy="50" r="5.6" fill={O_FILL} />
-    </g>
-    <path class="rot-arc" d="M 30 72 A 24 10 0 0 0 70 72" style="opacity:{k}" />
-    <path class="trace" d={trace(branches)} />
-    <g style="opacity:{labelOpacity}">
-      <text class="lbl" x="182" y="52" text-anchor="middle">P</text>
-      <text class="lbl" x="138" y="52" text-anchor="middle">R</text>
-      <text class="lbl faint" x="50" y="90" text-anchor="middle">free to rotate</text>
-      <text class="lbl faint" x="160" y="30" text-anchor="middle">held still: one line</text>
     </g>
   {:else if kind === 'combination'}
     <line class="level" x1="18" x2="70" y1="88" y2="88" />
@@ -284,7 +262,6 @@
 
   .bond { stroke: var(--ink-slate-400); stroke-width: 2; }
   .surface { stroke: var(--line-slate-strong); stroke-width: 1.2; }
-  .rot-arc { fill: none; stroke: var(--ink-slate-400); stroke-width: 1; stroke-dasharray: 3 2; }
   .motion { fill: none; stroke: var(--ink-slate-500); stroke-width: 1; stroke-linecap: round; }
   .motion-dot { fill: var(--ink-slate-500); }
   .cation { fill: var(--surface); stroke: var(--charge-positive); stroke-width: 1.2; }

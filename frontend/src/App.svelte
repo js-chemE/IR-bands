@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations } from './lib/types';
-  import { AXES } from './lib/units';
-  import { getLegendCategories, getLegendTags } from './lib/chart';
+  import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
+  import { AXES, DEFAULT_LASER_WN } from './lib/units';
+  import { getLegendCategories, getLegendTags, isReferenced } from './lib/chart';
   import { installLookups } from './lib/labels';
   import { GROUP_DIMS, type GroupDim } from './lib/refGrouping';
   import BandChart from './components/BandChart.svelte';
@@ -10,6 +10,9 @@
   import ColorLegend from './components/ColorLegend.svelte';
   import TagLegend from './components/TagLegend.svelte';
   import AxisSelect from './components/AxisSelect.svelte';
+  import SpectroscopySwitch from './components/SpectroscopySwitch.svelte';
+  import LookPill from './components/LookPill.svelte';
+  import Dropdown from './components/Dropdown.svelte';
   import ReferencesPage from './components/ReferencesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
@@ -72,9 +75,6 @@
     else sgActive = id;
   }
 
-  function handleDmViewChange(e: Event) {
-    setDmView((e.currentTarget as HTMLSelectElement).value as DmView);
-  }
 
   function setDmView(next: DmView) {
     dmView = next;
@@ -160,9 +160,11 @@
     hiddenCats = new Set();
   }
 
-  function handleColorDimChange(e: Event) {
-    setColorDim((e.currentTarget as HTMLSelectElement).value as ColorDim);
-  }
+  // The sidebar's dropdowns hand back plain strings; these narrow them.
+  const pickColorDim = (v: string) => setColorDim(v as ColorDim);
+  const pickDmView = (v: string) => setDmView(v as DmView);
+  const asGroupDim = (v: string) => v as GroupDim;
+
 
   function handleCatToggle(e: CustomEvent<{ cat: string; visible: boolean }>) {
     const next = new Set(hiddenCats);
@@ -216,9 +218,22 @@
   }
 
   function handleAxisChange(e: CustomEvent<{ property: AxisProperty; unit: string }>) {
+    // A new quantity opens the way it is usually drawn: wavenumber reversed.
+    if (e.detail.property !== axisProperty) axisReversed = AXES[e.detail.property].reversed;
     axisProperty = e.detail.property;
     axisUnit = e.detail.unit;
   }
+  let axisReversed = AXES.wavenumber.reversed;
+
+  // IR or Raman: which technique's silent bands the chart fades.
+  let spectroscopy: Spectroscopy = 'ir';
+
+  // The shift: any x axis read from a zero (a laser, say) instead of from
+  // nothing. The zero is an absolute wavenumber in cm⁻¹, or null while none
+  // is entered (then 532 nm is assumed).
+  let shiftOn = false;
+  let laserWn: number | null = null;
+  $: shiftZero = shiftOn ? (laserWn ?? DEFAULT_LASER_WN) : null;
 
   function handleHomeNavigate(e: CustomEvent<{ page: string }>) {
     page = e.detail.page as Page;
@@ -289,7 +304,6 @@
     { dim: 'group',      label: 'Group' },
     { dim: 'vibration',  label: 'Vibration' },
     { dim: 'atoms',      label: 'Atoms' },
-    { dim: 'references', label: 'References' },
   ];
 
   $: legendCats = dataset
@@ -306,14 +320,44 @@
   // crowding in whichever region a deuteration study covered.
   let showIsotopes = false;
 
+  // The bands the chosen spectroscopy cannot see: in the chart, hollow, by
+  // default; switched off they leave it the way the isotopologues do.
+  let showInactive = true;
+  // Bands none of whose claims stands in the chosen spectroscopy (greyed-out
+  // references only): in the chart, faded, by default; off, they leave it.
+  let showUnreferenced = true;
+  // Whether those two kinds are drawn in their own look (hollow, faded) or
+  // like any other band: the Color by pills. A look, not a filter.
+  let lookInactive = true;
+  let lookUnreferenced = true;
+  $: techniqueLabel = spectroscopy === 'raman' ? 'Raman' : 'IR';
+  $: inactiveTag = spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive';
+  // The other technique's tag is not shown, so an isolate on it would leave
+  // an empty chart with no chip to undo it from.
+  $: if (tagIsolate === (spectroscopy === 'raman' ? 'ir-inactive' : 'raman-inactive')) tagIsolate = null;
+
+  // A set can also restrict phases (the gas-only one drops the adsorbed
+  // bands of CO₂ and methanol). It applies while the selection is exactly
+  // that set, the same match the filter uses to show the set as chosen.
+  $: activePhases = (() => {
+    if (!dataset?.sets) return null;
+    for (const s of Object.values(dataset.sets)) {
+      if (!s.phases?.length) continue;
+      if (s.groups.length === enabledGroups.size && s.groups.every(g => enabledGroups.has(g))) return s.phases;
+    }
+    return null;
+  })();
   $: chartBands = dataset
     ? (showIsotopes ? dataset.bands : dataset.bands.filter(b => !b.isotopologue_of))
+        .filter(b => !activePhases || !b.phase || activePhases.includes(b.phase))
+        .filter(b => showInactive || !b.tags.includes(inactiveTag))
+        .filter(b => showUnreferenced || isReferenced(b, spectroscopy))
     : [];
 
   // Passed the live filters so a tag whose bands are all hidden by another
   // filter greys out too, rather than looking available when it is not.
   $: legendTags = dataset
-    ? getLegendTags(chartBands, enabledGroups, { hiddenCats, colorDim, hiddenTags, tagIsolate })
+    ? getLegendTags(chartBands, enabledGroups, { hiddenCats, colorDim, hiddenTags, tagIsolate, spectroscopy })
     : [];
 
   $: sortedGroupKeys = (() => {
@@ -427,20 +471,52 @@
 
         <!-- Page-specific sidebar controls -->
         {#if page === 'chart'}
+          <SpectroscopySwitch value={spectroscopy} on:change={e => (spectroscopy = e.detail.value)} />
+
+          <hr class="divider" />
+
           <section>
             <h3>Color by</h3>
-            <select value={colorDim} on:change={handleColorDimChange}>
-              <option value="group">Group</option>
-              <option value="vibration">Vibration</option>
-              <option value="atoms">Atoms</option>
-              <option value="references">References</option>
-            </select>
+            <Dropdown
+              value={colorDim}
+              options={COLOR_DIM_OPTIONS.map(o => ({ value: o.dim, label: o.label }))}
+              label="Color by"
+              on:change={e => pickColorDim(e.detail.value)}
+            />
+            <!-- The look of two kinds of band, whatever the colour: off, they
+                 are drawn like any other. Enable & Disable below filters them. -->
+            <div class="look-pills">
+              <LookPill
+                look="hollow"
+                on={lookInactive}
+                title={lookInactive
+                  ? `${techniqueLabel}-inactive bands are drawn hollow. Click to draw them like any other band`
+                  : `Draw the ${techniqueLabel}-inactive bands hollow`}
+                on:toggle={e => (lookInactive = e.detail.on)}
+              >{techniqueLabel}-inactive</LookPill>
+              <LookPill
+                look="faded"
+                on={lookUnreferenced}
+                title={lookUnreferenced
+                  ? `Bands with no ${techniqueLabel} reference are drawn faded. Click to draw them like any other band`
+                  : `Draw the bands with no ${techniqueLabel} reference faded`}
+                on:toggle={e => (lookUnreferenced = e.detail.on)}
+              >unreferenced</LookPill>
+            </div>
           </section>
+
+          <hr class="divider" />
 
           <AxisSelect
             {axisProperty}
             {axisUnit}
+            {shiftOn}
+            {laserWn}
+            reversed={axisReversed}
             on:axisChange={handleAxisChange}
+            on:reverseToggle={e => (axisReversed = e.detail.on)}
+            on:shiftToggle={e => (shiftOn = e.detail.on)}
+            on:laserChange={e => (laserWn = e.detail.wn)}
           />
 
           <hr class="divider" />
@@ -451,9 +527,14 @@
             sortedKeys={sortedGroupKeys}
             {enabledGroups}
             {showIsotopes}
+            {showInactive}
+            {showUnreferenced}
+            {spectroscopy}
             on:groupToggle={handleGroupToggle}
             on:setSelect={handleSetSelect}
             on:isotopeToggle={e => showIsotopes = e.detail.enabled}
+            on:inactiveToggle={e => showInactive = e.detail.enabled}
+            on:unreferencedToggle={e => showUnreferenced = e.detail.enabled}
           />
 
         {:else if page === 'styleguide'}
@@ -485,10 +566,12 @@
         {:else if page === 'datamodel'}
           <section>
             <h3>View</h3>
-            <select value={dmView} on:change={handleDmViewChange}>
-              <option value="structure">Structure</option>
-              <option value="contents">Contents</option>
-            </select>
+            <Dropdown
+              value={dmView}
+              options={[{ value: 'structure', label: 'Structure' }, { value: 'contents', label: 'Contents' }]}
+              label="View"
+              on:change={e => pickDmView(e.detail.value)}
+            />
           </section>
 
           <h3 class="toc-head">Contents</h3>
@@ -519,20 +602,22 @@
         {:else if page === 'references'}
           <section>
             <h3>Group by</h3>
-            <select bind:value={refGroupBy}>
-              {#each GROUP_DIMS as d}
-                <option value={d.key} title={d.hint}>{d.label}</option>
-              {/each}
-            </select>
+            <Dropdown
+              value={refGroupBy}
+              options={GROUP_DIMS.map(d => ({ value: d.key, label: d.label, title: d.hint }))}
+              label="Group by"
+              on:change={e => (refGroupBy = asGroupDim(e.detail.value))}
+            />
           </section>
 
           <section>
             <h3>Then by</h3>
-            <select bind:value={refThenBy}>
-              {#each GROUP_DIMS.filter(d => d.key !== refGroupBy) as d}
-                <option value={d.key} title={d.hint}>{d.label}</option>
-              {/each}
-            </select>
+            <Dropdown
+              value={refThenBy}
+              options={GROUP_DIMS.filter(d => d.key !== refGroupBy).map(d => ({ value: d.key, label: d.label, title: d.hint }))}
+              label="Then by"
+              on:change={e => (refThenBy = asGroupDim(e.detail.value))}
+            />
           </section>
 
           <!-- What lists its papers here: the bands, the modes, the Knowledge cards. -->
@@ -580,6 +665,10 @@
             {tagIsolate}
             {axisProperty}
             {axisUnit}
+            {shiftZero}
+            reversed={axisReversed}
+            {spectroscopy}
+            looks={{ inactive: lookInactive, unreferenced: lookUnreferenced }}
             hoveredCat={legendHoveredCat}
             hoveredTag={legendHoveredTag}
             {focusBand}
@@ -892,6 +981,13 @@
     white-space: nowrap;
   }
   .sidebar-toggle:hover { background: var(--surface-hover); color: var(--ink-700); }
+
+  .look-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
 
   .sidebar :global(h3) {
     margin: 0 0 8px 0;

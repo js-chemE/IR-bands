@@ -157,6 +157,7 @@ def load_dataset(path: str | Path, validate: bool = True) -> Dataset:
             label=v["label"],
             groups=list(v.get("groups", [])),
             note=v.get("note", ""),
+            phases=list(v.get("phases", [])),
         )
         for k, v in raw.get("sets", {}).items()
     }
@@ -279,6 +280,9 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                 errors.append(f"Set {gs.key}: group {gk!r} not in groups table")
         if not gs.groups:
             errors.append(f"Set {gs.key}: names no groups")
+        for ph in gs.phases:
+            if ph not in VALID_PHASES:
+                errors.append(f"Set {gs.key}: phase {ph!r} is not one of {sorted(VALID_PHASES)}")
 
     # 3. based_on cross-references resolve (band_id or branch_group)
     branch_group_set = {b.branch_group for b in dataset.bands if b.branch_group}
