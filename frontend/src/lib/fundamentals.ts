@@ -40,7 +40,7 @@ export type Block = string | Formula;
 export type KnowledgeSection = 'basics' | 'spectroscopy';
 
 export const KNOWLEDGE_SECTIONS: { key: KnowledgeSection; label: string }[] = [
-  { key: 'basics', label: 'Basics' },
+  { key: 'basics', label: 'Light–matter interaction' },
   { key: 'spectroscopy', label: 'Spectroscopy' },
 ];
 
@@ -306,7 +306,7 @@ export const FUNDAMENTALS: Fundamental[] = [
         lines: ['Raman-active ⇒ IR-inactive', 'IR-active ⇒ Raman-inactive'],
         note: 'A mode can still be neither. Without a centre of symmetry a mode can be both [@busca, p. 5].',
       },
-      'That is the mutual exclusion rule. Group theory shows that for a species with a centre of symmetry, Raman-active modes are IR-inactive and the reverse [@busca, p. 5]. Some modes are active in neither, and without a centre of symmetry a mode can be active in both [@busca, pp. 5–6], so a band at the same wavenumber in both spectra rules a centre of symmetry out. In most cases the two techniques are therefore complementary [@busca, p. 5].',
+      'That is the mutual exclusion rule. Group theory shows that for a species with a centre of symmetry, Raman-active modes are IR-inactive and the reverse [@busca, p. 5]. Some modes are active in neither, and without a centre of symmetry a mode can be active in both [@busca, pp. 5–6], so a band at the same wavenumber in both spectra rules a centre of symmetry out. In most cases the two techniques are therefore complementary [@busca, p. 5]. The bottom row of the diagram freezes each mode at its two extremes: the symmetric stretch gives two different shapes, both still symmetric, so α differs while μ stays zero; the asymmetric stretch and the bend give mirror images, so the dipole arrow flips while α cannot change.',
       'The symmetric stretch appears in Raman not as one line but as two, at 1388 and 1285 cm⁻¹. It sits so close to the first overtone of the bend that the two mix and share the intensity: a Fermi resonance, recorded in the atlas as a partner pair.',
       'On a surface the rules shift. An adsorbed, bent CO₂ has lost its centre of symmetry, so the symmetric stretch can turn up weakly in the IR near 1380 cm⁻¹, which is one reason that band carries a misassignment warning in the atlas. On a metal the surface dipole selection rule applies on top [@trenary, p. 54].',
     ],

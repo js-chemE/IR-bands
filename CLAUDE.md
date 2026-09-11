@@ -50,8 +50,12 @@ frontend/src/
     Sidebar.svelte           ← the chart's filter: a set, then the groups
     ColorLegend.svelte       ← legend swatches for the active color dimension
     AxisSelect.svelte        ← x-axis property and unit selectors
-    KnowledgePage.svelte     ← the phenomena (Fermi, isotopic shift, branches …),
-                              each resolving to the bands that show it
+    KnowledgePage.svelte     ← cards in rows: Light–matter interaction and Spectroscopy
+                              (fundamentals.ts), then Band patterns (phenomena.ts), in
+                              three rows: more bands than modes, fewer, bands that move
+    knowledge/               ← one diagram per card (PhenomenonDiagram draws all the
+                              Band patterns ones), AtlasExamples (the "in the atlas" box),
+                              CiteText, Subbed
     ReferencesPage.svelte    ← cited bands, grouped by any two of
                               reference / group / site / sample / element
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
@@ -73,8 +77,10 @@ frontend/src/
                               each fact belongs in, and what to re-check on a second pass
     refGrouping.ts        ← the References page's two-level grouping dimensions
     phenomena.ts          ← the Knowledge page's phenomena: prose slots (empty for now)
-                              plus resolvers that find the bands showing each one
-    fundamentals.ts       ← the Knowledge page's Basics cards: teaser, full text (paragraphs
+                              plus resolvers that find the bands showing each one. `group`
+                              puts one in a Band patterns row; `into` hosts it inside a
+                              fundamentals card instead (IR-inactive → Selection rules)
+    fundamentals.ts       ← the Knowledge page's fundamentals cards: teaser, full text (paragraphs
                               and formula boxes), links to the phenomena; diagrams in
                               components/knowledge/. The text follows the Springer Handbook
                               of Advanced Catalyst Characterization, cited per chapter
@@ -265,11 +271,14 @@ carries the corrected spelling.
 Four destinations, plus the Impressum and the two guides behind it (style
 guide, source guide):
 
-- **Knowledge** (green) — what the spectra mean. One section per phenomenon; the
-  explanations are authored in `lib/phenomena.ts` and are **deliberately empty
-  for now**, while the examples under each are resolved live from the link
-  fields, so every section already points at real bands and the papers behind
-  them. Fill in `what` and `spotting` (and add a diagram) to finish a section.
+- **Knowledge** (green): what the spectra mean, as cards that open in place.
+  Two parts of fundamentals (Light–matter interaction, Spectroscopy), then Band
+  patterns, one card per phenomenon. The phenomenon explanations in
+  `lib/phenomena.ts` are **deliberately empty for now**, while the "in the
+  atlas" box under each is resolved live from the link fields, so every card
+  already points at real bands and the papers behind them. Fill in `what` and
+  `spotting` to finish a card. In the sidebar a part heading scrolls to the
+  part; a card name scrolls to that card and opens it.
 - **Band chart** (blue) — the spectral map.
 - **References** (amber) — the literature.
 - **Dataset** (red) — everything the atlas holds *and* how it is put together,
