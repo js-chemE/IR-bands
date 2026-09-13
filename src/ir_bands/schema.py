@@ -59,6 +59,19 @@ VALID_TECHNIQUES = {
     "ftir", "raman", "computational",
 }
 
+# What was actually in the beam for one claim. Distinct from Band.phase above,
+# which says what the band IS (a free molecule, an adsorbate, the surface
+# itself) and is a property of the mode wherever it appears. This says how the
+# sample was held for this one measurement, and it moves the number: the same
+# O-H stretch is 3687 cm-1 as a vapour, ~3300 as a hydrogen-bonded liquid and
+# 3690 isolated in solid neon. Recording it is what stops three such rows
+# looking like a disagreement when they are three different experiments.
+#
+# "matrix" is a solid, but the molecule in it is isolated and unrotating, so it
+# is kept apart from "solid", which means the bulk substance itself.
+SampleState = Literal["gas", "liquid", "matrix", "solid", "adsorbed"]
+VALID_STATES = {"gas", "liquid", "matrix", "solid", "adsorbed"}
+
 # How specific a surface is. "Where was this measured" has a scale rather than
 # a single answer: the same titania is the sample when it is measured bare and
 # the phase when it is the support in Pt/TiO2, so the level lives on the record
@@ -259,6 +272,12 @@ class Reference:
     # One or more keys into surfaces.jsonc, at whatever level the paper stated.
     measured_on: Optional[Union[str, list[str]]] = None
     technique: Optional[Technique] = None
+    # Excitation wavelength in nm, for a Raman claim. The tag chip ("514.5 nm",
+    # in the colour of that light) is derived from it by tag_lasers().
+    laser_nm: Optional[float] = None
+    # What was in the beam: gas | liquid | matrix | solid | adsorbed. Derives a
+    # tag of the same name. See SampleState above for why this is not Band.phase.
+    state: Optional[SampleState] = None
     note: Optional[str] = None
     tags: list[str] = field(default_factory=list)
 
@@ -271,6 +290,14 @@ class Reference:
         if self.technique is not None and self.technique not in VALID_TECHNIQUES:
             raise ValueError(
                 f"reference {self.key}: technique={self.technique!r} not in {VALID_TECHNIQUES}"
+            )
+        if self.state is not None and self.state not in VALID_STATES:
+            raise ValueError(
+                f"reference {self.key}: state={self.state!r} not in {VALID_STATES}"
+            )
+        if self.laser_nm is not None and not (0 < float(self.laser_nm) < 100000):
+            raise ValueError(
+                f"reference {self.key}: laser_nm={self.laser_nm!r} is not a wavelength in nm"
             )
 
 

@@ -102,7 +102,7 @@
   };
   $: vx = (v: number) => curve.x0 + (v / VMAX) * (curve.x1 - curve.x0);
   $: vy = (v: number) => curve.base - (curve.h * maxwell(v)) / PEAK;
-  $: curvePath = 'M' + Array.from({ length: 76 }, (_, i) => (i / 75) * VMAX)
+  $: curvePath = 'M' + Array.from({ length: 301 }, (_, i) => (i / 300) * VMAX)
     .map(v => `${vx(v).toFixed(1)},${vy(v).toFixed(1)}`)
     .join(' L');
 

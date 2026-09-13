@@ -6,11 +6,38 @@ import {
   TAG_STYLES,
   DEFAULT_TAG_STYLE,
 } from './tokens';
+import { laserTagNm } from './dataModel';
+import { lightTint } from './lightColor';
 
 // Palettes and tag styles live in tokens.ts (the single source of truth for
 // every colour in the atlas) and are re-exported here so existing imports of
 // `./colors` keep working. Edit the values there, not here.
 export { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES, DEFAULT_TAG_STYLE };
+
+export interface TagStyle {
+  background: string;
+  border: string;
+  color: string;
+}
+
+/**
+ * The pill style for any tag, including the one no table can hold.
+ *
+ * A Raman excitation wavelength ("514.5 nm") is a number rather than a member
+ * of a vocabulary, so it can have no TAG_STYLES entry. It is coloured from the
+ * light itself instead (lib/lightColor.ts), washed out into the same pale
+ * fill / mid border / dark text every other pill uses, so a green line reads
+ * as green without shouting over the tags beside it. Everything else comes
+ * from the table, and anything unknown falls back to the neutral grey.
+ *
+ * Use this rather than indexing TAG_STYLES directly wherever the tag comes
+ * from the data, or a wavelength chip renders grey.
+ */
+export function tagStyle(tag: string): TagStyle {
+  const nm = laserTagNm(tag);
+  if (nm !== null) return lightTint(nm);
+  return TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE;
+}
 
 const GREY = C['data-grey'];
 

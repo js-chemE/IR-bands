@@ -14,7 +14,7 @@
    */
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { RAMAN_LASERS, DEFAULT_LASER_WN, formatLaser, unitToLaser } from '../lib/units';
-  import { lightColor } from '../lib/lightColor';
+  import { lightTint } from '../lib/lightColor';
   import { floatAt, type Float } from '../lib/floating';
 
   /** The zero, an absolute wavenumber in cm⁻¹, or null for none. */
@@ -32,7 +32,7 @@
 
   $: shown = draft ?? (laserWn === null ? '' : formatLaser(laserWn, unit));
   $: placeholder = formatLaser(DEFAULT_LASER_WN, unit);
-  $: color = laserWn === null ? null : lightColor(1e7 / laserWn);
+  $: color = laserWn === null ? null : lightTint(1e7 / laserWn);
   const isPicked = (nm: number) => laserWn !== null && Math.abs(1e7 / laserWn - nm) < 0.05;
 
   function show() {
@@ -79,8 +79,7 @@
   class:open
   class:above={open && place.above}
   class:lit={color !== null}
-  class:on-dark={color?.text === 'light'}
-  style={color ? `--zero-bg:${color.bg}` : ''}
+  style={color ? `--zero-bg:${color.background}; --zero-line:${color.border}; --zero-fg:${color.color}` : ''}
   bind:this={wrap}
 >
   <input
@@ -113,15 +112,14 @@
 {#if open}
   <ul class="zf-menu" class:above={place.above} role="listbox" aria-label="Common Raman lasers" style={place.style} bind:this={menu}>
     {#each RAMAN_LASERS as l (l.nm)}
-      {@const c = lightColor(l.nm)}
+      {@const c = lightTint(l.nm)}
       <!-- mousedown, so the pick lands before the field's blur closes the list. -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <li
         role="option"
         aria-selected={isPicked(l.nm)}
         class:sel={isPicked(l.nm)}
-        class:on-dark={c.text === 'light'}
-        style="background:{c.bg}"
+        style="background:{c.background}; border-color:{c.border}; color:{c.color}"
         on:mousedown|preventDefault={() => pick(l.nm)}
       >
         <span class="zf-val">{formatLaser(1e7 / l.nm, unit)} {unit}</span>
@@ -158,9 +156,14 @@
   .zf:not(.lit) .zf-input:hover { background: var(--surface-hover); }
   .zf-input:focus { outline: none; }
 
-  /* Set: the field in the colour of the light, its text readable on it. */
-  .zf.lit .zf-input { border-color: transparent; font-weight: var(--t-label-weight); }
-  .zf.on-dark .zf-input { color: var(--surface); }
+  /* Set: the field washed with the colour of the light, in the same pale
+     fill / mid border / dark text the tag pills use, so the sidebar stays as
+     quiet as the rest of the interface. */
+  .zf.lit .zf-input {
+    border-color: var(--zero-line);
+    color: var(--zero-fg);
+    font-weight: var(--t-label-weight);
+  }
 
   .zf { --zf-bg: var(--zero-bg, var(--surface)); }
   .zf:not(.lit):hover { --zf-bg: var(--surface-hover); }
@@ -210,7 +213,6 @@
     cursor: pointer;
   }
   .zf-clear:hover { opacity: 1; }
-  .zf.on-dark .zf-clear { color: var(--surface); }
 
   /* Open: field and menu one panel, as with the dropdowns. */
   .zf.open .zf-input {
@@ -251,15 +253,14 @@
     align-items: baseline;
     gap: 8px;
     padding: 4px 8px;
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
     font-size: var(--t-nav-size);
-    color: var(--ink-900);
     cursor: pointer;
     transition: filter 0.12s;
   }
-  .zf-menu li.on-dark { color: var(--surface); }
-  .zf-menu li:hover { filter: brightness(1.12); }
-  .zf-menu li.sel { box-shadow: inset 0 0 0 2px var(--surface); }
+  .zf-menu li:hover { filter: brightness(0.97); }
+  .zf-menu li.sel { box-shadow: inset 0 0 0 2px currentColor; }
   .zf-val { font-weight: var(--t-label-weight); white-space: nowrap; }
   .zf-name { font-size: var(--t-code-size); opacity: 0.85; }
 </style>

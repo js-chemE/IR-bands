@@ -134,6 +134,21 @@
       "formula": "M-H*",
       "molecule": null,
       "note": "Metal hydride from heterolytic H₂ dissociation. Written metal-generic; the band names the element."
-    }
+    },
+
+    // ── Reference molecules ──
+    // These carry no bands and are not expected to: they exist so the
+    // vibration-modes page can show the selection rule in its simplest form.
+    // Seven homonuclear diatomics, every one of them infrared-silent because
+    // two identical atoms cannot build a dipole moment, and ammonia, where the
+    // lack of an inversion centre makes every mode active in both techniques.
+    "h2":  { "label": "H₂",  "formula": "H₂",  "molecule": "h2",  "note": "No bands in the atlas: here for the vibration-modes page, as the highest-frequency and simplest vibration there is." },
+    "n2":  { "label": "N₂",  "formula": "N₂",  "molecule": "n2",  "note": "No bands in the atlas: here for the vibration-modes page." },
+    "o2":  { "label": "O₂",  "formula": "O₂",  "molecule": "o2",  "note": "No bands in the atlas: here for the vibration-modes page." },
+    "f2":  { "label": "F₂",  "formula": "F₂",  "molecule": "f2",  "note": "No bands in the atlas: here for the vibration-modes page." },
+    "cl2": { "label": "Cl₂", "formula": "Cl₂", "molecule": "cl2", "note": "No bands in the atlas: here for the vibration-modes page." },
+    "br2": { "label": "Br₂", "formula": "Br₂", "molecule": "br2", "note": "No bands in the atlas: here for the vibration-modes page." },
+    "i2":  { "label": "I₂",  "formula": "I₂",  "molecule": "i2",  "note": "No bands in the atlas: here for the vibration-modes page." },
+    "nh3": { "label": "NH₃", "formula": "NH₃", "molecule": "nh3", "note": "No bands in the atlas: here for the vibration-modes page, as the counterpart to the diatomics where every mode is active in both techniques." }
   }
 }

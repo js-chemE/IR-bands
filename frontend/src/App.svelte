@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
-  import { getLegendCategories, getLegendTags, isReferenced } from './lib/chart';
+  import { getLegendCategories, getLegendTags, isCalculatedOnly, isReferenced } from './lib/chart';
   import { installLookups } from './lib/labels';
   import { GROUP_DIMS, type GroupDim } from './lib/refGrouping';
   import BandChart from './components/BandChart.svelte';
@@ -330,6 +330,10 @@
   // like any other band: the Color by pills. A look, not a filter.
   let lookInactive = true;
   let lookUnreferenced = true;
+  // Bands resting on a calculation alone: faded by default too, from a
+  // switch of their own, so "only hard measured proof" is askable.
+  let lookCalculated = true;
+  let showCalculated = true;
   $: techniqueLabel = spectroscopy === 'raman' ? 'Raman' : 'IR';
   $: inactiveTag = spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive';
   // The other technique's tag is not shown, so an isolate on it would leave
@@ -352,6 +356,7 @@
         .filter(b => !activePhases || !b.phase || activePhases.includes(b.phase))
         .filter(b => showInactive || !b.tags.includes(inactiveTag))
         .filter(b => showUnreferenced || isReferenced(b, spectroscopy))
+        .filter(b => showCalculated || !isCalculatedOnly(b))
     : [];
 
   // Passed the live filters so a tag whose bands are all hidden by another
@@ -502,6 +507,14 @@
                   : `Draw the bands with no ${techniqueLabel} reference faded`}
                 on:toggle={e => (lookUnreferenced = e.detail.on)}
               >unreferenced</LookPill>
+              <LookPill
+                look="faded"
+                on={lookCalculated}
+                title={lookCalculated
+                  ? 'Bands with nothing but a calculation behind them are drawn faded, and calculated claims are dimmed in the tooltip. Click to draw them like any other band'
+                  : 'Draw the bands with nothing but a calculation behind them faded, and dim the calculated claims'}
+                on:toggle={e => (lookCalculated = e.detail.on)}
+              >computational</LookPill>
             </div>
           </section>
 
@@ -529,12 +542,14 @@
             {showIsotopes}
             {showInactive}
             {showUnreferenced}
+            {showCalculated}
             {spectroscopy}
             on:groupToggle={handleGroupToggle}
             on:setSelect={handleSetSelect}
             on:isotopeToggle={e => showIsotopes = e.detail.enabled}
             on:inactiveToggle={e => showInactive = e.detail.enabled}
             on:unreferencedToggle={e => showUnreferenced = e.detail.enabled}
+            on:calculatedToggle={e => showCalculated = e.detail.enabled}
           />
 
         {:else if page === 'styleguide'}
@@ -668,7 +683,7 @@
             {shiftZero}
             reversed={axisReversed}
             {spectroscopy}
-            looks={{ inactive: lookInactive, unreferenced: lookUnreferenced }}
+            looks={{ inactive: lookInactive, unreferenced: lookUnreferenced, calculated: lookCalculated }}
             hoveredCat={legendHoveredCat}
             hoveredTag={legendHoveredTag}
             {focusBand}
@@ -716,7 +731,6 @@
           bind:this={knPage}
           openOnMount={knOpen}
           bands={dataset.bands}
-          groups={dataset.groups}
           {refs}
           {vibrations}
           on:active={e => knActive = e.detail.id}

@@ -37,6 +37,10 @@ export interface BandReference {
   // the sample gets both keys; one naming only the catalyst gets one.
   measured_on: string | string[] | null;
   technique: Technique | null;
+  /** Raman excitation wavelength in nm. Derives the coloured wavelength tag. */
+  laser_nm?: number | null;
+  /** What was in the beam for this claim. Derives a tag of the same name. */
+  state?: 'gas' | 'liquid' | 'matrix' | 'solid' | 'adsorbed' | null;
   note: string | null;
   tags: string[];
   // Computed by build.py: "<band id>::<citekey>", with an ordinal when one

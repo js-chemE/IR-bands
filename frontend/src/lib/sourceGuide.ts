@@ -82,6 +82,7 @@ export const GUIDE: GuideSection[] = [
         ['A peak position', 'references[].wn'],
         ['The surface the band was assigned to', 'references[].measured_on'],
         ['How the spectrum was taken', 'references[].technique'],
+        ['What state the sample was in', 'references[].state'],
         ['Temperature, pressure, feed, pretreatment', 'references[].note'],
         ['What the mode is, and what it is confused with', 'band.description'],
         ['How strong, how broad, how certain', 'band.intensity / width / confidence'],
@@ -355,11 +356,38 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['computational', 'Not a measurement: a calculated frequency'],
       ],
     },
+    rules: [
+      'Every claim also gets a `state`: what was actually in the beam, one of `gas`, `liquid`, ' +
+      '`matrix`, `solid` or `adsorbed`. This is not the band’s own `phase`, which says what the ' +
+      'band is wherever it appears; this says how this one sample was held, and it moves the ' +
+      'number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the ' +
+      'liquid and 3690 isolated in solid neon. Without the field those three rows read as a ' +
+      'disagreement instead of three different experiments.',
+      '`matrix` is a solid, but the molecule in it is isolated and not rotating, so it stays apart ' +
+      'from `solid`, which means the bulk substance itself. A matrix value is close to the free ' +
+      'molecule and still host-dependent: neon and argon disagree with each other by up to 20 cm⁻¹.',
+      'Where a paper reports several states for the same mode, each is its own claim with its own ' +
+      'state, never one row carrying the lowest number. Where one measurement genuinely spans ' +
+      'states, as a supercritical sweep does, leave the field out and say so in the note rather ' +
+      'than picking whichever state it was in longest.',
+      'A Raman claim also gets `laser_nm`, the excitation wavelength the paper states, as a plain ' +
+      'number in nm: `"laser_nm": 514.5`. The build turns it into a chip of its own, coloured with ' +
+      'the colour of that light, because the line decides what the measurement could see. A ' +
+      'near-infrared 785 nm laser reaches further into a bulk oxide than a 244 nm one and avoids ' +
+      'fluorescence a green line would provoke, so two Raman rows that disagree may simply have ' +
+      'been looking at different depths.',
+      'Write it only where the paper names the line. "Argon ion laser" without a wavelength is not ' +
+      'a wavelength: argon has several lines, and 514.5 is a guess however likely. Leave the field ' +
+      'out and say what the paper said in the note.',
+    ],
     never: [
       'Never guess the geometry from the catalyst. Write `ftir` when the paper names only the ' +
       'instrument, and leave the field out when it says nothing at all: the Dataset page counts ' +
       'both, and either is honest where a guess is not.',
-      'Never author the matching tag by hand. The build writes it.',
+      'Never author the matching tag by hand. The build writes it, both the technique chip and ' +
+      'the wavelength one.',
+      'Never put `laser_nm` on a claim that is not Raman. An infrared measurement has no ' +
+      'excitation line, and the build warns about it.',
     ],
   },
   {
@@ -423,9 +451,11 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'A rotational branch goes last, in brackets: `(R)`, `(Q)`, `(P)`. A combination or difference ' +
       'band is written as the arithmetic on the fundamentals it is built from: `νₛ+δ(OCO) CO₂`, ' +
       '`νₐₛ−νₛ(OCO) upper CO₂`.',
-      'Where a molecule has two modes of the same kind, add the spectroscopist index as a ' +
-      'disambiguator rather than inventing a letter: methanol has two symmetric methyl stretches, ' +
-      'so one is `νₛ(CH₃) ν₂ MeOH`. An invented "(a)" tells the reader nothing.',
+      'Where a molecule has two modes of the same kind, name what separates them. Methanol has ' +
+      'two symmetric-species methyl stretches: one rides on the hydrogen lying in the C-O-H ' +
+      'plane and the other on the out-of-plane pair, so they are `ν(CH) in-plane MeOH` and ' +
+      '`νₛ(CH₃) MeOH`. Borrow the spectroscopist index only where the two motions genuinely ' +
+      'share a description; an invented "(a)" tells the reader nothing either way.',
       'One notation per species. Mixing νₛ and ν₁ across the bands of one molecule makes two ' +
       'labels look like two different modes.',
     ],
@@ -558,10 +588,20 @@ short             δₛ(CH₃) umbrella MeOH`,
         ['rotational-branches', 'band.branch_group'],
         ['isotope', 'band.isotopologue_of'],
         ['ir-active, raman-active', 'the mode’s own booleans'],
+        ['514.5 nm, 785 nm, …', 'references[].laser_nm'],
+        ['computational (on a band)', 'every claim on it having that technique'],
       ],
     },
     rules: [
       'Author the evidence tags on the claim, where they belong: `direct-dosing`, `isotope-labeling`.',
+      '`direct-dosing` says the species was put on the surface rather than made there: formate from ' +
+      'formic acid, methoxy from methanol, instead of either growing out of CO₂ and H₂. It is a ' +
+      'statement about provenance and it is independent of the technique, so it sits on a ' +
+      'transmission claim and a DRIFTS one alike. It only means anything for a surface species: a ' +
+      'gas-phase band in a cell was dosed by definition and the tag would say nothing.',
+      'The tag is not a criticism. Dosing is how a reference spectrum gets made, and it is often ' +
+      'the cleanest assignment in the atlas. It matters because a dosed species is evidence that ' +
+      'the band belongs to that species, and not evidence that the species forms under reaction.',
       'Author the caveat tags on the **band**, not on the claim: `misassignment-warning` when the ' +
       'position is a known trap, `site-sensitive` when the position moves with the surface so a ' +
       'shift is not by itself a different species. Both describe where the band sits, which is true ' +

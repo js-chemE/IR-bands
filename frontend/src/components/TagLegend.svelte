@@ -11,6 +11,8 @@
   export let tagIsolate: string | null = null;
   // Tag -> short tooltip text, loaded from data/tags.jsonc. Optional: tags
   // without an entry just render without a tooltip (see that file's preamble).
+  import { generatedTagTip } from '../lib/dataModel';
+
   export let tagTips: Record<string, { tip: string }> = {};
 
   const dispatch = createEventDispatcher<{
@@ -50,7 +52,7 @@
     {#each tags as t, i (t.key)}
       {@const active = tagIsolate ? t.key === tagIsolate : !hiddenTags.has(t.key)}
       {@const visible = active && t.visibleCount > 0}
-      {@const tip = tagTips[t.key]?.tip}
+      {@const tip = tagTips[t.key]?.tip ?? generatedTagTip(t.key)}
       {@const counted = t.visibleCount === t.count
         ? `${t.count} band${t.count !== 1 ? 's' : ''}`
         : `${t.visibleCount} of ${t.count} bands shown`}

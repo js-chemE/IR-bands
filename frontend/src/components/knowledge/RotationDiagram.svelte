@@ -117,7 +117,7 @@
   height={H * scale}
   viewBox="0 0 {W} {H}"
   role="img"
-  aria-label="A free CO molecule turns about its centre of mass, on a ladder of rotational levels spread out by temperature; CO₂, CH₄ and H₂O turn differently because of their shapes"
+  aria-label="A free CO molecule turns about its centre of mass, on a manifold of rotational energy levels spread out by temperature; CO₂, CH₄ and H₂O turn differently because of their shapes"
 >
   <!-- ── Row 1: CO turning about its axes, and its ladder ── -->
   <Axes3D x={co.x} y={co.y} len={lerp(30, 44, t)} active={axis} rings still="x" labels={t > 0.5} />

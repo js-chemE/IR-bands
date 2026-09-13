@@ -10,12 +10,17 @@
    *              CO₂ (3N − 5 = 4), each running through its own motions;
    *              the two linear ones have one rotation fewer;
    *            the three kinds side by side: a grid of CO, H₂O and CO₂
-   *              each travelling, turning and vibrating (the vibration cell
-   *              stepping through the molecule's own modes), over a table of
-   *              what changes, how many, what pulls back, how far apart the
+   *              travelling, turning and vibrating, over a table of what
+   *              changes, how many, what pulls back, how far apart the
    *              levels are, how they are filled at 25 °C, how a spectrum
-   *              sees them, and what a surface does to them. The column of
-   *              the kind the top row is showing lights up.
+   *              sees them, and what a surface does to them.
+   *
+   * Both rows run off one cycle, and only the kind it is on moves: while
+   * the molecules travel, the rotation and vibration cells stand still, and
+   * the column that is moving is the one whose heading lights. The
+   * vibration steps then thin out as the molecules run out of modes, three
+   * moving, then two, then two, then CO₂ alone, which is the count the card
+   * is about acted out rather than stated.
    *
    * The molecules and their displacement vectors are the Vibration Modes
    * view's own (lib/moleculeGeometry.ts), so the two pages draw one motion.
@@ -99,24 +104,35 @@
   const PH = 1.8;
   const STEPS = 2 + Math.max(...MOLS.map(m => m.modes.length));
   $: step = running ? Math.floor(time / PH) % STEPS : -1;
+  /**
+   * What each molecule is doing this step. One clock for all three, so they
+   * travel and turn together; the cycle is as long as the molecule with the
+   * most vibrations (CO₂, four), and in a vibration step a molecule moves
+   * only if it has a mode left. CO runs out after the first, so the
+   * vibration steps show three molecules, then two, then two, then CO₂
+   * alone: the count the card is about, acted out.
+   */
   function cycle(m: (typeof MOLS)[number], step: number, time: number) {
     const u = step >= 0 ? (time % PH) / PH : 0;
     const mode = step >= 2 ? m.modes[step - 2] ?? null : null;
+    const travel = step === 0 ? 9 * Math.sin(2 * Math.PI * u) : 0;
+    const turnDeg = step === 1 ? 180 * (1 - Math.cos(Math.PI * u)) : 0;
+    const amp = mode ? Math.sin(2 * Math.PI * 2 * u) : 0;
     return {
       // -1 when resting, so no block lights.
       phase: step >= 2 && !mode ? -1 : step,
-      travel: step === 0 ? 9 * Math.sin(2 * Math.PI * u) : 0,
-      atoms: turnY(
-        pose(m.g, mode, mode ? Math.sin(2 * Math.PI * 2 * u) : 0, 4),
-        step === 1 ? 180 * (1 - Math.cos(Math.PI * u)) : 0,
-        m.pivot,
-      ),
+      travel,
+      mode,
+      // The bookkeeping row: one molecule doing whatever this step is.
+      atoms: turnY(pose(m.g, mode, amp, 4), turnDeg, m.pivot),
+      // The grid below keeps the three kinds apart, one per column, and
+      // only the column the cycle is on moves.
+      cellT: pose(m.g, null),
+      cellR: turnY(pose(m.g, null), turnDeg, m.pivot),
+      cellV: pose(m.g, mode, amp, 4),
     };
   }
   $: states = MOLS.map(m => cycle(m, step, time));
-
-  // The comparison's examples, all moving at once.
-  $: swing = running ? Math.sin(2 * Math.PI * 1.1 * time) : 0;
 
   /* ── The bookkeeping bars ── */
   // Three slots for travel, three for turning, four for vibrating, the same
@@ -223,8 +239,8 @@
     };
   }
 
-  // The vibration column steps through each molecule's own modes.
-  $: gridMode = (m: (typeof MOLS)[number]) => m.modes[Math.floor(time / PH) % m.modes.length];
+  /** At rest, the vibration cell's arrows show the molecule's first mode. */
+  const restMode = (m: (typeof MOLS)[number]) => m.modes[0];
 
   $: fullOpacity = ramp(t, 0.35, 0.85);
   $: labelOpacity = ramp(t, 0.75, 1);
@@ -277,30 +293,39 @@
   <g style="opacity:{fullOpacity}">
     {#each MOLS as m, r (m.key)}
       {@const y = GRID_Y + GRID_STEP * r}
-      <MiniMolecule atoms={pose(m.g, null)} bonds={m.g.bonds} x={COLS[0].x + 9 * swing} y={y} k={m.k * 0.9} />
-      <MiniMolecule atoms={turnY(pose(m.g, null), running ? 100 * time : 0, m.pivot)} bonds={m.g.bonds} x={COLS[1].x} y={y} k={m.k * 0.9} />
-      <MiniMolecule atoms={pose(m.g, gridMode(m), swing, 4)} bonds={m.g.bonds} x={COLS[2].x} y={y} k={m.k * 0.9} />
+      {@const s = states[r]}
+      <MiniMolecule atoms={s.cellT} bonds={m.g.bonds} x={COLS[0].x + s.travel} y={y} k={m.k * 0.9} />
+      <MiniMolecule atoms={s.cellR} bonds={m.g.bonds} x={COLS[1].x} y={y} k={m.k * 0.9} />
+      <MiniMolecule atoms={s.cellV} bonds={m.g.bonds} x={COLS[2].x} y={y} k={m.k * 0.9} />
     {/each}
     {#each TABLE as row, r}
       <line class="rule" x1="14" x2="470" y1={TABLE_Y - 13 + 18 * r} y2={TABLE_Y - 13 + 18 * r} />
     {/each}
 
-    <!-- Still: the arrows say what would move. -->
-    {#if !running}
-      {#each MOLS as m, r (m.key)}
-        {@const y = GRID_Y + GRID_STEP * r}
+    <!-- The arrows say what a cell would do. A cell that is doing it needs
+         no arrow, so each column keeps its own only while it is still. -->
+    {#each MOLS as m, r (m.key)}
+      {@const y = GRID_Y + GRID_STEP * r}
+      {@const s = states[r]}
+      {#if activeKind !== 'T'}
         <path class="hint" d="M {COLS[0].x - 13} {y + 15} H {COLS[0].x + 13}" />
         <path class="hint" d={head(COLS[0].x + 13, y + 15, 1, 0)} />
         <path class="hint" d={head(COLS[0].x - 13, y + 15, -1, 0)} />
+      {/if}
+      {#if activeKind !== 'R'}
         {@const ta = turnArrow(COLS[1].x, y - (m.key === 'water' ? 4 : 0))}
         <path class="hint" d={ta.d} />
         <path class="hint" d={ta.head} />
-        {#each vibArrows(m, gridMode(m), COLS[2].x, y, m.k * 0.9) as va}
+      {/if}
+      <!-- In a vibration step a molecule that has run out of modes is
+           resting, so it keeps its arrows while the others move. -->
+      {#if activeKind !== 'V' || !s.mode}
+        {#each vibArrows(m, s.mode ?? restMode(m), COLS[2].x, y, m.k * 0.9) as va}
           <line class="hint" x1={va.x1} y1={va.y1} x2={va.x2} y2={va.y2} />
           <path class="hint" d={va.head} />
         {/each}
-      {/each}
-    {/if}
+      {/if}
+    {/each}
   </g>
   <g style="opacity:{labelOpacity}">
     <text class="lbl name" x="14" y={TOP}>Three Kinds of Motion, Side by Side</text>

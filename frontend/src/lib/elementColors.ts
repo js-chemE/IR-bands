@@ -7,6 +7,13 @@ export const ELEMENT_COLORS: Record<string, string> = {
   O: '#D9453D',
   H: '#E8E8E8',
   N: '#3A6FD8',
+  // The halogens, in the usual CPK sequence: pale green up to deep violet as
+  // the atom gets heavier, which is also the order their stretches run down
+  // the spectrum (F₂ near 894 cm⁻¹, I₂ near 213).
+  F: '#90E050',
+  Cl: '#1FF01F',
+  Br: '#A62929',
+  I: '#940094',
   // Generic metal center (Lewis-acidic cation, isolated surface atom, etc.)
   // — for diagrams that need a real bonded/pivot atom drawn, but where the
   // underlying mode is deliberately metal-generic rather than tied to one
@@ -30,6 +37,10 @@ export const ELEMENT_RADIUS_PM: Record<string, number> = {
   N: 65,
   O: 60,
   H: 38,
+  F: 57,
+  Cl: 102,
+  Br: 120,
+  I: 139,
   M: 135,
 };
 
@@ -39,8 +50,10 @@ export function radiusForElement(element: string): number {
   return ELEMENT_RADIUS_PM[element] ?? DEFAULT_RADIUS_PM;
 }
 
-// Label text needs to stay legible against both light (H) and dark/saturated
-// (C, O, N) atom fills.
+// Label text needs to stay legible against both light (H and the two lighter
+// halogens) and dark/saturated (C, O, N, Br, I) atom fills.
+const LIGHT_FILL_ELEMENTS = new Set(['H', 'F', 'Cl']);
+
 export function textColorForElement(element: string): string {
-  return element === 'H' ? '#2A2A2A' : '#FFFFFF';
+  return LIGHT_FILL_ELEMENTS.has(element) ? '#2A2A2A' : '#FFFFFF';
 }

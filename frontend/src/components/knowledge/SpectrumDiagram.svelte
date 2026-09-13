@@ -90,8 +90,23 @@
     return Math.max(0.02, 1 - absorbed);
   }
 
+  /**
+   * On the card, the depths are set rather than measured: left deepest, the
+   * middle one shallowest, the right one between them. The point the card
+   * makes is that where a band sits and how strong it is are independent, and
+   * three depths that happened to fall in order would quietly suggest
+   * otherwise. Opened, they morph back to the recorded intensities, where the
+   * order is real and means something: a gas-phase CH₄ band, a carbonyl on a
+   * metal and a surface methoxy are not comparable by height.
+   */
+  const CARD_DEPTHS = [0.7, 0.3, 0.5];
+  $: shown = examples.map((b, i) => ({
+    ...b,
+    depth: lerp(CARD_DEPTHS[i] ?? b.depth, b.depth, t),
+  }));
+
   // The absorbance plot is scaled to its tallest peak, with some headroom.
-  $: aMax = Math.max(0.1, ...examples.map(b => -Math.log10(Math.max(0.02, 1 - b.depth)))) * 1.15;
+  $: aMax = Math.max(0.1, ...shown.map(b => -Math.log10(Math.max(0.02, 1 - b.depth)))) * 1.15;
 
   /** Where a point of the signal trace sits, in either frame. */
   $: ySignal = (r: number) =>
@@ -154,8 +169,8 @@
     return pts.length > 1 ? 'M' + pts.join(' L') : '';
   }
 
-  $: signalPath = trace(ySignal, examples, scanWn);
-  $: absPath = trace(yAbs, examples, scanWn);
+  $: signalPath = trace(ySignal, shown, scanWn);
+  $: absPath = trace(yAbs, shown, scanWn);
 
   // The photon: a short wave packet whose wavelength tracks 1/ν̃, squashed
   // into a range that stays readable at both ends of the axis. At rest it
@@ -182,12 +197,12 @@
     return { d: 'M' + pts.join(' L'), cx, cy, amp: lerp(3.4, 4, t), fade };
   })();
 
-  $: ladders = examples.map((b, i) => {
+  $: ladders = shown.map((b, i) => {
     const x = X(b.wn);
     const y0 = foot;
     const y1 = foot - b.wn * gapPerWn;
     const ex = excite[i] ?? 0;
-    const r = ratio(b.wn, examples);
+    const r = ratio(b.wn, shown);
     return { ...b, x, y0, y1, ex, dotY: lerp(y0, y1, ex), dipY: ySignal(r), absY: yAbs(r) };
   });
 
