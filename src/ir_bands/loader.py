@@ -9,6 +9,7 @@ json5 or jsonc-parser. The regex correctly skips strings.
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import fields
 from pathlib import Path
@@ -530,7 +531,7 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         if len(species_seen) > 1:
             warnings.append(
                 f"branch_group {key!r}: members disagree on species "
-                f"({', '.join(sorted(species_seen))}); R/P/Q branches are one "
+                f"({', '.join(sorted(species_seen))}); branch siblings are one "
                 "transition of one species"
             )
         if len(phases_seen) > 1:
@@ -621,13 +622,15 @@ def tag_fermi_pairs(dataset: Dataset) -> list[str]:
 
 def tag_branch_groups(dataset: Dataset) -> list[str]:
     """Auto-assign the "rotational-branches" tag to every band that shares a
-    non-null branch_group with at least one other band (the R/P/Q siblings
+    non-null branch_group with at least one other band (the branch siblings
     of one vibrational transition).
 
     Unlike fermi_partner this is a shared group key rather than a pairwise
-    link, since a transition can have 2 (R/P) or 3 (R/P/Q) branches. A key
-    used by only one band is most likely a typo or a forgotten sibling —
-    reported as a warning rather than tagged.
+    link, since a transition can have 2 or 3 branches, and which letters
+    depends on the technique: P/R or P/Q/R in the infrared, where one photon
+    turns the molecule by dJ = +/-1, and O/S or O/Q/S in Raman, where two
+    photons turn it by dJ = +/-2. A key used by only one band is most likely
+    a typo or a forgotten sibling, reported as a warning rather than tagged.
     """
     groups: dict[str, list[Band]] = {}
     for b in dataset.bands:
@@ -639,12 +642,21 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
         if len(members) < 2:
             warnings.append(
                 f"Band {members[0].id}: branch_group={key!r} has only one member "
-                "(expected >= 2 for R/P/Q siblings)"
+                "(expected >= 2 branch siblings: P/Q/R in the infrared, "
+                "O/Q/S in Raman)"
             )
             continue
         for b in members:
-            if "rotational-branches" not in b.tags:
-                b.tags.append("rotational-branches")
+            # Which word is honest depends on what the siblings are. For a
+            # vibrational band they are different BRANCHES of one transition,
+            # P against R against Q. A pure rotational spectrum has only ever
+            # one branch, S, so its siblings are the individual LINES of that
+            # branch, one per starting level. Calling those "branches" would
+            # promise a P and an R that cannot exist.
+            tag = ("rotational" if b.vibration.category == "rotational"
+                   else "rotational-branches")
+            if tag not in b.tags:
+                b.tags.append(tag)
     return warnings
 
 
@@ -658,14 +670,20 @@ def tag_fundamentals(dataset: Dataset) -> None:
       - a combination, which is two modes at once (its own category);
       - an overtone, which is more than one step of one mode (the tag);
       - built on anything at all, which is the general form of both;
-      - electronic, which is not a normal mode and so has no fundamental.
+      - electronic, which is not a normal mode and so has no fundamental;
+      - rotational, for the same reason: nothing vibrates, so there is no
+        v = 0 -> 1 step to be the first of.
 
-    A rotational branch *is* a fundamental: P, Q and R are the same v = 0 -> 1
-    transition seen from different rotational levels. An IR-inactive mode is
-    one too: being forbidden does not stop it being the first step.
+    A branch of a VIBRATIONAL band is a fundamental: P, Q, R, O and S are the
+    same v = 0 -> 1 transition seen from different rotational levels, which is
+    why the branch letter alone never disqualifies a band. A pure rotational
+    band is the case where that reasoning stops, because v does not change at
+    all: H2's rotational S(3) sits at 1035 cm-1, nowhere near its 4160 cm-1
+    fundamental, precisely because it is not one. An IR-inactive mode is a
+    fundamental too: being forbidden does not stop it being the first step.
     """
     for b in dataset.bands:
-        if b.vibration.category in ("combination", "electronic"):
+        if b.vibration.category in ("combination", "electronic", "rotational"):
             continue
         if "overtone" in b.tags or b.based_on:
             continue
@@ -809,31 +827,134 @@ def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
     return groups
 
 
-def tag_phase(dataset: Dataset) -> list[str]:
-    """Derive the "gas-phase" tag from Band.phase.
+def check_phase(dataset: Dataset) -> list[str]:
+    """Warn where Band.phase contradicts the states of its own claims.
 
-    The tag used to be authored by hand and was applied to 25 of the 33 bands
-    that deserved it, which is exactly what a field is for. Nothing else reads
-    phase in the frontend yet, so deriving the tag keeps the chart's existing
-    filter working while the fact itself lives in one place.
+    The phase is not tagged on the band any more. A band has no sample of its
+    own: every phase the atlas knows about was the state of some measurement,
+    so the chips come from the claims (tag_states) and bubble up to the band
+    in the frontend. That leaves Band.phase as an editorial statement about
+    what the species is, which the sets filter on, and it can fall out of step
+    with the measurements underneath it.
+
+    It already had: five deuterated methanol bands said "gas" while every
+    claim on them was a neon matrix, and the silica overtone said "surface"
+    where its claims say "solid". This prints those rather than silently
+    keeping two answers to one question.
     """
+    warnings: list[str] = []
     for b in dataset.bands:
-        if b.phase == "gas" and "gas-phase" not in b.tags:
-            b.tags.append("gas-phase")
-    return []
+        states = {
+            ref.state
+            for ref in b.references
+            if ref.technique != "computational" and ref.state
+        }
+        if b.phase and states and b.phase not in states:
+            warnings.append(
+                f"band {b.id!r} has phase {b.phase!r} but every claim on it "
+                f"was measured {'/'.join(sorted(states))}"
+            )
+    return warnings
+
+
+#: Which spectroscopy each technique belongs to. Mirrors TECHNIQUES[].
+#: spectroscopy in frontend/src/lib/dataModel.ts; keep the two in step.
+RAMAN_TECHNIQUES = {"raman", "srs"}
+
+#: Technique -> the umbrella tag derived alongside it. Mirrors
+#: TECHNIQUE_FAMILY in frontend/src/lib/dataModel.ts; keep the two in step.
+#: "raman" maps to itself: a paper that says only "Raman" has named the
+#: family and nothing finer, so the family tag and the value are one chip.
+TECHNIQUE_FAMILY = {
+    "drifts": "infrared",
+    "transmission": "infrared",
+    "atr": "infrared",
+    "ftir": "infrared",
+    "irras": "infrared",
+    "pm_irras": "infrared",
+    "emission": "infrared",
+    "raman": "raman",
+    "srs": "raman",
+    "computational": "computational",
+}
+
+#: Branch letters that only Raman can produce. The infrared absorbs one
+#: photon through a rank-one operator, the dipole, so it reaches dJ = 0, +/-1
+#: and no further: P, Q and R. Raman scatters through the polarizability,
+#: a rank-two tensor, and the triangle rule on its irreducible components
+#: (j = 0, 1, 2) admits dJ up to +/-2, which is where O and S come from
+#: (Long, The Raman Effect, pp. 158-159 and p. 276).
+#:
+#: The converse does NOT hold, which is why only these two letters are
+#: listed. P and R are not infrared-only: Raman reaches dJ = +/-1 too
+#: whenever the rotor allows it. dJ = 0, +/-2 is the rule for a LINEAR
+#: molecule in a non-degenerate vibration; a symmetric top, a spherical top
+#: and a linear molecule in a degenerate vibration all allow dJ = 0, +/-1,
+#: +/-2 (Long, Table 6.5, p. 167). Methane's triply degenerate F2 mode is
+#: exactly that case, so its Raman band genuinely carries P and R branches.
+#: Checking those would need the rotor type and the mode's degeneracy, which
+#: live in vibrations.jsonc and are not loaded at this point.
+RAMAN_ONLY_BRANCHES = {"O", "S"}
+
+
+def check_branches(dataset: Dataset) -> list[str]:
+    """Warn where an O or S branch rests only on infrared claims.
+
+    O and S are dJ = +/-2 steps. One photon through the dipole cannot drive
+    them, so no infrared measurement can have seen one, and a band carrying
+    an O or S branch whose every claim is infrared is asserting a line those
+    claims could not have produced.
+
+    Only this direction is checked. The mirror image, a P or R branch resting
+    only on Raman claims, is not an error in general: see RAMAN_ONLY_BRANCHES
+    above for why, and for the rotor-dependent rule that decides it.
+
+    Computational claims are ignored: a calculation has no technique in the
+    sense that matters here and would otherwise excuse a band from the check.
+    """
+    warnings: list[str] = []
+    for b in dataset.bands:
+        branch = b.vibration.branch or ""
+        if branch not in RAMAN_ONLY_BRANCHES:
+            continue
+        seen = {
+            "Raman" if ref.technique in RAMAN_TECHNIQUES else "infrared"
+            for ref in b.references
+            if ref.technique and ref.technique != "computational"
+        }
+        if seen and "Raman" not in seen:
+            warnings.append(
+                f"band {b.id!r} is branch {branch} (a dJ = +/-2 step, which "
+                f"only Raman reaches) but every claim on it is infrared"
+            )
+    return warnings
 
 
 def tag_techniques(dataset: Dataset) -> list[str]:
     """Derive each citation's technique tag from Reference.technique.
 
-    Same reasoning as tag_phase: the technique is a field now, but the tag
-    chips in the chart legend and on the references page keep working because
-    the tag is regenerated here. The tag is simply the technique's own name.
+    The technique is a field now, but the tag chips in the chart legend and on
+    the references page keep working because the tag is regenerated here. The
+    tag is simply the technique's own name.
+
+    Two tags come out of one field, the way the isotope role already works.
+    Alongside the specific value a claim gets its family: "infrared" for any
+    of the sampling geometries, "raman" for the scattering ones. The family
+    answers "was this seen in the infrared at all", which is the question most
+    readers actually have, and it lets the legend switch a whole technique off
+    without ticking seven chips. "raman" is both a family and a value, since a
+    paper that says only "Raman" has named the family and nothing finer.
+    "computational" is its own family of one: it is not a measurement.
     """
     for b in dataset.bands:
         for ref in b.references:
-            if ref.technique and ref.technique not in ref.tags:
+            if not ref.technique:
+                continue
+            if ref.technique not in ref.tags:
                 ref.tags.append(ref.technique)
+            family = TECHNIQUE_FAMILY.get(ref.technique)
+            if family and family not in ref.tags:
+                ref.tags.append(family)
     return []
 
 
@@ -854,6 +975,10 @@ def tag_states(dataset: Dataset) -> list[str]:
     total = 0
     for b in dataset.bands:
         for ref in b.references:
+            # A calculation has no sample in a beam, so it has no state to
+            # record and is not counted as a gap. Everything measured is.
+            if ref.technique == "computational":
+                continue
             total += 1
             if ref.state is None:
                 missing += 1
@@ -871,7 +996,7 @@ def tag_states(dataset: Dataset) -> list[str]:
 def tag_lasers(dataset: Dataset) -> list[str]:
     """Derive each Raman claim's excitation-wavelength tag from laser_nm.
 
-    The tag is the wavelength written the way a paper writes it, "514.5 nm",
+    The tag is the wavelength written the way a paper writes it, "515 nm",
     and the frontend colours that one chip with the colour of the light
     (lib/lightColor.ts) rather than from a fixed table: the wavelength is a
     number, not a member of a vocabulary, so no static tag map could hold it.
@@ -884,13 +1009,17 @@ def tag_lasers(dataset: Dataset) -> list[str]:
         for ref in b.references:
             if ref.laser_nm is None:
                 continue
-            if ref.technique != "raman":
+            if ref.technique not in RAMAN_TECHNIQUES:
                 warnings.append(
                     f"Band {b.id}, reference {ref.key}: laser_nm is set but "
                     f"technique={ref.technique!r}; a wavelength is the Raman "
                     f"excitation line and means nothing on an infrared claim"
                 )
-            tag = f"{float(ref.laser_nm):g} nm"
+            # Rounded to the nearest nanometre: the chip is a label, not the
+            # measurement. laser_nm keeps the exact figure the paper printed,
+            # so 514.5 stays 514.5 in the data and reads "515 nm" on screen.
+            # Not round(), whose half-to-even rule turns 514.5 into 514.
+            tag = f"{math.floor(float(ref.laser_nm) + 0.5)} nm"
             if tag not in ref.tags:
                 ref.tags.append(tag)
     return warnings

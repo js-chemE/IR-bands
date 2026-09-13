@@ -1059,7 +1059,7 @@
             <tr><th>description</th><td class="spec-val">≤ 120 words</td><td>Everything true of the band in general, and nothing else. No minimum.</td></tr>
             <tr><th>references[].wn</th><td class="spec-val">number or list</td><td>The wavenumber that paper reported. Never in prose.</td></tr>
             <tr><th>species</th><td class="spec-val">a species key</td><td>Chemical identity only, from data/species.jsonc. Phase, binding geometry and isotopologue each have their own field.</td></tr>
-            <tr><th>phase</th><td class="spec-val">gas / adsorbed / surface</td><td>Omit when the band covers both the free molecule and its adsorbed form. Derives the "gas-phase" tag.</td></tr>
+            <tr><th>phase</th><td class="spec-val">gas / adsorbed / surface</td><td>Omit when the band covers both the free molecule and its adsorbed form. Derives no tag: the phase chips come from the claims' own state.</td></tr>
             <tr><th>topology</th><td class="spec-val">a topology id</td><td>Binding geometry, from the species' molecule in data/vibrations.jsonc.</td></tr>
             <tr><th>references[].measured_on</th><td class="spec-val">a surface key or list</td><td>Where this source measured it, from data/surfaces.jsonc, at whatever scale the paper stated: a site ("cu_1p"), a phase ("tio2"), a sample ("cu_zno"), or several at once. No conditions.</td></tr>
             <tr><th>references[].technique</th><td class="spec-val">an enum value</td><td>How the spectrum was taken. Derives the technique tag chip, so never write drifts/ftir by hand.</td></tr>

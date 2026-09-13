@@ -1496,58 +1496,74 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
     },
   },
 
-  // Ammonia — a trigonal pyramid drawn from the side: N at the apex, two H's
-  // splayed left and right in the plane of the page, the third pointing back
-  // into it (hence the dashed bond, the same convention CH₄ uses). That third
-  // H's motion is mostly out of plane, so where a mode moves it towards or
-  // away from the axis it is shown by the atom growing and shrinking rather
-  // than by a displacement that would read as wrong in two dimensions.
+  // NH3 — the same real 3D-to-2D projection as CH4 above, and deliberately
+  // so: ammonia IS methane's tetrahedron with one vertex handed to the lone
+  // pair, so its three N-H bonds are CH4's three downward bonds, at exactly
+  // the same coordinates, with the straight-up fourth one removed. N sits at
+  // the origin and the tripod hangs below it, which is the trigonal pyramid
+  // as it is always drawn.
+  //
+  // As with CH4, each H's apparent bond length already encodes how far it
+  // tilts toward or away from the viewer, so the three 2D lengths are
+  // deliberately unequal (about 21, 30 and 28 px). Don't even them out — that
+  // is the whole depth cue, and it is why no dashed "into the page" bond is
+  // needed here. The dx/dy of nh3_stretch_symmetric are each H's unit bond
+  // direction in this projection, reused for the other three modes' math.
+  //
+  // N genuinely moves in every mode: unlike CH4's central C, whose Td site
+  // symmetry forbids it in A1, nitrogen in C3v sits on the 3-fold axis with
+  // nothing to forbid an axial displacement. Its vector is the real
+  // mass-weighted recoil (14·N + Σ1·Hᵢ = 0), not a cosmetic nudge.
   nh3: {
     gas: {
       atoms: [
-        { element: 'N', x: 0, y: -13 },
-        { element: 'H', x: -25, y: 9 },
-        { element: 'H', x: 25, y: 9 },
-        { element: 'H', x: 0, y: 16, radiusOverride: 32 },
+        { element: 'N', x: 0, y: 0 },
+        { element: 'H', x: 12.3, y: 16.9 },
+        { element: 'H', x: -27, y: 12.8 },
+        { element: 'H', x: 25.2, y: 11.4 },
       ],
       bonds: [[0, 1], [0, 2], [0, 3]],
-      dashedBondAtoms: [3],
       modes: {
-        // All three bonds lengthen together, each H along its own bond
-        // direction; N makes the compensating recoil up the 3-fold axis, the
-        // same A1 pattern water's symmetric stretch has.
+        // All three N-H bonds lengthen and shorten together, each H along its
+        // own bond direction, the pyramid breathing without changing shape.
         nh3_stretch_symmetric: [
-          { dx: 0, dy: -0.09 },
-          { dx: -0.751, dy: 0.661 },
-          { dx: 0.751, dy: 0.661 },
-          { dx: 0, dy: 1 },
+          { dx: -0.043, dy: -0.118 },
+          { dx: 0.589, dy: 0.808 },
+          { dx: -0.904, dy: 0.428 },
+          { dx: 0.911, dy: 0.412 },
         ],
-        // The umbrella: every H swings perpendicular to its own bond, so bond
-        // lengths are preserved and only the angles to the axis change. The
-        // back H's swing is almost entirely out of plane, drawn as a size
-        // pulse; N recoils along the axis against the three of them.
+        // The umbrella: every H swings perpendicular to its own bond, so the
+        // bond lengths are preserved exactly and only the angles to the 3-fold
+        // axis change. Each perpendicular is taken in the sense that carries
+        // its H towards the axis, so all three flatten and re-pyramidalise
+        // together; N moves back along the axis against them.
         nh3_bend_symmetric: [
-          { dx: 0, dy: -0.12 },
-          { dx: 0.661, dy: 0.751 },
-          { dx: -0.661, dy: 0.751 },
-          { dx: 0, dy: 0, scale: 0.3 },
+          { dx: -0.057, dy: 0.172 },
+          { dx: 0.808, dy: -0.589 },
+          { dx: -0.428, dy: -0.904 },
+          { dx: 0.412, dy: -0.911 },
         ],
-        // One bond stretches while the other two compress: the back H moves
-        // out along its own bond, the two in-plane H's move in along theirs.
+        // One component of the doubly-degenerate stretch: the left-hand bond
+        // (the one lying nearest the page plane, so the clearest to read)
+        // stretches at full amplitude while the other two compress at half,
+        // each along its own bond — the {+1, -1/2, -1/2} weighting an E
+        // stretch takes when built around one bond of a C3v trio.
         nh3_stretch_asymmetric: [
-          { dx: 0, dy: 0.05 },
-          { dx: 0.376, dy: -0.331 },
-          { dx: -0.376, dy: -0.331 },
-          { dx: 0, dy: 1 },
+          { dx: 0.118, dy: 0.013 },
+          { dx: -0.295, dy: -0.404 },
+          { dx: -0.904, dy: 0.428 },
+          { dx: -0.456, dy: -0.206 },
         ],
-        // The degenerate deformation, drawn as the in-plane component: the two
-        // front H's scissor towards and away from each other while N and the
-        // back H stay put.
+        // The bending counterpart: the same {+1, -1/2, -1/2} weighting applied
+        // transverse to each bond instead of along it, so one H-N-H angle
+        // opens while the other two close. That reads as the pyramid skewing
+        // rather than breathing, which is exactly what separates it from the
+        // umbrella above.
         nh3_bend_asymmetric: [
-          { dx: 0, dy: 0 },
-          { dx: 0.7, dy: 0 },
-          { dx: -0.7, dy: 0 },
-          { dx: 0, dy: 0 },
+          { dx: -0.058, dy: -0.023 },
+          { dx: 0.808, dy: -0.589 },
+          { dx: 0.214, dy: 0.452 },
+          { dx: -0.206, dy: 0.456 },
         ],
       },
     },

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
-  import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, type BandLooks } from '../lib/chart';
+  import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
   import { getCat, TAG_STYLES, tagStyle } from '../lib/colors';
@@ -607,7 +607,7 @@
   }
 
   function currentDomain(): [number, number] {
-    return xDomainForChart ?? (axisRange(450, 4050, axisProperty, axisUnit, shiftZero, reversed) as [number, number]);
+    return xDomainForChart ?? (axisRange(WN_LO, WN_HI, axisProperty, axisUnit, shiftZero, reversed) as [number, number]);
   }
 
   function domainToWnRange(d0: number, d1: number): [number, number] {

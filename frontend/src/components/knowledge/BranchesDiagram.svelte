@@ -11,11 +11,15 @@
    *   R  ΔJ = +1  above the origin in wavenumber, drawn in the bluer ink
    *   P  ΔJ = −1  below it, in the redder
    *   Q  ΔJ = 0   on the origin itself, green, and only where allowed
+   *   S  ΔJ = +2  the Raman counterpart of R, same ink, twice as far out
+   *   O  ΔJ = −2  the Raman counterpart of P
    *
-   * The loop alternates the two cases, because "where the symmetry allows
-   * it" is not a footnote: a stretch along the axis has no Q branch and its
-   * band shows a gap at the centre, while a bend across the axis has one and
-   * fills that gap with a single tall line.
+   * The loop runs three cases, because neither "where the symmetry allows
+   * it" nor "which technique is looking" is a footnote. A stretch along the
+   * axis has no Q branch and its band shows a gap at the centre; a bend
+   * across the axis has one and fills that gap with a single tall line; and
+   * the same transition in Raman drops P and R for O and S, whose lines sit
+   * at twice the spacing because ΔJ steps by two instead of one.
    *
    * Line heights follow the room-temperature population of the starting
    * level (the Rotation Modes card); spacings are schematic.
@@ -60,10 +64,13 @@
   }
   onDestroy(() => raf && cancelAnimationFrame(raf));
 
-  /** Half the cycle each. At rest the Q is shown, so all three names mean
-      something to a reader who never starts the animation. */
-  $: qAllowed = running ? (clock % CYCLE) >= CYCLE / 2 : true;
-  $: half = running ? ((clock % CYCLE) % (CYCLE / 2)) / (CYCLE / 2) : 0;
+  /** Three thirds of the cycle: a stretch with no Q, a bend with one, then
+      the same transition seen in Raman. At rest the bend is shown, so all
+      three infrared names mean something to a reader who never starts it. */
+  $: phase = running ? Math.min(2, Math.floor(((clock % CYCLE) / CYCLE) * 3)) : 1;
+  $: qAllowed = phase !== 0;
+  $: raman = phase === 2;
+  $: half = running ? ((clock % CYCLE) % (CYCLE / 3)) / (CYCLE / 3) : 0;
 
   /* ── The lines of the band ──────────────────────────────────────────
    * One line per starting level J, its height the population of that
@@ -94,7 +101,18 @@
     // one spot that makes a Q branch the tallest thing in a band.
     h: pop(J) / POP_MAX,
   }));
-  $: lines = qAllowed ? [...R_LINES, ...P_LINES, ...Q_LINES] : [...R_LINES, ...P_LINES];
+  /* Raman reaches ΔJ = ±2, so its branches step by 4B where the infrared
+     ones step by 2B. In the units used here (u = 1 is one 2B step) an S line
+     sits at 2J + 3 and an O line at −(2J − 1). That doubled spacing is the
+     whole visible difference, and it is why hydrogen resolves into separate
+     lines where nitrogen stays an unresolved tail. */
+  const S_LINES = [0, 1, 2].map(J => ({ b: 'S' as const, J, u: 2 * J + 3, h: pop(J) / POP_MAX }));
+  const O_LINES = [2, 3, 4].map(J => ({ b: 'O' as const, J, u: -(2 * J - 1), h: pop(J) / POP_MAX }));
+  $: lines = raman
+    ? [...S_LINES, ...O_LINES, ...Q_LINES]
+    : qAllowed
+      ? [...R_LINES, ...P_LINES, ...Q_LINES]
+      : [...R_LINES, ...P_LINES];
 
   /**
    * The arrows are a sample, not the whole band: drawing one per line put
@@ -103,11 +121,13 @@
    * are ordered by where their line falls in the spectrum, left to right,
    * so the eye can follow one to the other.
    */
-  $: arrows = [
-    ...[2, 1, 0].map(J => R_LINES[J]),
-    ...(qAllowed ? [Q_LINES[0]] : []),
-    ...[1, 2, 3].map(J => P_LINES[J - 1]),
-  ];
+  $: arrows = raman
+    ? [...[2, 1, 0].map(i => S_LINES[i]), Q_LINES[0], ...[0, 1, 2].map(i => O_LINES[i])]
+    : [
+        ...[2, 1, 0].map(J => R_LINES[J]),
+        ...(qAllowed ? [Q_LINES[0]] : []),
+        ...[1, 2, 3].map(J => P_LINES[J - 1]),
+      ];
   /** Lit one after another through each half of the cycle. */
   $: lit = running ? Math.min(arrows.length - 1, Math.floor(half * arrows.length * 1.15)) : -1;
   $: isLit = (i: number) => (running ? (lit === i ? 1 : 0.22) : 1);
@@ -172,7 +192,7 @@
   height={H * scale}
   viewBox="0 0 {W} {H}"
   role="img"
-  aria-label="Two vibrational levels on the left, each carrying its own rotational levels, and the band they make on the right. One photon changes v and J at the same time: J up by one gives the R branch above the band origin, J down by one gives the P branch below it, and J unchanged gives a Q branch on the origin itself, which appears only where the symmetry allows. The dashed vertical marks the origin, where the line would sit if the molecule did not turn"
+  aria-label="Two vibrational levels on the left, each carrying its own rotational levels, and the band they make on the right. One photon changes v and J at the same time: J up by one gives the R branch above the band origin, J down by one gives the P branch below it, and J unchanged gives a Q branch on the origin itself, which appears only where the symmetry allows. Seen in Raman instead, the same transition gives O and S branches, two rotational steps out on either side rather than one. The dashed vertical marks the origin, where the line would sit if the molecule did not turn"
 >
   <g style="opacity:{fullOpacity}">
     <path
@@ -198,7 +218,11 @@
   <!-- Ordered by where their line falls in the spectrum, left to right. -->
   {#each arrows as a, i}
     {@const x = JAB.x + 14 + ((JAB.w - 28) * i) / Math.max(arrows.length - 1, 1)}
-    {@const to = a.b === 'R' ? a.J + 1 : a.b === 'P' ? a.J - 1 : a.J}
+    {@const to = a.b === 'R' ? a.J + 1
+      : a.b === 'P' ? a.J - 1
+      : a.b === 'S' ? a.J + 2
+      : a.b === 'O' ? a.J - 2
+      : a.J}
     <g class="tr {a.b}" style="opacity:{isLit(i)}">
       <line x1={x} x2={x} y1={lvl(0, a.J)} y2={lvl(1, to) + 1} />
       <path d={up(x, lvl(1, to), lerp(2, 2.8, t))} />
@@ -225,8 +249,13 @@
     <text class="lbl faint" x={JAB.x + JAB.w + 6} y={JAB.v0 + 4}>v = 0</text>
     <text class="lbl faint" x={JAB.x + JAB.w + 6} y={JAB.v1 + 4}>v = 1</text>
     <!-- Named where the branch actually sits, in the branch's own colour. -->
-    <text class="tick R" x={sx(3.6)} y={SP.base - 8} text-anchor="middle">R: ΔJ = +1</text>
-    <text class="tick P" x={sx(-3.6)} y={SP.base - 8} text-anchor="middle">P: ΔJ = −1</text>
+    {#if raman}
+      <text class="tick S" x={sx(5)} y={SP.base - 8} text-anchor="middle">S: ΔJ = +2</text>
+      <text class="tick O" x={sx(-5)} y={SP.base - 8} text-anchor="middle">O: ΔJ = −2</text>
+    {:else}
+      <text class="tick R" x={sx(3.6)} y={SP.base - 8} text-anchor="middle">R: ΔJ = +1</text>
+      <text class="tick P" x={sx(-3.6)} y={SP.base - 8} text-anchor="middle">P: ΔJ = −1</text>
+    {/if}
     {#if qAllowed}
       <text class="tick Q" x={sx(0)} y={SP.base - 22} text-anchor="middle">Q: ΔJ = 0</text>
     {/if}
@@ -239,7 +268,11 @@
       <text class="lbl faint" x={JAB.x} y={JAB.v0 + 49}>changes: v and J</text>
       <text class="lbl faint" x={JAB.x} y={JAB.v0 + 62}>at the same time</text>
       <!-- The case being shown, which is half the point of the card. -->
-      {#if qAllowed}
+      {#if raman}
+        <text class="lbl S" x={SP.x0} y={SP.base + SP.tall + 34}>the same mode in Raman: the polarizability</text>
+        <text class="lbl S" x={SP.x0} y={SP.base + SP.tall + 47}>is a rank-two tensor, so ΔJ reaches ±2.</text>
+        <text class="lbl S" x={SP.x0} y={SP.base + SP.tall + 60}>O and S, and twice the line spacing</text>
+      {:else if qAllowed}
         <text class="lbl Q" x={SP.x0} y={SP.base + SP.tall + 34}>a bend, swinging across the axis:</text>
         <text class="lbl Q" x={SP.x0} y={SP.base + SP.tall + 47}>ΔJ = 0 is allowed. One Q line per J,</text>
         <text class="lbl Q" x={SP.x0} y={SP.base + SP.tall + 60}>almost on top of each other</text>
@@ -288,13 +321,15 @@
     stroke-linejoin: round;
     transition: opacity 0.25s;
   }
-  .tr.R line, .tr.R path { stroke: var(--diagram-anti-stokes); }
-  .tr.P line, .tr.P path { stroke: var(--diagram-stokes); }
+  /* S and O take the same two inks as R and P: the colour says which way J
+     moved, and that does not change because the photon count did. */
+  .tr.R line, .tr.R path, .tr.S line, .tr.S path { stroke: var(--diagram-anti-stokes); }
+  .tr.P line, .tr.P path, .tr.O line, .tr.O path { stroke: var(--diagram-stokes); }
   .tr.Q line, .tr.Q path { stroke: var(--accent-green-fg); }
 
   .stick { stroke-width: 1.8; stroke-linecap: round; transition: opacity 0.25s; }
-  .stick.R { stroke: var(--diagram-anti-stokes); }
-  .stick.P { stroke: var(--diagram-stokes); }
+  .stick.R, .stick.S { stroke: var(--diagram-anti-stokes); }
+  .stick.P, .stick.O { stroke: var(--diagram-stokes); }
   .stick.Q { stroke: var(--accent-green-fg); stroke-width: 2.4; }
 
   .tick {
@@ -302,9 +337,10 @@
     font-size: max(calc(var(--t-code-size) * 0.85), var(--t-diagram-note-size));
     fill: var(--ink-050);
   }
-  .tick.R { fill: var(--diagram-anti-stokes); }
-  .tick.P { fill: var(--diagram-stokes); }
+  .tick.R, .tick.S { fill: var(--diagram-anti-stokes); }
+  .tick.P, .tick.O { fill: var(--diagram-stokes); }
   .tick.Q { fill: var(--accent-green-fg); }
+  .lbl.S { fill: var(--diagram-anti-stokes); }
   .lbl {
     font-family: var(--t-code-ff);
     font-size: var(--t-code-size);

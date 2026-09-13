@@ -1,6 +1,21 @@
-export type VibCategory = 'stretch' | 'bend' | 'combination' | 'lattice' | 'electronic';
+/**
+ * What the atoms are doing. Two of these are not normal modes at all:
+ * `electronic` (a defect or charge-transfer transition) and `rotational`
+ * (the molecule turns and does not vibrate, which Raman sees directly
+ * through the polarizability).
+ */
+export type VibCategory =
+  | 'stretch' | 'bend' | 'combination' | 'lattice' | 'electronic' | 'rotational';
 export type VibSubtype = 'symmetric' | 'asymmetric' | 'scissoring' | 'rocking' | 'wagging' | 'twisting';
-export type Branch = 'R' | 'P' | 'Q';
+/**
+ * Which rotational branch, as ΔJ counted out from the band centre:
+ * O = −2, P = −1, Q = 0, R = +1, S = +2.
+ *
+ * P and R are the infrared pair (one photon, ΔJ = ±1); O and S are the Raman
+ * pair (two photons, ΔJ = ±2). Q sits at the centre in both, where symmetry
+ * allows it.
+ */
+export type Branch = 'O' | 'P' | 'Q' | 'R' | 'S';
 export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';
 export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
@@ -10,7 +25,7 @@ export type Technique =
   | 'ftir' | 'raman' | 'computational';
 export type SurfaceLevel = 'site' | 'phase' | 'sample';
 export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
-export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references';
+export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references' | 'technique';
 /** Which selection rule the band chart draws: the other technique's silent bands fade. */
 export type Spectroscopy = 'ir' | 'raman';
 
@@ -20,6 +35,12 @@ export interface Vibration {
   category: VibCategory;
   subtype: VibSubtype | null;
   branch: Branch | null;
+  /**
+   * The rotational level the transition starts from, where a source resolves
+   * one line rather than a branch envelope. Null means the band IS the
+   * envelope. Set only alongside a branch.
+   */
+  j?: number | null;
 }
 
 export interface BasedOn {

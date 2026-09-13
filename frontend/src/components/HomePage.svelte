@@ -4,6 +4,12 @@
   /** Live scope line: what the atlas currently covers, and how much of it. */
   export let bandCount = 0;
   export let referenceCount = 0;
+  /**
+   * Claims, not bands: one row per (band, source), so a band four papers
+   * disagree about counts four times. It is the honest measure of how much
+   * reading is actually in here, and it is always the largest of the three.
+   */
+  export let assignmentCount = 0;
 
   const dispatch = createEventDispatcher<{ navigate: { page: string } }>();
 </script>
@@ -17,8 +23,14 @@
       atlas tells them apart: what each one is, what it was measured on, and who
       reported it.
     </p>
+    <p class="hero-what">
+      It covers the CO₂-to-methanol and RWGS/methanation story: the gases that go in
+      and come out, the formate, carbonate, bicarbonate and methoxy that appear on the
+      way, CO on metals and on cations, the support hydroxyls, and the water. Both
+      infrared and Raman, gas-phase and adsorbed.
+    </p>
     <p class="hero-scope">
-      Covering CO₂ hydrogenation, in the infrared{#if bandCount}&nbsp;&middot; {bandCount} bands from {referenceCount} papers{/if}
+      {#if bandCount}{bandCount} bands &middot; {assignmentCount} assignments &middot; {referenceCount} sources{/if}
     </p>
   </div>
 
@@ -72,8 +84,9 @@
       </div>
       <h2 class="card-title">References</h2>
       <p class="card-desc">
-        Peer-reviewed literature for all band assignments. Browse alphabetically by
-        source or by spectral group, with expandable per-band notes and site tags.
+        Every source behind the assignments. Group by source, group, site, sample,
+        element or technique, narrow to one kind of measurement, and read what each
+        one actually reported.
       </p>
       <span class="card-cta" style="color:var(--accent-amber-fg)">Open references →</span>
     </button>
@@ -139,6 +152,16 @@
     color: var(--ink-slate-700);
     line-height: 1.65;
     margin: 0;
+  }
+
+  /* What is actually in scope, under the framing and above the counts. Reads
+     as prose rather than as a list, because the list would go stale the first
+     time a family is added. */
+  .hero-what {
+    font-size: 13.5px;
+    color: var(--ink-slate-300);
+    line-height: 1.6;
+    margin: 14px 0 0;
   }
 
   /* Deliberately quiet: the scope will widen, the framing above it will not. */

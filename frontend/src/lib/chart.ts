@@ -1,14 +1,25 @@
 import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
 import { TECHNIQUES } from './dataModel';
-import { getCat, getCatLabel, getCatColor, getColor, fadeColor, TAG_STYLES, DEFAULT_TAG_STYLE } from './colors';
+import { getCat, getCatLabel, getCatColor, getColor, fadeColor, tagStyle, EVIDENCE_ORDER } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
 import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
 import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
-import { TAG_ROLE_LABEL, isUmbrellaTag, tagRole, tagRoleRank, type TagRole } from './dataModel';
+import {
+  TAG_ROLE_LABEL,
+  isUmbrellaTag,
+  TECHNIQUE_FAMILY,
+  TECHNIQUE_FAMILY_ORDER,
+  laserFamily,
+  laserFamilyNm,
+  laserTagNm,
+  tagRole,
+  tagRoleRank,
+  type TagRole,
+} from './dataModel';
 
 // Geometry lives in tokens.ts with the rest of the design system; these are
 // re-exported so existing importers of './chart' keep working.
@@ -16,8 +27,15 @@ export const LANE_HEIGHT = CHART_LAYOUT.laneHeight;
 export const BAR_FRACTION = CHART_LAYOUT.barFraction;
 export const SUB_LANE_OFFSET_FRAC = CHART_LAYOUT.subLaneOffsetFrac;
 
-const WN_LO = 450;
-const WN_HI = 4050;
+// The default x domain in cm⁻¹, used by both the chart and the axis strip.
+// The floor sits below the lowest band the atlas holds rather than at a round
+// number: a band whose window falls outside the domain is not hidden, it is
+// drawn clipped against the edge, which reads as a band that stops there. The
+// Ga₂O₃ lattice lines start at 200, so the floor has to clear them.
+// Exported because BandChart's zoom reset needs the same pair, and a second
+// copy of the numbers there drifted once already.
+export const WN_LO = 150;
+export const WN_HI = 4050;
 
 // ---------------------------------------------------------------------------
 // Lane metrics (used by App.svelte via getLegendCategories and by buildChart)
@@ -42,7 +60,7 @@ export function computeLaneMetrics(bands: Band[], enabledGroups: ReadonlySet<str
   return { newLaneIdx, newNLanes: next };
 }
 
-// Sub-lane stagger (0 / +1 / -1) is computed at build time in Python over
+// Sub-lane stagger is computed at build time in Python over
 // ALL bands in a lane (src/ir_bands/layout.py's assign_sub_lanes), so a band
 // hidden by a disabled group can still hold a sub-lane slot hostage — e.g.
 // two bands that visually look unrelated once a third, group-hidden one is
@@ -54,9 +72,15 @@ export function computeLaneMetrics(bands: Band[], enabledGroups: ReadonlySet<str
 // "The exact same algorithm" is load-bearing: this is a second implementation
 // of assign_sub_lanes, and it is the one the chart actually renders from. A
 // change to the Python side that is not mirrored here has no visible effect
-// at all. Both sides place a branch_group as ONE unit, so the R/P/Q branches
-// of a transition always share a sub-lane.
-const SUB_LANE_PRIORITY = [0, 1, -1] as const;
+// at all. Both sides place a branch_group as ONE unit, so the branches of a
+// transition share a sub-lane unless the family's ΔJ = ±1 and ±2 branches
+// actually run over each other.
+//
+// Centred first, then up, then down, then further out either way. The outer
+// two slots exist because real overlaps needed them: four carbonyl C=O
+// stretches genuinely share 1700-1750 cm⁻¹ (see layout.py, which mirrors
+// this list).
+const SUB_LANE_PRIORITY = [0, 1, -1, 2, -2] as const;
 
 interface PlacementUnit {
   bands: Band[];
@@ -69,25 +93,76 @@ interface PlacementUnit {
 /**
  * Group a lane's bands into the units that get staggered as one.
  *
- * The R/P/Q branches of one vibrational transition are three views of the
- * same feature and read as one band with satellites, so they belong on the
- * same sub-lane whether or not the packing needs them there. Everything else
- * is a unit of one. Mirrors _placement_units() in layout.py.
+ * The branches of one vibrational transition are views of the same feature
+ * and read as one band with satellites, so they belong on the same sub-lane
+ * whether or not the packing needs them there. The one exception is a family
+ * whose ΔJ = ±1 and ±2 branches genuinely overlap, which is split below.
+ * Everything else is a unit of one. Mirrors _placement_units() in layout.py.
  */
+/** A ΔJ = ±2 branch, which reaches about twice as far out as ±1 does. */
+const isFarBranch = (b: Band) => b.vibration?.branch === 'O' || b.vibration?.branch === 'S';
+
+/**
+ * How much two spans may touch before they count as colliding, in cm⁻¹.
+ *
+ * N₂'s O branch ends 3 cm⁻¹ inside its Q branch. That is a rounding of the
+ * window, not a collision worth splitting a family over, so a brush this
+ * small is ignored.
+ */
+const TOUCH_TOLERANCE = 10;
+
+const toUnit = (bands: Band[]): PlacementUnit => ({
+  bands,
+  group: bands.reduce((lowest, b) => (b.group < lowest ? b.group : lowest), bands[0].group),
+  min: Math.min(...bands.map(b => b.wn_min)),
+  max: Math.max(...bands.map(b => b.wn_max)),
+});
+
 function placementUnits(laneBands: Band[]): PlacementUnit[] {
-  const byKey = new Map<string, Band[]>();
+  const families = new Map<string, Band[]>();
+  const units: PlacementUnit[] = [];
   for (const b of laneBands) {
-    const key = b.branch_group ? `branch:${b.branch_group}` : `band:${b.id}`;
-    const existing = byKey.get(key);
+    if (!b.branch_group) {
+      units.push(toUnit([b]));
+      continue;
+    }
+    const existing = families.get(b.branch_group);
     if (existing) existing.push(b);
-    else byKey.set(key, [b]);
+    else families.set(b.branch_group, [b]);
   }
-  return [...byKey.values()].map(bands => ({
-    bands,
-    group: bands.reduce((lowest, b) => (b.group < lowest ? b.group : lowest), bands[0].group),
-    min: Math.min(...bands.map(b => b.wn_min)),
-    max: Math.max(...bands.map(b => b.wn_max)),
-  }));
+
+  for (const members of families.values()) {
+    /* A branch family is one unit, so its members share a sub-lane and the
+       transition reads as one feature. The exception is a family whose ΔJ =
+       ±1 and ±2 branches actually run over each other: a spherical top can
+       carry all five of O, P, Q, R and S, and there the two sets overlap in
+       wavenumber and would draw on top of one another. Only then is the
+       family split in two, and only on that boundary.
+
+       Testing the real overlap rather than splitting on principle matters:
+       H₂'s O lines sit far below its centre and its S lines far above, so a
+       blind split would bundle them into one unit spanning everything and
+       push the Q branch off its own sub-lane for no reason. */
+    const far = members.filter(isFarBranch);
+    const near = members.filter(b => !isFarBranch(b));
+    if (far.length > 0 && near.length > 0) {
+      /* Band against band, not envelope against envelope. H₂'s O lines sit
+         far below its centre and its S lines far above, so the two sets
+         straddle the Q branch and their envelopes appear to overlap while no
+         actual band touches another. Comparing the real spans keeps that
+         family whole and still splits methane, where O really does run over
+         P and S over R. */
+      const collides = far.some(f =>
+        near.some(n => Math.min(f.wn_max, n.wn_max) - Math.max(f.wn_min, n.wn_min) > TOUCH_TOLERANCE),
+      );
+      if (collides) {
+        units.push(toUnit(near), toUnit(far));
+        continue;
+      }
+    }
+    units.push(toUnit(members));
+  }
+  return units;
 }
 
 function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map<string, number> {
@@ -131,14 +206,17 @@ function computeSubLanes(bands: Band[], enabledGroups: ReadonlySet<string>): Map
 // ---------------------------------------------------------------------------
 
 const ATOMS_ORDER: Record<string, number> = {
+  // Homonuclear diatomics (blues). First, to match the chart's own rows: the
+  // two free gases that carry no dipole lead the lanes now.
+  'H-H': 0, 'N-N': 1,
   // C–O family (reds/oranges)
-  'O=C=O': 0, 'O-C-O': 1, 'C-O': 2, 'C-O-H': 3,
+  'O=C=O': 2, 'O-C-O': 3, 'C-O': 4, 'C-O-H': 5,
   // O–H family (teals), each deuterated twin right after its parent
-  'O-H': 4, 'O-D': 5, 'H-O-H': 6,
+  'O-H': 6, 'O-D': 7, 'H-O-H': 8,
   // C–H family (greens), same convention
-  'C-H': 7, 'C-D': 8, 'H-C-H': 9, 'D-C-D': 10, 'O-C-H': 11,
+  'C-H': 9, 'C-D': 10, 'H-C-H': 11, 'D-C-D': 12, 'O-C-H': 13,
   // Metal (greys/golds)
-  'M-H': 12, 'M-O': 13,
+  'M-H': 14, 'M-O': 15,
   // Diverse always last
   'diverse': 99,
 };
@@ -147,7 +225,9 @@ const VIBRATION_ORDER: Record<string, number> = {
   'stretch': 0, 'stretch.symmetric': 1, 'stretch.asymmetric': 2,
   'bend': 3, 'bend.symmetric': 4, 'bend.asymmetric': 5,
   'bend.scissoring': 6, 'bend.rocking': 7, 'bend.wagging': 8, 'bend.twisting': 9,
-  'combination': 10, 'lattice': 11, 'electronic': 12,
+  'combination': 10, 'lattice': 11,
+  // The two that are not normal modes, last.
+  'electronic': 12, 'rotational': 13,
 };
 
 export function getLegendCategories(
@@ -179,6 +259,9 @@ export function getLegendCategories(
     .sort(([a], [b]) => {
       if (colorDim === 'atoms')     return (ATOMS_ORDER[a] ?? 50) - (ATOMS_ORDER[b] ?? 50);
       if (colorDim === 'vibration') return (VIBRATION_ORDER[a] ?? 50) - (VIBRATION_ORDER[b] ?? 50);
+      // The evidence ladder reads weakest first, so it has an order of its
+      // own; lane order would scatter the rungs by where they happen to sit.
+      if (colorDim === 'technique') return (EVIDENCE_ORDER[a] ?? 50) - (EVIDENCE_ORDER[b] ?? 50);
       return (laneOrder.get(a) ?? Infinity) - (laneOrder.get(b) ?? Infinity);
     })
     .map(([key, v]) => ({ key, ...v }));
@@ -311,6 +394,42 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
   const auto: string[] = [];
   if (b.vibration.category === 'combination') auto.push('combination');
   if (b.based_on?.some(bo => bo.multiplier > 1)) auto.push('overtone');
+  /* Two claim-level facts the legend carries, so the chart can be asked what
+     a band actually rests on rather than only what it is.
+
+     The technique goes on whole, since there are nine of them and each is
+     already a name. The laser goes on as a colour family only: the exact
+     lines stay on the claims, because a legend listing 515 and 532 as
+     separate switches would split one question into two. */
+  for (const r of b.references ?? []) {
+    if (r.technique && !auto.includes(r.technique)) auto.push(r.technique);
+    /* The family beside the value, as loader.py derives it onto the claim:
+       "infrared" for any sampling geometry, "raman" for the scattering ones.
+       Read from the technique rather than from r.tags so the chart does not
+       depend on the build having run the derivation. */
+    const family = r.technique ? TECHNIQUE_FAMILY[r.technique] : undefined;
+    if (family && !auto.includes(family)) auto.push(family);
+    /* The phase, which a band no longer carries of its own. Nothing was ever
+       measured on "a band": every phase the atlas knows is the state some
+       sample was held in, so the chip belongs to the claim and the band shows
+       the union of them. A band measured both as a vapour and on a surface
+       says so, instead of having to pick one. */
+    if (r.state && !auto.includes(r.state)) auto.push(r.state);
+    // The excitation line only means anything in the Raman view: in the
+    // infrared one it labels a claim that is greyed out anyway. Kept for the
+    // Dataset page (no spectroscopy), which inventories everything.
+    if (spectroscopy === 'ir') continue;
+    for (const t of r.tags ?? []) {
+      const nm = laserTagNm(t);
+      if (nm === null) continue;
+      // Both levels, so the legend can switch a whole colour of light or one
+      // line of it: the family is the coarse handle, the wavelength the fine
+      // one, and they sort together (see withinRoleRank).
+      const family = laserFamily(nm).key;
+      if (!auto.includes(family)) auto.push(family);
+      if (!auto.includes(t)) auto.push(t);
+    }
+  }
   // Mirrors loader.py's tag_isotopologues() — the child of an
   // isotopologue_of link, never its natural-abundance parent.
   if (b.isotopologue_of) auto.push('isotope');
@@ -319,6 +438,43 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
 }
 
 export const UNTAGGED_KEY = '__untagged__';
+
+/**
+ * Order inside the technique role: the infrared geometries first and in the
+ * spec's own order, then Raman, then the excitation lines that qualify it,
+ * and the calculations last because they are not measurements.
+ *
+ * Without this the role sorts by count, which scatters the geometries through
+ * the row by how often each happens to appear and loses the one thing the
+ * group is trying to say. Every other role is unaffected: they all tie here
+ * and fall through to the count as before.
+ */
+const TECHNIQUE_SEQUENCE = [
+  'infrared', 'drifts', 'transmission', 'atr', 'ftir', 'irras', 'pm_irras', 'emission',
+  'raman', 'srs',
+];
+
+/**
+ * Order inside a role. Roles are sorted first, so the technique numbers and
+ * the laser numbers below never meet and need no common scale.
+ *
+ * In the laser role each family is followed by its own lines: the family
+ * takes its midpoint wavelength scaled up, and a line takes the same scaled
+ * midpoint plus its own wavelength, which lands it after its family and
+ * before the next one.
+ */
+function withinRoleRank(key: string): number {
+  const i = TECHNIQUE_SEQUENCE.indexOf(key);
+  if (i >= 0) return i;
+  if (key === 'computational') return 90;
+
+  const family = laserFamilyNm(key);
+  if (family !== null) return family * 1000;
+  const nm = laserTagNm(key);
+  if (nm !== null) return laserFamily(nm).nm * 1000 + nm;
+
+  return Number.MAX_SAFE_INTEGER;
+}
 
 export interface LegendTag {
   key: string;
@@ -330,6 +486,13 @@ export interface LegendTag {
   /** What kind of statement the tag makes. Drives the order of the legend. */
   role: TagRole;
   roleLabel: string;
+  /**
+   * A division inside the role, where one exists, so the legend can put a
+   * gap at each change of it. Only the technique role has any: the infrared
+   * geometries, the Raman ones, and the calculations that are not a
+   * measurement at all. Empty string everywhere else.
+   */
+  subgroup: string;
   background: string;
   border: string;
   color: string;
@@ -339,7 +502,7 @@ export interface LegendTag {
  * Tag chips for the legend, with both a total and a currently-visible count.
  *
  * The visible count exists so the legend can say what is actually on screen:
- * hiding "gas-phase" also empties "rotational-branches", because every band
+ * hiding "gas" also empties "rotational-branches", because every band
  * carrying one carries the other, and a chip that can no longer bring
  * anything back should not look clickable-and-live. `filters` mirrors the
  * display filter in buildChart exactly; leave it out and every band counts as
@@ -393,11 +556,17 @@ export function getLegendTags(
   }
 
   const result: LegendTag[] = [...counts.entries()].map(([key, count]) => {
-    const style = TAG_STYLES[key] ?? DEFAULT_TAG_STYLE;
+    // tagStyle, not a bare TAG_STYLES lookup: a laser chip is coloured from
+    // its own light and has no entry in the table.
+    const style = tagStyle(key);
     const role = tagRole(key);
+    // The family chip stays the bare colour name now that each line has a
+    // chip of its own sitting right after it.
     return {
       key, label: key, count, visibleCount: visible.get(key) ?? 0,
-      role, roleLabel: TAG_ROLE_LABEL[role], ...style,
+      role, roleLabel: TAG_ROLE_LABEL[role],
+      subgroup: role === 'technique' ? (TECHNIQUE_FAMILY[key] ?? '') : '',
+      ...style,
     };
   });
 
@@ -405,9 +574,16 @@ export function getLegendTags(
   // the band is, then what it is doing, then the rule, the measurement, and
   // the caveat last. Within a role the commonest tag leads, which keeps the
   // long tail of one-band tags out of the way.
+  const subRank = (t: LegendTag) =>
+    t.subgroup ? (TECHNIQUE_FAMILY_ORDER[t.subgroup] ?? 99) : 0;
   result.sort((a, b) =>
     tagRoleRank(a.role) - tagRoleRank(b.role) ||
+    // Family before umbrella: a family leader leads ITS OWN family, not the
+    // whole role. Without this "raman" and "computational" sort to the front
+    // of the technique row and the infrared geometries trail behind them.
+    subRank(a) - subRank(b) ||
     Number(isUmbrellaTag(b.key, b.role)) - Number(isUmbrellaTag(a.key, a.role)) ||
+    withinRoleRank(a.key) - withinRoleRank(b.key) ||
     b.count - a.count ||
     a.key.localeCompare(b.key));
 
@@ -421,6 +597,7 @@ export function getLegendTags(
       visibleCount: untaggedVisible,
       role: 'other',
       roleLabel: 'Untagged',
+      subgroup: '',
       background: C['pill-muted-bg'],
       border: C['pill-muted-border'],
       color: C['ink-050'],
@@ -847,10 +1024,25 @@ export function buildChart(
   // end. The domain used to run to a whole lane height above the top bar and
   // pad a fixed amount below, which left a visibly empty strip at both ends.
   const subLaneOffset = LANE_HEIGHT * SUB_LANE_OFFSET_FRAC * BAR_FRACTION;
+  /* Measured from the sub-lanes actually in use, not from an assumed ±1.
+     The outer slots at ±2 sit a whole offset beyond what a hardcoded ±1
+     bound allows, and those bands would be clipped off the edge of the plot.
+     Read from the same map the bars themselves are drawn from, over the same
+     enabled-group filter, so the extent cannot disagree with what is drawn. */
+  let subHi = 0;
+  let subLo = 0;
+  for (const b of bands) {
+    if (!enabledGroups.has(b.group)) continue;
+    if (newLaneIdx.get(b.lane) === undefined) continue;
+    const sl = dynamicSubLane.get(b.id) ?? 0;
+    if (sl > subHi) subHi = sl;
+    if (sl < subLo) subLo = sl;
+  }
   const laneCount = newNLanes > 0 ? newNLanes : 1;
-  const barTop = (laneCount - 1) * LANE_HEIGHT + LANE_HEIGHT * BAR_FRACTION + subLaneOffset;
+  const barTop =
+    (laneCount - 1) * LANE_HEIGHT + LANE_HEIGHT * BAR_FRACTION + subHi * subLaneOffset;
   const yPad = LANE_HEIGHT / 2;
-  const yLo = -subLaneOffset - yPad;
+  const yLo = subLo * subLaneOffset - yPad;
   const yHi = barTop + yPad;
   const yDataSpan = yHi - yLo;
   const height = Math.max(

@@ -1712,7 +1712,7 @@
       "id": "h2",
       "label": "H₂",
       "shape": "linear",
-      "band_groups": [],
+      "band_groups": ["h2"],
       "topologies": [
         {"id": "gas", "short": "gas", "long": "fluid", "point_group": "D<sub>∞h</sub>"}
       ],
@@ -1737,7 +1737,7 @@
       "id": "n2",
       "label": "N₂",
       "shape": "linear",
-      "band_groups": [],
+      "band_groups": ["n2"],
       "topologies": [
         {"id": "gas", "short": "gas", "long": "fluid", "point_group": "D<sub>∞h</sub>"}
       ],

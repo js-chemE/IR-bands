@@ -63,7 +63,7 @@
       class="mini-name"
       style="color:{color}"
       on:click={() => dispatch('navigate')}
-      title="Open this mode on the Vibration modes page"
+      title="Open this mode on the Normal modes page"
     >{mode.label}</button>
     {#if herzbergTag}
       <span class="mini-herzberg">{@html herzbergTag}</span>

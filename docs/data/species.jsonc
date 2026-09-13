@@ -78,6 +78,11 @@
       "molecule": null,
       "note": "Formate that has kept its proton: HCOOH adsorbed without dissociating. The C=O stretch near 1700 to 1730 cm⁻¹ is what separates it from formate, which has no localised carbonyl at all, so an absorption in that window is the test for whether the acid dissociated on contact."
     },
+    "carbonic_acid": {
+      "label": "Carbonic acid",
+      "formula": "H₂CO₃",
+      "note": "Carbonic acid held on a hydroxylated silica surface. Free H₂CO₃ is famously unstable, but multiple hydrogen bonds to surface silanols stabilise it enough to be seen: it sits in equilibrium with adsorbed CO₂ and water rather than existing on its own."
+    },
     "formaldehyde": {
       "label": "Formaldehyde",
       "formula": "H₂CO*",
@@ -123,6 +128,12 @@
       "molecule": null,
       "note": "A missing lattice oxygen in a reducible oxide, and the electrons left behind with it. Not a molecule and it has no normal modes; it is here because the electron trapped in it absorbs infrared light, which puts a band on the chart that belongs to no adsorbate."
     },
+    "gallia": {
+      "label": "Gallia framework",
+      "formula": "Ga₂O₃",
+      "molecule": null,
+      "note": "The Ga-O network of a gallium oxide support itself, not anything adsorbed on it. Here for the same reason as the silica framework and the oxygen vacancy: its own vibrations put bands on the chart that no adsorbate made."
+    },
     "silica": {
       "label": "Silica framework",
       "formula": "SiO₂",
@@ -142,8 +153,8 @@
     // Seven homonuclear diatomics, every one of them infrared-silent because
     // two identical atoms cannot build a dipole moment, and ammonia, where the
     // lack of an inversion centre makes every mode active in both techniques.
-    "h2":  { "label": "H₂",  "formula": "H₂",  "molecule": "h2",  "note": "No bands in the atlas: here for the vibration-modes page, as the highest-frequency and simplest vibration there is." },
-    "n2":  { "label": "N₂",  "formula": "N₂",  "molecule": "n2",  "note": "No bands in the atlas: here for the vibration-modes page." },
+    "h2":  { "label": "H₂",  "formula": "H₂",  "molecule": "h2",  "note": "The highest-frequency and simplest vibration in the atlas. Infrared-forbidden, being homonuclear, so every band on it is Raman." },
+    "n2":  { "label": "N₂",  "formula": "N₂",  "molecule": "n2",  "note": "Infrared-forbidden, being homonuclear, so every band on it is Raman. Present as the diluent and internal standard of a flame or a reactor feed rather than as a reactant." },
     "o2":  { "label": "O₂",  "formula": "O₂",  "molecule": "o2",  "note": "No bands in the atlas: here for the vibration-modes page." },
     "f2":  { "label": "F₂",  "formula": "F₂",  "molecule": "f2",  "note": "No bands in the atlas: here for the vibration-modes page." },
     "cl2": { "label": "Cl₂", "formula": "Cl₂", "molecule": "cl2", "note": "No bands in the atlas: here for the vibration-modes page." },

@@ -93,6 +93,29 @@
       "oxidation_state": 0,
       "note": "Metallic copper. Carries ν(CO) roughly 40–80 cm⁻¹ below the Cu⁺ carbonyl."
     },
+    "ag_0": {
+      "label": "Ag⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ag",
+      "oxidation_state": 0,
+      "note": "Metallic silver. Binds atomic hydrogen weakly and formate strongly enough, which is the combination that gives it the lowest barrier to formate of the three coinage metals."
+    },
+    "au_0": {
+      "label": "Au⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Au",
+      "oxidation_state": 0,
+      "note": "Metallic gold. Binds formate too weakly to accumulate it, the opposite failure to copper, which binds hydrogen too strongly."
+    },
+    "ag_sio2_interface": {
+      "label": "Ag⁰-SiO₂ perimeter",
+      "level": "site",
+      "kind": "interface",
+      "parts": ["ag_0", "sio2"],
+      "note": "The rim where a silver nanoparticle meets the silica, named as the active site for methyl formate: the formate sits on the metal and the carbonic acid and adsorbed methanol on the silica beside it, so the esterification happens where the two meet rather than on either alone."
+    },
     "pd_0": {
       "label": "Pd⁰",
       "level": "site",
@@ -365,6 +388,22 @@
       "parts": ["cu_0", "sio2"],
       "note": "Copper on silica with no promoter. Silica is close to inert here, so this is the reference against which a promoter's effect is read, and it is listed with Cu⁰ alone: the sources that pair it with a promoted counterpart find no Cu⁺ carbonyl on it at all."
     },
+    "ag_sio2": {
+      "label": "Ag/SiO₂",
+      "level": "sample",
+      "composition": "Ag/SiO₂",
+      "elements": ["Ag", "Si", "O"],
+      "parts": ["ag_0", "ag_sio2_interface", "sio2"],
+      "note": "Silver nanoparticles under 11 nm at 1 wt % on a 155 m² g⁻¹ silica, by wetness impregnation. Silica is chosen as a neutral support so the metal is what differs; it makes no methyl formate without the metal present."
+    },
+    "au_sio2": {
+      "label": "Au/SiO₂",
+      "level": "sample",
+      "composition": "Au/SiO₂",
+      "elements": ["Au", "Si", "O"],
+      "parts": ["au_0", "sio2"],
+      "note": "Gold nanoparticles under 11 nm at 1 wt % on silica, prepared alongside the Cu and Ag counterparts so the three coinage metals can be compared on one support."
+    },
     "cuga_sio2": {
       "label": "Cu-Ga₂O₃/SiO₂",
       "level": "sample",
@@ -448,6 +487,28 @@
       "elements": ["Co", "Si", "Al", "O"],
       "parts": ["co_0", "al2o3"],
       "note": "Cobalt on Siralox, a commercial silica-alumina of 5% SiO₂ and 95% Al₂O₃. Kept apart from co_al2o3: the support differs, and so does the carbonyl position reported on it. SiO₂ is not listed as a part: at 5% it is a dopant of the alumina, not a phase of its own."
+    },
+    "zsm5": {
+      "label": "ZSM-5",
+      "level": "phase",
+      "formula": "ZSM-5",
+      "elements": ["Si", "Al", "O"],
+      "note": "The MFI aluminosilicate framework, named as a phase because the cation it hosts is the site and the framework is what that site sits in. Deliberately no `parts`: the exchanged cation sits in the framework without being a constituent of it, and one sample carries one cation, so listing Li, Na, K, Rb, Cs, H and Cu together would describe a material that does not exist. A claim names both keys instead, as in [\"li_1p\", \"zsm5\"]. The Si/Al ratio decides how many cations there are and how far apart, so sources state it (14 for the alkali-exchanged series, 25 for the Cu-exchanged one) and the claim's note carries it."
+    },
+    "moox": {
+      "label": "MoOₓ",
+      "level": "phase",
+      "formula": "MoOₓ",
+      "elements": ["Mo", "O"],
+      "note": "Sub-stoichiometric molybdenum oxide, written with x rather than a fixed stoichiometry because the reduced, oxygen-deficient form is the point: it is the H₂-reduced state that carries the vacancies, and CO₂ re-oxidises it."
+    },
+    "pt_moox_tio2": {
+      "label": "Pt/MoOₓ/TiO₂",
+      "level": "sample",
+      "composition": "Pt/MoOₓ/TiO₂",
+      "elements": ["Pt", "Mo", "Ti", "O"],
+      "parts": ["pt_0", "moox", "tio2"],
+      "note": "Platinum on a molybdenum-oxide-covered titania, made by sequential impregnation and reduced in H₂ at 300 °C. Both metals are needed: neither Pt on bare TiO₂ nor MoOₓ/TiO₂ alone gives the methanol yield, which is what the sample entry is here to keep together."
     }
   }
 }
