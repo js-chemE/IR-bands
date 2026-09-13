@@ -26,12 +26,25 @@ export const AXES: Record<AxisProperty, AxisSpec> = {
 /*
  * A shift is any of these axes read from a zero instead of from nothing: the
  * laser line of a Raman spectrum, say. Each band then stands for light that
- * lost that much energy to the vibration, zero − ν̃, and the axis shows how
- * far that light sits from the zero in the chosen unit, signed so that the
- * Stokes side (energy lost) is positive and grows to the right:
- *   wavenumber, energy:  u(zero) − u(zero − ν̃)   the band itself, any zero
- *   wavelength:          u(zero − ν̃) − u(zero)   Δλ, which depends on the zero
- * Below the zero (anti-Stokes, ν̃ < 0) it is negative.
+ * lost that much energy to the vibration, zero − ν̃, and the axis reads that
+ * light rather than the band:
+ *   wavenumber, energy:  u(zero) − u(zero − ν̃)   the distance from the zero
+ *   wavelength:          u(zero − ν̃)             the scattered light itself
+ *
+ * The two differ on purpose. In wavenumber the Raman convention IS the
+ * distance from the laser, which is what "Raman shift / cm⁻¹" means and why
+ * it does not depend on the zero. In wavelength nobody plots a distance: a
+ * spectrometer's wavelength axis is the absolute wavelength of the light
+ * reaching the detector, and papers are drawn that way. Kojima's methane and
+ * hydrogen figures run 560 to 690 nm, and with a 532 nm zero this puts the
+ * N₂ Q branch at 607 nm and the H₂ O(0,3) line at 657 nm, exactly where that
+ * paper prints them. Reading Δλ instead put them at 75 and 125 nm, which
+ * matched no published axis.
+ *
+ * On the wavenumber and energy axes the Stokes side (energy lost) is positive
+ * and grows to the right, and below the zero (anti-Stokes, ν̃ < 0) it is
+ * negative. On the wavelength axis anti-Stokes light is simply bluer than the
+ * zero, so it stays a positive wavelength and needs no sign.
  */
 
 /**
@@ -135,7 +148,8 @@ export function wnToValue(wn: number, axis: AxisProperty, unit: string, shiftZer
   const light = shiftZero - wn;
   if (light <= 0) return Infinity;
   return shiftNeedsZero(axis)
-    ? plainValue(light, axis, unit) - plainValue(shiftZero, axis, unit)
+    // The scattered light itself, as a spectrometer's axis reads it.
+    ? plainValue(light, axis, unit)
     : plainValue(shiftZero, axis, unit) - plainValue(light, axis, unit);
 }
 
@@ -156,15 +170,21 @@ export function axisRange(
 export function axisLabel(axis: AxisProperty, unit: string, shiftZero: number | null = null): string {
   if (shiftZero === null) return `${axis} / ${unit}`;
   return shiftNeedsZero(axis)
-    ? `${axis} shift from ${formatLaser(shiftZero, 'nm')} nm / ${unit}`
+    // Not a shift on this axis: the absolute wavelength of the scattered
+    // light, with the laser named so the reader knows what produced it.
+    ? `scattered ${axis} (${formatLaser(shiftZero, 'nm')} nm laser) / ${unit}`
     : `${axis} shift / ${unit}`;
 }
 
 /** Inverse of wnToValue — converts a display value back to wavenumber (cm⁻¹). */
 export function valueToWn(value: number, axis: AxisProperty, unit: string, shiftZero: number | null = null): number {
   if (shiftZero === null) return plainWn(value, axis, unit);
-  const zero = plainValue(shiftZero, axis, unit);
-  const light = shiftNeedsZero(axis) ? plainWn(zero + value, axis, unit) : plainWn(zero - value, axis, unit);
+  // Must mirror wnToValue exactly, or zoom and pan drift: on the wavelength
+  // axis the value IS the scattered light, on the others it is a distance
+  // from the zero.
+  const light = shiftNeedsZero(axis)
+    ? plainWn(value, axis, unit)
+    : plainWn(plainValue(shiftZero, axis, unit) - value, axis, unit);
   return shiftZero - light;
 }
 

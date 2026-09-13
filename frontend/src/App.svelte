@@ -4,7 +4,14 @@
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
   import { getLegendCategories, getLegendTags, isCalculatedOnly, isReferenced } from './lib/chart';
   import { installLookups } from './lib/labels';
-  import { GROUP_DIMS, type GroupDim } from './lib/refGrouping';
+  import {
+    GROUP_DIMS,
+    ALL_TECHNIQUES,
+    IR_TECHNIQUES,
+    RAMAN_TECHNIQUES,
+    TECHNIQUE_LABEL,
+    type GroupDim,
+  } from './lib/refGrouping';
   import BandChart from './components/BandChart.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import ColorLegend from './components/ColorLegend.svelte';
@@ -13,7 +20,7 @@
   import SpectroscopySwitch from './components/SpectroscopySwitch.svelte';
   import LookPill from './components/LookPill.svelte';
   import Dropdown from './components/Dropdown.svelte';
-  import ReferencesPage from './components/ReferencesPage.svelte';
+  import ReferencesPage, { type RefCounts } from './components/ReferencesPage.svelte';
   import HomePage from './components/HomePage.svelte';
   import ImpressumPage from './components/ImpressumPage.svelte';
   import StyleGuidePage, { SECTIONS as SG_SECTIONS } from './components/StyleGuidePage.svelte';
@@ -45,6 +52,39 @@
   let refIncludeBands = true;
   let refIncludeModes = false;
   let refIncludeKnowledge = true;
+  // Which techniques the References page shows. A Set of every value means
+  // "no filter", which is what `refTechniqueFilter` below turns it into, so
+  // the page never pays for a filter nobody asked for.
+  let refTechniques = new Set<string>(ALL_TECHNIQUES);
+  let refTechniquesOpen = false;
+  // Reported by the References page whenever it rebuilds, so the sidebar can
+  // say how much of each kind the current filters actually leave on screen.
+  let refCounts: RefCounts | null = null;
+  $: refTechniqueFilter =
+    refTechniques.size === ALL_TECHNIQUES.length ? null : refTechniques;
+  /** How many of the seven infrared geometries are on: all, none or some. */
+  $: irOn = IR_TECHNIQUES.filter(t => refTechniques.has(t)).length;
+  // Raman is a family too now that spontaneous Raman is a value of its own.
+  $: ramanOn = RAMAN_TECHNIQUES.filter(t => refTechniques.has(t)).length;
+  function toggleTechnique(key: string) {
+    const next = new Set(refTechniques);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    refTechniques = next;
+  }
+  /** The IR parent switch: all seven off if any are on, else all seven on. */
+  function toggleIr() {
+    const next = new Set(refTechniques);
+    if (irOn > 0) for (const t of IR_TECHNIQUES) next.delete(t);
+    else for (const t of IR_TECHNIQUES) next.add(t);
+    refTechniques = next;
+  }
+  /** The Raman parent switch, the same contract as the IR one above. */
+  function toggleRaman() {
+    const next = new Set(refTechniques);
+    if (ramanOn > 0) for (const t of RAMAN_TECHNIQUES) next.delete(t);
+    else for (const t of RAMAN_TECHNIQUES) next.add(t);
+    refTechniques = next;
+  }
   // A Knowledge card to open when arriving from a References-page link.
   let knOpen: string | null = null;
   $: if (page !== 'knowledge') knOpen = null;
@@ -302,8 +342,11 @@
 
   const COLOR_DIM_OPTIONS: { dim: ColorDim; label: string }[] = [
     { dim: 'group',      label: 'Group' },
-    { dim: 'vibration',  label: 'Vibration' },
+    // "Mode", not "Vibration": the category now includes `rotational` and
+    // `electronic`, neither of which is a vibration.
+    { dim: 'vibration',  label: 'Mode' },
     { dim: 'atoms',      label: 'Atoms' },
+    { dim: 'technique',  label: 'Evidence' },
   ];
 
   $: legendCats = dataset
@@ -355,7 +398,13 @@
     ? (showIsotopes ? dataset.bands : dataset.bands.filter(b => !b.isotopologue_of))
         .filter(b => !activePhases || !b.phase || activePhases.includes(b.phase))
         .filter(b => showInactive || !b.tags.includes(inactiveTag))
-        .filter(b => showUnreferenced || isReferenced(b, spectroscopy))
+        // The two switches compose. Switching computational off stops a
+        // calculation counting as evidence, so a band whose only standing
+        // claim was one becomes unreferenced and the switch below takes it
+        // out. Without that a band could sit there with every claim greyed:
+        // its infrared claims silent in the Raman view, its calculation
+        // dimmed, and nothing left to justify drawing it.
+        .filter(b => showUnreferenced || isReferenced(b, spectroscopy, !showCalculated))
         .filter(b => showCalculated || !isCalculatedOnly(b))
     : [];
 
@@ -638,18 +687,120 @@
           <!-- What lists its papers here: the bands, the modes, the Knowledge cards. -->
           <section>
             <h3>Include</h3>
-            <label class="include-row" title="Every band that cites the paper, with its wavenumber and surface">
-              <input type="checkbox" bind:checked={refIncludeBands} />
-              Band assignments
-            </label>
-            <label class="include-row" title="Vibration modes that cite a paper without a band attached">
-              <input type="checkbox" bind:checked={refIncludeModes} />
-              Vibration modes
-            </label>
-            <label class="include-row" title="Knowledge cards that cite a paper, with the chapter and page">
-              <input type="checkbox" bind:checked={refIncludeKnowledge} />
-              Knowledge
-            </label>
+            <button
+              class="include-row"
+              class:off={!refIncludeBands}
+              aria-pressed={refIncludeBands}
+              title="Every band that cites the paper, with its wavenumber and surface"
+              on:click={() => (refIncludeBands = !refIncludeBands)}
+            >
+              <span class="inc-label">Assignments</span>
+              {#if refCounts}
+                <span class="count">{refCounts.claimsShown} / {refCounts.claimsTotal}</span>
+              {/if}
+            </button>
+            <!-- Which kinds of measurement those assignments may come from.
+                 Nested under the assignments it filters, and collapsed by
+                 default: it is a narrowing tool, not an everyday control. A
+                 claim that records no technique at all is never filtered out
+                 by it, so switching a technique off never hides the gaps. -->
+            {#if refIncludeBands}
+              <div class="tech-filter">
+                <button
+                  class="disclosure tech-disclosure"
+                  on:click={() => (refTechniquesOpen = !refTechniquesOpen)}
+                  aria-expanded={refTechniquesOpen}
+                >
+                  <span class="caret">{refTechniquesOpen ? '▾' : '▸'}</span>
+                  Technique
+                  <span class="count">{refTechniques.size} / {ALL_TECHNIQUES.length}</span>
+                </button>
+                {#if refTechniquesOpen}
+                  <!-- The IR parent reads off only when all seven are off; a
+                       partial selection stays upright and lets the count say
+                       how many, which is what an indeterminate checkbox used
+                       to carry. -->
+                  <button
+                    class="include-row tech-row"
+                    class:off={irOn === 0}
+                    aria-pressed={irOn > 0}
+                    title="Infrared, every sampling geometry at once"
+                    on:click={toggleIr}
+                  >
+                    <span class="inc-label">IR</span>
+                    <span class="count">{irOn} / {IR_TECHNIQUES.length}</span>
+                  </button>
+                  {#each IR_TECHNIQUES as t (t)}
+                    <button
+                      class="include-row tech-row tech-child"
+                      class:off={!refTechniques.has(t)}
+                      aria-pressed={refTechniques.has(t)}
+                      title={TECHNIQUE_LABEL[t]}
+                      on:click={() => toggleTechnique(t)}
+                    ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
+                      {#if refCounts}<span class="count">{refCounts.byTechnique[t] ?? 0}</span>{/if}
+                    </button>
+                  {/each}
+                  <!-- Raman has members of its own now, so it gets the same
+                       parent-and-children shape as IR: the parent switches
+                       the family, the children the individual values. -->
+                  <button
+                    class="include-row tech-row"
+                    class:off={ramanOn === 0}
+                    aria-pressed={ramanOn > 0}
+                    title="Raman, every kind at once"
+                    on:click={toggleRaman}
+                  >
+                    <span class="inc-label">Raman</span>
+                    <span class="count">{ramanOn} / {RAMAN_TECHNIQUES.length}</span>
+                  </button>
+                  {#each RAMAN_TECHNIQUES as t (t)}
+                    <button
+                      class="include-row tech-row tech-child"
+                      class:off={!refTechniques.has(t)}
+                      aria-pressed={refTechniques.has(t)}
+                      title={TECHNIQUE_LABEL[t]}
+                      on:click={() => toggleTechnique(t)}
+                    ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
+                      {#if refCounts}<span class="count">{refCounts.byTechnique[t] ?? 0}</span>{/if}
+                    </button>
+                  {/each}
+                  <button
+                    class="include-row tech-row"
+                    class:off={!refTechniques.has('computational')}
+                    aria-pressed={refTechniques.has('computational')}
+                    title={TECHNIQUE_LABEL.computational}
+                    on:click={() => toggleTechnique('computational')}
+                  ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
+                    {#if refCounts}<span class="count">{refCounts.byTechnique.computational ?? 0}</span>{/if}
+                  </button>
+                {/if}
+              </div>
+            {/if}
+            <button
+              class="include-row"
+              class:off={!refIncludeModes}
+              aria-pressed={refIncludeModes}
+              title="Normal modes that cite a paper without a band attached"
+              on:click={() => (refIncludeModes = !refIncludeModes)}
+            >
+              <span class="inc-label">Normal modes</span>
+              {#if refCounts}
+                <span class="count">{refCounts.modesShown} / {refCounts.modesTotal}</span>
+              {/if}
+            </button>
+            <button
+              class="include-row"
+              class:off={!refIncludeKnowledge}
+              aria-pressed={refIncludeKnowledge}
+              title="Knowledge cards that cite a paper, with the chapter and page"
+              on:click={() => (refIncludeKnowledge = !refIncludeKnowledge)}
+            >
+              <span class="inc-label">Knowledge</span>
+              {#if refCounts}
+                <span class="count">{refCounts.knowledgeShown} / {refCounts.knowledgeTotal}</span>
+              {/if}
+            </button>
             <p class="include-hint">Modes and Knowledge show under each reference when grouping by reference first.</p>
           </section>
         {/if}
@@ -663,6 +814,7 @@
       {#if page === 'home'}
         <HomePage
           bandCount={dataset.bands.length}
+          assignmentCount={dataset.bands.reduce((n, b) => n + b.references.length, 0)}
           referenceCount={refs ? Object.keys(refs).length : 0}
           on:navigate={handleHomeNavigate}
         />
@@ -724,6 +876,8 @@
           includeBands={refIncludeBands}
           includeModes={refIncludeModes}
           includeKnowledge={refIncludeKnowledge}
+          techniques={refTechniqueFilter}
+          on:counts={e => (refCounts = e.detail)}
           on:navigateKnowledge={handleNavigateKnowledge}
         />
       {:else if page === 'knowledge'}
@@ -1089,15 +1243,33 @@
     gap: 1px;
   }
 
-  /* References page: what else lists its citations. */
+  /* References page: what else lists its citations, and which techniques.
+     No checkboxes anywhere: a row is on when it reads normally and off when
+     it is greyed and struck through, the same idiom the chart sidebar uses
+     for a switched-off group. The state IS the styling. */
   .include-row {
     display: flex;
     align-items: center;
     gap: 7px;
-    padding: 2px 0;
+    width: 100%;
+    padding: 2px 4px;
+    background: none;
+    border: none;
+    border-radius: var(--radius);
+    font: inherit;
     font-size: var(--t-nav-size);
     color: var(--t-nav-color);
+    text-align: left;
     cursor: pointer;
+    user-select: none;
+  }
+  .include-row:hover { background: var(--surface-hover); }
+
+  /* Only the label is struck, never the count beside it: a strike through a
+     ratio reads as a deleted number rather than a switched-off row. */
+  .include-row.off .inc-label {
+    color: var(--ink-025);
+    text-decoration: line-through;
   }
   .include-hint {
     margin: 6px 0 0;
@@ -1105,6 +1277,49 @@
     line-height: 1.4;
     color: var(--ink-050);
   }
+
+  /* The technique filter, nested under the assignments it narrows. Indented
+     against a hairline so it reads as belonging to the row above rather than
+     as a fourth Include option, and collapsed by default: it is an escape
+     hatch, the same idiom as the chart sidebar's per-group list. */
+  .tech-filter {
+    margin: 2px 0 2px 7px;
+    padding-left: 9px;
+    border-left: 1px solid var(--line);
+  }
+
+  .disclosure {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 3px 0;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: var(--t-nav-size);
+    color: var(--ink-500);
+    cursor: pointer;
+    text-align: left;
+  }
+  .disclosure:hover { color: var(--ink-700); }
+  .caret { color: var(--ink-200); }
+  /* The counts sit hard right and never wrap: a ratio broken across two lines
+     stops reading as one number, and in a sidebar this narrow that is exactly
+     what "319 / 319" does if you let it. */
+  .count {
+    margin-left: auto;
+    padding-left: 6px;
+    font-family: var(--font-mono);
+    color: var(--ink-200);
+    white-space: nowrap;
+  }
+  .inc-label { min-width: 0; }
+
+  /* A hair tighter than the Include rows above: seven of them stack up. */
+  .tech-row { padding: 1px 0; }
+  /* The seven infrared geometries, under their own IR parent switch. */
+  .tech-child { padding-left: 16px; }
 
   .sg-toc-item {
     display: block;

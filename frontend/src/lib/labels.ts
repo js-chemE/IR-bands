@@ -25,7 +25,15 @@ import type { Band, Dataset, Species, Surface, SurfaceLevel, BandReference } fro
  * a branch cannot be renamed without the label following.
  */
 export function branchSuffix(b: Band): string {
-  return b.vibration?.branch ? ` (${b.vibration.branch})` : '';
+  const branch = b.vibration?.branch;
+  if (!branch) return '';
+  /* One resolved line takes the spectroscopist's form, S(3), where the
+     number is the level the transition starts from (Long, The Raman Effect,
+     p. 174). A whole unresolved branch keeps the bare letter in brackets, so
+     the two never read alike: "ν(HH) H₂ S(3)" is one line, "ν(NN) N₂ (S)" is
+     the envelope. */
+  const j = b.vibration?.j;
+  return j === null || j === undefined ? ` (${branch})` : ` ${branch}(${j})`;
 }
 
 let SPECIES: Record<string, Species> = {};

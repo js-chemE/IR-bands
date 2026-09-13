@@ -92,16 +92,16 @@ export const ENTITIES: EntitySpec[] = [
     fields: [
       { name: 'id', type: 'string', req: 'req', note: 'Species, mode and whatever qualifier separates it from its siblings. Never a wavenumber: the position gets refined, and an id that encodes it forces a rename every time. Referenced by based_on, fermi_partner and isotopologue_of.' },
       { name: 'species', type: 'species key', req: 'req', note: 'Into species.jsonc. The chemical identity only.' },
-      { name: 'phase', type: 'gas | adsorbed | surface', req: 'opt', note: 'Omitted on purpose when the band covers both the free molecule and its adsorbed form. Derives the "gas-phase" tag.' },
+      { name: 'phase', type: 'gas | adsorbed | surface', req: 'opt', note: 'Omitted on purpose when the band covers both the free molecule and its adsorbed form. Derives no tag: the phase chips come from the claims’ own state.' },
       { name: 'topology', type: 'topology id', req: 'opt', note: 'Binding geometry, as a Topology declared by this species’ molecule in vibrations.jsonc.' },
       { name: 'group', type: 'group key', req: 'req', note: 'Into the groups lookup. Drives lane order and the default colour dimension.' },
-      { name: 'vibration', type: '{category, subtype, branch}', req: 'req', note: 'Closed enums, validated in schema.py.' },
+      { name: 'vibration', type: '{category, subtype, branch, j}', req: 'req', note: 'Three closed enums and one integer, validated in schema.py.' },
       { name: 'atoms', type: 'string', req: 'req', note: 'Bond environment (O=C=O, M-O, diverse). Drives the atoms colormap.' },
       { name: 'wn_start / wn_end', type: 'int', req: 'req', note: 'The band’s window in cm⁻¹. wn_min/max/center derive from it.' },
       { name: 'short / description', type: 'string', req: 'opt', note: 'Label, and the general description: what the mode is and what it is confused with, 120 words at most.' },
       { name: 'references[]', type: 'Assignment[]', req: 'opt', note: 'The per-source claims. See the Assignment entity.' },
       { name: 'based_on[]', type: 'BasedOn[]', req: 'opt', note: 'Parent modes of a combination or overtone, with a multiplier.' },
-      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Free-form. Four of them are derived by build.py and must not be authored.' },
+      { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Free-form, but most of the ones in use are derived by build.py from a field and must not be authored. DERIVED_TAGS below is the list.' },
       { name: 'intensity / width / confidence', type: 'enum', req: 'opt', note: 'Observation-dependent, but still authored on the band. See what is still open.' },
       { name: 'vibration_modes[]', type: 'mode id[]', req: 'opt', note: 'Link up into vibrations.jsonc. Back-filled for derived bands.' },
       { name: 'lane / sub_lane', type: 'int', req: 'calc', note: 'Set in place by layout.py, not authored.' },
@@ -121,8 +121,8 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'key', type: 'citekey', req: 'req', note: 'Into references.bib.' },
       { name: 'wn', type: 'int | int[]', req: 'opt', note: 'This source’s reported position. An array means several resolved components.' },
       { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
-      { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives the technique tag.' },
-      { name: 'laser_nm', type: 'number', req: 'opt', note: 'Raman excitation wavelength in nm. Derives a tag chip of its own ("514.5 nm") coloured from the light itself, since a wavelength is a number and no fixed tag table can hold it. Only meaningful where technique is raman; the build warns otherwise.' },
+      { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives two tags: its own name, and the family it belongs to (infrared, raman, computational), so the legend can ask "seen in the infrared at all" without ticking seven chips.' },
+      { name: 'laser_nm', type: 'number', req: 'opt', note: 'Raman excitation wavelength in nm, recorded only where the source names the line. Derives two chips, the colour family and the line itself ("green laser", "515 nm"), both coloured from the light rather than from a fixed table, since a wavelength is a number and no vocabulary can hold one. Only meaningful on a Raman technique, raman or srs; the build warns otherwise.' },
       { name: 'state', type: 'gas | liquid | matrix | solid | adsorbed', req: 'opt', note: 'What was in the beam for this claim, and every claim should carry one. Not band.phase, which says what the band is wherever it appears: this says how the sample was held here, and it moves the number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those read as a disagreement instead of three experiments. Derives a tag of the same name.' },
       { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
@@ -152,11 +152,12 @@ export const ENTITIES: EntitySpec[] = [
     source: 'data/bands.jsonc → band.vibration',
     id: 'none (one per band)',
     blurb:
-      'What the band’s atoms are doing: the motion, its symmetry, and which rotational branch of it this band is. Three closed enums in one object, validated in schema.py, and the only descriptor on a band that is fully vocabulary-controlled.',
+      'What the band’s atoms are doing: the motion, its symmetry, which rotational branch of it this band is, and which rotational level that branch starts from. Three closed enums and one integer in one object, validated in schema.py; the enums make it the only descriptor on a band that is fully vocabulary-controlled.',
     fields: [
-      { name: 'category', type: 'stretch | bend | combination | lattice | electronic', req: 'req', note: 'An overtone is not a category: it uses the parent’s and adds the "overtone" tag. `electronic` is the one that is not a normal mode: a defect-to-conduction-band transition that absorbs across the infrared.' },
+      { name: 'category', type: 'stretch | bend | combination | lattice | electronic | rotational', req: 'req', note: 'An overtone is not a category: it uses the parent’s and adds the "overtone" tag. Two of these are not normal modes. `electronic` is a defect-to-conduction-band transition that absorbs across the infrared. `rotational` is a pure rotation, where nothing vibrates at all: Raman reaches it directly through the polarizability, and since only ΔJ = +2 arises for pure rotation such a band is always an S branch.' },
       { name: 'subtype', type: 'symmetric | asymmetric | scissoring | rocking | wagging | twisting', req: 'opt', note: 'Never on a combination, which is not itself symmetric or asymmetric.' },
-      { name: 'branch', type: 'R | P | Q', req: 'opt', note: 'Which rotational branch. Set together with branch_group, and only on gas-phase bands.' },
+      { name: 'branch', type: 'O | P | Q | R | S', req: 'opt', note: 'Which rotational branch, as ΔJ from the band centre: O = −2, P = −1, Q = 0, R = +1, S = +2. The infrared reaches ΔJ = 0, ±1 only (P, Q, R), so an O or S band on infrared-only claims is a contradiction the build warns about. Raman reaches ±2 as well, but which of the five it shows depends on the rotor: O, Q, S for a linear molecule in a non-degenerate vibration, all five for a symmetric or spherical top. Set together with branch_group, and only on bands of a freely turning molecule.' },
+      { name: 'j', type: 'integer ⩾ 0', req: 'opt', note: 'The rotational level the transition starts from, set only where a source resolves one line instead of a branch envelope. With it the band is labelled S(3); without it the label is the bare branch letter and the band is the whole envelope. Worth using where the lines are genuinely apart (H₂, B ≈ 59 cm⁻¹) and not where they blur into a tail (N₂, B ≈ 2 cm⁻¹). Requires branch.' },
     ],
   },
   {
@@ -429,7 +430,7 @@ export const SELF_LINKS: SelfLinkSpec[] = [
     label: 'Built from',
     field: 'based_on[] → band_id | branch_group | label',
     shape: 'directed, N:M, weighted',
-    note: 'A combination or overtone points at its parent modes, with a multiplier. Points at a branch_group instead of one band when the parent itself splits into R/P/Q, and carries only a label when the parent is outside the dataset (an IR-inactive ν₁, say).',
+    note: 'A combination or overtone points at its parent modes, with a multiplier. Points at a branch_group instead of one band when the parent itself splits into branches, and carries only a label when the parent is outside the dataset (an IR-inactive ν₁, say).',
   },
   {
     key: 'fermi',
@@ -443,7 +444,7 @@ export const SELF_LINKS: SelfLinkSpec[] = [
     label: 'Rotational branch siblings',
     field: 'branch_group',
     shape: 'undirected set',
-    note: 'Every band sharing a non-null branch_group is a branch of the same vibrational transition: 2-way for R/P, 3-way when Q is IR-allowed. Since it is one transition of one species, the build checks that the siblings agree on species and phase. Rotational structure exists only for a freely rotating gas molecule, so an adsorbed sibling is a contradiction rather than a typo.',
+    note: 'Every band sharing a non-null branch_group is a branch of the same transition: 2-way for P/R, 3-way with Q, and up to 5-way in Raman, where a symmetric or spherical top adds the ΔJ = ±2 branches O and S. A pure rotational spectrum uses the same key for the lines of its single S branch, one per starting level, and those take the "rotational" tag instead of "rotational-branches". Since it is one transition of one species, the build checks that the siblings agree on species and phase; rotational structure exists only for a freely rotating gas molecule, so an adsorbed sibling is a contradiction rather than a typo. The layout treats a family as one unit, splitting it only where its ΔJ = ±1 and ±2 bands actually run over each other.',
   },
   {
     key: 'isotopologue',
@@ -463,20 +464,49 @@ export const SELF_LINKS: SelfLinkSpec[] = [
    proper home.
    --------------------------------------------------------------------------- */
 
-export type TagRole = 'structure' | 'isotope' | 'phase' | 'activity' | 'technique' | 'evidence' | 'caveat' | 'other';
+export type TagRole = 'structure' | 'isotope' | 'phase' | 'activity' | 'technique' | 'laser' | 'evidence' | 'caveat' | 'other';
 
 /**
  * Reading order, and the only place it is decided.
  *
- * It runs from what the band is, through how it was measured, to how far to
- * trust it: structure and phase describe the band itself, activity is the
- * selection rule, technique and evidence are the measurement, and a caveat is
- * the warning that comes last for the same reason a caveat comes last in a
- * sentence. Everything that renders tags in sequence sorts by this.
+ * It falls in two halves, and the legend draws them as two rows (TAG_ROLE_BAND
+ * below). First what the band *is*, whoever measured it: what kind of
+ * transition it is, whether it is a labelled twin, which selection rule it
+ * obeys, and last the caveat, which comes last for the same reason a caveat
+ * comes last in a sentence. Then how it was *measured*: the state the sample
+ * was in, the technique, the laser that technique used, and what the claim
+ * rests on. Everything that renders tags in sequence sorts by this.
  */
 export const TAG_ROLE_ORDER: TagRole[] = [
-  'structure', 'isotope', 'phase', 'activity', 'technique', 'evidence', 'caveat', 'other',
+  // What the band is.
+  'structure', 'isotope', 'activity', 'caveat',
+  // How it was measured.
+  'phase', 'technique', 'laser', 'evidence', 'other',
 ];
+
+/** The two halves of TAG_ROLE_ORDER, as the legend's two rows. */
+export type TagBand = 'band' | 'measurement';
+
+/**
+ * Which row a role belongs to.
+ *
+ * The cut is whether the tag would still be true if a different group had
+ * measured the band. A combination band stays a combination and an
+ * IR-inactive mode stays forbidden; the state the sample was in, the
+ * technique and the laser are facts about one experiment. "Untagged" is
+ * neither, and trails at the end of the second row.
+ */
+export const TAG_ROLE_BAND: Record<TagRole, TagBand> = {
+  structure: 'band',
+  isotope: 'band',
+  activity: 'band',
+  caveat: 'band',
+  phase: 'measurement',
+  technique: 'measurement',
+  laser: 'measurement',
+  evidence: 'measurement',
+  other: 'measurement',
+};
 
 /**
  * Within a role, the tag named after the role itself leads.
@@ -487,8 +517,42 @@ export const TAG_ROLE_ORDER: TagRole[] = [
  * of the specific ones however the counts fall.
  */
 export function isUmbrellaTag(tag: string, role: TagRole): boolean {
+  // The technique role has three families rather than one umbrella, so the
+  // leader is whichever tag names a family: "infrared" ahead of the seven
+  // geometries, "raman" ahead of the scattering ones. "raman" is both the
+  // family and the generic value, so it leads its own family by being it.
+  if (role === 'technique') return TECHNIQUE_FAMILY[tag] === tag || tag === 'infrared';
   return tag === role;
 }
+
+/**
+ * Technique tag -> the family it belongs to, which is also the umbrella tag
+ * derived beside it (loader.py's TECHNIQUE_FAMILY; keep the two in step).
+ *
+ * The legend puts a gap at each change of family, so the row reads as three
+ * groups rather than eleven chips: the infrared geometries, then the Raman
+ * ones, then the calculations, which are not a measurement at all.
+ */
+export const TECHNIQUE_FAMILY_ORDER: Record<string, number> = {
+  infrared: 0,
+  raman: 1,
+  // Last because it is not a measurement: everything above it was seen.
+  computational: 2,
+};
+
+export const TECHNIQUE_FAMILY: Record<string, 'infrared' | 'raman' | 'computational'> = {
+  infrared: 'infrared',
+  drifts: 'infrared',
+  transmission: 'infrared',
+  atr: 'infrared',
+  ftir: 'infrared',
+  irras: 'infrared',
+  pm_irras: 'infrared',
+  emission: 'infrared',
+  raman: 'raman',
+  srs: 'raman',
+  computational: 'computational',
+};
 
 /** Index of a role in TAG_ROLE_ORDER, for sort comparators. */
 export function tagRoleRank(role: TagRole): number {
@@ -499,9 +563,10 @@ export function tagRoleRank(role: TagRole): number {
 export const TAG_ROLE_LABEL: Record<TagRole, string> = {
   structure: 'Structure',
   isotope: 'Isotope',
-  phase: 'Phase and behaviour',
+  phase: 'Sample state',
   activity: 'Selection rule',
   technique: 'Technique',
+  laser: 'Laser',
   evidence: 'Evidence',
   caveat: 'Caveat',
   other: 'Unclassified',
@@ -510,9 +575,10 @@ export const TAG_ROLE_LABEL: Record<TagRole, string> = {
 export const TAG_ROLE_NOTE: Record<TagRole, string> = {
   structure: 'A fact about the band itself. Mostly derived by build.py from the link fields.',
   isotope: 'The band is a labelled twin of another one, not the ordinary molecule. All derived from band.isotope, with the umbrella tag first and the substitution behind it.',
-  phase: 'What the species is doing. "gas-phase" is derived from band.phase now.',
+  phase: 'What was in the beam. Derived from assignment.state, on the claim rather than on the band: a band has no sample of its own, so it shows the union of the states its claims were measured in. Band.phase is an editorial statement about the species, used by the sets, and the build warns where it contradicts the claims underneath it.',
   activity: 'IR / Raman selection rule, derived by the loader from the mode’s booleans.',
   technique: 'How the spectrum was taken. Now derived from assignment.technique.',
+  laser: 'Which light the Raman measurement used, grouped by the colour of it and derived from assignment.laser_nm. A role of its own rather than part of the technique: it qualifies one technique rather than naming another, and the chips are coloured from the light itself instead of from the tag table.',
   evidence: 'What backs the claim up. Genuinely per-citation, correctly a tag.',
   caveat: 'A warning about how to read the band: a position that is a known trap, or one that moves with the surface. It goes on the band rather than on a claim, since it is a property of where the band sits and not of the paper that happened to notice. The only role with a colour of its own, because it is the only one that asks the reader to slow down.',
   other: 'Not yet classified.',
@@ -525,22 +591,24 @@ export const TAG_ROLES: Record<string, TagRole> = {
   overtone: 'structure',
   'fermi-resonance': 'structure',
   'rotational-branches': 'structure',
+  rotational: 'structure',
   // Isotope: the umbrella, then which substitution.
   isotope: 'isotope',
   deuterium: 'isotope',
   'carbon-13': 'isotope',
   'oxygen-18': 'isotope',
   degenerated: 'structure',
-  // Phase and behaviour: what the species is doing.
-  'gas-phase': 'phase',
   // What the species does on the surface: stays intact rather than
-  // dissociating. A property of the species, not of any one measurement, which
-  // is why it is a band tag and the per-claim "adsorbed" is not the same thing.
+  // dissociating. Still a phase statement, about the form the species is in
+  // rather than about the mode, which is why it sits with the phase tags even
+  // though it is authored on the band and the state tags are derived from the
+  // claims. Not the same as the per-claim "adsorbed": every methoxy claim is
+  // adsorbed, and methoxy is not undissociated.
   undissociated: 'phase',
   'frustrated-mode': 'phase',
-  // What was in the beam for one claim, from assignment.state. Alongside
-  // "gas-phase" rather than merged with it: that one says the band belongs to
-  // a free molecule, these say how this measurement held the sample.
+  // What was in the beam for one claim, from assignment.state, and the whole
+  // of the phase vocabulary: a band carries no phase tag of its own, it shows
+  // the union of its claims'.
   gas: 'phase',
   liquid: 'phase',
   matrix: 'phase',
@@ -551,7 +619,8 @@ export const TAG_ROLES: Record<string, TagRole> = {
   'ir-inactive': 'activity',
   'raman-active': 'activity',
   'raman-inactive': 'activity',
-  // How it was measured.
+  // How it was measured: the family first, then the values under it.
+  infrared: 'technique',
   drifts: 'technique',
   transmission: 'technique',
   atr: 'technique',
@@ -560,6 +629,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
   pm_irras: 'technique',
   emission: 'technique',
   raman: 'technique',
+  srs: 'technique',
   computational: 'technique',
   'direct-dosing': 'evidence',
   'isotope-labeling': 'evidence',
@@ -573,7 +643,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
 
 /** Tags build.py or the loader writes from a field. Authoring one is an error. */
 export const DERIVED_TAGS: Record<string, string> = {
-  'gas-phase': 'band.phase',
+  infrared: 'assignment.technique',
   drifts: 'assignment.technique',
   transmission: 'assignment.technique',
   atr: 'assignment.technique',
@@ -582,6 +652,7 @@ export const DERIVED_TAGS: Record<string, string> = {
   pm_irras: 'assignment.technique',
   emission: 'assignment.technique',
   raman: 'assignment.technique',
+  srs: 'assignment.technique',
   // Both levels of it: the claim tag from its own technique, the band tag
   // from every claim on the band having that technique and no other.
   computational: 'assignment.technique',
@@ -593,6 +664,7 @@ export const DERIVED_TAGS: Record<string, string> = {
   fundamental: 'vibration.category + band.based_on',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',
+  rotational: 'band.branch_group + vibration.category',
   isotope: 'band.isotopologue_of',
   deuterium: 'band.isotope',
   'carbon-13': 'band.isotope',
@@ -602,7 +674,7 @@ export const DERIVED_TAGS: Record<string, string> = {
 };
 
 /**
- * A Raman excitation wavelength, as the tag chip spells it: "514.5 nm".
+ * A Raman excitation wavelength, as the tag chip spells it: "515 nm".
  *
  * This is the one tag that cannot live in TAG_ROLES or TAG_STYLES, because a
  * wavelength is a number rather than a member of a vocabulary. It is matched
@@ -616,24 +688,79 @@ export function laserTagNm(tag: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
+/**
+ * Laser lines grouped by the colour of the light, so a whole colour can be
+ * switched at once rather than one line at a time.
+ *
+ * The boundaries are the ordinary ones of the visible spectrum, and `nm` is
+ * the representative wavelength the family's chip is coloured from. 785 nm
+ * comes out as near-infrared rather than red on purpose: the visible range
+ * ends near 700 nm, and a 785 nm beam is invisible however red the pointer
+ * on the bench looks.
+ */
+const LASER_FAMILIES: { from: number; to: number; key: string }[] = [
+  { from: 250, to: 400, key: 'UV laser' },
+  { from: 400, to: 450, key: 'violet laser' },
+  { from: 450, to: 495, key: 'blue laser' },
+  { from: 495, to: 570, key: 'green laser' },
+  { from: 570, to: 590, key: 'yellow laser' },
+  { from: 590, to: 620, key: 'orange laser' },
+  // Red runs to 790 rather than stopping at the visible edge near 700, so the
+  // 785 nm diode that half of Raman is done with lands in red where people
+  // actually put it, instead of alone in a near-infrared bucket.
+  { from: 620, to: 790, key: 'red laser' },
+  { from: 790, to: 1100, key: 'near-infrared laser' },
+];
+
+/**
+ * The colour a family's chip takes: the midpoint of its own range, not one
+ * member's wavelength. A family is a band of the spectrum, so it should look
+ * like the middle of that band however few lines happen to sit in it, and it
+ * must not change colour when a second line is added.
+ */
+function familyNm(f: { from: number; to: number }): number {
+  return (f.from + f.to) / 2;
+}
+
+/** Which colour family a wavelength belongs to. */
+export function laserFamily(nm: number): { key: string; nm: number } {
+  const f = LASER_FAMILIES.find(x => nm < x.to) ?? LASER_FAMILIES[LASER_FAMILIES.length - 1];
+  return { key: f.key, nm: familyNm(f) };
+}
+
+/** The representative wavelength if this tag is a family, else null. */
+export function laserFamilyNm(tag: string): number | null {
+  const f = LASER_FAMILIES.find(x => x.key === tag);
+  return f ? familyNm(f) : null;
+}
+
+/** Either kind of laser tag: one line, or a whole colour of them. */
+export function anyLaserNm(tag: string): number | null {
+  return laserTagNm(tag) ?? laserFamilyNm(tag);
+}
+
 export function tagRole(tag: string): TagRole {
-  // The excitation line is part of how the spectrum was taken, so it sits
-  // with the technique it qualifies rather than in a role of its own.
-  if (laserTagNm(tag) !== null) return 'technique';
+  // Its own role, sorted immediately after the techniques: the excitation
+  // line qualifies one technique rather than naming another, so it reads as a
+  // footnote to the group before it rather than a member of it.
+  if (anyLaserNm(tag) !== null) return 'laser';
   return TAG_ROLES[tag] ?? 'other';
 }
 
 /** Which field the build derived this tag from, or undefined if it is authored. */
 export function tagDerivedFrom(tag: string): string | undefined {
-  if (laserTagNm(tag) !== null) return 'assignment.laser_nm';
+  if (anyLaserNm(tag) !== null) return 'assignment.laser_nm';
   return DERIVED_TAGS[tag];
 }
 
 /** The tooltip for a tag the build generated, which tags.jsonc cannot key. */
 export function generatedTagTip(tag: string): string | undefined {
+  if (laserFamilyNm(tag) !== null) {
+    return `Every Raman excitation line of this colour. Switching it off takes out the bands whose only Raman claim was measured with one, whatever the exact wavelength.`;
+  }
   const nm = laserTagNm(tag);
   if (nm === null) return undefined;
-  return `Raman excitation at ${tag}: the laser this claim was measured with. The chip wears the colour of that light.`;
+  return `Raman excitation at ${tag}: the laser this claim was measured with, rounded to the nearest nanometre. The chip wears the colour of that light.`;
 }
 
 /* ---------------------------------------------------------------------------
@@ -659,12 +786,13 @@ export const TECHNIQUES: TechniqueSpec[] = [
   { key: 'drifts', label: 'DRIFTS', tag: 'drifts', spectroscopy: 'ir', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
   { key: 'transmission', label: 'Transmission', tag: 'transmission', spectroscopy: 'ir', note: 'Self-supporting wafer, beam straight through.' },
   { key: 'atr', label: 'ATR', tag: 'atr', spectroscopy: 'ir', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
-  { key: 'ftir', label: 'FTIR (unspecified)', tag: 'ftir', spectroscopy: 'ir', note: 'The placeholder: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Use it when the paper genuinely does not say, and replace it once it does.' },
+  { key: 'ftir', label: 'FTIR', tag: 'ftir', spectroscopy: 'ir', note: 'The placeholder of the infrared family: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Distinct from the "infrared" umbrella tag, which every infrared claim carries whatever its geometry: this one says the geometry was never stated. Use it when the paper genuinely does not say, and replace it once it does.' },
   { key: 'irras', label: 'IRRAS', tag: 'irras', spectroscopy: 'ir', note: 'Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent.' },
   { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', spectroscopy: 'ir', note: 'IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum.' },
   { key: 'emission', label: 'Emission', tag: 'emission', spectroscopy: 'ir', note: 'The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries.' },
-  { key: 'raman', label: 'Raman', tag: 'raman', spectroscopy: 'raman', note: 'Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. Greyed out in the chart while it is set to IR, as the infrared claims are while it is set to Raman.' },
-  { key: 'computational', label: 'Calculated', tag: 'computational', spectroscopy: null, note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
+  { key: 'raman', label: 'Raman (unspecified)', tag: 'raman', spectroscopy: 'raman', note: 'Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. Greyed out in the chart while it is set to IR, as the infrared claims are while it is set to Raman. The placeholder of its family, the way ftir is for the infrared: it says the source named Raman and nothing finer. Use srs where the paper says spontaneous.' },
+  { key: 'srs', label: 'Spontaneous Raman', tag: 'srs', spectroscopy: 'raman', note: 'Spontaneous Raman scattering, named explicitly. The specific value under raman, the way DRIFTS and transmission sit under the infrared: the scattering happens by itself from one laser, rather than being driven by a second beam as in the coherent techniques (CARS, stimulated Raman). Use it only where the source says spontaneous; plain raman stays the value for a paper that does not.' },
+  { key: 'computational', label: 'Computational', tag: 'computational', spectroscopy: null, note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -1013,7 +1141,7 @@ export function analyse(
     {
       label: 'Branch groups that disagree with themselves',
       detail:
-        'R/P/Q branches are one transition of one species, so siblings must agree on species and phase. Rotational structure also only exists for a freely rotating gas molecule, which makes an adsorbed branch sibling a contradiction rather than a typo.',
+        'Branch siblings are one transition of one species, so they must agree on species and phase. Rotational structure also only exists for a freely rotating gas molecule, which makes an adsorbed branch sibling a contradiction rather than a typo. The letters are checked against the evidence separately, by check_branches(): an O or S band is a ΔJ = ±2 step that the infrared cannot reach, so infrared-only claims on one are a contradiction. The mirror is deliberately not checked, because it is not an error: Raman reaches ΔJ = ±1 too whenever the rotor allows it, and methane’s degenerate bands genuinely carry P and R.',
       hits: branchDisagreements,
     },
     {

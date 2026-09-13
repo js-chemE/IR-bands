@@ -44,12 +44,12 @@
 </script>
 
 <section class="census">
-  <h4 class="census-head">The Molecules on the Vibration Modes View</h4>
+  <h4 class="census-head">The Molecules on the Normal Modes View</h4>
   <div class="rows">
     {#each rows as r (r.m.id)}
       <button
         class="row"
-        title="Open {r.m.label} on the Vibration modes view"
+        title="Open {r.m.label} on the Normal modes view"
         on:click|stopPropagation={() =>
           dispatch('mode', { moleculeId: r.m.id, topologyId: r.m.topologies[0]?.id ?? '', modeId: '' })}
       >

@@ -353,6 +353,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['emission', 'The hot sample is the source; no beam passes through it'],
         ['ftir', 'Placeholder: the paper names the interferometer, not the geometry'],
         ['raman', 'A Raman shift, whatever the geometry: scattering, not absorption'],
+        ['srs', 'Spontaneous Raman scattering, where the source says so. One laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) that drive it with a second beam. Leave it at `raman` where the paper does not specify'],
         ['computational', 'Not a measurement: a calculated frequency'],
       ],
     },
@@ -371,7 +372,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'states, as a supercritical sweep does, leave the field out and say so in the note rather ' +
       'than picking whichever state it was in longest.',
       'A Raman claim also gets `laser_nm`, the excitation wavelength the paper states, as a plain ' +
-      'number in nm: `"laser_nm": 514.5`. The build turns it into a chip of its own, coloured with ' +
+      'number in nm: `"laser_nm": 515`. The build turns it into a chip of its own, coloured with ' +
       'the colour of that light, because the line decides what the measurement could see. A ' +
       'near-infrared 785 nm laser reaches further into a bulk oxide than a 244 nm one and avoids ' +
       'fluorescence a green line would provoke, so two Raman rows that disagree may simply have ' +
@@ -582,13 +583,14 @@ short             δₛ(CH₃) umbrella MeOH`,
     table: {
       head: ['Do not author', 'It is derived from'],
       rows: [
-        ['gas-phase', 'band.phase'],
+        ['gas, liquid, matrix, solid, adsorbed', 'references[].state'],
         ['drifts, transmission, computational', 'references[].technique'],
+        ['infrared, raman (the family umbrellas)', 'references[].technique, alongside the value'],
         ['fermi-resonance', 'band.fermi_partner'],
         ['rotational-branches', 'band.branch_group'],
         ['isotope', 'band.isotopologue_of'],
         ['ir-active, raman-active', 'the mode’s own booleans'],
-        ['514.5 nm, 785 nm, …', 'references[].laser_nm'],
+        ['515 nm, 785 nm, …', 'references[].laser_nm'],
         ['computational (on a band)', 'every claim on it having that technique'],
       ],
     },

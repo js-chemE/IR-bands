@@ -6,10 +6,10 @@ Lanes are horizontal rows in the plot. Two kinds of grouping happen:
    as listed in bands.jsonc's `lanes` table.
 
 2. assign_sub_lanes(): within a lane, staggers overlapping bands by
-   shifting them up or down a fraction of the lane height. The R/P/Q
-   branches of one transition move as a single unit, so they never end up
-   on different sub-lanes. Returns the set of bands that couldn't be
-   placed (4-way overlap).
+   shifting them up or down a fraction of the lane height. The branches of
+   one transition move as a single unit, so they share a sub-lane unless
+   the family's dJ = +/-1 and +/-2 branches actually run over each other.
+   Returns the set of bands that couldn't be placed at all.
 """
 from __future__ import annotations
 
@@ -37,7 +37,14 @@ def assign_lanes(bands: list[Band], lanes: list[list[str]]) -> None:
         b.lane = lane_of_group.get(b.group, 0)
 
 
-SUB_LANE_PRIORITY = (0, +1, -1)  # try centered first, then up, then down
+# Centred first, then up, then down, then further up, then further down. The
+# outer two slots exist because real overlaps needed them: four carbonyl C=O
+# stretches genuinely share 1700-1750 cm-1 (acyl, formic acid, formyl and
+# formaldehyde), the Cu carbonyl window is just as crowded, and methanol's C-D
+# umbrella lands on its C-O branches. Dropping a band to the centre line hides
+# it under another; another slot shows it. Mirrored in chart.ts, which is what
+# the chart renders from.
+SUB_LANE_PRIORITY = (0, +1, -1, +2, -2)
 
 
 def _placement_units(lane_bands: list[Band]) -> list[list[Band]]:
@@ -54,24 +61,61 @@ def _placement_units(lane_bands: list[Band]) -> list[list[Band]]:
     lanes; if one ever did, each lane's members would form their own unit and
     only agree within a lane, which is the most this step can promise.
     """
-    units: dict[tuple[str, str], list[Band]] = {}
-    order: list[tuple[str, str]] = []
+    families: dict[str, list[Band]] = {}
+    order: list[str] = []
+    out: list[list[Band]] = []
     for b in lane_bands:
-        key = ("branch", b.branch_group) if b.branch_group else ("band", b.id)
-        if key not in units:
-            units[key] = []
-            order.append(key)
-        units[key].append(b)
-    return [units[k] for k in order]
+        if not b.branch_group:
+            out.append([b])
+            continue
+        if b.branch_group not in families:
+            families[b.branch_group] = []
+            order.append(b.branch_group)
+        families[b.branch_group].append(b)
+
+    for key in order:
+        members = families[key]
+        # A branch family is one unit, so its members share a sub-lane and the
+        # transition reads as one feature. The exception is a family whose
+        # dJ = +/-1 and +/-2 branches actually run over each other: a
+        # spherical top can carry all five of O, P, Q, R and S, and there the
+        # two sets overlap in wavenumber and would draw on top of one another.
+        # Only then is the family split, and only on that boundary.
+        #
+        # Testing the real overlap rather than splitting on principle matters:
+        # H2's O lines sit far below its centre and its S lines far above, so
+        # a blind split would bundle them into one unit spanning everything
+        # and push the Q branch off its own sub-lane for no reason. Mirrored
+        # in placementUnits() in chart.ts, which the chart renders from.
+        far = [b for b in members if b.vibration.branch in ("O", "S")]
+        near = [b for b in members if b.vibration.branch not in ("O", "S")]
+        if far and near:
+            # Band against band, not envelope against envelope. H2's O lines
+            # sit far below its centre and its S lines far above, so the two
+            # sets straddle the Q branch and their envelopes appear to overlap
+            # while no actual band touches another. N2's O branch ends 3 cm-1
+            # inside its Q branch, which is a rounding of the window rather
+            # than a collision, so a brush under 10 cm-1 is ignored too.
+            collides = any(
+                min(f.wn_max, n.wn_max) - max(f.wn_min, n.wn_min) > 10
+                for f in far
+                for n in near
+            )
+            if collides:
+                out.append(near)
+                out.append(far)
+                continue
+        out.append(members)
+    return out
 
 
 def assign_sub_lanes(bands: list[Band], gap: int = 0) -> set[str]:
-    """Within each lane, stagger overlapping bands to sub-lanes 0, +1, -1.
+    """Within each lane, stagger overlapping bands across SUB_LANE_PRIORITY.
 
     Sets b.sub_lane in-place. Returns the set of band IDs that couldn't be
-    placed (more than 3 units overlap at one wavenumber). A branch group that
-    does not fit is skipped whole rather than split, since keeping its members
-    together is the point of treating it as a unit.
+    placed (more units overlap at one wavenumber than there are slots). A
+    branch group that does not fit is skipped whole rather than split, since
+    keeping its members together is the point of treating it as a unit.
     """
     skipped: set[str] = set()
     by_lane: dict[int, list[Band]] = defaultdict(list)

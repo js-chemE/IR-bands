@@ -34,7 +34,8 @@ from ir_bands.loader import (
     tag_isotopologues,
     tag_lasers,
     tag_states,
-    tag_phase,
+    check_branches,
+    check_phase,
     tag_techniques,
     validate_dataset,
     validate_vibrations,
@@ -678,15 +679,22 @@ def main() -> int:
     for w in isotopologue_warnings:
         print(f"  ⚠ {w}", file=sys.stderr)
 
-    # Fields first, tags derived from them: phase -> "gas-phase",
-    # technique -> "drifts"/"ftir"/"computational".
-    tag_phase(dataset)
+    # Fields first, tags derived from them: technique -> "drifts"/"ftir"/
+    # "computational". The phase is deliberately not one of them: a band has
+    # no sample of its own, so its phase chips come from its claims (below)
+    # and bubble up in the frontend. Band.phase is only checked against them.
     tag_techniques(dataset)
     # laser_nm -> the "514.5 nm" chip, coloured from the light in the frontend.
     for w in tag_lasers(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
-    # state -> "gas" / "liquid" / "matrix" / "solid" / "adsorbed".
+    # state -> "gas" / "liquid" / "matrix" / "solid" / "adsorbed". These are
+    # the only phase tags there are; a band shows the union of its claims'.
     for w in tag_states(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
+    for w in check_phase(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
+    # The branch letters against the evidence: P/R are infrared, O/S Raman.
+    for w in check_branches(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
     # Runs after the overtone/based_on-bearing bands are known, since it is
     # defined by what a band is not.

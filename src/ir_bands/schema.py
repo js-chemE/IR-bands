@@ -10,16 +10,23 @@ from typing import Optional, Literal, Union
 
 
 # Allowed enum values — keep in sync with the JSONC schema header
-VibCategory = Literal["stretch", "bend", "combination", "lattice", "electronic"]
+VibCategory = Literal["stretch", "bend", "combination", "lattice", "electronic", "rotational"]
 VibSubtype = Literal["symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"]
-Branch = Literal["R", "P", "Q"]
+Branch = Literal["O", "P", "Q", "R", "S"]
 BandIntensity = Literal["vs", "s", "m", "w", "vw"]
 BandWidth = Literal["sharp", "medium", "broad", "very_broad"]
 BandConfidence = Literal["confirmed", "likely", "tentative", "speculative"]
 
-VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice", "electronic"}
+# "rotational" is the second category that is not a normal mode, alongside
+# "electronic": the molecule turns and does not vibrate at all, so there is no
+# stretch or bend to name. It exists because Raman sees pure rotation directly
+# through the polarizability, as a spectrum of its own near the laser line.
+# Such a band still takes a branch, since the branch letter is only dJ and
+# means the same thing here; for pure rotation only dJ = +2 arises, so the
+# branch is always S (Long, The Raman Effect, p. 171 and p. 174).
+VALID_CATEGORIES = {"stretch", "bend", "combination", "lattice", "electronic", "rotational"}
 VALID_SUBTYPES = {"symmetric", "asymmetric", "scissoring", "rocking", "wagging", "twisting"}
-VALID_BRANCHES = {"R", "P", "Q"}
+VALID_BRANCHES = {"O", "P", "Q", "R", "S"}
 VALID_INTENSITIES = {"vs", "s", "m", "w", "vw"}
 VALID_WIDTHS = {"sharp", "medium", "broad", "very_broad"}
 VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
@@ -42,7 +49,7 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # sample IRRAS sees only dipoles with a component along the surface normal.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "raman", "computational",
+    "ftir", "raman", "srs", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -56,7 +63,7 @@ VALID_ISOTOPES = set(ISOTOPE_TAGS)
 # rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "raman", "computational",
+    "ftir", "raman", "srs", "computational",
 }
 
 # What was actually in the beam for one claim. Distinct from Band.phase above,
@@ -133,6 +140,15 @@ class Vibration:
     category: VibCategory
     subtype: Optional[VibSubtype] = None
     branch: Optional[Branch] = None
+    # The rotational level the transition starts from, set only where a source
+    # resolves one line instead of a branch envelope. Long writes such a line
+    # S(3), with J the LOWER state ("The quantum numbers J and K refer to the
+    # lower state from which the transitions originate", The Raman Effect,
+    # p. 195). Whether resolving them is possible is a property of the
+    # molecule: hydrogen's rotational constant is about 59 cm-1 and its lines
+    # stand hundreds of wavenumbers apart, while nitrogen's is about 2 cm-1
+    # and they blur into a tail.
+    j: Optional[int] = None
 
     def __post_init__(self):
         if self.category not in VALID_CATEGORIES:
@@ -141,6 +157,17 @@ class Vibration:
             raise ValueError(f"vibration.subtype={self.subtype!r} not in {VALID_SUBTYPES}")
         if self.branch is not None and self.branch not in VALID_BRANCHES:
             raise ValueError(f"vibration.branch={self.branch!r} not in {VALID_BRANCHES}")
+        if self.j is not None:
+            if not isinstance(self.j, int) or isinstance(self.j, bool) or self.j < 0:
+                raise ValueError(
+                    f"vibration.j={self.j!r} must be a non-negative integer "
+                    "(the rotational level the line starts from)"
+                )
+            if self.branch is None:
+                raise ValueError(
+                    "vibration.j is set without a branch: a rotational level "
+                    "only means something as one line of a named branch"
+                )
         if self.category == "combination" and self.subtype is not None:
             raise ValueError(
                 f"vibration.category=combination cannot have subtype={self.subtype!r}; "
@@ -489,8 +516,11 @@ class Band:
     tags: list[str] = field(default_factory=list)
 
     # gas | adsorbed | surface, or None when the band applies to both the free
-    # molecule and its adsorbed form. tag_phase() derives the "gas-phase" tag
-    # from this, so that tag is never authored.
+    # molecule and its adsorbed form. No tag is derived from it: a band has no
+    # sample of its own, so the phase chips come from each claim's own state
+    # (tag_states) and the band shows the union of them. This field is the
+    # editorial statement of what the species is, which the sets filter on;
+    # check_phase() warns where it contradicts the claims underneath it.
     phase: Optional[Phase] = None
 
     # Binding geometry, as a Topology id declared by this species' molecule in

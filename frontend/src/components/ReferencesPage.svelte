@@ -1,3 +1,19 @@
+<script lang="ts" context="module">
+  /**
+   * What the sidebar reports back: how much of each kind is on screen, and of
+   * how many there are. The shown half moves with the filters, the total half
+   * is what the atlas holds.
+   */
+  export interface RefCounts {
+    papersShown: number; papersTotal: number;
+    claimsShown: number; claimsTotal: number;
+    modesShown: number; modesTotal: number;
+    knowledgeShown: number; knowledgeTotal: number;
+    /** Claims on screen per technique value, for the filter's own counts. */
+    byTechnique: Record<string, number>;
+  }
+</script>
+
 <script lang="ts">
   import { C } from '../lib/tokens';
   import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
@@ -5,8 +21,8 @@
   import { esc, ieeeHtml, refSortKey, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
   import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
-  import { createEventDispatcher } from 'svelte';
-  import { buildSections, type BandRef, type GroupDim } from '../lib/refGrouping';
+  import { createEventDispatcher, onMount } from 'svelte';
+  import { buildSections, countShown, type BandRef, type GroupDim } from '../lib/refGrouping';
   import { knowledgeLinks } from '../lib/fundamentals';
 
   export let bands: Band[];
@@ -21,8 +37,13 @@
   export let includeBands = true;
   export let includeModes = false;
   export let includeKnowledge = true;
+  /** Which techniques a claim may name to show, or null for every one. */
+  export let techniques: ReadonlySet<string> | null = null;
 
-  const dispatch = createEventDispatcher<{ navigateKnowledge: { key: string } }>();
+  const dispatch = createEventDispatcher<{
+    navigateKnowledge: { key: string };
+    counts: RefCounts;
+  }>();
   const KNOWLEDGE = knowledgeLinks();
 
   // Neither dimension names the paper, so every claim row has to carry it
@@ -92,6 +113,7 @@
     includeBands,
     includeModes,
     knowledge: includeKnowledge ? KNOWLEDGE : null,
+    techniques,
   });
 
   /** Stable per-row key, so expanding one row survives a regroup. */
@@ -99,9 +121,40 @@
     return `${sectionKey}|${bucketKey}|${e.band.id}|${e.ref.uid}`;
   }
 
+  // The totals are what exists, not what is selected, so they are counted
+  // here rather than inside countShown: two of them are unreachable from a
+  // context whose own switches have already emptied them.
+  $: shown = countShown(sections, groupBy, thenBy);
+  $: counts = {
+    papersShown: shown.papers,
+    papersTotal: Object.keys(refs ?? {}).length,
+    claimsShown: shown.claims,
+    claimsTotal: bands.reduce((n, b) => n + b.references.length, 0),
+    modesShown: shown.modes,
+    modesTotal: (vibrations?.molecules ?? []).reduce(
+      (n, m) => n + m.modes.filter(x => x.reference.length > 0).length, 0),
+    knowledgeShown: shown.knowledge,
+    knowledgeTotal: [...KNOWLEDGE.values()].reduce((n, l) => n + l.length, 0),
+    byTechnique: shown.byTechnique,
+  };
+  // A reactive dispatch during initialisation runs before the parent has
+  // attached its listener, so the first set of counts is lost and the sidebar
+  // shows nothing until something else changes. Repeat it once on mount.
+  $: dispatch('counts', counts);
+  onMount(() => dispatch('counts', counts));
+
 </script>
 
 <main class="content">
+  <!-- How much of the bibliography the current filters leave on screen. It
+       sits here rather than in the sidebar because it reads rather than
+       switches: everything in the sidebar is a control, and a number among
+       the controls invites being clicked. -->
+  <div class="source-count">
+    <span class="sc-n">{counts.papersShown} / {counts.papersTotal}</span>
+    <span class="sc-label">sources shown</span>
+  </div>
+
   {#each sections as section (section.key)}
     <!-- The outer heading carries the group colour when it is a group, the
          citation when it is a reference, and a plain label otherwise. -->
@@ -288,6 +341,25 @@
     box-sizing: border-box;
     font-size: 14px;
     line-height: 1.55;
+  }
+
+  /* The bibliography count, top left of the page itself rather than in the
+     sidebar: everything in the sidebar is a control, and a number sitting
+     among switches invites being clicked. Here it reads as a caption. */
+  .source-count {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sc-n {
+    font-family: var(--t-code-ff);
+    font-size: var(--t-code-size);
+    color: var(--ink-slate-900);
+  }
+  .sc-label {
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-050);
   }
 
   /* ── Shared badge styles (mirror tooltip) ── */

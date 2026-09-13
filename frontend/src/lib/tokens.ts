@@ -230,10 +230,23 @@ export const VIBRATION_PALETTE: Record<string, string> = {
   'combination':        '#8C7A95',
   'lattice':            '#9B6B3D',
   'electronic':         '#6E6A7F',
+  // Rotation gets the one hue this palette never spends: teal-green. The
+  // stretches are blue, the bends orange and brown, combination and electronic
+  // violet-grey, lattice brown. A blue-grey was tried first and read as a
+  // washed-out stretch, which is exactly the wrong association: the molecule
+  // is turning, not vibrating at all, so it should match nothing else here.
+  'rotational':         '#2E9C8E',
 };
 
 /** Atom group. One hue family per element pair; deuterated twins run lighter. */
 export const ATOMS_PALETTE: Record<string, string> = {
+  // The homonuclear diatomics, which are their own family: both atoms alike,
+  // no dipole to change, so every band on them is Raman. Nitrogen takes the
+  // blue chemistry has always given it (CPK). Hydrogen is white in CPK, which
+  // is unusable on a white ground, so it takes the palest blue-silver in the
+  // set: still recognisably the "white" end, still visible as a chip.
+  'N-N':     '#3E5FC4',
+  'H-H':     '#C9CDD6',
   'O-H':     '#3FA7A0',
   'H-O-H':   '#2A7873',
   'C-O-H':   '#7DC9C3',
@@ -253,6 +266,38 @@ export const ATOMS_PALETTE: Record<string, string> = {
   // keeping it visually part of the same M-* metal family.
   'M-O-C':   '#6B8299',
   'diverse': C['data-grey'],
+};
+
+/**
+ * How well a band is actually demonstrated, as a ladder.
+ *
+ * Corroboration is the axis: one method, then several infrared geometries
+ * agreeing, then infrared and Raman agreeing, which is the strong one because
+ * the two obey different selection rules and a coincidence cannot satisfy
+ * both. The ramp darkens as that evidence stacks up.
+ *
+ * Two colours sit deliberately off the ramp. A calculation is not a weaker
+ * measurement but a different kind of claim, so it takes a violet-grey of its
+ * own rather than the palest blue. And the top rung, where infrared, Raman
+ * and a calculation all agree, is gold rather than a darker blue: it is the
+ * one worth spotting across the chart, and another step of the same hue would
+ * not read as arrival.
+ */
+export const EVIDENCE_PALETTE: Record<string, string> = {
+  none:         '#D6D6D6',
+  untyped:      '#BDBDBD',
+  computational:'#A99FC4',
+  // One infrared geometry and Raman alone are the same rung of the ladder, so
+  // they share a lightness. Raman takes a teal cast of the same value, which
+  // separates the two without claiming either is the stronger.
+  ir1:          '#A8CBE6',
+  raman1:       '#8FCBC4',
+  ir2:          '#5795C9',
+  // The same darkening step the blues take from ir1 to ir2, kept in the teal
+  // so a Raman rung never reads as an infrared one.
+  raman2:       '#3E938A',
+  cross:        '#1F5E96',
+  complete:     '#C8912B',
 };
 
 /**
@@ -277,6 +322,20 @@ const REVISE_STYLE = { background: '#8C2019', border: '#6B1710', color: '#FFF1EF
  */
 export const ISOTOPE_STYLE = { background: '#E8EDF2', border: '#A2B5C6', color: '#3D5A70' };
 
+/**
+ * How the spectrum was taken: every tag of the technique role shares one
+ * style, the way the isotopes do, because what matters at a glance is that the
+ * chip names an instrument rather than a property of the band.
+ *
+ * Olive, because it is the one hue family the palette had not spent: warm
+ * orange is ir-active, violet is raman-active, teal is frustrated-mode, slate
+ * blue-grey is the isotopes, red is the caveats, and the spectral hues belong
+ * to the laser wavelengths (lib/lightColor.ts). Muted on purpose: eleven tags
+ * carry it, the two family umbrellas included, and a loud one would dominate
+ * a legend it only annotates.
+ */
+export const TECHNIQUE_STYLE = { background: '#EEF1DF', border: '#B9C68D', color: '#4E5A23' };
+
 export const TAG_STYLES: Record<string, { background: string; border: string; color: string }> = {
   // Warm orange/red, an infrared/heat association. Distinguishable from
   // raman-active's cool violet, and from the neutral grey default reserved
@@ -296,6 +355,20 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   deuterium:         ISOTOPE_STYLE,
   'carbon-13':       ISOTOPE_STYLE,
   'oxygen-18':       ISOTOPE_STYLE,
+  // The technique role, every member of it. Keep this list in step with the
+  // `technique` entries of TAG_ROLES in dataModel.ts; a wavelength chip is the
+  // one technique-role tag that is coloured from its own light instead.
+  infrared:          TECHNIQUE_STYLE,
+  drifts:            TECHNIQUE_STYLE,
+  transmission:      TECHNIQUE_STYLE,
+  atr:               TECHNIQUE_STYLE,
+  ftir:              TECHNIQUE_STYLE,
+  irras:             TECHNIQUE_STYLE,
+  pm_irras:          TECHNIQUE_STYLE,
+  emission:          TECHNIQUE_STYLE,
+  raman:             TECHNIQUE_STYLE,
+  srs:               TECHNIQUE_STYLE,
+  computational:     TECHNIQUE_STYLE,
   // The caveat role, and the only role that gets a colour for being a role
   // rather than for what the individual tag means: a warning has to read as a
   // warning at a glance. Red, the same warm family as ir-active but pushed off
@@ -509,7 +582,7 @@ export const CHART_LAYOUT = {
 export const CHART_LAYOUT_DOCS: { name: string; value: string; usage: string }[] = [
   { name: 'laneHeight',      value: '1.2 y-units',      usage: 'One lane of the stack; lanes are packed by wavenumber range in layout.py' },
   { name: 'barFraction',     value: '0.25',             usage: 'Band rectangle fills a quarter of its lane, the rest is breathing room' },
-  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1. The R/P/Q branches of one transition move as a single unit, so they always share a sub-lane; a fourth overlapping band falls back to the centre line and is logged, which is the signal that the data has been split too finely' },
+  { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1, +2. A branch family moves as one unit, so its members share a sub-lane unless its ΔJ = ±1 and ±2 branches actually run over each other. A fifth overlapping band falls back to the centre line and is logged, which is the signal that the data has been split too finely' },
   { name: 'margins',         value: '200 / 20 / 12 / 12 px', usage: 'left / right / top / bottom. The 200px left margin holds the lane labels; top and bottom are just breathing room, since the x axis is a separate strip' },
   { name: 'vertical padding', value: 'half a lane, top and bottom', usage: 'The y domain ends half a lane pitch beyond the outermost bar edge, so the stack is not floating in empty space' },
   { name: 'axis strip',      value: '50px, sticky',     usage: 'Drawn as a separate plot pinned above the scrolling lane stack, sharing width and margins' },

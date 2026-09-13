@@ -15,6 +15,15 @@
 
   export let tagTips: Record<string, { tip: string }> = {};
 
+  /* Two rows, in this order: what the band is, then how it was measured
+     (TAG_ROLE_BAND in dataModel.ts). One row of thirty chips made the reader
+     find the boundary themselves, and the roles either side of it answer
+     different questions: a combination band is a combination whoever ran the
+     spectrometer, while the state, the technique and the laser are facts
+     about one experiment. */
+  import { TAG_ROLE_BAND, type TagBand } from '../lib/dataModel';
+  const ROWS: TagBand[] = ['band', 'measurement'];
+
   const dispatch = createEventDispatcher<{
     tagToggle:   { tag: string; visible: boolean };
     tagDblClick: { tag: string };
@@ -48,8 +57,11 @@
 </script>
 
 {#if tags.length > 0}
-  <div class="legend">
-    {#each tags as t, i (t.key)}
+  {#each ROWS as row (row)}
+  {@const rowTags = tags.filter(t => TAG_ROLE_BAND[t.role] === row)}
+  {#if rowTags.length > 0}
+  <div class="legend" class:band={row === 'band'} class:measurement={row === 'measurement'}>
+    {#each rowTags as t, i (t.key)}
       {@const active = tagIsolate ? t.key === tagIsolate : !hiddenTags.has(t.key)}
       {@const visible = active && t.visibleCount > 0}
       {@const tip = tagTips[t.key]?.tip ?? generatedTagTip(t.key)}
@@ -58,7 +70,8 @@
         : `${t.visibleCount} of ${t.count} bands shown`}
       <button
         class="item"
-        class:role-start={i > 0 && tags[i - 1].role !== t.role}
+        class:role-start={i > 0 && (rowTags[i - 1].role !== t.role
+          || rowTags[i - 1].subgroup !== t.subgroup)}
         class:dimmed={!visible}
         class:isolated={t.key === tagIsolate}
         style={visible
@@ -74,6 +87,8 @@
       </button>
     {/each}
   </div>
+  {/if}
+  {/each}
 {/if}
 
 <style>
@@ -87,6 +102,12 @@
     font-size: 13px;
     color: var(--ink-500);
   }
+
+  /* The rows are one block, not two stacked legends: the first row's bottom
+     padding and the second's top padding would otherwise read as a gap
+     between two separate things. */
+  .legend.band { padding-bottom: 0; }
+  .legend.measurement { padding-top: 2px; }
 
   /* The legend entry IS the tag pill, styled exactly as the band tooltip
      renders it, so the legend and the chart show the same object rather than

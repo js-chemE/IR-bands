@@ -178,7 +178,8 @@
           "wn_start": 2917,
           "wn_end": null,
           "bands": [
-            "ch4g_sym"
+            "ch4g_sym",
+            "ch4g_d4_sym"
           ]
         },
         {
@@ -206,7 +207,10 @@
           "bands": [
             "ch4g_bend_sym",
             "ch4g_bend_sym_p",
-            "ch4g_bend_sym_r"
+            "ch4g_bend_sym_r",
+            "ch4g_d4_bend_sym_p",
+            "ch4g_d4_bend_sym",
+            "ch4g_d4_bend_sym_r"
           ]
         },
         {
@@ -239,7 +243,10 @@
             "ch4g_asym_r",
             "ch4g_combo",
             "ch4g_combo_p",
-            "ch4g_combo_r"
+            "ch4g_combo_r",
+            "ch4g_combo_o",
+            "ch4g_combo_s",
+            "ch4g_d4_asym"
           ]
         },
         {
@@ -270,7 +277,9 @@
             "ch4g_bend",
             "ch4g_combo",
             "ch4g_combo_p",
-            "ch4g_combo_r"
+            "ch4g_combo_r",
+            "ch4g_combo_o",
+            "ch4g_combo_s"
           ]
         }
       ]
@@ -2481,7 +2490,9 @@
       "label": "H₂",
       "shape": "linear",
       "species": "h2",
-      "band_groups": [],
+      "band_groups": [
+        "h2"
+      ],
       "topologies": [
         {
           "id": "gas",
@@ -2512,7 +2523,17 @@
           "symmetry": "Σ<sub>g</sub>⁺",
           "wn_start": 4159,
           "wn_end": null,
-          "bands": []
+          "bands": [
+            "h2_stretch_q",
+            "h2_stretch_o_j3",
+            "h2_stretch_o_j4",
+            "h2_stretch_o_j5",
+            "h2_stretch_o_j6",
+            "h2_stretch_o_j7",
+            "h2_stretch_s_j0",
+            "h2_stretch_s_j1",
+            "h2_stretch_s_j2"
+          ]
         }
       ]
     },
@@ -2521,7 +2542,9 @@
       "label": "N₂",
       "shape": "linear",
       "species": "n2",
-      "band_groups": [],
+      "band_groups": [
+        "n2"
+      ],
       "topologies": [
         {
           "id": "gas",
@@ -2552,7 +2575,11 @@
           "symmetry": "Σ<sub>g</sub>⁺",
           "wn_start": 2330,
           "wn_end": null,
-          "bands": []
+          "bands": [
+            "n2_stretch_q",
+            "n2_stretch_o",
+            "n2_stretch_s"
+          ]
         }
       ]
     },

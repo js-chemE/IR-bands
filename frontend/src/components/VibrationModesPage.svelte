@@ -159,7 +159,7 @@
 
 <div class="modes-page">
   <div class="wip-badge">Work in progress</div>
-  <h1>Vibration modes</h1>
+  <h1>Normal modes</h1>
   <p class="intro">
     Pick a molecule, then hover or focus a mode below to see how its atoms move.
   </p>

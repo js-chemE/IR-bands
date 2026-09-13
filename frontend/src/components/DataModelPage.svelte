@@ -27,7 +27,7 @@
   ];
 
   export const CONTENTS_SECTIONS: DmSection[] = [
-    { id: 'modes',      label: 'Vibration modes' },
+    { id: 'modes',      label: 'Normal modes' },
     { id: 'species',    label: 'Species' },
     { id: 'surfaces',   label: 'Surfaces' },
     { id: 'technique',  label: 'Technique' },
@@ -636,7 +636,7 @@
   </section>
 {:else}
   <section class="section" id="modes" data-dm-section="modes">
-    <h3>Vibration modes</h3>
+    <h3>Normal modes</h3>
     <p class="section-lead">
       The molecules in <code>data/vibrations.jsonc</code>, their binding geometries and
       their normal modes, with the bands each mode is linked to. This is the same view
@@ -806,10 +806,21 @@
           is not a measurement at all.
         </p>
         <p>
-          It is a field on the assignment now, with a closed vocabulary, and the tag chip
-          the chart legend filters on is derived from it. <code>ftir</code> is the honest
+          It is a field on the assignment now, with a closed vocabulary, and the tag chips
+          the chart legend filters on are derived from it. <code>ftir</code> is the honest
           placeholder for a source that says only "FTIR": resolve each one to transmission
           or ATR as the paper is checked.
+        </p>
+        <p>
+          One field, two chips. Alongside its own name a claim gets the family it belongs
+          to, <code>infrared</code>, <code>raman</code> or <code>computational</code>, so
+          the legend can ask "seen in the infrared at all" without ticking seven boxes,
+          and it puts a gap at each change of family. The umbrella and the placeholder are
+          different statements: <code>infrared</code> says the claim was an infrared
+          measurement whatever its geometry, <code>ftir</code> says the geometry was never
+          stated. Raman is both at once, being the family and the value a paper that says
+          only "Raman" earns; <code>srs</code> is the one named kind under it, spontaneous
+          Raman scattering, which is not the stimulated sort the initials usually mean.
         </p>
       </div>
       <div class="spread-visual">
@@ -837,10 +848,10 @@
     <div class="spread">
       <div class="spread-text">
         <p>
-          One flat namespace, {stats.tags.length} tags in use, making six different kinds of
-          statement. {derivedTagCount} of them are derived from a field by the build rather
-          than authored, which is what a tag should become once the fact behind it has a
-          proper home.
+          One flat namespace, {stats.tags.length} tags in use, making {TAG_ROLE_ORDER.length}
+          different kinds of statement. {derivedTagCount} of them are derived from a field
+          by the build rather than authored, which is what a tag should become once the
+          fact behind it has a proper home.
         </p>
         <p>
           Each tag is drawn the way it is drawn everywhere else, so this list and the
@@ -851,8 +862,12 @@
         </p>
         <p>
           The roles run in the order the model declares, the same order the chart legend
-          sorts by: what the band is, what it is doing, the selection rule, how it was
-          measured, and the caveat last.
+          sorts by, and it falls in two halves. First what the band is whoever measured
+          it: the kind of transition, whether it is a labelled twin, the selection rule,
+          and the caveat, which comes last for the same reason a caveat comes last in a
+          sentence. Then how it was measured: the state the sample was in, the technique,
+          the laser that technique used, and what the claim rests on. The legend draws
+          those two halves as its two rows.
         </p>
       </div>
       <div class="spread-visual">

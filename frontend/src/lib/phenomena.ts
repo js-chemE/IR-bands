@@ -262,7 +262,7 @@ export const PHENOMENA: Phenomenon[] = [
   {
     key: 'branches',
     group: 'more',
-    teaser: 'A free molecule also rotates, so its band splits into P, Q and R branches.',
+    teaser: 'A free molecule also rotates, so its band splits into branches: P, Q and R in the infrared, O, Q and S in Raman.',
     label: 'Rotational Branches',
     field: 'branch_group',
     what: '',
@@ -273,26 +273,33 @@ export const PHENOMENA: Phenomenon[] = [
         label: 'Branches',
         lines: [
           '\\begin{array}{lll}' +
-            '\\text{R:} & \\Delta J = +1 & \\text{higher wavenumber} \\\\' +
-            '\\text{Q:} & \\Delta J = 0 & \\text{band centre} \\\\' +
-            '\\text{P:} & \\Delta J = -1 & \\text{lower wavenumber}' +
+            '\\text{S:} & \\Delta J = +2 & \\text{Raman only} \\\\' +
+            '\\text{R:} & \\Delta J = +1 & \\text{infrared} \\\\' +
+            '\\text{Q:} & \\Delta J = 0 & \\text{band centre, both} \\\\' +
+            '\\text{P:} & \\Delta J = -1 & \\text{infrared} \\\\' +
+            '\\text{O:} & \\Delta J = -2 & \\text{Raman only}' +
             '\\end{array}',
         ],
-        note: 'The top row of the diagram builds R and P arrow by arrow: each arrow is one line of the spectrum beside it.',
+        note: 'High to low, the way they sit on the axis. The letter is nothing but ΔJ. The infrared absorbs one photon through the dipole and reaches ΔJ = ±1; Raman scatters through the polarizability and reaches ±2. Which of the five a given band actually shows is a property of the molecule, not of the letter: P and R are not forbidden in Raman, they are simply absent for a linear molecule in a non-degenerate vibration. The diagram builds them arrow by arrow, each arrow one line of the spectrum beside it, and runs three cases in turn: a stretch with no Q, a bend with one, then the same transition in Raman.',
       },
       {
         label: 'Where the Lines Sit',
         lines: [
           '\\begin{array}{ll}' +
             '\\text{R}(J): & \\nu_0 + 2B(J + 1) \\\\' +
-            '\\text{P}(J): & \\nu_0 - 2BJ' +
+            '\\text{P}(J): & \\nu_0 - 2BJ \\\\' +
+            '\\text{S}(J): & \\nu_0 + B(4J + 6) \\\\' +
+            '\\text{O}(J): & \\nu_0 - B(4J - 2)' +
             '\\end{array}',
         ],
-        note: 'ν₀: the band centre, B: the rotational constant, J: the starting level. The rigid rotor, one B for both levels; in fact B shrinks a little in v = 1, so the R lines crowd together as J rises and the P lines spread apart.',
+        note: 'ν₀: the band centre, B: the rotational constant, J: the level the line starts from. The rigid rotor, one B for both levels; in fact B shrinks a little in v = 1, so the R lines crowd together as J rises and the P lines spread apart. Note the factor: the infrared lines step by 2B, the Raman ones by 4B, because ΔJ steps by two instead of one. That is why hydrogen resolves into separate lines and nitrogen does not. Its rotational constant is about 59 cm⁻¹ against nitrogen’s 2, so its O branch lands hundreds of wavenumbers below the centre while nitrogen’s stays an unresolved tail.',
       },
       'How tall each line is follows how full its starting level is, the room-temperature population on the Rotation Modes card: the lines rise from the centre to a maximum near J ≈ 7 for CO and fade beyond. At the few cm⁻¹ resolution usual for catalyst spectra, lines 3.9 cm⁻¹ apart for CO, and closer still for heavier molecules, blur into two lobes, the P and R envelopes, with a dip between them where the band centre is.',
       'Whether a Q branch appears depends on the direction of the dipole change. In a linear molecule, a vibration that swings the dipole along the axis, such as the stretch of CO or the asymmetric stretch of CO₂, has none; one that swings it across the axis, such as the bend of CO₂, has a strong one, all its lines piled up at the centre. Gas-phase acetylene in a reflection cell shows the P and R pair: its asymmetric C–H stretch appears as two branches, at 3269 and 3309 cm⁻¹ [@trenary, p. 56].',
       'Rotation can also be excited alone, J → J + 1 with no vibration, by a photon in the microwave or far infrared, well below the mid-infrared window. That rule mirrors the IR one: the molecule must carry a permanent dipole for the field to turn it. CO has one; CO₂, N₂ and CH₄ have none. Raman sees rotation through the polarizability instead, wherever the cloud is longer than it is wide, so N₂ and CO₂ show pure rotational Raman lines close to the laser.',
+      'A pure rotational Raman spectrum is an S branch and nothing else. Only ΔJ = +2 arises, because with no vibration to change, the upper level is by definition the higher one, so ΔJ = −2 cannot occur at all. The first line sits 6B from the laser and the rest follow every 4B [@long, p. 171 and p. 174]. Hydrogen is the case the atlas carries: ten lines from S(2) at 814 cm⁻¹ to S(11) at 2387, about 180 cm⁻¹ apart, each held as a band of its own because they are genuinely that far apart. It is the one spectrum here with no vibration in it, which is why those bands take the rotational category rather than a stretch or a bend.',
+      'Why Raman reaches further is a matter of what does the reaching. The infrared absorbs one photon through the dipole, an operator of rank one, and that limits it to ΔJ = 0, ±1. Raman scatters through the polarizability, a tensor of rank two, whose irreducible parts carry j = 0, 1 and 2; the triangle rule on those admits ΔJ up to ±2. The ranks map straight onto the branches: the isotropic part feeds Q alone, the antisymmetric part P, Q and R, and the anisotropic part all five [@long, pp. 158–159 and p. 276].',
+      'Which of the five actually appears is a property of the molecule, not of the letter, and this is the trap. A linear molecule in a non-degenerate vibration gets ΔJ = 0, ±2 only, so N₂ and H₂ show O, Q and S and no P or R. But a symmetric top, a spherical top, or a linear molecule in a degenerate vibration all reach ΔJ = ±1 as well. Methane is the example: its triply degenerate ν₃ genuinely carries all five branches in Raman, fifteen once Coriolis splitting is counted [@long, Table 6.5, p. 167 and pp. 210–211]. So a P branch resting on Raman evidence is not by itself an error, while an O or S branch resting on infrared evidence always is, and the build checks only that second, one-directional half.',
       'The branches are the mark of a free molecule. Adsorbed, a molecule cannot turn, and it gives one band per mode where its gas gives an envelope; the envelope of a gas-phase reactant in the cell is something to subtract, not a surface species. The atlas records each branch of a gas-phase band as a band of its own, grouped with its siblings by branch_group, and the chart keeps a group on one line.',
     ],
     /**
