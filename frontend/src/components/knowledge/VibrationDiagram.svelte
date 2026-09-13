@@ -173,7 +173,7 @@
   {/each}
 
   <g style="opacity:{fullOpacity}">
-    <!-- The overtone, faint: two rungs at once, allowed only by anharmonicity. -->
+    <!-- The overtone, faint: two levels at once, allowed only by anharmonicity. -->
     <line class="overtone" x1={xOver} x2={xOver} y1={y0} y2={y2 + 1} />
     <path class="overtone-head" d={up(xOver, y2, 3)} />
   </g>

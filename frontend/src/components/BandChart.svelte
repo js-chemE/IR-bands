@@ -4,7 +4,7 @@
   import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, type BandLooks } from '../lib/chart';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
-  import { getCat, TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
+  import { getCat, TAG_STYLES, tagStyle } from '../lib/colors';
   import { C, CHART_LAYOUT, ISOTOPE_STYLE } from '../lib/tokens';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
 
@@ -58,7 +58,7 @@
   /** IR or Raman: whose inactive bands are drawn hollow. */
   export let spectroscopy: Spectroscopy = 'ir';
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
-  export let looks: BandLooks = { inactive: true, unreferenced: true };
+  export let looks: BandLooks = { inactive: true, unreferenced: true, calculated: true };
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
   // Set by a parent that wants to jump straight to one band (e.g. clicking
@@ -964,7 +964,9 @@
                   ? `Measured by ${spectroscopy === 'raman' ? 'infrared' : 'Raman'}, not the spectroscopy the chart shows. Click to ${expanded ? 'collapse' : 'expand'}`
                   : ref.off === 'unknown'
                     ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
-                    : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
+                    : ref.off === 'calculated'
+                      ? `A calculation, not a measurement. Dimmed because the Color by computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
+                      : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <button
                   class="tip-ref-goto-btn"
@@ -994,7 +996,7 @@
                 {#if ref.tags.length}
                   <div class="tip-ref-tags">
                     {#each ref.tags as tag}
-                      {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                      {@const style = tagStyle(tag)}
                       <span class="tip-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
                     {/each}
                   </div>

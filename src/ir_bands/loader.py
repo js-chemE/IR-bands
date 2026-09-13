@@ -76,8 +76,8 @@ def _parse_reference(raw) -> Reference | None:
     """Normalize one references[] entry into a Reference.
 
     Accepts either a bare BibTeX key string (shorthand for {key}) or an
-    object {key, wn, measured_on, technique, note, tags}. key is the only
-    required part; entries without one are disregarded.
+    object {key, wn, measured_on, technique, laser_nm, note, tags}. key is the
+    only required part; entries without one are disregarded.
     """
     if isinstance(raw, str):
         return Reference(key=raw) if raw else None
@@ -90,6 +90,8 @@ def _parse_reference(raw) -> Reference | None:
             wn=raw.get("wn"),
             measured_on=raw.get("measured_on"),
             technique=raw.get("technique"),
+            laser_nm=raw.get("laser_nm"),
+            state=raw.get("state"),
             note=raw.get("note"),
             tags=list(raw.get("tags", [])),
         )
@@ -646,6 +648,57 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
     return warnings
 
 
+def tag_fundamentals(dataset: Dataset) -> None:
+    """Auto-assign the "fundamental" tag: v = 0 -> 1 of a normal mode.
+
+    Derived rather than authored, like every other tag here, because the
+    fields already say it. A band is a fundamental unless it is one of the
+    things a fundamental is not:
+
+      - a combination, which is two modes at once (its own category);
+      - an overtone, which is more than one step of one mode (the tag);
+      - built on anything at all, which is the general form of both;
+      - electronic, which is not a normal mode and so has no fundamental.
+
+    A rotational branch *is* a fundamental: P, Q and R are the same v = 0 -> 1
+    transition seen from different rotational levels. An IR-inactive mode is
+    one too: being forbidden does not stop it being the first step.
+    """
+    for b in dataset.bands:
+        if b.vibration.category in ("combination", "electronic"):
+            continue
+        if "overtone" in b.tags or b.based_on:
+            continue
+        if "fundamental" not in b.tags:
+            b.tags.append("fundamental")
+
+
+def tag_calculated_only(dataset: Dataset) -> None:
+    """Auto-assign "computational": every claim on this band is a calculation.
+
+    The same word the per-claim technique tag uses, and deliberately so: on a
+    claim it says that claim is a calculation, on a band that every claim
+    behind it is. They never meet in the chart legend, which counts band tags
+    only.
+
+    Not the same thing as having no references. A band with no claim at all
+    is one nobody has written down; this one has a source, it is just not a
+    measurement. The chart keeps the two apart for that reason: both can be
+    faded, but from separate switches, so "show me only what somebody put a
+    spectrometer in front of" is a question the reader can actually ask.
+
+    Spectroscopy does not enter into it. A calculation has no sampling
+    geometry, so it is neither an infrared nor a Raman claim, and a band
+    resting on one alone is unmeasured in both views equally.
+    """
+    for b in dataset.bands:
+        if not b.references:
+            continue
+        if all(r.technique == "computational" for r in b.references):
+            if "computational" not in b.tags:
+                b.tags.append("computational")
+
+
 def tag_isotopologues(dataset: Dataset) -> list[str]:
     """Auto-assign the substitution tag to every band that declares an
     isotopologue_of link — and only to those.
@@ -782,6 +835,65 @@ def tag_techniques(dataset: Dataset) -> list[str]:
             if ref.technique and ref.technique not in ref.tags:
                 ref.tags.append(ref.technique)
     return []
+
+
+def tag_states(dataset: Dataset) -> list[str]:
+    """Derive each claim's sample-state tag from Reference.state.
+
+    The state is what was in the beam, and it moves the number more than most
+    things do: methanol's O-H stretch is 3687 cm-1 as a vapour, near 3300 as a
+    hydrogen-bonded liquid and 3690 isolated in solid neon. Without the field
+    those three rows read as a disagreement rather than as three experiments,
+    and the only place it was ever written was prose the chart cannot see.
+
+    Returns one summary warning rather than one per claim, because every claim
+    should carry a state and the ones that do not are a backlog, not a fault
+    worth printing five hundred times.
+    """
+    missing = 0
+    total = 0
+    for b in dataset.bands:
+        for ref in b.references:
+            total += 1
+            if ref.state is None:
+                missing += 1
+                continue
+            if ref.state not in ref.tags:
+                ref.tags.append(ref.state)
+    if missing:
+        return [
+            f"{missing} of {total} claims record no sample state "
+            f"(state: gas | liquid | matrix | solid | adsorbed)"
+        ]
+    return []
+
+
+def tag_lasers(dataset: Dataset) -> list[str]:
+    """Derive each Raman claim's excitation-wavelength tag from laser_nm.
+
+    The tag is the wavelength written the way a paper writes it, "514.5 nm",
+    and the frontend colours that one chip with the colour of the light
+    (lib/lightColor.ts) rather than from a fixed table: the wavelength is a
+    number, not a member of a vocabulary, so no static tag map could hold it.
+
+    Warns where the field is set on a claim that is not Raman. A wavelength
+    means the excitation line, and an infrared claim has no such thing.
+    """
+    warnings: list[str] = []
+    for b in dataset.bands:
+        for ref in b.references:
+            if ref.laser_nm is None:
+                continue
+            if ref.technique != "raman":
+                warnings.append(
+                    f"Band {b.id}, reference {ref.key}: laser_nm is set but "
+                    f"technique={ref.technique!r}; a wavelength is the Raman "
+                    f"excitation line and means nothing on an infrared claim"
+                )
+            tag = f"{float(ref.laser_nm):g} nm"
+            if tag not in ref.tags:
+                ref.tags.append(tag)
+    return warnings
 
 
 def assign_reference_uids(dataset: Dataset) -> list[str]:
@@ -1157,16 +1269,40 @@ def load_references(path: str | Path) -> dict[str, dict]:
         # bibtexparser v2 API
         try:
             library = bibtexparser.parse_string(text)
-            return {
+            refs = {
                 e.key: {**e.fields_dict, "_type": e.entry_type}
                 for e in library.entries
             }
         except AttributeError:
             # Fall back to v1 API
             db = bibtexparser.loads(text)
-            return {e["ID"]: {k: v for k, v in e.items() if k != "ID"} for e in db.entries}
+            refs = {e["ID"]: {k: v for k, v in e.items() if k != "ID"} for e in db.entries}
     except ImportError:
-        return _parse_bibtex_minimal(text)
+        refs = _parse_bibtex_minimal(text)
+
+    return {key: _clean_bibtex_fields(fields) for key, fields in refs.items()}
+
+
+# BibTeX escapes what it has to; the frontend should never see any of it.
+_BIB_ESCAPES = {r"\&": "&", r"\%": "%", r"\_": "_", r"\$": "$", r"\#": "#"}
+# Zotero brace-protects words to keep their case: {DRIFTS}, {IFP}.
+_BIB_PROTECTED = re.compile(r"\{([^{}]*)\}")
+
+
+def _clean_bibtex_value(value: str) -> str:
+    """One field, as a reader should see it: escapes undone, the braces that
+    only protect capitals removed, and a page range as an en dash."""
+    for old, new in _BIB_ESCAPES.items():
+        value = value.replace(old, new)
+    value = _BIB_PROTECTED.sub(r"\1", value)
+    return value.replace("--", "–")
+
+
+def _clean_bibtex_fields(fields: dict) -> dict:
+    return {
+        k: _clean_bibtex_value(v) if isinstance(v, str) and not k.startswith("_") else v
+        for k, v in fields.items()
+    }
 
 
 _BIB_ENTRY_RE = re.compile(r"@(\w+)\s*\{\s*([^,\s]+)\s*,(.*?)\n\}", re.DOTALL)

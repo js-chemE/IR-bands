@@ -122,6 +122,8 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'wn', type: 'int | int[]', req: 'opt', note: 'This source’s reported position. An array means several resolved components.' },
       { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
       { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives the technique tag.' },
+      { name: 'laser_nm', type: 'number', req: 'opt', note: 'Raman excitation wavelength in nm. Derives a tag chip of its own ("514.5 nm") coloured from the light itself, since a wavelength is a number and no fixed tag table can hold it. Only meaningful where technique is raman; the build warns otherwise.' },
+      { name: 'state', type: 'gas | liquid | matrix | solid | adsorbed', req: 'opt', note: 'What was in the beam for this claim, and every claim should carry one. Not band.phase, which says what the band is wherever it appears: this says how the sample was held here, and it moves the number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those read as a disagreement instead of three experiments. Derives a tag of the same name.' },
       { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
       { name: 'uid', type: 'string', req: 'calc', note: 'Computed by build.py, with an ordinal when one paper makes several claims about the same band.' },
@@ -518,6 +520,7 @@ export const TAG_ROLE_NOTE: Record<TagRole, string> = {
 
 export const TAG_ROLES: Record<string, TagRole> = {
   // Structure: what the band is.
+  fundamental: 'structure',
   combination: 'structure',
   overtone: 'structure',
   'fermi-resonance': 'structure',
@@ -530,8 +533,19 @@ export const TAG_ROLES: Record<string, TagRole> = {
   degenerated: 'structure',
   // Phase and behaviour: what the species is doing.
   'gas-phase': 'phase',
-  'molecular-adsorption': 'phase',
+  // What the species does on the surface: stays intact rather than
+  // dissociating. A property of the species, not of any one measurement, which
+  // is why it is a band tag and the per-claim "adsorbed" is not the same thing.
+  undissociated: 'phase',
   'frustrated-mode': 'phase',
+  // What was in the beam for one claim, from assignment.state. Alongside
+  // "gas-phase" rather than merged with it: that one says the band belongs to
+  // a free molecule, these say how this measurement held the sample.
+  gas: 'phase',
+  liquid: 'phase',
+  matrix: 'phase',
+  solid: 'phase',
+  adsorbed: 'phase',
   // Selection rule.
   'ir-active': 'activity',
   'ir-inactive': 'activity',
@@ -568,7 +582,15 @@ export const DERIVED_TAGS: Record<string, string> = {
   pm_irras: 'assignment.technique',
   emission: 'assignment.technique',
   raman: 'assignment.technique',
+  // Both levels of it: the claim tag from its own technique, the band tag
+  // from every claim on the band having that technique and no other.
   computational: 'assignment.technique',
+  gas: 'assignment.state',
+  liquid: 'assignment.state',
+  matrix: 'assignment.state',
+  solid: 'assignment.state',
+  adsorbed: 'assignment.state',
+  fundamental: 'vibration.category + band.based_on',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',
   isotope: 'band.isotopologue_of',
@@ -579,8 +601,39 @@ export const DERIVED_TAGS: Record<string, string> = {
   'raman-active': 'mode.raman_active',
 };
 
+/**
+ * A Raman excitation wavelength, as the tag chip spells it: "514.5 nm".
+ *
+ * This is the one tag that cannot live in TAG_ROLES or TAG_STYLES, because a
+ * wavelength is a number rather than a member of a vocabulary. It is matched
+ * by shape instead, and coloured from the light itself (lib/lightColor.ts).
+ */
+const LASER_TAG = /^(\d+(?:\.\d+)?) nm$/;
+
+/** The wavelength in nm if this tag is a laser line, else null. */
+export function laserTagNm(tag: string): number | null {
+  const m = LASER_TAG.exec(tag);
+  return m ? Number(m[1]) : null;
+}
+
 export function tagRole(tag: string): TagRole {
+  // The excitation line is part of how the spectrum was taken, so it sits
+  // with the technique it qualifies rather than in a role of its own.
+  if (laserTagNm(tag) !== null) return 'technique';
   return TAG_ROLES[tag] ?? 'other';
+}
+
+/** Which field the build derived this tag from, or undefined if it is authored. */
+export function tagDerivedFrom(tag: string): string | undefined {
+  if (laserTagNm(tag) !== null) return 'assignment.laser_nm';
+  return DERIVED_TAGS[tag];
+}
+
+/** The tooltip for a tag the build generated, which tags.jsonc cannot key. */
+export function generatedTagTip(tag: string): string | undefined {
+  const nm = laserTagNm(tag);
+  if (nm === null) return undefined;
+  return `Raman excitation at ${tag}: the laser this claim was measured with. The chip wears the colour of that light.`;
 }
 
 /* ---------------------------------------------------------------------------
@@ -787,7 +840,7 @@ export function analyse(
     if (!row.scopes.includes(scope)) row.scopes.push(scope);
     row.role = tagRole(value);
     row.hasTip = Boolean(tagTips[value]);
-    row.derivedFrom = DERIVED_TAGS[value];
+    row.derivedFrom = tagDerivedFrom(value);
   };
 
   let assignments = 0;

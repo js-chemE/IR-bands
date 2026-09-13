@@ -187,6 +187,32 @@
 //                          the paper says nothing at all.
 //                          build.py derives a tag of the same name, so never
 //                          write one by hand.
+//                   state: what was actually in the beam for THIS claim, one
+//                          of gas | liquid | matrix | solid | adsorbed.
+//                          Every claim should carry one. It is not the band's
+//                          own `phase` above: that says what the band is
+//                          wherever it appears, this says how the sample was
+//                          held here, and it moves the number. Methanol's O-H
+//                          stretch is 3687 cm⁻¹ as a vapour, near 3300
+//                          hydrogen-bonded in the liquid and 3690 isolated in
+//                          solid neon; without this field those three rows
+//                          read as a disagreement rather than as three
+//                          different experiments. "matrix" is a solid, but
+//                          the molecule in it is isolated and not rotating,
+//                          so it is kept apart from "solid", which means the
+//                          bulk substance itself. Derives a tag of the same
+//                          name, so never write one by hand.
+//                   laser_nm: the Raman excitation wavelength in nm, as a
+//                          plain number ("laser_nm": 514.5). Only for a
+//                          claim whose technique is raman; build.py warns
+//                          otherwise, since an infrared measurement has no
+//                          excitation line. It derives a chip of its own,
+//                          "514.5 nm", drawn in the colour of that light
+//                          rather than from a fixed table, because a
+//                          wavelength is a number and no tag vocabulary
+//                          could hold it. Record it only where the paper
+//                          names the line: "argon ion laser" with no
+//                          wavelength is not one.
 //                   note — THIS source's specifics: experimental conditions
 //                          (catalyst, loading, temperature, pressure,
 //                          pretreatment) and any claim/finding unique to that
@@ -211,6 +237,15 @@
 //                          counterpart directly (e.g. formate from formic
 //                          acid, methoxy from methanol), not produced via a
 //                          genuine surface reaction (e.g. from CO₂+H₂).
+//                          It is a statement about where the species came
+//                          from, independent of the technique, so it sits
+//                          on a transmission claim and a DRIFTS one alike;
+//                          it only means anything for a surface species,
+//                          since a gas in a cell was dosed by definition.
+//                          Not a criticism either: dosing is how a clean
+//                          reference spectrum gets made. It says the band
+//                          is evidence for that species, and not evidence
+//                          that the species forms under reaction.
 //                 Example: {"key": "Smith.Example.2020", "wn": 1350,
 //                           "measured_on": ["cu_1p", "cu_zno"],
 //                           "technique": "drifts", "note": "...",
@@ -221,8 +256,10 @@
 //                 reference); "overtone" marks overtone bands.
 //                 Auto-added, never written by hand: "isotope" (from
 //                 isotopologue_of), "fermi-resonance" (from fermi_partner),
-//                 "rotational-branches" (from branch_group) and "gas-phase"
-//                 (from phase).
+//                 "rotational-branches" (from branch_group), "gas-phase"
+//                 (from phase) and "fundamental" (from vibration.category
+//                 plus based_on: anything that is not a combination, an
+//                 overtone, built on another mode, or electronic).
 //   fermi_partner — id of the other band in a Fermi resonance doublet, or
 //                 omit/null. Must be reciprocal (A.fermi_partner=B AND
 //                 B.fermi_partner=A) for the pair to be considered complete;
@@ -378,8 +415,9 @@
   // ---------------------------------------------------------------------------
   // Lanes — the chart's rows, top to bottom.
   // Each entry names the groups that share one row; two groups share a lane
-  // when they read as one family on screen (CO with CH₄, methoxy with the
-  // methanol it converts into). This replaced a per-band `pair` integer that
+  // only when they read as one family on screen, which is rarer than it
+  // sounds: methoxy and the methanol it converts into shared one until their
+  // bands had to be told apart. This replaced a per-band `pair` integer that
   // said the same thing 92 times over, and it makes the row ORDER editable
   // instead of falling out of the numbering.
   //
@@ -397,7 +435,8 @@
     ["carbonate"],
     ["bicarbonate"],
     ["formate"],
-    ["methoxy", "methanol_product"],
+    ["methoxy"],
+    ["methanol_product"],
     ["support_oh"],
     ["water"],
     ["hydride"],
@@ -487,7 +526,7 @@
       "atoms": "O=C=O",
       "wn_start": 2355,
       "wn_end": 2390,
-      "short": "νₐₛ(OCO) CO₂ (R)",
+      "short": "νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ asymmetric stretch (νₐₛ) — R-branch envelope maximum at ~2360 cm⁻¹, paired with the P-branch at ~2335. The Q-branch between them is symmetry-forbidden — see co2_asym_q. Saturates at high pCO₂.",
       "based_on": [],
       "references": [
@@ -529,10 +568,17 @@
       "atoms": "O=C=O",
       "wn_start": 2345,
       "wn_end": 2353,
-      "short": "νₐₛ(OCO) CO₂ (Q)",
+      "short": "νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ asymmetric stretch (νₐₛ) — Q-branch at the 2349 cm⁻¹ band origin. Forbidden by symmetry for this Σᵤ⁺←Σg⁺ parallel transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
       "based_on": [],
       "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "technique": "transmission",
+          "wn": 2349,
+          "note": "Gas-phase CO₂ in the cell, reported as the terminal product of photooxidising methoxy on TiO₂ under 10 Torr O₂. Quoted in the text as a single position rather than shown, so no branch structure is recorded.",
+          "tags": []
+        },
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "technique": "drifts",
@@ -558,7 +604,7 @@
       "atoms": "O=C=O",
       "wn_start": 2310,
       "wn_end": 2342,
-      "short": "νₐₛ(OCO) CO₂ (P)",
+      "short": "νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ asymmetric stretch (νₐₛ) — P-branch envelope maximum at ~2335 cm⁻¹, paired with the R-branch at ~2360. Same forbidden-Q gap as the R-branch entry — see co2_asym_q. Saturates at high pCO₂.",
       "based_on": [],
       "references": [
@@ -590,7 +636,7 @@
       "atoms": "O=C=O",
       "wn_start": 690,
       "wn_end": 720,
-      "short": "δ(OCO) CO₂ (R)",
+      "short": "δ(OCO) CO₂",
       "description": "Gas CO₂ bending fundamental (δ) — R-branch (ΔJ = +1) at ~700 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~660. Q-branch is allowed (Σ→Π transition) and appears as a sharp spike at ~667 between P and R envelopes.",
       "based_on": [],
       "references": [
@@ -622,7 +668,7 @@
       "atoms": "O=C=O",
       "wn_start": 666,
       "wn_end": 685,
-      "short": "δ(OCO) CO₂ (Q)",
+      "short": "δ(OCO) CO₂",
       "description": "Gas CO₂ bending fundamental (δ) — Q-branch (ΔJ = 0) at ~667 cm⁻¹. Sharp, intense spike between P and R envelopes; allowed because this mode is a Σ→Π (perpendicular) transition. Saturates very quickly at modest pCO₂.",
       "based_on": [],
       "references": [
@@ -654,7 +700,7 @@
       "atoms": "O=C=O",
       "wn_start": 640,
       "wn_end": 663,
-      "short": "δ(OCO) CO₂ (P)",
+      "short": "δ(OCO) CO₂",
       "description": "Gas CO₂ bending fundamental (δ) — P-branch (ΔJ = −1) at ~660 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~700. Atmospheric CO₂ in the beam path contributes to this region; routinely seen even with good purging.",
       "based_on": [],
       "references": [
@@ -687,7 +733,7 @@
       "atoms": "O=C=O",
       "wn_start": 3725,
       "wn_end": 3735,
-      "short": "νₛ+νₐₛ(OCO) CO₂ (R)",
+      "short": "νₛ+νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ combination band at ~3730 cm⁻¹; (νₛ + νₐₛ) R-branch — upper Fermi-resonance component, R-side. Useful for high-pressure quantification when the νₐₛ fundamental saturates. Genuinely Fermi-coupled to the 2δ+νₐₛ doublet below (~3600 cm⁻¹), not just two coincidentally nearby combination bands — see co2_sym for why the resonance between νₛ and 2δ carries through into both bands' own +νₐₛ combination levels.",
       "based_on": [
         {
@@ -727,7 +773,7 @@
       "atoms": "O=C=O",
       "wn_start": 3695,
       "wn_end": 3705,
-      "short": "νₛ+νₐₛ(OCO) CO₂ (P)",
+      "short": "νₛ+νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ combination band at ~3699 cm⁻¹; (νₛ + νₐₛ) P-branch — upper Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3730. See co2_sym for why this combination doublet is genuinely Fermi-coupled to the 2δ+νₐₛ one below, not just nearby.",
       "based_on": [
         {
@@ -767,7 +813,7 @@
       "atoms": "O=C=O",
       "wn_start": 3622,
       "wn_end": 3632,
-      "short": "2δ+νₐₛ(OCO) CO₂ (R)",
+      "short": "2δ+νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ combination band at ~3627 cm⁻¹; (2δ + νₐₛ) R-branch — lower Fermi-resonance component, R-side. Separation between Fermi pair (3730 vs 3627) ~107 cm⁻¹ is fixed. See co2_bend_overtone for why this combination doublet is genuinely Fermi-coupled to the νₛ+νₐₛ one above, not just nearby.",
       "based_on": [
         {
@@ -807,7 +853,7 @@
       "atoms": "O=C=O",
       "wn_start": 3592,
       "wn_end": 3602,
-      "short": "2δ+νₐₛ(OCO) CO₂ (P)",
+      "short": "2δ+νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ combination band at ~3597 cm⁻¹; (2δ + νₐₛ) P-branch — lower Fermi-resonance component, P-side. P/R-branch separation ~30 cm⁻¹; pair-mate of the R-branch at ~3627. See co2_bend_overtone for why this combination doublet is genuinely Fermi-coupled to the νₛ+νₐₛ one above, not just nearby.",
       "based_on": [
         {
@@ -846,7 +892,7 @@
       "atoms": "O=C=O",
       "wn_start": 2073,
       "wn_end": 2081,
-      "short": "νₛ+δ(OCO) CO₂ (Q)",
+      "short": "νₛ+δ(OCO) CO₂",
       "description": "Gas CO₂ combination of the infrared-forbidden symmetric stretch with the bend: the combined level is dipole-allowed although the stretch alone is not. Very strong and narrow, the most prominent gas band between 2200 and 1900 cm⁻¹, sitting squarely in the linear metal-carbonyl window, and the most misassigned band in this atlas: eight published studies read this one position as adsorbed CO. Its intensity tracks CO₂ pressure rather than anything on the surface, which is the discriminator. Heat and pressurise the cell and the same molecule adds hot and difference bands, absent at ambient conditions, at 2130 and 2094 cm⁻¹ among the carbonyls and 1079, 1050, 973 and 948 cm⁻¹ among the methoxy bands.",
       "based_on": [
         {
@@ -894,7 +940,7 @@
       "atoms": "O=C=O",
       "wn_start": 2046,
       "wn_end": 2066,
-      "short": "νₛ+δ(OCO) CO₂ (P)",
+      "short": "νₛ+δ(OCO) CO₂",
       "description": "The P branch of the same combination band whose Q branch sits 20 cm⁻¹ above. Equally intense but broad rather than narrow, so it reads as a shoulder or a hump rather than the peak its partner makes, and it is the less often reported of the two for that reason. It has still been published four times as adsorbed CO, once specifically as CO at a copper-zinc interface. Rotational structure resolves it at 0.5 cm⁻¹; at the 4 cm⁻¹ usual in catalysis it is one smooth band.",
       "based_on": [
         {
@@ -928,20 +974,21 @@
     },
 
     {
-      "id": "co2_diff_asym_2bend",
+      "id": "co2_diff_asym_2bend_r",
       "species": "co2",
       "phase": "gas",
       "group": "co2",
+      "branch_group": "co2_diff_asym_2bend_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
-        "branch": null
+        "branch": "R"
       },
       "atoms": "O=C=O",
-      "wn_start": 1041,
+      "wn_start": 1071,
       "wn_end": 1087,
       "short": "νₐₛ−2δ(OCO) CO₂",
-      "description": "A difference band: the asymmetric stretch reached from a molecule already holding two quanta of bend rather than from the ground state. Only a fraction of a percent of molecules sit in that level at room temperature, but the transition is strong enough that a pressurised cell still shows it clearly, and it climbs steeply with both pressure and temperature. It lands on the methoxy C-O stretch and on gas-phase methanol, which is the worst place for a CO₂ artefact in a methanol experiment: it rises with temperature, which is what a methanol signal is expected to do.",
+      "description": "The R branch of a difference band: the asymmetric stretch reached from a molecule already holding two quanta of bend rather than from the ground state. Only a fraction of a percent of molecules sit in that level at room temperature, but a pressurised cell shows it clearly and it climbs steeply with both pressure and temperature. It lands on the methoxy C-O stretch, the worst place for a CO₂ artefact in a methanol experiment: it rises with temperature, which is what a methanol signal is expected to do.",
       "based_on": [
         {
           "band_id": null,
@@ -959,15 +1006,92 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": [
-            1079,
-            1050
-          ],
+          "wn": 1079,
           "technique": "drifts",
           "tags": [
             "direct-dosing"
           ],
-          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Bands P and Q: R branch at about 1079 cm⁻¹ and Q branch at about 1050 cm⁻¹, both strong and broad, transition 00011←10002 of ¹²C¹⁶O₂, both marked as rising strongly with temperature. Drawn as one band because at the resolution of a catalysis experiment the pair is one feature. Table 4 lists the first as having been published as methoxy on ZnO and the second as gaseous methanol or a methoxy species."
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band P: about 1079 cm⁻¹, strong and broad, transition 00011←10002 of ¹²C¹⁶O₂, marked as rising strongly with temperature. Table 4 lists it as having been published as methoxy on ZnO."
+        }
+      ],
+      "intensity": "s",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["misassignment-warning", "raman-inactive"]
+    },
+    {
+      "id": "co2_diff_asym_2bend_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_diff_asym_2bend_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1058,
+      "wn_end": 1071,
+      "short": "νₐₛ−2δ(OCO) CO₂",
+      "description": "The Q branch of the same difference band, which does not appear. Both states are Σ, so ΔJ = 0 is forbidden and nothing is observed between the P and R maxima; this entry marks where the band origin sits, near 1064 cm⁻¹. Carried for context, since the gap between the two branches is what identifies the pair as one band rather than two species.",
+      "based_on": [
+        {
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less two quanta of the bend: a difference band, from an already vibrating molecule"
+        }
+      ],
+      "references": [],
+      "width": "broad",
+      "tags": ["ir-inactive", "raman-inactive"]
+    },
+    {
+      "id": "co2_diff_asym_2bend_p",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_diff_asym_2bend_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 1041,
+      "wn_end": 1057,
+      "short": "νₐₛ−2δ(OCO) CO₂",
+      "description": "The P branch of a difference band: the asymmetric stretch reached from a molecule already holding two quanta of bend rather than from the ground state. Only a fraction of a percent of molecules sit in that level at room temperature, but a pressurised cell shows it clearly and it climbs steeply with both pressure and temperature. It lands on gas-phase methanol, the worst place for a CO₂ artefact in a methanol experiment: it rises with temperature, which is what a methanol signal is expected to do.",
+      "based_on": [
+        {
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less two quanta of the bend: a difference band, from an already vibrating molecule"
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 1050,
+          "technique": "drifts",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band Q: about 1050 cm⁻¹, strong and broad, transition 00011←10002 of ¹²C¹⁶O₂, marked as rising strongly with temperature. Taken here as the P branch rather than a Q: the transition is Σ to Σ, which forbids ΔJ = 0, and 1079 and 1050 straddle the 1064 cm⁻¹ origin symmetrically. Table 4 lists it as having been published as gaseous methanol or a methoxy species."
         }
       ],
       "intensity": "s",
@@ -977,20 +1101,21 @@
     },
 
     {
-      "id": "co2_diff_asym_sym",
+      "id": "co2_diff_asym_sym_r",
       "species": "co2",
       "phase": "gas",
       "group": "co2",
+      "branch_group": "co2_diff_asym_sym_branches",
       "vibration": {
         "category": "combination",
         "subtype": null,
-        "branch": null
+        "branch": "R"
       },
       "atoms": "O=C=O",
-      "wn_start": 939,
+      "wn_start": 965,
       "wn_end": 981,
       "short": "νₐₛ−νₛ(OCO) CO₂",
-      "description": "The companion difference band, reached from a molecule already holding one quantum of the symmetric stretch: an R and a P branch straddling 960 cm⁻¹, strong and broad in a pressurised cell. Both have been published as methoxy bound to copper. The test is the temperature: these climb steeply as the cell is heated, because heating populates the level they start from, and a surface methoxy population does not behave that way.",
+      "description": "The R branch of a difference band, reached from a molecule already holding one quantum of the symmetric stretch rather than from the ground state. Strong and broad in a pressurised cell. It has been published as methoxy bound to copper. The test is the temperature: it climbs steeply as the cell is heated, because heating populates the level it starts from, and a surface methoxy population does not behave that way.",
       "based_on": [
         {
           "band_id": null,
@@ -1008,15 +1133,92 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "wn": [
-            973,
-            948
-          ],
+          "wn": 973,
           "technique": "drifts",
           "tags": [
             "direct-dosing"
           ],
-          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Bands R and S: R branch at about 973 cm⁻¹ and P branch at about 948 cm⁻¹, both strong and broad, transition 00011←10001 of ¹²C¹⁶O₂, both marked as rising strongly with temperature. Table 4 lists them as having been published as methoxy on Cu and on Cu⁰."
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band R: the R branch at about 973 cm⁻¹, strong and broad, transition 00011←10001 of ¹²C¹⁶O₂, marked as rising strongly with temperature. Table 4 lists it as having been published as methoxy on Cu."
+        }
+      ],
+      "intensity": "s",
+      "width": "broad",
+      "confidence": "confirmed",
+      "tags": ["misassignment-warning", "raman-inactive"]
+    },
+    {
+      "id": "co2_diff_asym_sym_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_diff_asym_sym_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 954,
+      "wn_end": 967,
+      "short": "νₐₛ−νₛ(OCO) CO₂",
+      "description": "The Q branch of the same difference band, which does not appear. Both states are Σ, so ΔJ = 0 is forbidden and nothing is observed between the P and R maxima; this entry marks where the band origin sits, near 960 cm⁻¹. Carried for context, since the gap between the two branches is what identifies the pair as one band rather than two species.",
+      "based_on": [
+        {
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less one quantum of the symmetric stretch: a difference band, from an already vibrating molecule"
+        }
+      ],
+      "references": [],
+      "width": "broad",
+      "tags": ["ir-inactive", "raman-inactive"]
+    },
+    {
+      "id": "co2_diff_asym_sym_p",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_diff_asym_sym_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "P"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 939,
+      "wn_end": 955,
+      "short": "νₐₛ−νₛ(OCO) CO₂",
+      "description": "The P branch of a difference band, reached from a molecule already holding one quantum of the symmetric stretch rather than from the ground state. Strong and broad in a pressurised cell. It has been published as methoxy on Cu⁰. The test is the temperature: it climbs steeply as the cell is heated, because heating populates the level it starts from, and a surface methoxy population does not behave that way.",
+      "based_on": [
+        {
+          "band_id": null,
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less one quantum of the symmetric stretch: a difference band, from an already vibrating molecule"
+        }
+      ],
+      "references": [
+        {
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 948,
+          "technique": "drifts",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band S: the P branch at about 948 cm⁻¹, strong and broad, transition 00011←10001 of ¹²C¹⁶O₂, marked as rising strongly with temperature. Table 4 lists it as having been published as methoxy on Cu⁰."
         }
       ],
       "intensity": "s",
@@ -1083,6 +1285,7 @@
         },
         {
           "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "laser_nm": 785,
           "technique": "raman",
           "wn": 1387,
           "note": "Text and Fig. 2: the upper Fermi dyad band at ca. 1387 cm⁻¹, neat CO₂ flowed through a Si/glass microreactor chip, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, so across the gas, liquid and supercritical states. The position depends on pressure and temperature: read off Fig. 2, it runs from about 1389 cm⁻¹ (5 MPa, 323 K) down to about 1386 cm⁻¹ in the dense fluid, stepping abruptly at the gas–liquid (298 K, 6–7 MPa) and gas–supercritical (307 K, 7–8 MPa) transitions and falling smoothly at 323 K. The paper calls the pair the Fermi dyad without saying which component is ν₁; the split follows the atlas. With 5 % each of cyclohexene and H₂ (10 MPa, 305–318 K) the dyad sits at or below the liquid value at 305 K, which the paper reads as phase segregation."
@@ -1125,6 +1328,7 @@
         },
         {
           "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "laser_nm": 785,
           "technique": "raman",
           "wn": 1284,
           "note": "Text and Fig. 2: the lower Fermi dyad band at ca. 1284 cm⁻¹, the same on-chip measurement as its partner at 1387 cm⁻¹ (neat CO₂ in a Si/glass microreactor, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, through gas, liquid and supercritical CO₂). The position depends on pressure and temperature: read off Fig. 2, it runs from about 1285 cm⁻¹ (5 MPa, 323 K) down to about 1281.5 cm⁻¹ in the dense liquid, with the same abrupt steps at the phase transitions as the upper band and a smooth trend at 323 K. The paper does not say which component is 2ν₂; the split follows the atlas."
@@ -1155,7 +1359,7 @@
       "atoms": "C-O",
       "wn_start": 2165,
       "wn_end": 2185,
-      "short": "ν(CO) CO (R)",
+      "short": "ν(CO) CO",
       "description": "Gas-phase CO stretch (ν) — R-branch (ΔJ = +1) at ~2170 cm⁻¹. Higher-frequency rotational envelope; pair-mate of the P-branch at ~2115. Q-branch forbidden for diatomic CO (Σ→Σ transition), leaving a characteristic gap at ~2143 cm⁻¹ between R and P branches — see co_stretch_q.",
       "based_on": [],
       "references": [
@@ -1197,7 +1401,7 @@
       "atoms": "C-O",
       "wn_start": 2139,
       "wn_end": 2147,
-      "short": "ν(CO) CO (Q)",
+      "short": "ν(CO) CO",
       "description": "Gas-phase CO stretch (ν) — Q-branch at the ~2143 cm⁻¹ band origin. Forbidden by symmetry for this Σ→Σ transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
       "based_on": [],
       "references": [],
@@ -1219,7 +1423,7 @@
       "atoms": "C-O",
       "wn_start": 2105,
       "wn_end": 2125,
-      "short": "ν(CO) CO (P)",
+      "short": "ν(CO) CO",
       "description": "Gas-phase CO stretch (ν) — P-branch (ΔJ = −1) at ~2115 cm⁻¹. Lower-frequency rotational envelope; pair-mate of the R-branch at ~2170. P/R splitting ~55 cm⁻¹ at room temperature; envelope broadens and shifts intensity to higher-J lines as temperature increases (Maxwell–Boltzmann redistribution). Same forbidden-Q gap as the R-branch entry — see co_stretch_q.",
       "based_on": [],
       "references": [
@@ -1264,7 +1468,7 @@
       "atoms": "H-C-H",
       "wn_start": 3010,
       "wn_end": 3025,
-      "short": "νₐₛ(HCH) CH₄(g) (Q)",
+      "short": "νₐₛ(HCH) CH₄",
       "description": "Gas methane asymmetric C-H stretch (νₐₛ, ν₃, T₂ mode): the sharp Q branch at the ~3019 cm⁻¹ band origin, the feature gas methane is usually recognised by. Active in both IR and Raman. Its rotational P and R branches spread either side (ch4g_asym_p, ch4g_asym_r), and the P side overlaps νₛ near 2917 cm⁻¹ in Raman.",
       "based_on": [],
       "references": [
@@ -1275,6 +1479,7 @@
         },
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "state": "gas",
           "wn": 3019,
           "technique": "transmission",
           "tags": [],
@@ -1282,6 +1487,7 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.2 and Fig. 3: the anisotropic part of the pentad Raman spectrum is dominated by the fundamental ν₃ (F₂), whose rotational structure depends strongly on temperature (room temperature to 700 K in Fig. 3); spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The fit needed only the zeroth-order ν₃ polarisability operator. The text gives no position for the band."
         }
@@ -1289,7 +1495,7 @@
       "intensity": "vs",
       "width": "sharp",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["degenerated"]
     },
       // ν₃ rotational wings: P below and R above the Q branch (ch4g_asym).
     {
@@ -1307,18 +1513,19 @@
       "atoms": "H-C-H",
       "wn_start": 2890,
       "wn_end": 3010,
-      "short": "νₐₛ(HCH) CH₄(g) (P)",
+      "short": "νₐₛ(HCH) CH₄",
       "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the P branch, the rotational lines below the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. It overlaps νₛ near 2917 cm⁻¹ and the δₛ+δₐₛ combination near 2830 cm⁻¹, so a band here is not by itself νₛ. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
       "based_on": [],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): ν₃ dominates the anisotropic pentad spectrum, and its low-wavenumber rotational wing is this side of the sharp Q branch. The paper names neither the branches nor their positions, so no number is recorded; the wing gains lines as the temperature rises (Fig. 3, up to 700 K). Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
         }
       ],
       "confidence": "likely",
-      "tags": []
+      "tags": ["degenerated"]
     },
     {
       "id": "ch4g_asym_r",
@@ -1335,18 +1542,19 @@
       "atoms": "H-C-H",
       "wn_start": 3030,
       "wn_end": 3160,
-      "short": "νₐₛ(HCH) CH₄(g) (R)",
+      "short": "νₐₛ(HCH) CH₄",
       "description": "Gas methane asymmetric C-H stretch (ν₃, T₂): the R branch, the rotational lines above the 3019 cm⁻¹ Q branch (ch4g_asym). Active in IR and Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
       "based_on": [],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.2, Fig. 3 and Fig. 13 (totally depolarised, room temperature): the high-wavenumber rotational wing of ν₃, the stronger of the two sides in Fig. 13. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser, room temperature to 900 K."
         }
       ],
       "confidence": "likely",
-      "tags": []
+      "tags": ["degenerated"]
     },
     {
       "id": "ch4g_bend",
@@ -1362,7 +1570,7 @@
       "atoms": "H-C-H",
       "wn_start": 1280,
       "wn_end": 1340,
-      "short": "δₐₛ(HCH) CH₄(g)",
+      "short": "δₐₛ(HCH) CH₄",
       "description": "Gas methane asymmetric bending (δₐₛ, T₂ mode) at ~1306 cm⁻¹.",
       "based_on": [],
       "references": [
@@ -1373,6 +1581,7 @@
         },
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "state": "gas",
           "wn": 1306,
           "technique": "transmission",
           "tags": [],
@@ -1382,7 +1591,7 @@
       "intensity": "s",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["degenerated"]
     },
       // IR-forbidden (E in Td); the Raman band of the dyad, mirroring co2_sym.
     {
@@ -1400,12 +1609,13 @@
       "atoms": "H-C-H",
       "wn_start": 1528,
       "wn_end": 1540,
-      "short": "δₛ(HCH) CH₄(g) (Q)",
+      "short": "δₛ(HCH) CH₄",
       "description": "Gas methane symmetric bending (δₛ, E mode) at ~1534 cm⁻¹. IR-forbidden by symmetry: E in Td has no T₂ component, so the mode carries no dipole derivative of its own. It is still seen in the infrared, near 1533 cm⁻¹, by borrowing intensity through Coriolis coupling to the δₐₛ bend below it — a reminder that a forbidden mode is one with no dipole derivative, not one that is never observed. In Raman it is the band that dominates the dyad. This entry is the Q branch; in Raman its P and R wings (ch4g_bend_sym_p, ch4g_bend_sym_r) spread either side.",
       "based_on": [],
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "state": "gas",
           "wn": 1534,
           "technique": "transmission",
           "tags": [],
@@ -1413,12 +1623,13 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.1 and Fig. 2: the Raman spectrum of the dyad (about 1300–1850 cm⁻¹) is totally anisotropic and dominated by ν₂ (E), a strong central Q branch with rotational lines on both sides; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. No number is recorded: the text’s only one, “near 1530 cm⁻¹”, is printed against ν₄, which the same paragraph calls very weak in Raman and leaves out of the fit. That it belongs to ν₂ is the atlas’s reading, not the paper’s."
         }
       ],
       "confidence": "confirmed",
-      "tags": ["ir-inactive"]
+      "tags": ["ir-inactive", "degenerated"]
     },
       // ν₂ rotational wings, seen in Raman: P below and R above the Q branch (ch4g_bend_sym).
     {
@@ -1436,18 +1647,19 @@
       "atoms": "H-C-H",
       "wn_start": 1400,
       "wn_end": 1525,
-      "short": "δₛ(HCH) CH₄(g) (P)",
+      "short": "δₛ(HCH) CH₄",
       "description": "Gas methane symmetric bend (δₛ, ν₂, E): the P branch, the rotational lines below the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. Its low end runs towards δₐₛ near 1306 cm⁻¹, which is very weak in Raman. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
       "based_on": [],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.1, Fig. 2 and Fig. 13: the dyad Raman spectrum is totally anisotropic and dominated by ν₂, with rotational lines on both sides of its strong Q branch; this is the low-wavenumber side. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
         }
       ],
       "confidence": "likely",
-      "tags": ["ir-inactive"]
+      "tags": ["ir-inactive", "degenerated"]
     },
     {
       "id": "ch4g_bend_sym_r",
@@ -1464,18 +1676,19 @@
       "atoms": "H-C-H",
       "wn_start": 1545,
       "wn_end": 1700,
-      "short": "δₛ(HCH) CH₄(g) (R)",
+      "short": "δₛ(HCH) CH₄",
       "description": "Gas methane symmetric bend (δₛ, ν₂, E): the R branch, the rotational lines above the ~1533 cm⁻¹ Q branch (ch4g_bend_sym). Raman-active and IR-forbidden like the Q branch. In Raman the wings also hold the O and S branches (ΔJ = −2, +2), which a spherical top allows alongside P and R; the atlas files the low side under P and the high side under R.",
       "based_on": [],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.1, Fig. 2 and Fig. 13: the high-wavenumber side of the ν₂ dyad spectrum, where Fig. 2 shows the longer, better separated series of rotational lines. The paper names neither the branches nor their positions, so no number is recorded. Spontaneous Raman, gas cell at about one amagat, 4 W argon-ion laser."
         }
       ],
       "confidence": "likely",
-      "tags": ["ir-inactive"]
+      "tags": ["ir-inactive", "degenerated"]
     },
       // IR-forbidden (A1 in Td); listed for the same reason as
       // ch4g_bend_sym above — completeness, not a real IR band.
@@ -1493,12 +1706,13 @@
       "atoms": "H-C-H",
       "wn_start": 2900,
       "wn_end": 2930,
-      "short": "νₛ(HCH) CH₄(g)",
+      "short": "νₛ(HCH) CH₄",
       "description": "Gas methane symmetric C-H stretch (νₛ, A₁ mode) at ~2917 cm⁻¹. IR-forbidden by symmetry (A₁ in Td has no T₂/dipole component); observed only in Raman spectroscopy.",
       "based_on": [],
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "state": "gas",
           "wn": 2917,
           "technique": "raman",
           "tags": [],
@@ -1511,13 +1725,14 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "wn": 2916,
           "note": "Sect. 4.2, Fig. 3 and conclusions: the strong isotropic ν₁ (A₁) band near 2916 cm⁻¹, a Q branch that is unresolved at the 0.3 cm⁻¹ apparatus width; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. The stimulated Raman spectrum at 0.08 bar and 300 K (Fig. 8) resolves that Q branch into lines between about 2916.5 and 2918 cm⁻¹, read off the figure. From 400 K on, hot bands ν₁+nνᵢ−nνᵢ fill 2900–2920 cm⁻¹ (ν₁+ν₄−ν₄ at 2913 cm⁻¹, Fig. 10), which is what makes the band a thermometer. ν₁ is in Fermi resonance with 2ν₂ and 2ν₄ and in Dennison resonance with ν₂+ν₄."
         }
       ],
       "confidence": "confirmed",
-      "tags": ["ir-inactive", "to-be-revised"]
+      "tags": ["ir-inactive"]
     },
     {
       "id": "ch4g_combo",
@@ -1533,7 +1748,7 @@
       "atoms": "H-C-H",
       "wn_start": 4300,
       "wn_end": 4325,
-      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (Q)",
+      "short": "δₐₛ+νₐₛ(HCH) CH₄",
       "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ) near 4300 cm⁻¹, the strongest band of the octad in the near-infrared and in Raman. F₂×F₂ gives A₁, E and F₂ components, so it is active in both. Close neighbours in the same polyad blur it: ν₁+ν₄ on the low side, ν₁+ν₂ on the high side, and ν₂+ν₃ further up near 4540 cm⁻¹, which is where δₛ+νₐₛ belongs, not here. Useful for quantification when νₐₛ saturates; often outside a standard DRIFTS window. This entry is the Q branch, the sharp centre; its P and R wings are ch4g_combo_p and ch4g_combo_r.",
       "based_on": [
         {
@@ -1548,6 +1763,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.3, Figs. 11–13 and Table 5: the octad Raman spectrum (Table 1: about 3500–4700 cm⁻¹), extremely weak, recorded over 1 h with the 300 gr/mm grating at room temperature, in the same gas cell (about one amagat, 4 W argon-ion laser). Its fit needed six first-order polarisability operators: ν₁+ν₂ (E), ν₁+ν₄ (F₂), ν₂+ν₃ (F₂) and the A₁, E and F₂ components of ν₃+ν₄, the E one the largest. The paper ties no peak to a band, so reading the main feature near 4300 cm⁻¹ as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Its neighbours ν₁+ν₄ and ν₁+ν₂ fill the wings."
         }
@@ -1568,12 +1784,13 @@
       "atoms": "H-C-H",
       "wn_start": 4220,
       "wn_end": 4300,
-      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (P)",
+      "short": "δₐₛ+νₐₛ(HCH) CH₄",
       "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the P branch, the rotational lines below the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₄ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
       "based_on": [{"band_id": "ch4g_bend", "multiplier": 1}, {"branch_group": "ch4_nu3_branches", "multiplier": 1}],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.3 and Figs. 11–13: the low-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded."
         }
@@ -1595,12 +1812,13 @@
       "atoms": "H-C-H",
       "wn_start": 4325,
       "wn_end": 4420,
-      "short": "δₐₛ+νₐₛ(HCH) CH₄(g) (R)",
+      "short": "δₐₛ+νₐₛ(HCH) CH₄",
       "description": "Gas methane combination band ν₃+ν₄ (δₐₛ+νₐₛ): the R branch, the rotational lines above the ~4310 cm⁻¹ Q branch (ch4g_combo). Active in IR and Raman. It overlaps ν₁+ν₂ of the same polyad, so a feature here is not necessarily ν₃+ν₄. In Raman the wings also hold O and S branches (ΔJ = −2, +2); the atlas files the low side under P and the high side under R.",
       "based_on": [{"band_id": "ch4g_bend", "multiplier": 1}, {"branch_group": "ch4_nu3_branches", "multiplier": 1}],
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "state": "gas",
           "technique": "raman",
           "note": "Sect. 4.3 and Figs. 11–13: the high-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded."
         }
@@ -2174,7 +2392,7 @@
         }
       ],
       "confidence": "likely",
-      "tags": ["molecular-adsorption"]
+      "tags": ["undissociated"]
     },
     {
       "id": "hydroxymethyl_oh_stretch",
@@ -3402,6 +3620,14 @@
       "based_on": [],
       "references": [
         {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "technique": "transmission",
+          "wn": 1560,
+          "measured_on": "tio2",
+          "note": "Grown under UV irradiation of methoxy on TiO₂ in 10 Torr O₂, not dosed: the antisymmetric partner of the 1362 cm⁻¹ band, appearing as CH₃O* is consumed. Read there as bridging HCOO*. In the paper's ethoxy experiment the same position is overlapped by acetate, which is why it is identified by the pair rather than alone.",
+          "tags": []
+        },
+        {
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1520,
           "measured_on": ["ru_al2o3", "ru_na2o_al2o3"],
@@ -3503,6 +3729,14 @@
       "description": "Formate symmetric OCO stretch (HCOO*), paired with νₐₛ(OCO) above. The splitting Δν = νₐₛ − νₛ between the two paired bands is a standard diagnostic for adsorption geometry — how it compares between a more bridging-like and a more chelating-like coordination is a recurring theme in formate vibrational assignments. Where multiple coordination geometries coexist and overlap, polarization-dependent IRRAS/DRIFTS can resolve components that look like a single broad feature in an unpolarized spectrum.",
       "based_on": [],
       "references": [
+        {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "technique": "transmission",
+          "wn": 1362,
+          "measured_on": "tio2",
+          "note": "Grown under UV irradiation of methoxy on TiO₂ in 10 Torr O₂, not dosed: formate is the photooxidation product of the methoxy this paper is following, and it appears together with the 1560 cm⁻¹ partner as CH₃O* is consumed. Read there as bridging HCOO*, and accompanied by gas-phase CO₂ at 2349 cm⁻¹.",
+          "tags": []
+        },
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
           "wn": 1320,
@@ -3921,6 +4155,8 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 2929,
           "measured_on": "tio2",
           "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂.",
@@ -3928,6 +4164,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2919,
           "measured_on": ["cu_1p", "cuga_sio2"],
           "technique": "drifts",
@@ -3936,6 +4173,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2926,
           "measured_on": ["cu_0", "cu_sio2"],
           "technique": "drifts",
@@ -3944,6 +4182,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2954,
           "measured_on": ["cu_0", "cu_sio2"],
           "technique": "drifts",
@@ -3952,6 +4191,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "adsorbed",
           "wn": 2970,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -3960,6 +4200,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "state": "adsorbed",
           "wn": [2958, 2956, 2952],
           "measured_on": "sio2",
           "note": "Fig. 4a/4c (2958 cm⁻¹) and Fig. 7a (2956 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC; MCR-resolved per catalyst in the SI at Fig. S15 2956, Fig. S16 2958, Fig. S18 2952, Fig. S20 2958 cm⁻¹. Methoxy grafted to the silica support (Si-O-CH₃), not to Cu or to the promoter: it builds up slowly (visible only after ~90 min) and, unlike formate, exchanges on the minute-to-hour timescale under D₂. Fig. S14 splits it into a fast, reactive pool near the Cu/promoter interface and a slow (τ ≈ 1 h) spectator pool on remote silica sites — one band, two kinetically distinct populations. The reactive pool's hydrogenation/desorption is the rate-limiting step of the whole cycle (KIE = 2.78), which makes this band a rate proxy rather than a spectator.",
@@ -3968,6 +4209,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "state": "adsorbed",
           "wn": 2940,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -3976,6 +4218,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "wn": 2933,
           "measured_on": ["zn_ovac_hf", "znhfox"],
           "technique": "drifts",
@@ -4008,12 +4251,15 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 2828,
           "measured_on": "tio2",
           "tags": ["direct-dosing"]
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2836,
           "measured_on": ["cu_1p", "cuga_sio2"],
           "technique": "drifts",
@@ -4022,6 +4268,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2842,
           "measured_on": ["cu_0", "cu_sio2"],
           "technique": "drifts",
@@ -4030,6 +4277,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "state": "adsorbed",
           "wn": 2856,
           "measured_on": ["cu_0", "cu_sio2"],
           "technique": "drifts",
@@ -4038,6 +4286,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "adsorbed",
           "wn": 2819,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -4046,6 +4295,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "state": "adsorbed",
           "wn": [2858, 2854, 2856, 2859],
           "measured_on": "sio2",
           "note": "Fig. 4a/4c (2858 cm⁻¹) and Fig. 7a (2854 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC; MCR-resolved per catalyst in the SI at Fig. S15 2856, Fig. S16 2858, Fig. S17 2856, Fig. S18 2859, Fig. S20 2858 cm⁻¹. Paired with νₐₛ(CH₃) at 2952–2958 cm⁻¹ in the same MCR component. Under D₂ this fundamental shifts cleanly to 2080 cm⁻¹ (CD₃O*), which is what allows methoxy to be separated from the formate combination band it otherwise overlaps in the C-H region.",
@@ -4054,6 +4304,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "state": "adsorbed",
           "wn": 2837,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -4062,6 +4313,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "wn": [2827, 2832, 2835],
           "measured_on": ["zn_ovac_hf", "znhfox"],
           "technique": "drifts",
@@ -4070,6 +4322,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "wn": 2825,
           "measured_on": "zno",
           "technique": "drifts",
@@ -4078,6 +4331,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "measured_on": "hfo2",
           "technique": "drifts",
           "tags": [],
@@ -4109,18 +4363,23 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 1441,
           "measured_on": "tio2",
+          "note": "Table 1, methanol dosed on TiO₂ (Degussa P25, 70% anatase and 30% rutile, ~50 m² g⁻¹) as a powder film on a tungsten mesh, measured in transmission through CaF₂ windows. Labelled δa(CH₃) there, an antisymmetric deformation, where this atlas carries the 1430–1458 cm⁻¹ region as the symmetric one; filed here on position, since the paper's own asymmetric-deformation band for methoxy would sit far lower. The disagreement is over the label, not the number.",
           "tags": ["direct-dosing"]
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "state": "adsorbed",
           "wn": 1480,
           "measured_on": ["al2o3", "ni_ce_fe_la_al2o3"],
           "note": "Table 3: δ(–CH₃) at 1480 cm⁻¹; surface methoxy deformation from CH₄ activation via H-abstraction; observed during DRM at 600°C."
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "state": "adsorbed",
           "wn": 1457,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -4182,6 +4441,8 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 1126,
           "measured_on": "tio2",
           "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate.",
@@ -4189,6 +4450,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "adsorbed",
           "wn": 1152,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -4197,6 +4459,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "adsorbed",
           "wn": [1154, 1111],
           "measured_on": "zro2",
           "technique": "drifts",
@@ -4205,6 +4468,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "wn": 1153,
           "measured_on": ["zn_ovac_hf", "znhfox"],
           "technique": "drifts",
@@ -4238,6 +4502,8 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 1045,
           "measured_on": "tio2",
           "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate.",
@@ -4245,6 +4511,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "adsorbed",
           "wn": 1071,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -4253,6 +4520,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "state": "adsorbed",
           "wn": 1052,
           "measured_on": ["zn_ovac_hf", "znhfox"],
           "technique": "drifts",
@@ -4292,6 +4560,7 @@
       "references": [
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "state": "adsorbed",
           "wn": 2080,
           "measured_on": "sio2",
           "note": "Fig. 5b/5c (MCR-resolved, Cu–Zn/SiO₂ SSITKA, CO₂+D₂ ⇄ CO₂+H₂, 230 °C, 10 bar): CD₃O* on silica at 2080 cm⁻¹, and at exactly the same position on the other three catalysts (SI Figs. S15/S16/S17) — unshifted by the promoter, consistent with methoxy sitting on the silica support rather than at the Cu–promoter interface. Unlike formate, this exchanges slowly, and its concentration profile — not the formate's — tracks the delayed appearance of gas-phase methanol, which is the observation that identifies methoxy hydrogenation/desorption as the rate-limiting step. Fig. S14c/d resolves the decay into a fast reactive pool (τ ≈ 1–6 min) and a slow spectator pool (τ ≈ 55–98 min); Fig. S12 is the linearised fit behind the KIE of 2.78. The asymmetric νₐₛ(C–D) partner is expected near 2160 cm⁻¹ and is not resolved, being buried under κ²-DCOO*.",
@@ -4325,6 +4594,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "state": "adsorbed",
           "wn": 2194,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -4359,12 +4629,22 @@
       "atoms": "O-H",
       "wn_start": 3681,
       "wn_end": 3700,
-      "short": "ν(OH) MeOH (Q)",
+      "short": "ν(OH) MeOH",
       "description": "Methanol O-H stretch (MeOH*/MeOH(g)) — broad and hydrogen-bonding-sensitive like most O-H stretches, so its exact shape depends heavily on the local hydrogen-bonding environment. Often obscured by adsorbed water and surface hydroxyl groups absorbing in the same broad region.",
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 3686,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₁, the O-H stretch, sharp in the vapour where the liquid and matrix show only a broad hydrogen-bonded feature near 3300. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 3687,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(OH) Q 3687 cm⁻¹ (vs); R 3713, P 3673; collapses to ~3337 cm⁻¹, very strong and broad, in the liquid due to H-bonding. The CH₃OD counterpart from the same paper's Table II is filed separately — see ν(OD) CH₃OD.",
           "technique": "transmission",
@@ -4372,6 +4652,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 3690.1,
           "note": "Table 3, ν₁(A′) νOH of CH₃OH isolated in solid neon at 6 K, 0.3 cm⁻¹ resolution. Argon puts it at 3666.7 cm⁻¹: the two hosts differ by 23 cm⁻¹, the largest matrix effect of any methanol fundamental, and they straddle the gas-phase value of 3681.5 cm⁻¹ by +8.6 and −14.8 cm⁻¹. Matrix isolation quenches rotation, so this is a single sharp line rather than the rovibrational envelope the gas-phase band has.",
           "technique": "transmission",
@@ -4404,6 +4685,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": [2720, 2745, 2705],
           "note": "Table II, CH₃OD vapour in a 10-cm cell at 80 mmHg and room temperature: ν(OD) Q 2720 cm⁻¹, R 2745, P 2705. Against Table I's ν(OH) Q at 3687 cm⁻¹ this is Δν(OH→OD) = −967 cm⁻¹, close to the harmonic √2 expectation for an X-H bond and the basis for the assignment.",
           "technique": "transmission",
@@ -4411,6 +4693,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2721.7,
           "note": "Table 3, ν₁(A′) νOD of CH₃OD in solid neon at 6 K; 2704.8 cm⁻¹ in argon, against 2717.6 cm⁻¹ in the gas phase. Deuterating the hydroxyl leaves the methyl bands almost where they were, which is what makes it the clean way to separate O-H from C-H features.",
           "technique": "transmission",
@@ -4418,6 +4701,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2723.0,
           "technique": "transmission",
           "tags": [],
@@ -4425,6 +4709,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2724,
           "note": "Table IV, CD₃OD vapour: Q branch of the O-D stretch at 2724 cm⁻¹, R 2746 and P 2708 cm⁻¹. Within 4 cm⁻¹ of the same mode in CH₃OD (Table II, 2720 cm⁻¹), which is the vapour-phase version of the point that the O-D stretch does not care whether the methyl group is deuterated.",
           "technique": "transmission",
@@ -4458,6 +4743,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2247.3,
           "technique": "transmission",
           "tags": [],
@@ -4475,7 +4761,7 @@
       "species": "methanol",
       "phase": "gas",
       "group": "methanol_product",
-      "isotopologue_of": "meoh_asym",
+      "isotopologue_of": "meoh_ch3as",
       "isotope": "D",
       "vibration": {
         "category": "stretch",
@@ -4491,6 +4777,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2209.4,
           "technique": "transmission",
           "tags": [],
@@ -4498,6 +4785,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": [2242, 2228, 2215],
           "note": "Table IV, CD₃OD vapour in a 10-cm cell at 80 mmHg and room temperature: the antisymmetric CD₃ stretch as a three-component envelope centred on 2228 cm⁻¹, with Barker and Bosschieter's higher-resolution 2227 cm⁻¹ quoted alongside. Falk's own accuracy above 2000 cm⁻¹ is ±4 cm⁻¹. The matrix values are 15 to 20 cm⁻¹ lower, which is the host effect rather than a disagreement.",
           "technique": "transmission",
@@ -4520,7 +4808,7 @@
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
-        "branch": "Q"
+        "branch": null
       },
       "atoms": "H-C-H",
       "wn_start": 2068,
@@ -4531,6 +4819,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2072.7,
           "technique": "transmission",
           "tags": [],
@@ -4538,6 +4827,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2080,
           "note": "Table IV, CD₃OD vapour: Q branch of the symmetric CD₃ stretch at 2080 cm⁻¹, with R at 2100 and P at 2063 cm⁻¹, and 2081 cm⁻¹ from the higher-resolution work the paper prefers. The strongest band of the deuterated methyl region, as in the matrix.",
           "technique": "transmission",
@@ -4571,6 +4861,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1129.0,
           "technique": "transmission",
           "tags": [],
@@ -4578,6 +4869,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1135,
           "note": "Table IV, CD₃OD vapour: Q branch at 1135 cm⁻¹ of an approximately parallel band, R 1155 and P 1117 cm⁻¹, assigned to the symmetric CD₃ bending mode. The paper reads the parallel envelope as the evidence for the assignment, and the polarised Raman band of liquid CD₃OH at 1127 cm⁻¹ as its confirmation.",
           "technique": "transmission",
@@ -4611,6 +4903,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1069.0,
           "technique": "transmission",
           "tags": [],
@@ -4644,6 +4937,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1062.1,
           "technique": "transmission",
           "tags": [],
@@ -4677,6 +4971,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1028.7,
           "technique": "transmission",
           "tags": [],
@@ -4699,7 +4994,7 @@
       "vibration": {
         "category": "stretch",
         "subtype": null,
-        "branch": "Q"
+        "branch": null
       },
       "atoms": "C-O",
       "wn_start": 975,
@@ -4710,6 +5005,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 979.9,
           "technique": "transmission",
           "tags": [],
@@ -4717,6 +5013,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 983,
           "note": "Table IV, CD₃OD vapour: Q branch of the C-O stretch at 983 cm⁻¹, R 1001 and P 962 cm⁻¹. The C-O stretch falls from 1034 cm⁻¹ in CH₃OH to 983 cm⁻¹ here, and the paper uses that shift together with the methyl bending shift to argue that the symmetric CH₃ bend and the C-O stretch interact.",
           "technique": "transmission",
@@ -4750,6 +5047,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 890.3,
           "technique": "transmission",
           "tags": [],
@@ -4783,6 +5081,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 774.4,
           "technique": "transmission",
           "tags": [],
@@ -4790,6 +5089,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 776,
           "note": "Table IV, CD₃OD vapour: Q branch at 776 cm⁻¹, R 797 and P 753 cm⁻¹, assigned jointly to CD₃ rocking and the in-plane O-D bend, which the paper says are mixed in this molecule rather than separable.",
           "technique": "transmission",
@@ -4816,12 +5116,13 @@
       "atoms": "O-H",
       "wn_start": 3707,
       "wn_end": 3720,
-      "short": "ν(OH) MeOH (R)",
+      "short": "ν(OH) MeOH",
       "description": "R-branch rotational satellite of gas-phase methanol ν(OH); ~26 cm⁻¹ above the Q branch at 3687 cm⁻¹. Only present in gas-phase spectra.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 3713,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(OH) R branch at 3713 cm⁻¹.",
           "technique": "transmission",
@@ -4848,12 +5149,13 @@
       "atoms": "O-H",
       "wn_start": 3660,
       "wn_end": 3680,
-      "short": "ν(OH) MeOH (P)",
+      "short": "ν(OH) MeOH",
       "description": "P-branch rotational satellite of gas-phase methanol ν(OH); ~14 cm⁻¹ below the Q branch at 3687 cm⁻¹. Only present in gas-phase spectra.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 3673,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(OH) P branch at 3673 cm⁻¹.",
           "technique": "transmission",
@@ -4879,12 +5181,22 @@
       "atoms": "H-C-H",
       "wn_start": 2985,
       "wn_end": 3010,
-      "short": "νₛ(CH₃) ν₂ MeOH",
-      "description": "One of methanol's two symmetric-species CH₃ stretches (see the vibration-modes page for why this isn't \"the asymmetric one\") — sits close enough to the O-H stretch's low-wavenumber tail that the two can blur together in a broad surface spectrum.",
+      "short": "ν(CH) in-plane MeOH",
+      "description": "The C-H stretch of methanol's in-plane hydrogen, the one lying in the C-O-H plane: 78% of the motion is on that single bond, the rest shared by the out-of-plane pair moving together. The older tables call it a symmetric methyl stretch, which is also what they call ν₃ 150 cm⁻¹ lower, and that duplicate name is why this region reads as ambiguous (see the vibration-modes page). It sits close enough to the O-H stretch's low-wavenumber tail that the two can blur together in a broad surface spectrum.",
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 2996,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₂ and called a CH₃ asymmetric stretch; the index matches this band, the name is the older convention that Dinu's notation study replaces, since the motion is 78% the in-plane C-H bond rather than any asymmetric combination. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2996.3,
           "note": "Table 3, ν₂(A′) νsCH₃ of CH₃OH in solid neon at 6 K; 3006.4 cm⁻¹ in argon, against 2999.0 cm⁻¹ in the gas phase. This is the higher of methanol's two symmetric methyl stretches, 78% of the motion on the in-plane hydrogen, which is why it is not the asymmetric one despite sitting highest.",
           "technique": "transmission",
@@ -4892,8 +5204,9 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "state": "adsorbed",
           "wn": [2985, 2994, 2996],
-          "note": "Fig. 4a/4c (2985 cm⁻¹; the main text quotes 2981 cm⁻¹ for the same feature) and Fig. 5b (2994 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. In the SI, Fig. S17 gives 2996 cm⁻¹ (Cu–In/SiO₂) and Fig. S20 2994 cm⁻¹ (Cu–Ga/SiO₂, labelled explicitly as adsorbed methanol inside a component non-separable from κ²-HCOO*(Ga³⁺) and CH₃O*(Ga³⁺)); Table S1 quotes 2996 cm⁻¹. Assigned there as νₐₛ(C–H) of molecularly adsorbed CH₃OH*, filed under this band on position rather than on that label, since gas-phase methanol's own ν₂/ν₉ assignment in this region is resonance-mixed (see νₐₛ(CH₃) CH₃OH* below). Builds up only after ~90 min, and its delay relative to the mass-spectrometer CH₃OH signal is read as product methanol being re-adsorbed on silica rather than desorbing straight out.",
+          "note": "Fig. 4a/4c (2985 cm⁻¹; the main text quotes 2981 cm⁻¹ for the same feature) and Fig. 5b (2994 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. In the SI, Fig. S17 gives 2996 cm⁻¹ (Cu–In/SiO₂) and Fig. S20 2994 cm⁻¹ (Cu–Ga/SiO₂, labelled explicitly as adsorbed methanol inside a component non-separable from κ²-HCOO*(Ga³⁺) and CH₃O*(Ga³⁺)); Table S1 quotes 2996 cm⁻¹. Assigned there as νₐₛ(C–H) of molecularly adsorbed CH₃OH*, filed under this band on position rather than on that label, since gas-phase methanol's own ν₂/ν₉ assignment in this region is resonance-mixed (see νₐₛ(CH₂) MeOH below). Builds up only after ~90 min, and its delay relative to the mass-spectrometer CH₃OH signal is read as product methanol being re-adsorbed on silica rather than desorbing straight out.",
           "technique": "drifts",
           "tags": []
         }
@@ -4903,10 +5216,9 @@
       "confidence": "likely",
       "tags": []
     },
-    {
-      "id": "meoh_asym",
+{
+      "id": "meoh_ch3as",
       "species": "methanol",
-      "phase": "adsorbed",
       "group": "methanol_product",
       "vibration_modes": ["methanol_stretch_antisym"],
       "vibration": {
@@ -4916,73 +5228,54 @@
       },
       "atoms": "H-C-H",
       "wn_start": 2905,
-      "wn_end": 2975,
-      "short": "νₐₛ(CH₂) CH₃OH*",
-      "description": "The antisymmetric stretch of methanol\u2019s two out-of-plane C-H bonds, a CH₂ rather than a CH₃ motion: the in-plane hydrogen barely moves. Typically 10 to 20 cm⁻¹ above methoxy in the same region, which is the cleanest way to tell molecularly adsorbed methanol from methoxy. In the isolated molecule it is not one band: it is spread across three, mixed with combinations of the methyl deformations, and no single band is dominated by the fundamental. That structure washes out on a working catalyst, but it is why the position quoted for this mode varies by tens of cm⁻¹ between sources.",
+      "wn_end": 2980,
+      "short": "νₐₛ(CH₂) MeOH",
+      "description": "The antisymmetric stretch of methanol's two out-of-plane C-H bonds, a CH₂ motion because the in-plane hydrogen has no part in it. In the free molecule it is not one band but three, near 2967, 2928 and 2912 cm⁻¹: the fundamental is mixed with combinations of the methyl deformations and no observed band is dominated by it. Deuterating the methyl group collapses the pattern, which is how the mixing is demonstrated. Molecularly adsorbed methanol absorbs in the same window, 10 to 20 cm⁻¹ above methoxy, so gas and surface are carried here as one band. The width is that of the multiplet, not an uncertainty.",
       "based_on": [],
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
           "wn": 2948,
           "measured_on": "tio2",
-          "note": "Removed by evacuation at 200 °C, leaving methoxy on the surface.",
+          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with its νₛ(CH₃) partner, leaving methoxy on the surface. It sits inside the free molecule's own multiplet for this mode, which is why the two are carried as one band here.",
           "tags": ["direct-dosing"]
         },
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 2978,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₉, the CH₃ asymmetric stretch, and parenthesised, which marks it as the uncertain one of the set. The same table carries 2926 cm⁻¹ in the vapour as a combination and 2956 as the 2ν₄ overtone, so the paper already sees three features here without naming them a resonance."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2973,
-          "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: νas(CH₃) at 2973 cm⁻¹ (vs); Falk treats a′ and a″ asymmetric stretches as one unresolved envelope — later work (Serrallach 1974, Dinu 2024) identifies this as a 3-component Fermi-resonance multiplet rather than a single fundamental.",
+          "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: 2973 cm⁻¹ (vs), with shoulders at 2982, 2934 and 2912. Falk treats the a′ and a″ asymmetric stretches as one unresolved envelope and notes in his own footnote that Fermi resonance with an overtone or combination of the methyl bends produces the extreme frequencies of the group. Later work (Serrallach 1974, Dinu 2024) makes that a three-component resonance rather than a single fundamental.",
           "technique": "transmission",
           "tags": []
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": [2966.9, 2928.2, 2912.0],
           "note": "Table 3 and Fig. 7a: in solid neon at 6 K this mode is not one band but three, at 2966.9, 2928.2 and 2912.0 cm⁻¹ (2961.8, 2930.0 and 2914.2 in argon). The VCI analysis finds no state dominated by the ν₉ fundamental: 2966.9 cm⁻¹ is 59.9% the ν₄+ν₁₀ combination against 28.3% ν₉, and 2912.0 cm⁻¹ is best labelled ν₅+ν₁₀. Deuterating the methyl group collapses the pattern, which is how the resonance is demonstrated. Assigning a single band here to an asymmetric methyl stretch is the misassignment this paper exists to correct.",
           "technique": "transmission",
           "tags": ["isotope-labeling"]
         }
       ],
-      "intensity": "m",
-      "width": "medium",
+      "intensity": "s",
+      "width": "broad",
       "confidence": "confirmed",
-      "tags": ["molecular-adsorption", "misassignment-warning"]
-    },
-    {
-      "id": "meoh_sym",
-      "species": "methanol",
-      "phase": "adsorbed",
-      "group": "methanol_product",
-      "vibration_modes": ["methanol_stretch_symmetric"],
-      "vibration": {
-        "category": "stretch",
-        "subtype": "symmetric",
-        "branch": null
-      },
-      "atoms": "H-C-H",
-      "wn_start": 2835,
-      "wn_end": 2860,
-      "short": "νₛ(CH₃) CH₃OH*",
-      "description": "Adsorbed methanol CH₃ symmetric stretch, 10 to 20 cm⁻¹ above methoxy νₛ(CH₃), which is what separates molecular methanol from the methoxy it converts into; the two appear as a shoulder pair and mild evacuation removes the methanol first. It also falls under the gas-phase Q branch of the same mode, so surface and gas contributions sit on top of each other, and the flanking R and P satellites are what tell them apart.",
-      "based_on": [],
-      "references": [
-        {
-          "key": "Wu.BondingGeometryReactivity.2000",
-          "wn": 2844,
-          "measured_on": "tio2",
-          "note": "Methanol dosed on TiO₂; removed by evacuation at 200 °C together with the νₐₛ(CH₃) partner, leaving methoxy on the surface.",
-          "tags": ["direct-dosing"]
-        }
-      ],
-      "intensity": "m",
-      "width": "medium",
-      "confidence": "likely",
-      "tags": ["molecular-adsorption"]
+      "tags": ["undissociated", "misassignment-warning"]
     },
     {
       "id": "meoh_ch3s_q",
       "species": "methanol",
-      "phase": "gas",
       "group": "methanol_product",
       "branch_group": "meoh_ch3s_branches",
       "vibration_modes": ["methanol_stretch_symmetric"],
@@ -4992,14 +5285,33 @@
         "branch": "Q"
       },
       "atoms": "H-C-H",
-      "wn_start": 2836,
-      "wn_end": 2854,
-      "short": "νₛ(CH₃) MeOH (Q)",
-      "description": "Q-branch head of gas-phase methanol νₛ(CH₃), the central and strongest of the three branches, with R about 24 cm⁻¹ above and P about 19 cm⁻¹ below. It falls on the adsorbed-methanol and methoxy νₛ(CH₃) region, so gas and surface overlap over a working catalyst; the flanking satellites identify the gas part, since an adsorbed species has no rotational structure.",
+      "wn_start": 2835,
+      "wn_end": 2860,
+      "short": "νₛ(CH₃) MeOH",
+      "description": "Q-branch head of methanol νₛ(CH₃), the central and strongest of the three branches, with R about 24 cm⁻¹ above and P about 19 cm⁻¹ below. Molecularly adsorbed methanol absorbs in the same window, 10 to 20 cm⁻¹ above methoxy νₛ(CH₃), so the gas Q branch and the surface species sit on top of each other over a working catalyst and are carried here as one band. The flanking R and P satellites are what identify the gas part, since an adsorbed molecule has no rotational structure; mild evacuation removes the adsorbed methanol before the methoxy.",
       "based_on": [],
       "references": [
         {
+          "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
+          "wn": 2844,
+          "measured_on": "tio2",
+          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with the νₐₛ(CH₂) partner, leaving methoxy on the surface. The position falls inside the gas-phase Q branch of the same mode, which is why the two are carried as one band here.",
+          "tags": ["direct-dosing"]
+        },
+        {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 2846,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₃, the symmetric methyl stretch. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2845,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν₃ νs(CH₃) Q 2845 cm⁻¹ (s); R 2869, P 2826.",
           "technique": "transmission",
@@ -5007,6 +5319,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2841.5,
           "note": "Table 3, ν₃(A′) νsCH₃ of CH₃OH in solid neon at 6 K; 2848.0 cm⁻¹ in argon, against 2844.2 cm⁻¹ in the gas phase. The VCI wave function is 51% this fundamental and 26% the first overtone of the methyl scissor, so even the cleanest-looking band in this region is a resonance rather than a pure fundamental.",
           "technique": "transmission",
@@ -5016,7 +5329,7 @@
       "intensity": "m",
       "width": "medium",
       "confidence": "confirmed",
-      "tags": []
+      "tags": ["undissociated"]
     },
     {
       "id": "meoh_ch3s_r",
@@ -5033,12 +5346,13 @@
       "atoms": "H-C-H",
       "wn_start": 2858,
       "wn_end": 2876,
-      "short": "νₛ(CH₃) MeOH (R)",
+      "short": "νₛ(CH₃) MeOH",
       "description": "R-branch rotational satellite of gas-phase methanol νs(CH₃); ~24 cm⁻¹ above the Q branch at 2845 cm⁻¹. Only present in gas-phase spectra.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2869,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: νs(CH₃) R branch at 2869 cm⁻¹.",
           "technique": "transmission",
@@ -5065,12 +5379,13 @@
       "atoms": "H-C-H",
       "wn_start": 2820,
       "wn_end": 2832,
-      "short": "νₛ(CH₃) MeOH (P)",
+      "short": "νₛ(CH₃) MeOH",
       "description": "P-branch rotational satellite of gas-phase methanol νs(CH₃); ~19 cm⁻¹ below the Q branch at 2845 cm⁻¹. Only present in gas-phase spectra.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2826,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: νs(CH₃) P branch at 2826 cm⁻¹.",
           "technique": "transmission",
@@ -5101,7 +5416,17 @@
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1478,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₄, a CH₃ asymmetric deformation, against 1477 cm⁻¹ in the liquid, 1474 in the argon matrix and 1462 calculated. The paper's ν₄ and ν₁₀ are the pair this atlas carries as the scissor and the rock. One position per band, with no rotational structure resolved, so no branch is recorded here."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1477,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: δas(CH₃) a′ at 1477 cm⁻¹ (m).",
           "technique": "transmission",
@@ -5109,6 +5434,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1477.0,
           "note": "Table 3, ν₄(A′) δCH₃ scissor of CH₃OH in solid neon at 6 K; 1473.5 cm⁻¹ in argon, against 1477.2 cm⁻¹ in the gas phase.",
           "technique": "transmission",
@@ -5143,7 +5469,17 @@
       ],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 2956,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as 2ν₄, the overtone half of the Fermi pair with ν₃ that Zerda studied in the liquid. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 2954.0,
           "note": "Fig. 6d, the observed neon-matrix band at 2954.0 cm⁻¹ (2955.9 in argon, Fig. 6a), assigned to 2ν₄ by the VCI calculation, which puts it at 2955 cm⁻¹. It is the one overtone in this region the calculation can assign uniquely for CH₃OH: 2ν₁₀ and 2ν₅ are spread across three states near 2928, 2922 and 2847 cm⁻¹ and cannot be pinned to single bands.",
           "technique": "transmission",
@@ -5174,7 +5510,17 @@
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1463,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₁₀, a CH₃ asymmetric deformation, against 1466 cm⁻¹ in the liquid and 1458 in the argon matrix. Filed here on position: the paper calls ν₁₀ an asymmetric deformation where this atlas names the same region a CH₂ rock. One position per band, with no rotational structure resolved, so no branch is recorded here."
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1469.0,
           "note": "Table 3, ν₁₀(A″) δasCH₂ rocking of CH₃OH in solid neon at 6 K; 1466.3 cm⁻¹ in argon, against 1465 ± 3 cm⁻¹ in the gas phase. Matrix isolation separates it from the scissor 8 cm⁻¹ above, which the older gas-phase compilation reported at the same position as the scissor.",
           "technique": "transmission",
@@ -5182,6 +5528,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": null,
           "note": "Not recorded as a position: Falk assigns the third methyl deformation to a band at 1415 cm⁻¹ in the CH₃OH vapour and the two methyl rocking modes to 1233 and 1116 cm⁻¹, an assignment his own abstract flags as differing from earlier work and which later gas-phase and matrix studies overturned. The mode this band carries is now placed near 1465 cm⁻¹, between the scissor and the umbrella. The 1961 numbers are kept here as the historical reading rather than as a competing measurement.",
           "technique": "transmission",
@@ -5212,7 +5559,17 @@
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1452,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₅, the CH₃ symmetric deformation, against 1447 cm⁻¹ in both the liquid and the argon matrix and 1440 calculated. One position per band, with no rotational structure resolved, so no branch is recorded here."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1455,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: δs(CH₃) a′ at 1455 cm⁻¹ (m).",
           "technique": "transmission",
@@ -5220,6 +5577,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1450.5,
           "note": "Table 3, ν₅(A′) δCH₃ umbrella of CH₃OH in solid neon at 6 K; 1451.8 cm⁻¹ in argon, against 1454.5 cm⁻¹ in the gas phase. Its first overtone is one of the states the 2960 to 2900 cm⁻¹ resonance pattern is built from.",
           "technique": "transmission",
@@ -5250,7 +5608,17 @@
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1335,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₆, the C-O-H bend. Parenthesised in the table, which marks it as the uncertain one of the set; the calculated value is 1328 cm⁻¹. One position per band, with no rotational structure resolved, so no branch is recorded here."
+        },
+        {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1346,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: δip(OH) at 1346 cm⁻¹ (s). Falk value (1346) agrees with Shimanouchi (1345) but is ~14 cm⁻¹ above Serrallach 1974 (1332); discrepancy attributed by Falk to coupling between δ(OH) a′ and ρ(CH₃) a′ motions.",
           "technique": "transmission",
@@ -5258,6 +5626,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1331.4,
           "note": "Table 3, ν₆(A′) δipOH of CH₃OH in solid neon at 6 K; 1329.6 cm⁻¹ in argon, against 1332.0 cm⁻¹ in the gas phase. The 1345 cm⁻¹ of the older compilation is 13 cm⁻¹ off and is the value most often carried forward in the literature.",
           "technique": "transmission",
@@ -5282,13 +5651,23 @@
       },
       "atoms": "H-C-H",
       "wn_start": 1141,
-      "wn_end": 1158,
+      "wn_end": 1163,
       "short": "δₐₛ(CH₃) twist MeOH",
-      "description": "Methanol CH₃ twisting deformation (MeOH*/MeOH(g)) — only the two out-of-plane H's participate, one swinging toward the C-O axis and the other away (see the vibration-modes page).",
+      "description": "Methanol CH₃ twisting deformation (MeOH*/MeOH(g)): only the two out-of-plane H's participate, one swinging toward the C-O axis and the other away (see the vibration-modes page). The window is wide for a single fundamental because the host matters more here than for any other methyl mode, 1145 cm⁻¹ in the gas against 1163 in argon.",
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1160,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₁₁, a perpendicular CH₃ deformation, against 1157 cm⁻¹ in the liquid and 1148 in the argon matrix. One position per band, with no rotational structure resolved, so no branch is recorded here."
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1156.5,
           "note": "Table 3, ν₁₁(A″) δasCH₃ twisting of CH₃OH in solid neon at 6 K; 1162.8 cm⁻¹ in argon, against 1145 ± 4 cm⁻¹ in the gas phase. The 11 to 18 cm⁻¹ blue shift is the largest matrix effect of any methanol fundamental apart from the O-H stretch, so this position is host-dependent and should not be read as a free-molecule value.",
           "technique": "transmission",
@@ -5319,7 +5698,17 @@
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1071,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₇, a CH₃ deformation; Dinu names the same mode the C-O scaffold, which is the same mixed coordinate under two conventions. One of only two bands the vapour spectrum shows below 1600 cm⁻¹, and the paper notes it is a poorly resolved doublet. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1071.4,
           "note": "Table 3, ν₇(A′) νCO scaffold of CH₃OH in solid neon at 6 K; 1076.3 cm⁻¹ in argon, against 1074.5 cm⁻¹ in the gas phase. Only 72% of this mode is the C-O stretch; the rest is HOC and OCH bending, which is why methanol has two bands in this region rather than one.",
           "technique": "transmission",
@@ -5334,7 +5723,6 @@
     {
       "id": "meoh_co_q",
       "species": "methanol",
-      "phase": "gas",
       "group": "methanol_product",
       "branch_group": "meoh_co_branches",
       "vibration_modes": ["methanol_co_stretch"],
@@ -5346,22 +5734,37 @@
       "atoms": "C-O",
       "wn_start": 1020,
       "wn_end": 1050,
-      "short": "ν(CO) MeOH (Q)",
+      "short": "ν(CO) MeOH",
       "description": "Methanol C-O stretch (MeOH*/MeOH(g)). Falls in the 1000–1200 cm⁻¹ window shared with monodentate and bidentate methoxy ν(C-O); CH₃OH(a) and CH₃O(a) routinely coexist after low-temperature alcohol dosing and contribute jointly to this region. Disambiguate via the CH₃ stretching region: adsorbed methanol shows νₐₛ/νₛ blue-shifted by ~10–20 cm⁻¹ relative to methoxy.",
       "based_on": [],
       "references": [
         {
+          "key": "Furic.MethanolIsolatedMatrix.1993",
+          "state": "gas",
+          "laser_nm": 514.5,
+          "wn": 1034,
+          "technique": "raman",
+          "tags": [],
+          "note": "Table 2, vapour column of a Raman study recording vapour, liquid and argon-matrix methanol on one instrument, 514.5 nm, 3 W at the sample for the vapour cell. Assigned there as ν₈, the C-O stretch. The paper's own normal-mode calculation accompanies the table; the value here is the observed vapour figure, not the calculated one."
+        },
+        {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "state": "gas",
           "technique": "drifts",
           "tags": [],
           "note": "Fig. 1b (ME-DRIFTS-PSD, Cu-GaZrOₓ, 20 bar, 260 °C): CH₃OH(g) is followed as the product of the modulation experiment and appears in the spectra below 1100 cm⁻¹, but the paper marks it by label rather than by wavenumber, so no position is recorded here. Its phase delay behind CH₃O* is the paper's evidence that methoxy is hydrolysed to methanol rather than hydrogenated."
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "state": "adsorbed",
+          "technique": "transmission",
+          "measured_on": "tio2",
+          "note": "Methanol dosed on TiO₂ at 35 °C, where CH₃OH* and CH₃O* coexist. The paper places both species' C-O stretches in the 1000–1200 cm⁻¹ region but resolves a position only for the methoxy pair (1045 and 1126 cm⁻¹), so no wavenumber is recorded for methanol here. Kept as a claim because the coexistence is the paper's own argument for why this region cannot be read as one species.",
           "tags": ["direct-dosing"]
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1034,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(CO) P/Q/R branches at 1012/1034/1060 cm⁻¹ (vs). Q branch at 1034 is the fundamental; R at 1060 cm⁻¹ coincides with the CO scaffold mode (~1074 cm⁻¹) and may cause apparent broadening on the high-frequency side.",
           "technique": "transmission",
@@ -5369,6 +5772,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "state": "matrix",
           "wn": 1032.6,
           "note": "Table 3, ν₈(A′) νCO of CH₃OH in solid neon at 6 K; 1033.9 cm⁻¹ in argon, against 1033.5 cm⁻¹ in the gas phase, the smallest matrix shift of any methanol fundamental. Despite the label it is only 41% C-O stretch, with 29% HOC and 28% OCH bending mixed in.",
           "technique": "transmission",
@@ -5394,12 +5798,12 @@
       "atoms": "C-O",
       "wn_start": 2030,
       "wn_end": 2080,
-      "short": "2ν(CO) MeOH (Q)",
+      "short": "2ν(CO) MeOH",
       "description": "First overtone of the methanol C-O stretch, weak but sitting squarely in the window where CO on a reduced metal absorbs. Gas-phase methanol over a working catalyst therefore puts a band near 2056 cm⁻¹ that has nothing to do with adsorbed CO, with its R and P branches about 20 cm⁻¹ either side. Rotational structure is the discriminator: an adsorbed carbonyl has none. It moves with the C-O fundamental on deuteration, to about 1960 cm⁻¹ in the fully deuterated molecule.",
       "based_on": [
         {
-          "band_id": "meoh_co_q",
-          "branch_group": null,
+          "band_id": null,
+          "branch_group": "meoh_co_branches",
           "multiplier": 2,
           "label": null
         }
@@ -5407,6 +5811,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 2056,
           "technique": "transmission",
           "tags": [],
@@ -5436,12 +5841,13 @@
       "atoms": "C-O",
       "wn_start": 1054,
       "wn_end": 1068,
-      "short": "ν(CO) MeOH (R)",
+      "short": "ν(CO) MeOH",
       "description": "R-branch rotational satellite of gas-phase methanol ν(CO); ~26 cm⁻¹ above the Q branch at 1034 cm⁻¹. Overlaps with the CO scaffold mode (νCO* fundamental at 1074 cm⁻¹) — the two cannot be distinguished by position alone in DRIFTS.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1060,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(CO) R branch at 1060 cm⁻¹ (vs).",
           "technique": "transmission",
@@ -5468,12 +5874,13 @@
       "atoms": "C-O",
       "wn_start": 1006,
       "wn_end": 1019,
-      "short": "ν(CO) MeOH (P)",
+      "short": "ν(CO) MeOH",
       "description": "P-branch rotational satellite of gas-phase methanol ν(CO); ~22 cm⁻¹ below the Q branch at 1034 cm⁻¹. Only present in gas-phase spectra.",
       "based_on": [],
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "state": "gas",
           "wn": 1012,
           "note": "Table I, CH₃OH vapour in a 10-cm cell at 80 mmHg and room temperature: ν(CO) P branch at 1012 cm⁻¹.",
           "technique": "transmission",

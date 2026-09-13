@@ -1,10 +1,10 @@
 <script lang="ts">
   import { C } from '../lib/tokens';
   import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
-  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/colors';
+  import { tagStyle } from '../lib/colors';
   import { esc, ieeeHtml, refSortKey, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
-  import { speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
+  import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
   import { createEventDispatcher } from 'svelte';
   import { buildSections, type BandRef, type GroupDim } from '../lib/refGrouping';
   import { knowledgeLinks } from '../lib/fundamentals';
@@ -41,9 +41,11 @@
   // ---- Formatting helpers ----
 
   function bandNameHtml(b: Band): string {
-    if (b.short) return b.short;
-    const sub    = b.vibration.subtype  ? ` ${esc(b.vibration.subtype)}`  : '';
-    const branch = b.vibration.branch   ? ` ${esc(b.vibration.branch)}`   : '';
+    // The branch comes from vibration.branch in both paths now, rather than
+    // being baked into `short` in one and appended in the other.
+    const branch = esc(branchSuffix(b));
+    if (b.short) return b.short + branch;
+    const sub = b.vibration.subtype ? ` ${esc(b.vibration.subtype)}` : '';
     return `${esc(speciesLabel(b.species))}${sub} ${esc(b.vibration.category)}${branch}`;
   }
 
@@ -167,7 +169,7 @@
                   <span class="badge-quality">{tag}</span>
                 {/each}
                 {#each e.ref.tags as tag}
-                  {@const style = TAG_STYLES[tag] ?? DEFAULT_TAG_STYLE}
+                  {@const style = tagStyle(tag)}
                   <span class="badge-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
                 {/each}
                 {#if showRowCite}

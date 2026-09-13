@@ -13,7 +13,20 @@
  * falls back to the key itself, so a page still renders if a table is missing.
  */
 
-import type { Dataset, Species, Surface, SurfaceLevel, BandReference } from './types';
+import type { Band, Dataset, Species, Surface, SurfaceLevel, BandReference } from './types';
+
+/**
+ * The rotational branch, as a suffix on a band's display name.
+ *
+ * It used to be written into `short` as a literal "(R)", so the same fact sat
+ * in two places and three call sites parsed it back out with
+ * `/\s*\([PQR]\)$/`. `vibration.branch` is the only record of it now and the
+ * suffix is built here, so a band cannot be labelled a branch it is not, and
+ * a branch cannot be renamed without the label following.
+ */
+export function branchSuffix(b: Band): string {
+  return b.vibration?.branch ? ` (${b.vibration.branch})` : '';
+}
 
 let SPECIES: Record<string, Species> = {};
 let SURFACES: Record<string, Surface> = {};

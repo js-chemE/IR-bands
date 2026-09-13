@@ -1418,6 +1418,140 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
       },
     },
   },
+
+  // Homonuclear diatomics — the same single geometry seven times over, with
+  // only the separation changing: each pair is drawn at roughly the real
+  // proportion of its own covalent radii (ELEMENT_RADIUS_PM), so H₂ reads as
+  // the tight little pair it is and I₂ as the sprawling one. Both atoms move
+  // oppositely along the bond, exactly as CO's gas stretch does; with two
+  // identical atoms there is no symmetric/asymmetric distinction to draw.
+  h2: {
+    gas: {
+      atoms: [
+        { element: 'H', x: -8, y: 0 },
+        { element: 'H', x: 8, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { h2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  n2: {
+    gas: {
+      atoms: [
+        { element: 'N', x: -14, y: 0 },
+        { element: 'N', x: 14, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { n2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  o2: {
+    gas: {
+      atoms: [
+        { element: 'O', x: -13, y: 0 },
+        { element: 'O', x: 13, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { o2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  f2: {
+    gas: {
+      atoms: [
+        { element: 'F', x: -12, y: 0 },
+        { element: 'F', x: 12, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { f2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  cl2: {
+    gas: {
+      atoms: [
+        { element: 'Cl', x: -21, y: 0 },
+        { element: 'Cl', x: 21, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { cl2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  br2: {
+    gas: {
+      atoms: [
+        { element: 'Br', x: -24, y: 0 },
+        { element: 'Br', x: 24, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { br2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+  i2: {
+    gas: {
+      atoms: [
+        { element: 'I', x: -28, y: 0 },
+        { element: 'I', x: 28, y: 0 },
+      ],
+      bonds: [[0, 1]],
+      modes: { i2_stretch: [{ dx: -1, dy: 0 }, { dx: 1, dy: 0 }] },
+    },
+  },
+
+  // Ammonia — a trigonal pyramid drawn from the side: N at the apex, two H's
+  // splayed left and right in the plane of the page, the third pointing back
+  // into it (hence the dashed bond, the same convention CH₄ uses). That third
+  // H's motion is mostly out of plane, so where a mode moves it towards or
+  // away from the axis it is shown by the atom growing and shrinking rather
+  // than by a displacement that would read as wrong in two dimensions.
+  nh3: {
+    gas: {
+      atoms: [
+        { element: 'N', x: 0, y: -13 },
+        { element: 'H', x: -25, y: 9 },
+        { element: 'H', x: 25, y: 9 },
+        { element: 'H', x: 0, y: 16, radiusOverride: 32 },
+      ],
+      bonds: [[0, 1], [0, 2], [0, 3]],
+      dashedBondAtoms: [3],
+      modes: {
+        // All three bonds lengthen together, each H along its own bond
+        // direction; N makes the compensating recoil up the 3-fold axis, the
+        // same A1 pattern water's symmetric stretch has.
+        nh3_stretch_symmetric: [
+          { dx: 0, dy: -0.09 },
+          { dx: -0.751, dy: 0.661 },
+          { dx: 0.751, dy: 0.661 },
+          { dx: 0, dy: 1 },
+        ],
+        // The umbrella: every H swings perpendicular to its own bond, so bond
+        // lengths are preserved and only the angles to the axis change. The
+        // back H's swing is almost entirely out of plane, drawn as a size
+        // pulse; N recoils along the axis against the three of them.
+        nh3_bend_symmetric: [
+          { dx: 0, dy: -0.12 },
+          { dx: 0.661, dy: 0.751 },
+          { dx: -0.661, dy: 0.751 },
+          { dx: 0, dy: 0, scale: 0.3 },
+        ],
+        // One bond stretches while the other two compress: the back H moves
+        // out along its own bond, the two in-plane H's move in along theirs.
+        nh3_stretch_asymmetric: [
+          { dx: 0, dy: 0.05 },
+          { dx: 0.376, dy: -0.331 },
+          { dx: -0.376, dy: -0.331 },
+          { dx: 0, dy: 1 },
+        ],
+        // The degenerate deformation, drawn as the in-plane component: the two
+        // front H's scissor towards and away from each other while N and the
+        // back H stay put.
+        nh3_bend_asymmetric: [
+          { dx: 0, dy: 0 },
+          { dx: 0.7, dy: 0 },
+          { dx: -0.7, dy: 0 },
+          { dx: 0, dy: 0 },
+        ],
+      },
+    },
+  },
 };
 
 export function geometryFor(moleculeId: string, topologyId: string): MoleculeGeometry | null {
@@ -1602,6 +1736,57 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
       terms: [
         { symbol: 'A₁', count: 2 },
         { symbol: 'B₂', count: 1 },
+      ],
+    },
+  },
+  h2: {
+    gas: {
+      pointCloud: '2 identical atoms, necessarily collinear — the C∞ axis along the bond, every mirror plane containing it, and, because the two atoms are the same element, a centre of inversion at the midpoint as well. That inversion centre is what makes it D∞h rather than CO\'s C∞v, and it is the whole reason the single stretch is infrared-silent: a mode symmetric under inversion cannot change a dipole moment that is zero by symmetry to begin with.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  n2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis, with a centre of inversion at the midpoint — the same D∞h point cloud as every other homonuclear diatomic, differing from CO only in that the two ends are indistinguishable.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  o2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis with an inversion centre between them, D∞h. The electronic ground state is a triplet, which matters for its magnetism and its chemistry but not for the shape of the point cloud or the one vibration it allows.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  f2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis with an inversion centre at the midpoint, D∞h — the same arrangement as H₂ on a far longer and weaker bond.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  cl2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis with an inversion centre between them, D∞h.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  br2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis with an inversion centre between them, D∞h.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  i2: {
+    gas: {
+      pointCloud: '2 identical atoms on one axis with an inversion centre between them, D∞h — the heaviest of the set, and the slowest vibration, but symmetrically identical to H₂.',
+      terms: [{ symbol: 'Σ<sub>g</sub>⁺', count: 1 }],
+    },
+  },
+  nh3: {
+    gas: {
+      pointCloud: '4 atoms in a trigonal pyramid: N at the apex on a 3-fold axis, 3 equivalent H\'s in a plane below it. The axis plus the three mirror planes that each contain it and one N-H bond give C3v. There is no horizontal mirror and no inversion centre — the molecule is a pyramid, not a flat triangle — which is why every one of its modes is active in the infrared and in Raman alike.',
+      terms: [
+        { symbol: 'A₁', count: 2 },
+        { symbol: 'E', count: 2 },
       ],
     },
   },

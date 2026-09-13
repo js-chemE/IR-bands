@@ -9,7 +9,7 @@
 </script>
 
 <!-- Always rendered, even for a single-topology molecule (gas-phase CO2/CO
-     just shows one "free-gas" pill, formate just shows one "bidentate"
+     just shows one "fluid" pill, formate just shows one "bidentate"
      pill) — it's a small, factual label of what's being shown, not just a
      picker. Shows the long form (not the short abbreviation) since it now
      picks between genuinely separate VibrationMode entries — which modes

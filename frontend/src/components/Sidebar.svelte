@@ -25,6 +25,8 @@
   export let showInactive = true;
   /** Whether the bands with no claim standing in the chosen spectroscopy are in the chart. */
   export let showUnreferenced = true;
+  /** Whether the bands resting on a calculation alone are in the chart. */
+  export let showCalculated = true;
   /** IR or Raman: whose inactive bands the inactive pill means. */
   export let spectroscopy: Spectroscopy = 'ir';
 
@@ -38,6 +40,7 @@
     isotopeToggle: { enabled: boolean };
     inactiveToggle: { enabled: boolean };
     unreferencedToggle: { enabled: boolean };
+    calculatedToggle: { enabled: boolean };
   }>();
 
   $: technique = spectroscopy === 'raman' ? 'Raman' : 'IR';
@@ -96,6 +99,14 @@
         : `Bring the bands with no ${technique} reference back`}
       on:toggle={e => dispatch('unreferencedToggle', { enabled: e.detail.on })}
     >unreferenced</LookPill>
+    <LookPill
+      look="faded"
+      on={showCalculated}
+      title={showCalculated
+        ? 'Hide the bands resting on a calculation alone, with no measurement behind them, and re-lay out the lanes without them'
+        : 'Bring the bands resting on a calculation alone back'}
+      on:toggle={e => dispatch('calculatedToggle', { enabled: e.detail.on })}
+    >computational</LookPill>
   </div>
 </section>
 

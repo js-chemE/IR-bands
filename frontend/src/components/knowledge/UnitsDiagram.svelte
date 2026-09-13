@@ -2,10 +2,12 @@
   /**
    * Spectral units: the horizontal axis of a spectrum, where a band sits.
    *
-   *   t = 0  the card: a small spectrum with its horizontal axis lit in the
-   *          Knowledge green (the vertical one is the Spectral
-   *          Representations card's). Playing, the axis relabels itself in
-   *          cm⁻¹, µm, THz and eV while the bands stay where they are.
+   *   t = 0  the card: the horizontal axis, lit in the Knowledge green (the
+   *          vertical one is the Spectral Representations card's), with its
+   *          unit on a reel above it. Playing, the reel whirs sideways and
+   *          eases onto the next unit, the way a wheel lands, and the
+   *          numbers on the axis go round with it. No spectrum here: the
+   *          bands would not move, and the axis is the whole point.
    *   t = 1  the opened card, three rows:
    *            one band, many numbers: CO at 2143 cm⁻¹ = 4.67 µm = 64.2 THz =
    *              0.266 eV = 25.6 kJ/mol;
@@ -68,7 +70,33 @@
     { unit: 'THz', name: 'frequency', of: (wn: number) => (wn * THZ_PER_CM).toFixed(0) },
     { unit: 'eV', name: 'energy', of: (wn: number) => (wn * EV_PER_CM).toFixed(2) },
   ];
-  $: unitIndex = running ? Math.floor(time / 1.6) % UNITS.length : 0;
+  /* ── The reel ──────────────────────────────────────────────────────
+   * A slot wheel: it starts fast, eases onto a unit, holds there, then
+   * goes again. `turn` is a position in units, not an index, so the
+   * labels can be laid out along it and slide as one.
+   */
+  const SPIN = 1.15;   // whirring, then settling
+  const REST = 1.75;   // landed, long enough to read
+  const CYCLE = SPIN + REST;
+  const STEP = 1;      // units advanced per spin
+  $: turn = ((): number => {
+    if (!running) return 0;
+    const done = Math.floor(time / CYCLE) * STEP;
+    const c = time % CYCLE;
+    if (c >= SPIN) return done + STEP;
+    // Fast away, slow into place: the wheel's own easing.
+    const k = c / SPIN;
+    return done + STEP * (1 - Math.pow(1 - k, 3));
+  })();
+  $: unitIndex = ((Math.round(turn) % UNITS.length) + UNITS.length) % UNITS.length;
+  /** The labels either side of the window, so the reel never runs out. */
+  $: reel = [-1, 0, 1, 2].map(d => {
+    const i = Math.floor(turn) + d;
+    return { u: UNITS[((i % UNITS.length) + UNITS.length) % UNITS.length], at: i - turn };
+  });
+  const SLOT = { cx: 112, cy: 40, w: 168, h: 24 };
+  /** A little narrower than the window, so the gap between boxes shows. */
+  const TILE = SLOT.w - 18;
 
   /* ── The small spectrum, and row 1 once opened ── */
   $: fr = {
@@ -84,7 +112,7 @@
     { wn: 1600, h: 0.35, w: 60 },
     { wn: 1050, h: 0.6, w: 70 },
   ];
-  $: trace = 'M' + Array.from({ length: 181 }, (_, i) => 4000 - i * 20)
+  $: trace = 'M' + Array.from({ length: 721 }, (_, i) => 4000 - i * 5)
     .map(wn => {
       const y = BANDS.reduce((a, b) => a + b.h * Math.exp(-(((wn - b.wn) / b.w) ** 2)), 0);
       return `${wx(wn).toFixed(1)},${(fr.base - y * (fr.base - fr.top) * 0.9).toFixed(1)}`;
@@ -152,15 +180,41 @@
   aria-label="The horizontal axis of a spectrum, where a band sits: one position in wavenumber, wavelength, frequency and energy, and the Raman shift, the same from any laser"
 >
   <!-- ── The spectrum: its horizontal axis lit ── -->
-  <line class="axis faint" x1={fr.x0} x2={fr.x0} y1={fr.top} y2={fr.base} />
+  <line class="axis faint" x1={fr.x0} x2={fr.x0} y1={fr.top} y2={fr.base} style="opacity:{ramp(t, 0.3, 0.7)}" />
   <line class="axis lit" x1={fr.x0} x2={fr.x1 + 4} y1={fr.base} y2={fr.base} />
   <path class="axis-head lit" d="M {fr.x1} {fr.base - 3} L {fr.x1 + 5} {fr.base} L {fr.x1} {fr.base + 3}" />
-  <path class="trace" d={trace} />
+  <path class="trace" d={trace} style="opacity:{ramp(t, 0.3, 0.7)}" />
   {#each TICKS as wn}
     <line class="axis lit" x1={wx(wn)} x2={wx(wn)} y1={fr.base} y2={fr.base + 3} />
     <text class="tick lit" x={wx(wn)} y={fr.base + 12} text-anchor="middle">{UNITS[unitIndex].of(wn)}</text>
   {/each}
-  <text class="tick lit" x={fr.x1 + 6} y={fr.top + 4} text-anchor="end">{UNITS[unitIndex].name} / {UNITS[unitIndex].unit}</text>
+  {#if t > 0.5}
+    <text class="tick lit" x={fr.x1 + 6} y={fr.top + 4} text-anchor="end">{UNITS[unitIndex].name} / {UNITS[unitIndex].unit}</text>
+  {:else}
+    <!-- The reel: the axis's unit, sliding sideways as on a wheel. -->
+    <g style="opacity:{1 - ramp(t, 0.1, 0.5)}">
+      <clipPath id="reel-window">
+        <rect x={SLOT.cx - SLOT.w / 2} y={SLOT.cy - SLOT.h / 2} width={SLOT.w} height={SLOT.h} rx="4" />
+      </clipPath>
+      <!-- Each unit is a box of its own, and the boxes are what travel:
+           the window is a hole the wheel turns behind. -->
+      <g clip-path="url(#reel-window)">
+        {#each reel as r (r.u.unit)}
+          <g transform="translate({(r.at * SLOT.w).toFixed(1)} 0)">
+            <rect
+              class="reel-tile"
+              x={SLOT.cx - TILE / 2}
+              y={SLOT.cy - SLOT.h / 2}
+              width={TILE}
+              height={SLOT.h}
+              rx="4"
+            />
+            <text class="tick lit reel" x={SLOT.cx} y={SLOT.cy + 4} text-anchor="middle">{r.u.name} / {r.u.unit}</text>
+          </g>
+        {/each}
+      </g>
+    </g>
+  {/if}
 
   <g style="opacity:{fullOpacity}">
     <line class="marker" x1={wx(2143)} x2={wx(2143)} y1={fr.top} y2={fr.base} />
@@ -289,10 +343,13 @@
 
   .tick {
     font-family: var(--t-code-ff);
-    font-size: calc(var(--t-code-size) * 0.8);
+    font-size: max(calc(var(--t-code-size) * 0.8), var(--t-diagram-note-size));
     fill: var(--ink-050);
   }
   .tick.lit { fill: var(--accent-green-fg); }
+  /* The reel: boxes on a wheel, turning behind a window. */
+  .reel-tile { fill: var(--surface); stroke: var(--line-slate); stroke-width: 1; }
+  .tick.reel { font-size: max(var(--t-code-size), var(--t-diagram-note-size)); }
   .lbl {
     font-family: var(--t-code-ff);
     font-size: var(--t-code-size);

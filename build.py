@@ -28,8 +28,12 @@ from ir_bands.loader import (
     load_tags,
     load_vibrations,
     tag_branch_groups,
+    tag_calculated_only,
     tag_fermi_pairs,
+    tag_fundamentals,
     tag_isotopologues,
+    tag_lasers,
+    tag_states,
     tag_phase,
     tag_techniques,
     validate_dataset,
@@ -678,6 +682,16 @@ def main() -> int:
     # technique -> "drifts"/"ftir"/"computational".
     tag_phase(dataset)
     tag_techniques(dataset)
+    # laser_nm -> the "514.5 nm" chip, coloured from the light in the frontend.
+    for w in tag_lasers(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
+    # state -> "gas" / "liquid" / "matrix" / "solid" / "adsorbed".
+    for w in tag_states(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
+    # Runs after the overtone/based_on-bearing bands are known, since it is
+    # defined by what a band is not.
+    tag_fundamentals(dataset)
+    tag_calculated_only(dataset)
     assign_reference_uids(dataset)
 
     assign_lanes(dataset.bands, dataset.lanes)

@@ -59,7 +59,8 @@
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import type { Dataset, RefMap, SurfaceLevel, Vibrations } from '../lib/types';
   import VibrationModesPage from './VibrationModesPage.svelte';
-  import { TAG_STYLES, DEFAULT_TAG_STYLE } from '../lib/tokens';
+  import { tagStyle } from '../lib/colors';
+  import { generatedTagTip } from '../lib/dataModel';
   import {
     ENTITIES,
     ENTITY_BY_KEY,
@@ -864,10 +865,10 @@
             </div>
             <div class="tag-rows">
               {#each rows as t}
-                {@const style = TAG_STYLES[t.value] ?? DEFAULT_TAG_STYLE}
+                {@const style = tagStyle(t.value)}
                 <div
                   class="tag-row"
-                  title={t.derivedFrom ? `Derived from ${t.derivedFrom}` : (tagTips[t.value]?.tip ?? 'No tooltip in tags.jsonc')}
+                  title={t.derivedFrom ? `Derived from ${t.derivedFrom}` : (tagTips[t.value]?.tip ?? generatedTagTip(t.value) ?? 'No tooltip in tags.jsonc')}
                 >
                   <span
                     class="tag-pill-live"

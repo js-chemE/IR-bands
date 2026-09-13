@@ -271,11 +271,29 @@ everything else**, while `ReferencesPage.svelte` and `ModeDetailPanel.svelte`
 render the same fields with `{@html}`. Markup therefore reads differently in
 two places; Unicode survives both.
 
-**The one exception**: `topologies[].point_group` and `modes[].symmetry` in
-`data/vibrations.jsonc` carry literal `<sub>`/`<sup>` tags, because point-group
-and Mulliken labels need letter subscripts (g, u, v, d) that Unicode has no
-characters for. Those two fields, and nothing else in the project. They are
-listed in `MARKUP_EXEMPT_VIBRATION_FIELDS` in `schema.py`.
+**The exception in the data**: `topologies[].point_group` and
+`modes[].symmetry` in `data/vibrations.jsonc` carry literal `<sub>`/`<sup>`
+tags, because point-group and Mulliken labels need letter subscripts (g, u, v,
+d) that Unicode has no characters for. Those two fields, and nothing else in
+the data. They are listed in `MARKUP_EXEMPT_VIBRATION_FIELDS` in `schema.py`.
+
+**The exception in the frontend**: the `lines` of a Knowledge formula box
+(`Formula` in `lib/fundamentals.ts`, also used by `lib/phenomena.ts`) are
+**LaTeX**, typeset by KaTeX in `components/knowledge/FormulaLine.svelte`,
+because a radical has to span its argument and a fraction has to stack.
+Nothing else in the frontend is: a box's `label` and `note` are prose, and so
+is every paragraph. The slant carries meaning and the rule is fixed, stated
+for readers by the **Mathematical Notation** card:
+
+- a quantity symbol and a running index stay italic: `E`, `\nu`, `m_i`, `E(J)`
+- an index that names a thing is upright: `\mu_\mathrm{ind}`, `R_\mathrm{catalyst}`
+- a unit is upright, through `\unit{cm^{-1}}` or `\qty{2349}{cm^{-1}}`
+- a chemical formula goes through mhchem: `\ce{CO2}`
+- a named operator uses its own command: `\log`, `\exp`, `\ln`
+- a word or a phrase goes in `\text{…}`
+
+`\unit` and `\qty` are defined in `FormulaLine` under siunitx's names, since
+KaTeX has no siunitx; they take the unit written out, not `\per\centi\metre`.
 
 **Naming a mode**: a band's `short` names the motion, never a rank or a
 database code. `ν` stretch, `δ` bend, `ρ` rock, `γ` out of plane, `τ` torsion,
@@ -283,8 +301,12 @@ with `ₛ` / `ₐₛ`; then the moving atoms in brackets, then the species with 
 trailing `*` when adsorbed, then the rotational branch: `νₐₛ(OCO) HCOO*`,
 `ν(CO) MeOH (Q)`, `νₛ+δ(OCO) CO₂ (P)`. Where the binding geometry is what
 distinguishes the band, it replaces the species: `ν(CO) linear (μ₁)`. Where a
-molecule has two modes of one kind, disambiguate with the spectroscopist index
-(`νₛ(CH₃) ν₂ MeOH`), never an invented letter. One notation per species, and
+molecule has two modes of one kind, name what separates them: methanol's two
+symmetric-species methyl stretches are `ν(CH) in-plane MeOH` and
+`νₛ(CH₃) MeOH`, because one rides on the hydrogen in the C-O-H plane and the
+other on the out-of-plane pair. Borrow the spectroscopist index only where the
+two motions genuinely share a description, and never an invented letter. One
+notation per species, and
 `11101←00001` or `q₁₂` belongs in the note, not the label. The full rule is the
 Naming a band section of `lib/sourceGuide.ts`.
 
@@ -321,6 +343,53 @@ guide, source guide):
   already points at real bands and the papers behind them. Fill in `what` and
   `spotting` to finish a card. In the sidebar a part heading scrolls to the
   part; a card name scrolls to that card and opens it.
+
+  **An opened card is a stack of sections, and the order is a convention
+  every card keeps** (`KnowledgePage.svelte`, the `.kn-sec` classes):
+
+  1. `.kn-flow` — the diagram and the prose (see below). Closed, the wrapper
+     is `display: contents` and the card stacks as it always did.
+  2. a `.kn-list` per list the card carries.
+  3. `.kn-related` — where the card leads, as blocks linking to other cards.
+  4. `.card-refs` — the references, behind a divider.
+
+  **Section 1 is one flow, not a grid.** The diagram and every callout
+  `float: left; clear: left` into a column of their own, and the prose runs
+  past them and takes the full width the moment the floats run out. That is
+  deliberate, and it is why floats rather than grid or columns:
+
+  - **No holes.** A short callout beside a long paragraph, or a long tail of
+    prose after the last callout, both close up by themselves. A grid row
+    would hold the gap open.
+  - **A callout lands where the text calls it**, because a float cannot rise
+    above the line it was written on. Position follows the writing, with
+    nothing to keep in sync.
+  - **It collapses correctly.** Under 860px the floats are turned off and
+    every box is back inline exactly where it was authored, which is the
+    order a phone wants. Nothing is measured, so there is nothing to
+    recompute.
+
+  Blocks are therefore rendered in **authored order** in one `.detail-text`;
+  do not reorder them for layout. A callout that is really a table, or whose
+  lines are too long for half a card, sets `wide` on its `Formula` and spans
+  the width instead. **Keep the collapse property when adding anything.**
+
+  **Where a citation marker goes** (stated in full at the top of
+  `lib/fundamentals.ts`): on the sentence it supports while the source or
+  the locator keeps changing; once, at the end of the paragraph, where the
+  whole paragraph rests on one source at one locator; never on the first
+  sentence alone with the rest of that source's material left bare. An
+  unmarked sentence is the atlas's own reasoning or a cross-reference.
+
+  A diagram that does not animate is listed in `STATIC_CARD` / `STATIC_OPEN`
+  in `KnowledgePage.svelte`, which stops the hover and strikes the "hover"
+  hint through, rather than promising motion the diagram does not have.
+
+  A part and the lines it continues onto (`continues`) share **one** flex
+  container, `GROUPS` in the module script: while nothing is open a spacer
+  puts the line break back, and once a card opens the spacer goes and the
+  remaining cards pack up to a full row instead of leaving a continuation
+  line stranded alone underneath.
 - **Band chart** (blue) — the spectral map.
 - **References** (amber) — the literature.
 - **Dataset** (red) — everything the atlas holds *and* how it is put together,
@@ -429,6 +498,8 @@ Valid enum values:
 - `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form). Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
 - `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | ftir | raman | computational`. `raman` is a Raman shift whatever the geometry; while the chart is set to Raman, the infrared claims in a tooltip are greyed out and folded (and `raman` ones while it is set to IR), from `TECHNIQUES[].spectroscopy` in `dataModel.ts`. A claim with no technique is greyed out and folded in both views; `computational` never is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is drawn faded, and the sidebar's unreferenced pill takes such bands out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
+- `state` in a reference object: what was in the beam for that one claim, one of `gas | liquid | matrix | solid | adsorbed`. **Every claim should carry one**; `build.py` prints a single count of the ones that do not. It is not the band's own `phase`: that says what the band *is* wherever it appears, while this says how the sample was held for this measurement, and it moves the number. Methanol's O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those three rows read as a disagreement instead of three different experiments. `matrix` is a solid, but the molecule in it is isolated and not rotating, so it stays separate from `solid`, which means the bulk substance. Derives a tag of the same name, so never write one by hand
+- `laser_nm` in a reference object: the Raman excitation wavelength in nm, as a plain number (`"laser_nm": 514.5`). Only meaningful where `technique` is `raman`; `build.py` warns otherwise, since an infrared measurement has no excitation line. It derives a per-claim tag chip of its own (`514.5 nm`) which is coloured from the colour of that light (`frontend/src/lib/lightColor.ts`) rather than from `TAG_STYLES`, because a wavelength is a number and no fixed tag vocabulary can hold one. That is why anything rendering a tag from the data must go through `tagStyle()` in `lib/colors.ts` rather than indexing `TAG_STYLES` directly. Record it only where the paper names the line: "argon ion laser" with no wavelength is not a wavelength
 - `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode

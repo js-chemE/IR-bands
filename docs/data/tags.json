@@ -3,7 +3,7 @@
     "tip": "Auto-tagged: this band is a combination (sum) mode, not a fundamental."
   },
   "computational": {
-    "tip": "Assignment or frequency comes from a calculation (e.g. DFT), not a measured spectrum."
+    "tip": "A calculation rather than a measured spectrum. On one claim it says that claim is calculated (e.g. DFT); on a band it is auto-tagged and says every claim behind it is, with no measurement at all. Not the same as unreferenced, where nothing has been recorded; the chart fades the two from separate switches so you can ask for measured evidence alone."
   },
   "degenerated": {
     "tip": "Two or more vibrational modes coincide at the same frequency and share one observed band."
@@ -35,11 +35,29 @@
   "frustrated-mode": {
     "tip": "A free gas-phase rotation/translation that becomes a restoring-force vibration once the molecule is adsorbed."
   },
+  "fundamental": {
+    "tip": "Auto-tagged: the v = 0 → 1 transition of a normal mode, the first step rather than a multiple or a sum. A rotational branch is still a fundamental, and so is an IR-inactive mode."
+  },
   "transmission": {
     "tip": "Measured in transmission through a self-supporting wafer, rather than by diffuse reflectance."
   },
   "gas-phase": {
     "tip": "Band belongs to a gas-phase species, not an adsorbed one."
+  },
+  "gas": {
+    "tip": "Auto-tagged from the claim's state: this measurement was made on the free molecule in a cell. Not the same as the band-level \"gas-phase\", which says the band belongs to a free molecule wherever it is seen; this says how this one sample was held."
+  },
+  "liquid": {
+    "tip": "Auto-tagged from the claim's state: measured on the neat liquid or a solution. Hydrogen-bonded positions shift by tens of cm⁻¹ from the vapour, and there is no rotational structure, so a liquid value is not a free-molecule value."
+  },
+  "matrix": {
+    "tip": "Auto-tagged from the claim's state: the molecule isolated in a frozen noble gas (neon or argon) at a few K. Effectively the free molecule with its rotation quenched, but the host still shifts the position by a few to twenty cm⁻¹, and neon and argon disagree with each other."
+  },
+  "solid": {
+    "tip": "Auto-tagged from the claim's state: measured on the bulk solid substance itself, crystalline or amorphous, rather than on isolated molecules."
+  },
+  "adsorbed": {
+    "tip": "Auto-tagged from the claim's state: this measurement was made on the species bound to a surface. Which surface is in the claim's own site badge. It says nothing about whether the species adsorbed intact or as a fragment; that is the band-level \"undissociated\"."
   },
   "ir-active": {
     "tip": "This vibrational mode is IR-allowed."
@@ -68,8 +86,8 @@
   "misassignment-warning": {
     "tip": "A known trap: this position is easily assigned to the wrong species, or read as a surface signal when it is not one (gas-phase absorption in the beam path)."
   },
-  "molecular-adsorption": {
-    "tip": "Species is adsorbed intact (not dissociated) rather than as a surface fragment."
+  "undissociated": {
+    "tip": "The species sits on the surface intact rather than broken into a fragment: adsorbed methanol CH₃OH* as against the methoxy CH₃O* it dissociates into. That is a property of the species wherever it is seen, so it is a band tag. Not the same as the per-claim \"adsorbed\", which only says one measurement was made on a surface: every methoxy claim is adsorbed, and methoxy is not undissociated."
   },
   "overtone": {
     "tip": "Band is an overtone of a lower fundamental, not the fundamental itself."

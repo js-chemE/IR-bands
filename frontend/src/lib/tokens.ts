@@ -371,6 +371,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'card-desc',  label: 'Card text',           usage: 'Two to five lines under the title',             size: '14px',   weight: 400, color: 'ink-slate-600', lh: '1.58' },
       { key: 'card-cta',   label: 'Card call to action', usage: 'Bottom line, coloured with the section accent', size: '13.5px', weight: 600, color: 'ink-slate-600' },
       { key: 'formula',    label: 'Formula',             usage: 'One line of a formula box in an opened Knowledge card', size: '17px', weight: 400, color: 'ink-slate-900', family: 'serif', lh: '1.5' },
+      { key: 'diagram-note', label: 'Diagram note',      usage: 'The smallest text allowed anywhere: a note or a tick label inside a Knowledge diagram. A diagram that scales its labels down wraps them in max(…, this), so nothing on the page is ever set smaller', size: '11px', weight: 400, color: 'ink-050', family: 'mono' },
     ],
   },
   {

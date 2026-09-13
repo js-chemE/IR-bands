@@ -7,7 +7,7 @@ import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
-import { speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
+import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
 import { TAG_ROLE_LABEL, isUmbrellaTag, tagRole, tagRoleRank, type TagRole } from './dataModel';
 
 // Geometry lives in tokens.ts with the rest of the design system; these are
@@ -200,15 +200,21 @@ export interface TipRef {
   /**
    * Greyed out and folded: 'other' when measured by the other spectroscopy
    * than the chart shows, 'unknown' when the claim records no technique at
-   * all (in either view); null when it stands as usual.
+   * all (in either view), 'calculated' when it is a calculation and the
+   * Color by computational pill is asking for measured evidence only; null
+   * when it stands as usual.
    */
-  off: 'other' | 'unknown' | null;
+  off: 'other' | 'unknown' | 'calculated' | null;
 }
 
 /** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
 export interface BandLooks {
   inactive: boolean;
   unreferenced: boolean;
+  /** Fades the bands resting on a calculation alone. Its own switch, but the
+      same faded look: the chart would need twice the marks to give it a
+      treatment of its own, and the message is the same either way. */
+  calculated: boolean;
 }
 
 /** Technique → IR or Raman, from the Technique spec. */
@@ -217,10 +223,23 @@ const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscop
 /**
  * Whether a claim stands in the chosen spectroscopy, or is greyed out and
  * folded: 'other' when its technique is the other spectroscopy, 'unknown'
- * when it records none. A calculation stands in both.
+ * when it records none.
+ *
+ * A calculation has no sampling geometry, so it is a measurement in neither
+ * view. Whether that greys it is not decided here though: it follows the
+ * Color by computational pill, the same way the faded band look does, so
+ * asking for hard measured proof dims the calculated claims in the tooltip
+ * and letting the pill go draws them like any other. `isReferenced` leaves
+ * the flag off deliberately, so a calculation still counts as a reference
+ * and the two sidebar switches keep saying different things.
  */
-export function refOff(technique: Technique | null | undefined, spectroscopy: Spectroscopy): TipRef['off'] {
+export function refOff(
+  technique: Technique | null | undefined,
+  spectroscopy: Spectroscopy,
+  greyCalculated = false,
+): TipRef['off'] {
   if (!technique) return 'unknown';
+  if (technique === 'computational') return greyCalculated ? 'calculated' : null;
   const via = TECHNIQUE_SPECTROSCOPY.get(technique);
   return via != null && via !== spectroscopy ? 'other' : null;
 }
@@ -229,9 +248,34 @@ export function refOff(technique: Technique | null | undefined, spectroscopy: Sp
  * Unreferenced: not one of the band's claims stands in the chosen
  * spectroscopy. Drawn faded, and the sidebar's unreferenced pill takes
  * these bands out of the chart.
+ *
+ * `greyCalculated` must match what the tooltip is doing, or a band whose only
+ * standing claim is a calculation draws solid while every claim inside it
+ * shows grey. The chart passes the Color by computational pill; the sidebar
+ * filter leaves it off, so removing the unreferenced bands and removing the
+ * calculated ones stay two separate acts.
  */
-export function isReferenced(b: Band, spectroscopy: Spectroscopy): boolean {
-  return b.references.some(r => !refOff(r.technique, spectroscopy));
+export function isReferenced(
+  b: Band,
+  spectroscopy: Spectroscopy,
+  greyCalculated = false,
+): boolean {
+  return b.references.some(r => !refOff(r.technique, spectroscopy, greyCalculated));
+}
+
+/**
+ * Calculated only: the band has claims and every one of them is a
+ * calculation.
+ *
+ * Deliberately separate from unreferenced. A calculation is evidence of a
+ * kind, so the band is not unsupported; it is just not measured, and a
+ * reader who wants only what came off an instrument needs to be able to say
+ * so. No spectroscopy argument: a calculation has no sampling geometry, so
+ * it is unmeasured in the infrared and the Raman view alike.
+ */
+export function isCalculatedOnly(b: Band): boolean {
+  const refs = b.references ?? [];
+  return refs.length > 0 && refs.every(r => r.technique === 'computational');
 }
 
 /**
@@ -240,9 +284,30 @@ export function isReferenced(b: Band, spectroscopy: Spectroscopy): boolean {
  * nothing about what is drawn, and the reverse. Without one (the Dataset
  * page), both stay.
  */
+/**
+ * Does this band carry a claim made with the spectroscopy currently shown?
+ *
+ * A calculation counts for neither: it has no geometry and belongs to both
+ * views equally, so it never makes a caveat relevant on its own.
+ */
+function hasClaimIn(b: Band, spectroscopy: Spectroscopy): boolean {
+  return (b.references ?? []).some(
+    r => TECHNIQUE_SPECTROSCOPY.get(r.technique as Technique) === spectroscopy,
+  );
+}
+
 export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): string[] {
   const other = spectroscopy === 'ir' ? 'raman-inactive' : spectroscopy === 'raman' ? 'ir-inactive' : null;
-  const explicit = (b.tags ?? []).filter(t => t !== other);
+  /* A misassignment warning is about what somebody published from a
+     particular kind of measurement. Every one of them in the atlas today
+     comes from an infrared claim, so carrying it over into the Raman view
+     would be warning about a mistake nobody could make there. Shown only
+     where the band actually has a claim in the spectroscopy on screen. */
+  const explicit = (b.tags ?? []).filter(
+    t =>
+      t !== other &&
+      !(t === 'misassignment-warning' && spectroscopy && !hasClaimIn(b, spectroscopy)),
+  );
   const auto: string[] = [];
   if (b.vibration.category === 'combination') auto.push('combination');
   if (b.based_on?.some(bo => bo.multiplier > 1)) auto.push('overtone');
@@ -442,9 +507,10 @@ function formatShortRef(ref: Record<string, string | undefined>, key: string): s
 // ---------------------------------------------------------------------------
 
 function bandName(b: Band): string {
-  if (b.short) return htmlToUnicode(b.short);
+  // The branch is appended from vibration.branch, never read out of `short`.
+  if (b.short) return htmlToUnicode(b.short) + branchSuffix(b);
   const sub = b.vibration.subtype ? ` ${b.vibration.subtype}` : '';
-  return `${speciesLabel(b.species)}${sub} ${b.vibration.category}`;
+  return `${speciesLabel(b.species)}${sub} ${b.vibration.category}${branchSuffix(b)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -606,7 +672,7 @@ export function buildChart(
   // Which technique's selection rule to draw: its inactive bands are hollow.
   spectroscopy: Spectroscopy = 'ir',
   // Whether those looks are drawn at all (the Color by pills).
-  looks: BandLooks = { inactive: true, unreferenced: true },
+  looks: BandLooks = { inactive: true, unreferenced: true, calculated: true },
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
   const dynamicSubLane = computeSubLanes(bands, enabledGroups);
@@ -700,7 +766,7 @@ export function buildChart(
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
-          const off = refOff(ref.technique, spectroscopy);
+          const off = refOff(ref.technique, spectroscopy, looks.calculated);
           return {
             key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             surfaces: sortedMeasuredOnBadges(ref),
@@ -722,7 +788,11 @@ export function buildChart(
       cy: (y0 + y1) / 2,
       color,
       inactive: looks.inactive && bandTags.includes(spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive'),
-      unreferenced: looks.unreferenced && !isReferenced(b, spectroscopy),
+      // Two reasons for the same faded look, from two switches: nothing
+      // stands in this view, or nothing but a calculation stands anywhere.
+      unreferenced:
+        (looks.unreferenced && !isReferenced(b, spectroscopy, looks.calculated)) ||
+        (looks.calculated && isCalculatedOnly(b)),
       isotopologue: !!b.isotopologue_of,
       tipData: {
         id:        b.id,
@@ -733,6 +803,7 @@ export function buildChart(
         color,
         noteLines: [
           !isReferenced(b, spectroscopy) && `unreferenced in ${spectroscopy === 'raman' ? 'Raman' : 'IR'}`,
+          isCalculatedOnly(b) && 'calculated only: no measurement behind it',
           b.intensity  && `intensity: ${b.intensity}`,
           b.confidence && `confidence: ${b.confidence}`,
           b.width      && `width: ${b.width}`,
@@ -815,20 +886,19 @@ export function buildChart(
     },
     marks: [
       Plot.gridX({ stroke: C['ink-025'], strokeWidth: 0.75, strokeDasharray: '1,3', strokeOpacity: 0.8 }),
-      // Four looks, one mark each, since Plot takes fill and opacity per
-      // mark here: solid (the usual), faded (unreferenced: no claim stands
-      // in the chosen spectroscopy), hollow (inactive: the chosen
-      // spectroscopy cannot see the mode), hollow and faded (both).
-      // Hollow first: an inactive band sits beneath the active ones, so
-      // where the two overlap the active band is the one on top.
-      Plot.rect(plotBands.filter(d => d.inactive && !d.unreferenced), {
-        x1: 'x1', x2: 'x2',
-        y1: 'y0', y2: 'y1',
-        fill: C['surface'],
-        stroke: (d: PlotBand) => d.color,
-        strokeWidth: HOLLOW_STROKE,
-        clip: true,
-      }),
+      /* Four looks, one mark each, since Plot takes fill and opacity per
+         mark here. Later marks paint over earlier ones, so the order IS the
+         stacking order, and it runs from the least evidence to the most:
+
+           hollow + faded   the chosen spectroscopy cannot see it AND
+                            nothing stands behind it: furthest back
+           hollow           inactive: silent in this view
+           faded            unreferenced, or resting on a calculation alone
+           solid            actually demonstrated experimentally: on top
+
+         Where two bands overlap, the one somebody measured is the one the
+         reader sees. Faded used to be drawn last and so covered the solid
+         bands, which said the opposite. */
       Plot.rect(plotBands.filter(d => d.inactive && d.unreferenced), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
@@ -837,13 +907,12 @@ export function buildChart(
         strokeWidth: HOLLOW_STROKE,
         clip: true,
       }),
-      Plot.rect(plotBands.filter(d => !d.inactive && !d.unreferenced), {
+      Plot.rect(plotBands.filter(d => d.inactive && !d.unreferenced), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
-        fill: (d: PlotBand) => d.color,
-        stroke: 'rgba(0,0,0,0.35)',
-        strokeWidth: 0.5,
-        opacity: 0.85,
+        fill: C['surface'],
+        stroke: (d: PlotBand) => d.color,
+        strokeWidth: HOLLOW_STROKE,
         clip: true,
       }),
       // Faded: washed-out colour, opaque, so overlapping faded bands keep
@@ -856,26 +925,46 @@ export function buildChart(
         strokeWidth: 0.5,
         clip: true,
       }),
-      // Hatch overlays for isotopologue bands, drawn on top of whichever
-      // mark above painted them. Plot has no way to emit a paint-server
-      // fill, so these go out with a marker opacity that the post-processing
-      // step below swaps for the pattern reference. On a solid band the
-      // hatch is white lines (0.999); on a hollow or faded one (0.998) it is
-      // lines in the band's own colour, washed out with it when faded.
-      Plot.rect(plotBands.filter(d => d.isotopologue && !d.inactive && !d.unreferenced), {
-        x1: 'x1', x2: 'x2',
-        y1: 'y0', y2: 'y1',
-        fill: '#000',
-        stroke: 'none',
-        opacity: 0.999,
-        clip: true,
-      }),
+      /* The hatch that marks an isotopologue has to sit above its OWN band,
+         but a faded or hollow band's hatch must still stay under anything
+         measured. So it goes here, between the faded marks and the solid
+         one, rather than after everything: appended at the end it painted
+         over the experimental bands it happened to overlap, which is the
+         same fault as drawing faded last.
+
+         Plot has no way to emit a paint-server fill, so these go out with a
+         marker opacity the post-processing below swaps for the pattern
+         reference: 0.998 is lines in the band's own colour, washed out with
+         it when faded. */
       Plot.rect(plotBands.filter(d => d.isotopologue && (d.inactive || d.unreferenced)), {
         x1: 'x1', x2: 'x2',
         y1: 'y0', y2: 'y1',
         fill: (d: PlotBand) => d.unreferenced ? fadedEdge(d.color) : d.color,
         stroke: 'none',
         opacity: 0.998,
+        clip: true,
+      }),
+      Plot.rect(plotBands.filter(d => !d.inactive && !d.unreferenced), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: (d: PlotBand) => d.color,
+        stroke: 'rgba(0,0,0,0.35)',
+        strokeWidth: 0.5,
+        // Fully opaque on purpose: at 0.85 a faded band underneath showed
+        // through a real one, which reads as a stacking fault even though the
+        // paint order is right. An experimentally demonstrated band covers
+        // what is beneath it.
+        opacity: 1,
+        clip: true,
+      }),
+      // The solid band's own hatch, white lines (0.999), last of all: it
+      // belongs to the topmost band and nothing should cover it.
+      Plot.rect(plotBands.filter(d => d.isotopologue && !d.inactive && !d.unreferenced), {
+        x1: 'x1', x2: 'x2',
+        y1: 'y0', y2: 'y1',
+        fill: '#000',
+        stroke: 'none',
+        opacity: 0.999,
         clip: true,
       }),
     ],

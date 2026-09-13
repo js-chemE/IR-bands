@@ -12,7 +12,7 @@
         {
           "id": "gas",
           "short": "gas",
-          "long": "free-gas",
+          "long": "fluid",
           "point_group": "D<sub>∞h</sub>"
         }
       ],
@@ -129,8 +129,12 @@
             "co2_combo_sym_asym_p",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
-            "co2_diff_asym_2bend",
-            "co2_diff_asym_sym"
+            "co2_diff_asym_2bend_r",
+            "co2_diff_asym_2bend_q",
+            "co2_diff_asym_2bend_p",
+            "co2_diff_asym_sym_r",
+            "co2_diff_asym_sym_q",
+            "co2_diff_asym_sym_p"
           ]
         }
       ]
@@ -147,7 +151,7 @@
         {
           "id": "gas",
           "short": "gas",
-          "long": "free-gas",
+          "long": "fluid",
           "point_group": "T<sub>d</sub>"
         }
       ],
@@ -285,7 +289,7 @@
         {
           "id": "gas",
           "short": "gas",
-          "long": "free-gas",
+          "long": "fluid",
           "point_group": "C<sub>∞v</sub>"
         },
         {
@@ -2038,7 +2042,7 @@
         {
           "id": "gas",
           "short": "gas",
-          "long": "free-gas",
+          "long": "fluid",
           "point_group": "C<sub>s</sub>"
         }
       ],
@@ -2074,8 +2078,8 @@
         },
         {
           "id": "methanol_stretch_a",
-          "label": "νₛ(CH₃)",
-          "note": "A symmetric-species C-H stretch dominated by the in-plane H, with a smaller contribution from the other two H's moving together — not the methyl group's \"asymmetric\" stretch (that one's ν₉ below); it just happens to share the trivial name νₛCH₃ with ν₃, the other symmetric-species C-H stretch, since both are mixtures of the same two coordinates in different proportions.",
+          "label": "ν(CH) in-plane",
+          "note": "The stretch of the hydrogen lying in the C-O-H plane: 78% of the motion is on that one bond, the remaining 22% shared by the other two H's moving together. It is not the methyl group's \"asymmetric\" stretch (that is ν₉ below), and it is not the same motion as ν₃, which is the mirror-image mixture with the out-of-plane pair dominating. The older tables give both this mode and ν₃ the trivial name νₛCH₃, which is exactly what makes this region look ambiguous.",
           "ir_active": true,
           "raman_active": true,
           "tags": [
@@ -2122,7 +2126,6 @@
           "wn_start": 2844,
           "wn_end": null,
           "bands": [
-            "meoh_sym",
             "meoh_ch3s_q",
             "meoh_ch3s_r",
             "meoh_ch3s_p",
@@ -2320,7 +2323,7 @@
           "wn_start": 2960,
           "wn_end": null,
           "bands": [
-            "meoh_asym",
+            "meoh_ch3as",
             "meoh_cd3_stretch_asym"
           ]
         },
@@ -2388,7 +2391,7 @@
         {
           "id": "gas",
           "short": "gas",
-          "long": "free-gas",
+          "long": "fluid",
           "point_group": "C<sub>2v</sub>"
         }
       ],
@@ -2470,6 +2473,399 @@
           "bands": [
             "h2og_asym"
           ]
+        }
+      ]
+    },
+    {
+      "id": "h2",
+      "label": "H₂",
+      "shape": "linear",
+      "species": "h2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "h2_stretch",
+          "label": "ν(HH)",
+          "note": "The two protons move apart and back together along their own bond, the centre of mass fixed between them. The lightest pair of atoms in chemistry on the stiffest simple bond, which puts this the highest fundamental of any molecule, far above even an O-H stretch.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "H-H",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 4159,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "label": "N₂",
+      "shape": "linear",
+      "species": "n2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "n2_stretch",
+          "label": "ν(NN)",
+          "note": "The triple bond stretches and compresses, both nitrogens moving oppositely about the midpoint. The strongest bond of the set, which is why it sits an octave above O₂ despite the two atoms weighing nearly the same.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "N-N",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 2330,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "o2",
+      "label": "O₂",
+      "shape": "linear",
+      "species": "o2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "o2_stretch",
+          "label": "ν(OO)",
+          "note": "The double bond stretches and compresses about the fixed midpoint. Two thirds of N₂'s wavenumber at almost the same mass, which is the bond order showing through: two bonds rather than three.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "O-O",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 1556,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "f2",
+      "label": "F₂",
+      "shape": "linear",
+      "species": "f2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "f2_stretch",
+          "label": "ν(FF)",
+          "note": "A single bond between two small, heavy-for-their-size atoms, stretching about the midpoint. The first of the halogens, and already below a thousand: lone-pair repulsion across the short bond makes it weak for its length.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "F-F",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 894,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "cl2",
+      "label": "Cl₂",
+      "shape": "linear",
+      "species": "cl2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "cl2_stretch",
+          "label": "ν(ClCl)",
+          "note": "The single bond stretches about the midpoint, both chlorines moving oppositely. Heavier atoms on a longer bond than F₂, and the wavenumber falls accordingly, a pattern that continues all the way down the group.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "Cl-Cl",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 554,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "br2",
+      "label": "Br₂",
+      "shape": "linear",
+      "species": "br2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "br2_stretch",
+          "label": "ν(BrBr)",
+          "note": "The same single-bond stretch again, now on two atoms roughly twice the mass of chlorine, which alone drags the wavenumber down by a third.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "Br-Br",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 323,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "i2",
+      "label": "I₂",
+      "shape": "linear",
+      "species": "i2",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "D<sub>∞h</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "i2_stretch",
+          "label": "ν(II)",
+          "note": "The heaviest pair here on the weakest bond, so the slowest vibration of the set: it sits in the far infrared, a factor of twenty below H₂ purely from mass and bond strength.",
+          "ir_active": false,
+          "raman_active": true,
+          "tags": [
+            "raman-active"
+          ],
+          "reference": [
+            "Linstrom.NISTChemistryWebBook.1997",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": null,
+          "atoms": "I-I",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "Σ<sub>g</sub>⁺",
+          "wn_start": 213,
+          "wn_end": null,
+          "bands": []
+        }
+      ]
+    },
+    {
+      "id": "nh3",
+      "label": "NH₃",
+      "shape": "nonlinear",
+      "species": "nh3",
+      "band_groups": [],
+      "topologies": [
+        {
+          "id": "gas",
+          "short": "gas",
+          "long": "fluid",
+          "point_group": "C<sub>3v</sub>"
+        }
+      ],
+      "modes": [
+        {
+          "id": "nh3_stretch_symmetric",
+          "label": "νₛ(NH₃)",
+          "note": "All three N-H bonds stretch in phase while N recoils along the 3-fold axis, the pyramid breathing in and out without changing shape. The lower of the two stretches, about 100 cm⁻¹ below the degenerate pair.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [
+            "ir-active",
+            "raman-active"
+          ],
+          "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": "symmetric",
+          "atoms": "H-N-H",
+          "topology": null,
+          "herzberg_notation": "ν₁",
+          "symmetry": "A₁",
+          "wn_start": 3337,
+          "wn_end": null,
+          "bands": []
+        },
+        {
+          "id": "nh3_bend_symmetric",
+          "label": "δₛ(NH₃) umbrella",
+          "note": "All three hydrogens swing towards the axis and back out together, flattening and re-pyramidalising the molecule: the umbrella mode. It is the one vibration that carries ammonia through its own inversion, which splits the band into a close doublet near 932 and 968 cm⁻¹.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [
+            "ir-active",
+            "raman-active"
+          ],
+          "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "bend",
+          "subtype": "symmetric",
+          "atoms": "H-N-H",
+          "topology": null,
+          "herzberg_notation": "ν₂",
+          "symmetry": "A₁",
+          "wn_start": 950,
+          "wn_end": null,
+          "bands": []
+        },
+        {
+          "id": "nh3_stretch_asymmetric",
+          "label": "νₐₛ(NH₃)",
+          "note": "One N-H bond stretches while the other two compress, out of phase, so the pyramid leans rather than breathes. Doubly degenerate: two such patterns exist at the same frequency, related by a turn about the axis.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [
+            "ir-active",
+            "raman-active"
+          ],
+          "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "stretch",
+          "subtype": "asymmetric",
+          "atoms": "H-N-H",
+          "topology": null,
+          "herzberg_notation": "ν₃",
+          "symmetry": "E",
+          "wn_start": 3444,
+          "wn_end": null,
+          "bands": []
+        },
+        {
+          "id": "nh3_bend_asymmetric",
+          "label": "δₐₛ(NH₃)",
+          "note": "Two hydrogens close towards each other while the third swings the other way, the H-N-H angles changing unevenly rather than all together. Doubly degenerate, the bending counterpart of the stretch above.",
+          "ir_active": true,
+          "raman_active": true,
+          "tags": [
+            "ir-active",
+            "raman-active"
+          ],
+          "reference": [
+            "Shimanouchi.TablesMolecularVibrational.1972",
+            "PurdueUniversity.VibrationalModesSmall.2026"
+          ],
+          "category": "bend",
+          "subtype": "asymmetric",
+          "atoms": "H-N-H",
+          "topology": null,
+          "herzberg_notation": "ν₄",
+          "symmetry": "E",
+          "wn_start": 1627,
+          "wn_end": null,
+          "bands": []
         }
       ]
     }

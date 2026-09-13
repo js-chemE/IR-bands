@@ -14,7 +14,7 @@
   }
 
   // Within the band patterns, the simplest cause first.
-  const PATTERN_ORDER = ['combination', 'branches', 'fermi', 'degeneracy', 'isotopologue', 'site-sensitivity'];
+  const PATTERN_ORDER = ['branches', 'overtone', 'combination', 'fermi', 'degeneracy', 'isotopologue', 'site-sensitivity'];
 
   export const CARDS: KnCard[] = [
     ...FUNDAMENTALS.map(f => ({
@@ -27,6 +27,7 @@
 
   /** The cards of one row, in their order. */
   const cardsIn = (section: string) => CARDS.filter(c => c.section === section);
+
 
   /**
    * The rows of cards. The fundamentals sections are parts of their own; the
@@ -41,6 +42,33 @@
     ...PATTERN_GROUPS.map(g => ({ key: g.key as string, label: g.label, sub: true, note: g.note })),
     ...KNOWLEDGE_SECTIONS.filter(s => s.afterPatterns).map(partRow),
   ];
+
+  /**
+   * Rows that share one container: a part and any line it continues onto.
+   * They are one flex box so that, once a card opens and the rest list
+   * beneath it, the cards pack up to a full row instead of leaving a
+   * continuation line stranded on its own. While nothing is open the line
+   * break is put back as a spacer, so Frustrated Motion keeps its own line.
+   */
+  export interface CardGroup {
+    key: string;
+    rows: typeof ROWS;
+    /** Every card of the group in reading order, with where a line starts. */
+    cards: { card: KnCard; breakBefore: boolean }[];
+  }
+  export const GROUPS: CardGroup[] = [];
+  for (const row of ROWS) {
+    const last = GROUPS[GROUPS.length - 1];
+    if (row.cont && last) last.rows.push(row);
+    else GROUPS.push({ key: row.key, rows: [row], cards: [] });
+  }
+  for (const g of GROUPS) {
+    g.cards = g.rows.flatMap((r, ri) =>
+      cardsIn(r.key).map((card, i) => ({ card, breakBefore: ri > 0 && i === 0 })),
+    );
+  }
+  const groupKeyOf = (section: string | undefined) =>
+    GROUPS.find(g => g.rows.some(r => r.key === section))?.key;
 
   export interface KnSection {
     id: string;
@@ -82,7 +110,7 @@
   import { fade, slide } from 'svelte/transition';
   import { tweened } from 'svelte/motion';
   import { cubicInOut } from 'svelte/easing';
-  import type { Band, GroupMap, RefMap, Vibrations } from '../lib/types';
+  import type { Band, RefMap, Vibrations } from '../lib/types';
   import VibrationDiagram from './knowledge/VibrationDiagram.svelte';
   import SpectrumDiagram from './knowledge/SpectrumDiagram.svelte';
   import RamanDiagram from './knowledge/RamanDiagram.svelte';
@@ -100,6 +128,11 @@
   import FrustratedDiagram from './knowledge/FrustratedDiagram.svelte';
   import BranchesDiagram from './knowledge/BranchesDiagram.svelte';
   import NotationDiagram from './knowledge/NotationDiagram.svelte';
+  import MathNotationDiagram from './knowledge/MathNotationDiagram.svelte';
+  import LadderDiagram from './knowledge/LadderDiagram.svelte';
+  import FermiDiagram from './knowledge/FermiDiagram.svelte';
+  import LightPathDiagram from './knowledge/LightPathDiagram.svelte';
+  import LambertBeerDiagram from './knowledge/LambertBeerDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
   import CiteText from './knowledge/CiteText.svelte';
@@ -110,13 +143,12 @@
   import type { SelectionExample } from './knowledge/SelectionDiagram.svelte';
   import type { SpectrumExample } from './knowledge/SpectrumDiagram.svelte';
   import { CARD_LAYOUT } from '../lib/tokens';
-  import { speciesLabel } from '../lib/labels';
+  import { branchSuffix, speciesLabel } from '../lib/labels';
   import { ieeeHtml, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
   import { titleCase } from '../lib/titleCase';
 
   export let bands: Band[];
-  export let groups: GroupMap;
   export let refs: RefMap;
   /** The molecules and their modes: the Normal modes card lists them. */
   export let vibrations: Vibrations = { molecules: [] };
@@ -137,7 +169,7 @@
   const hosted = (key: string) => PHENOMENA.filter(p => p.into === key);
 
   function bandName(b: Band): string {
-    return b.short || `${speciesLabel(b.species)} ${b.vibration.category}`;
+    return (b.short || `${speciesLabel(b.species)} ${b.vibration.category}`) + branchSuffix(b);
   }
 
   /* ── Basics cards ──
@@ -162,7 +194,12 @@
     | typeof RotationDiagram
     | typeof FrustratedDiagram
     | typeof BranchesDiagram
-    | typeof NotationDiagram;
+    | typeof NotationDiagram
+    | typeof MathNotationDiagram
+    | typeof LadderDiagram
+    | typeof FermiDiagram
+    | typeof LightPathDiagram
+    | typeof LambertBeerDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
     modes: ModesDiagram,
     vibmodes: VibModesDiagram,
@@ -174,6 +211,12 @@
     branches: BranchesDiagram,
     labels: NotationDiagram,
     numbering: NotationDiagram,
+    mathnotation: MathNotationDiagram,
+    overtone: LadderDiagram,
+    combination: LadderDiagram,
+    fermi: FermiDiagram,
+    lightpath: LightPathDiagram,
+    lambertbeer: LambertBeerDiagram,
     vibration: VibrationDiagram,
     dipole: DipoleDiagram,
     induced: InducedDiagram,
@@ -188,7 +231,7 @@
      citations numbered in reading order, and the list those numbers point at. */
   type Rendered =
     | { kind: 'p'; segs: Segment[] }
-    | { kind: 'f'; label: Segment[]; lines: string[]; note: Segment[]; tone?: 'ir' | 'raman' };
+    | { kind: 'f'; label: Segment[]; lines: string[]; note: Segment[]; tone?: 'ir' | 'raman'; wide?: boolean };
   // Phenomena join in once their explanation is written out as a body.
   const WRITTEN = [
     ...FUNDAMENTALS,
@@ -199,7 +242,7 @@
       const c = citer();
       const blocks: Rendered[] = f.body.map(b =>
         isFormula(b)
-          ? { kind: 'f', label: c.parse(titleCase(b.label)), lines: b.lines, note: b.note ? c.parse(b.note) : [], tone: b.tone }
+          ? { kind: 'f', label: c.parse(titleCase(b.label)), lines: b.lines, note: b.note ? c.parse(b.note) : [], tone: b.tone, wide: b.wide }
           : { kind: 'p', segs: c.parse(b) },
       );
       return [f.key, { blocks, cited: c.list }];
@@ -213,6 +256,12 @@
       { swatch: 'fund', text: 'absorption, 0 → 1' },
       { swatch: 'heat', text: 'relaxation, as heat' },
       { swatch: 'over', text: 'overtone, 0 → 2' },
+    ],
+    overtone: [
+      { swatch: 'photon', text: 'infrared photon, hν' },
+      { swatch: 'fund', text: 'absorption' },
+      { swatch: 'over', text: 'where evenly spaced levels would sit' },
+      { swatch: 'trace', text: 'the absorption spectrum it leaves' },
     ],
     spectrum: [
       { swatch: 'photon', text: 'infrared photon' },
@@ -278,10 +327,117 @@
     // Gas-phase branches are narrow; a smaller floor keeps P and R apart.
     if (key === 'selection') return { examples: spectrumExamples(f?.examples, 20) };
     if (key === 'labels' || key === 'numbering') return { kind: key };
+    if (key === 'overtone' || key === 'combination') return { kind: key };
     // A phenomenon without a diagram of its own is one kind of PhenomenonDiagram.
     if (phenomenon(key) && !DIAGRAMS[key]) return { kind: key };
     return {};
   };
+
+  /**
+   * An opened card is a stack of sections, and the order is a convention
+   * every card keeps:
+   *
+   *   1. the split: the diagram on the left, the opening text on the right
+   *   2. the body, and any further sections, full width
+   *   3. what this card relates to, as links to other cards
+   *   4. the references, behind a divider
+   *
+   * Only the first is two columns, so everything below it has the whole
+   * card to use and a narrow screen only has to collapse that one section.
+   *
+   * Every section is one **beat**: something on the left, the prose it
+   * belongs to on the right. The diagram is the first beat and takes the
+   * paragraphs before the card's first callout; each callout after that
+   * opens a beat of its own and takes the paragraphs that follow it.
+   *
+   * The reason for beats rather than one long left column is what happens
+   * when the card is squeezed to a single column: a beat collapses to
+   * left-then-right, which is the order it was written in, so an equation
+   * still lands immediately before the text about it. Stacking every
+   * callout under the diagram would read correctly wide and wrongly
+   * narrow, with the equations all ahead of the prose.
+   */
+
+  /**
+   * A paragraph is worth wrapping around a float only if there is enough of
+   * it to wrap. Two cases are given `clear: left` instead, so the paragraph
+   * starts below the float whole:
+   *
+   *   a paragraph of one or two lines that a float edge would cut in half
+   *   a paragraph that begins one or two lines above the edge, leaving a
+   *     stub beside the box and the body of it full width
+   *
+   * Both fixes push down, which is why they settle: a cleared paragraph
+   * cannot straddle the edge again. Growing the float to swallow a short
+   * tail instead does not settle, because a taller float makes the text
+   * taller and the tail moves down with it.
+   */
+  const MIN_LINES_BESIDE = 3;
+  /** Only while the floats are on; below this the card is one column. */
+  const FLOAT_MIN_WIDTH = '(min-width: 861px)';
+
+  function tidyWrap(card: HTMLElement) {
+    const text = card.querySelector<HTMLElement>('.detail-text');
+    if (!text) return;
+    const paras = Array.from(text.querySelectorAll<HTMLElement>(':scope > p'));
+    for (const p of paras) p.style.clear = '';
+    if (!window.matchMedia(FLOAT_MIN_WIDTH).matches) return;
+
+    const boxes = [
+      card.querySelector<HTMLElement>(':scope > .kn-flow > .card-visual'),
+      ...Array.from(text.querySelectorAll<HTMLElement>('.formula')),
+    ].filter((el): el is HTMLElement => !!el);
+    // Clearing moves everything below it, so let it settle over a few
+    // passes rather than assuming one is enough.
+    for (let pass = 0; pass < 4; pass++) {
+      let changed = false;
+      const edges = boxes
+        .filter(b => getComputedStyle(b).float === 'left')
+        .map(b => b.getBoundingClientRect().bottom);
+      for (const p of paras) {
+        if (p.style.clear) continue;
+        const r = p.getBoundingClientRect();
+        const cs = getComputedStyle(p);
+        const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.6;
+        const edge = edges.find(e => e > r.top + 1 && e < r.bottom - 1);
+        if (edge === undefined) continue;
+        const lines = Math.round(r.height / lh);
+        const above = Math.round((edge - r.top) / lh);
+        if (lines < MIN_LINES_BESIDE || (above > 0 && above < MIN_LINES_BESIDE)) {
+          p.style.clear = 'left';
+          changed = true;
+        }
+      }
+      if (!changed) break;
+    }
+  }
+
+  /**
+   * Runs the tidy once the card is open and again when the window changes
+   * size. Deliberately not a ResizeObserver: this function changes the
+   * height it would be watching.
+   */
+  function floatTidy(node: HTMLElement, open: boolean) {
+    let frame = 0;
+    const run = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => tidyWrap(node));
+    };
+    function setup(isOpen: boolean) {
+      window.removeEventListener('resize', run);
+      if (!isOpen) return;
+      run();
+      window.addEventListener('resize', run);
+    }
+    setup(open);
+    return {
+      update: setup,
+      destroy() {
+        cancelAnimationFrame(frame);
+        window.removeEventListener('resize', run);
+      },
+    };
+  }
 
   /** The card a link lands on: a hosted phenomenon lands on its host. */
   const cardFor = (key: string) => phenomenon(key)?.into ?? key;
@@ -300,8 +456,22 @@
   const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
   // Reactive so the markup re-reads them when the state they close over moves.
   $: tFor = (key: string) => (key === openKey ? $morph : 0);
+  /**
+   * Diagrams with nothing to play. A card whose small diagram is still
+   * worth hovering can have an opened one that is not, so the two states
+   * are listed separately; where there is nothing, the hint says so by
+   * being struck through rather than by disappearing.
+   */
+  const STATIC_CARD = new Set(['mathnotation']);
+  // Spectral Representations used to cut from one plot to the next when
+  // opened, which was worth nothing and was flagged static. It morphs now,
+  // so it plays like any other card.
+  const STATIC_OPEN = new Set(['mathnotation']);
+
   $: playingFor = (key: string) =>
-    key !== openKey ? hoverCard === key : phase === 'open' && hoverVisual;
+    key !== openKey
+      ? hoverCard === key && !STATIC_CARD.has(key)
+      : phase === 'open' && hoverVisual && !STATIC_OPEN.has(key);
 
   // An opened card keeps its row and pushes the rest of that row down: it
   // takes the row's first place (CSS `order`), the cards it shared the row
@@ -311,14 +481,15 @@
   const GLIDE = 300;
   const GLIDE_EASE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
   $: perRow = Math.max(1, Math.floor((rowWidth + 12) / (CARD_LAYOUT.width + 12)));
+  /** Where a card sits in its group, which is what the flex order counts. */
   const indexInSection = (key: string | null) => {
-    const c = CARDS.find(x => x.key === key);
-    return c ? cardsIn(c.section).indexOf(c) : -1;
+    const g = GROUPS.find(x => x.cards.some(e => e.card.key === key));
+    return g ? g.cards.findIndex(e => e.card.key === key) : -1;
   };
   $: openIndex = indexInSection(openKey);
-  $: openSection = CARDS.find(c => c.key === openKey)?.section;
-  $: orderFor = (section: string, i: number) =>
-    section === openSection && i === openIndex ? 2 * (i - (i % perRow)) - 1 : 2 * i;
+  $: openGroup = groupKeyOf(CARDS.find(c => c.key === openKey)?.section);
+  $: orderFor = (group: string, i: number) =>
+    group === openGroup && i === openIndex ? 2 * (i - (i % perRow)) - 1 : 2 * i;
 
   const cardEls: Record<string, HTMLElement> = {};
   const lastPos = new Map<string, { x: number; y: number }>();
@@ -483,11 +654,10 @@
     reported them.
   </p>
 
-  {#each ROWS as sec, ri (sec.key)}
-  {#if sec.cont}
-    <!-- The same part, on a new line: no heading, just the break. -->
-    <div class="row-break" id={sec.key}></div>
-  {:else if !sec.sub}
+  {#each GROUPS as grp (grp.key)}
+  {@const sec = grp.rows[0]}
+  {@const ri = ROWS.indexOf(sec)}
+  {#if !sec.sub}
     <h2 class="part" id={sec.key} data-kn-section={sec.key}>{sec.label}</h2>
     {#if sec.note}<p class="part-lead">{sec.note}</p>{/if}
   {:else}
@@ -502,9 +672,15 @@
   {/if}
 
   <div class="cards" bind:clientWidth={rowWidth}>
-    {#each cardsIn(sec.key) as f, i (f.key)}
+    {#each grp.cards as entry, i (entry.card.key)}
+      {@const f = entry.card}
       {@const t = tFor(f.key)}
       {@const isOpen = f.key === openKey}
+      <!-- A continued line stays a line of its own until something opens;
+           then the cards pack instead, and fill the row. -->
+      {#if entry.breakBefore && openGroup !== grp.key}
+        <div class="line-break" style="order:{2 * i - 1}"></div>
+      {/if}
       <!-- Closed, the whole card is the button; open, only its × is. The role
            switches with it, which the a11y check cannot follow statically. -->
       <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -518,12 +694,18 @@
         aria-expanded={isOpen}
         aria-label={isOpen ? f.label : undefined}
         bind:this={cardEls[f.key]}
+        use:floatTidy={isOpen && phase === 'open'}
         style="order:{orderFor(sec.key, i)}; width:{isOpen && rowWidth ? lerp(CARD_LAYOUT.width, rowWidth, t) : CARD_LAYOUT.width}px"
         on:mouseenter={() => (hoverCard = f.key)}
         on:mouseleave={() => (hoverCard = null)}
         on:click={() => openCard(f.key)}
         on:keydown={e => (e.key === 'Enter' || e.key === ' ') && !isOpen && (e.preventDefault(), openCard(f.key))}
       >
+      <!-- Section 1: the diagram and the prose. Opened, the diagram and
+           every callout float into a left column and the text runs on
+           past them, so nothing leaves a hole. Closed, the wrapper is
+           display:contents and the card stacks as before. -->
+      <div class="kn-sec kn-flow" class:on={isOpen && phase === 'open'}>
         <div
           class="card-visual"
           class:ruled={t < 0.05}
@@ -535,7 +717,13 @@
           <!-- The only instruction an opened diagram needs, gone while it plays.
                The closed card has none: hovering a card is what cards are for. -->
           {#if isOpen && phase === 'open'}
-            <span class="hover-hint" class:gone={playingFor(f.key)} transition:fade={{ duration: FADE }}>hover</span>
+            <span
+              class="hover-hint"
+              class:gone={playingFor(f.key)}
+              class:dead={STATIC_OPEN.has(f.key)}
+              title={STATIC_OPEN.has(f.key) ? 'This diagram does not move' : null}
+              transition:fade={{ duration: FADE }}
+            >hover</span>
           {/if}
 
           <svelte:component
@@ -553,6 +741,7 @@
               {/each}
             </p>
           {/if}
+
         </div>
 
         {#if !isOpen || phase === 'closed'}
@@ -566,21 +755,29 @@
             <button class="detail-close" title="Close (Esc)" aria-label="Close"
               on:click|stopPropagation={closeCard}>×</button>
             <h3 class="detail-title">{f.label}</h3>
-            {#if f.kind === 'phenomenon'}
+            {#if RENDERED[f.key]}
+              <!-- Authored order throughout: a callout floats to the left
+                   column at the point the text reaches it, and squeezed to
+                   one column it simply stays where it was written. -->
+              {#each RENDERED[f.key].blocks as b, bi (bi)}
+                {#if b.kind === 'p'}
+                  <p><CiteText segs={b.segs} {refs} /></p>
+                {:else}
+                  <div
+                    class="formula"
+                    class:ir={b.tone === 'ir'}
+                    class:raman={b.tone === 'raman'}
+                    class:wide={b.wide}
+                  >
+                    <div class="formula-label"><CiteText segs={b.label} {refs} /></div>
+                    {#each b.lines as line}<div class="formula-line"><FormulaLine {line} /></div>{/each}
+                    {#if b.note.length}<div class="formula-note"><CiteText segs={b.note} {refs} /></div>{/if}
+                  </div>
+                {/if}
+              {/each}
+            {:else if f.kind === 'phenomenon'}
               {@const p = phenomenon(f.key)}
-              {#if RENDERED[f.key]}
-                {#each RENDERED[f.key].blocks as b}
-                  {#if b.kind === 'p'}
-                    <p><CiteText segs={b.segs} {refs} /></p>
-                  {:else}
-                    <div class="formula" class:ir={b.tone === 'ir'} class:raman={b.tone === 'raman'}>
-                      <div class="formula-label"><CiteText segs={b.label} {refs} /></div>
-                      {#each b.lines as line}<div class="formula-line"><FormulaLine {line} /></div>{/each}
-                      {#if b.note.length}<div class="formula-note"><CiteText segs={b.note} {refs} /></div>{/if}
-                    </div>
-                  {/if}
-                {/each}
-              {:else if p?.what || p?.spotting}
+              {#if p?.what || p?.spotting}
                 {#if p?.what}<p>{p.what}</p>{/if}
                 {#if p?.spotting}<p>{p.spotting}</p>{/if}
               {:else}
@@ -589,47 +786,58 @@
                   already live.
                 </p>
               {/if}
-              <p class="field-note">Recorded as <code>{p?.field}</code></p>
+            {/if}
+          </div>
+        {/if}
+      </div>
+
+        {#if isOpen && phase === 'open'}
+          <!-- A section of its own for each list the card carries. -->
+          {#if f.kind === 'phenomenon'}
+            {@const p = phenomenon(f.key)}
+            <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
               <AtlasExamples
                 examples={examplesOf[f.key] ?? []}
-                {groups}
+                field={p?.field ?? ''}
+                ownTag={f.key}
                 {refs}
                 on:band={e => dispatch('navigateBand', { id: e.detail.id })}
                 on:ref={e => dispatch('navigateRef', { key: e.detail.key })}
               />
-            {:else}
-            {#each RENDERED[f.key].blocks as b}
-              {#if b.kind === 'p'}
-                <p><CiteText segs={b.segs} {refs} /></p>
-              {:else}
-                <div class="formula" class:ir={b.tone === 'ir'} class:raman={b.tone === 'raman'}>
-                  <div class="formula-label"><CiteText segs={b.label} {refs} /></div>
-                  {#each b.lines as line}<div class="formula-line"><FormulaLine {line} /></div>{/each}
-                  {#if b.note.length}<div class="formula-note"><CiteText segs={b.note} {refs} /></div>{/if}
-                </div>
-              {/if}
-            {/each}
-
+            </div>
+          {:else}
             <!-- The molecules the atlas draws, counted, each a way into its modes. -->
             {#if f.key === 'vibmodes'}
-              <ModeCensus {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
+              <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
+                <ModeCensus {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
+              </div>
             {/if}
 
             <!-- A phenomenon this card is the cause of, hosted here rather than
                  on a card of its own (Selection rules: the IR-inactive modes). -->
             {#each hosted(f.key) as h (h.key)}
-              <AtlasExamples
-                title="{h.label} in the Atlas"
-                examples={examplesOf[h.key] ?? []}
-                {groups}
-                {refs}
-                on:band={e => dispatch('navigateBand', { id: e.detail.id })}
-                on:ref={e => dispatch('navigateRef', { key: e.detail.key })}
-              />
+              <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
+                <AtlasExamples
+                  title="{h.label} in the Atlas"
+                  examples={examplesOf[h.key] ?? []}
+                  ownTag={h.key}
+                  {refs}
+                  on:band={e => dispatch('navigateBand', { id: e.detail.id })}
+                  on:ref={e => dispatch('navigateRef', { key: e.detail.key })}
+                />
+              </div>
             {/each}
 
-            {@const links = (FUNDAMENTALS.find(x => x.key === f.key)?.related ?? []).filter(r => cardFor(r.key) !== f.key)}
-            {#if links.length}
+          {/if}
+
+          <!-- Section 3: where this card leads. Outside the branch above, so
+               a phenomenon card carries it too: both kinds declare `related`
+               in the same shape. -->
+          {@const links = (
+            (f.kind === 'phenomenon' ? phenomenon(f.key)?.related : FUNDAMENTALS.find(x => x.key === f.key)?.related) ?? []
+          ).filter(r => cardFor(r.key) !== f.key)}
+          {#if links.length}
+            <div class="kn-sec kn-related" transition:fade={{ duration: FADE }}>
               <h4 class="related-head">Builds on This</h4>
               <div class="related">
                 {#each links as r (r.key)}
@@ -639,12 +847,10 @@
                   </button>
                 {/each}
               </div>
-            {/if}
-            {/if}
+            </div>
+          {/if}
 
-          </div>
-
-          <!-- Under a thin rule: what the superscripts point at. -->
+          <!-- Section 4, behind a divider: what the superscripts point at. -->
           {#if RENDERED[f.key]?.cited.length}
             <ol class="card-refs" transition:fade={{ duration: FADE }}>
               {#each RENDERED[f.key].cited as c (c.n)}
@@ -761,9 +967,98 @@
 
   .card.open { cursor: default; border-color: var(--line-slate-strong); }
 
+  /* ── An opened card: a stack of sections, each of a declared kind ────
+     Every section is `.kn-sec` plus one kind. There are three, and a new
+     kind is added here rather than by styling a section one-off:
+
+       .kn-flow   the diagram and the prose. The diagram and every callout
+                  float into a left column and the text runs past them,
+                  taking the full width as soon as the floats end. Nothing
+                  is measured and nothing is reordered: a float cannot rise
+                  above the line it was written on, so a callout lands where
+                  the text calls it, and turning the floats off on a narrow
+                  screen puts every box back inline where it was authored.
+       .kn-cols   two plain columns, side by side, no wrapping and nothing
+                  automatic: what goes left goes left and stays there. For
+                  a comparison, where the two halves are peers and the eye
+                  is meant to read across rather than down.
+       .kn-list   one thing, full width: a list, a table, a census.
+
+     Then .kn-related and the references behind a divider. */
+  .card.open {
+    display: block;
+  }
+  .kn-sec { box-sizing: border-box; width: 100%; }
+
+  /* Two columns that stay two columns. No float, no wrap, no measuring. */
+  .kn-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+    align-items: start;
+    padding: 4px 28px 8px;
+    clear: both;
+  }
+
+  /* Closed, the wrapper must not exist as far as layout is concerned: the
+     card is still the flex column of diagram and teaser it always was. */
+  .kn-flow { display: contents; }
+  .kn-flow.on {
+    display: block;
+    /* Contain the floats, so what follows starts on a clean line. */
+    overflow: hidden;
+  }
+
+  /* The left column: the diagram, then every callout under it. */
+  .kn-flow.on > .card-visual,
+  .kn-flow.on .formula {
+    float: left;
+    clear: left;
+    box-sizing: border-box;
+    width: min(var(--flow-col, 512px), 48%);
+  }
+  .kn-flow.on .formula { margin: 0 24px 14px 0; }
+
+  /* The prose is a plain block: its lines wrap around the floats, and it
+     takes the whole width again once they end. The closed card's width cap
+     would cut every line to a sliver beside the diagram, so it goes. */
+  .kn-flow.on > .detail-text {
+    max-width: none;
+    padding-left: 16px;
+  }
+  /* A box that is really a table takes the width instead of a column. */
+  .kn-flow.on .formula.wide {
+    float: none;
+    clear: both;
+    width: auto;
+    margin: 4px 28px 14px;
+  }
+
+  .kn-list,
+  .kn-related {
+    padding: 4px 28px 8px;
+    clear: both;
+  }
+  .kn-related { padding-top: 10px; }
+
+  /* No room for two columns: the floats go and the card reads straight
+     down, in the order it was written. */
+  @media (max-width: 860px) {
+    .kn-flow.on > .card-visual,
+    .kn-flow.on .formula {
+      float: none;
+      width: auto;
+      margin-inline: 16px;
+    }
+    .kn-cols { grid-template-columns: 1fr; }
+    .kn-list,
+    .kn-cols,
+    .kn-related { padding-inline: 16px; }
+  }
   /* The diagram takes the place of the home card's icon, bled to the edges
      while closed; opening insets it into a rounded panel (inline styles). */
   .card-visual {
+    position: relative;
     flex: 0 0 auto;
     box-sizing: border-box;
     max-width: 100%;
@@ -772,8 +1067,6 @@
     box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0);
   }
   .card-visual.ruled { box-shadow: inset 0 -1px 0 var(--line-heading); }
-
-  .card-visual { position: relative; }
 
   .hover-hint {
     position: absolute;
@@ -788,6 +1081,13 @@
     transition: opacity 0.2s ease;
   }
   .hover-hint.gone { opacity: 0; }
+  /* Nothing to play: say so, rather than inviting a hover that does nothing. */
+  .hover-hint.dead {
+    color: var(--ink-025);
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+  .hover-hint.dead.gone { opacity: 0.55; }
 
   .card-body {
     flex: 1 1 100%;
@@ -1043,16 +1343,8 @@
     font-size: var(--t-nav-size);
   }
 
-  .field-note { font-size: var(--t-code-size); color: var(--ink-200); }
-
-  code {
-    font-family: var(--t-code-ff);
-    font-size: var(--t-code-size);
-    background: var(--ref-code-bg);
-    color: var(--t-code-color);
-    padding: 1px 5px;
-    border-radius: var(--radius-sm);
-  }
+  /* `.field-note` and `code` moved to AtlasExamples with the "Recorded as"
+     line itself, which now folds away with the rest of the box. */
 
   .ref-chip {
     font: inherit;

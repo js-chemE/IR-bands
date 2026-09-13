@@ -61,6 +61,7 @@
     C,
   } from '../lib/tokens';
   import { ELEMENT_COLORS } from '../lib/elementColors';
+  import { lightTint } from '../lib/lightColor';
   import { SUB_CHARS, SUP_CHARS, MISSING_SUBSCRIPT_LETTERS, htmlToUnicode } from '../lib/notation';
   import type { TypeRole } from '../lib/tokens';
 
@@ -415,10 +416,17 @@
       </div>
 
       <div class="map-block">
-        <div class="map-head">Tags <span class="map-src">TAG_STYLES</span></div>
+        <div class="map-head">Tags <span class="map-src">TAG_STYLES + lightTint</span></div>
         <div class="tag-row">
           {#each Object.entries(TAG_STYLES) as [k, s]}
             <span class="tag-pill" style="background:{s.background}; border-color:{s.border}; color:{s.color}">{k}</span>
+          {/each}
+          <!-- The one pill no table can hold: a Raman excitation wavelength is
+               a number, so it is coloured from the light itself and washed out
+               to the same shape as the entries above (lib/lightColor.ts). -->
+          {#each [244, 405, 488, 532, 633, 785, 1064] as nm}
+            {@const s = lightTint(nm)}
+            <span class="tag-pill" style="background:{s.background}; border-color:{s.border}; color:{s.color}">{nm} nm</span>
           {/each}
           <span class="tag-pill" style="background:{DEFAULT_TAG_STYLE.background}; border-color:{DEFAULT_TAG_STYLE.border}; color:{DEFAULT_TAG_STYLE.color}">any other tag</span>
         </div>

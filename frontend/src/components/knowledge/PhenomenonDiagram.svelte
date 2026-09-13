@@ -106,7 +106,7 @@
     stretch: 3 * vib * (1 - 0.2 * k),
   };
 
-  // Overtone: the weak two-rung step, and its weak band at a bit under twice.
+  // Overtone: the weak two-level step, and its weak band at a bit under twice.
   $: combo = [
     { x: 182, h: 44, w: 3 },
     { x: 126, h: 12 * k + 0.5, w: 3.5 },
@@ -267,7 +267,7 @@
   .cation { fill: var(--surface); stroke: var(--charge-positive); stroke-width: 1.2; }
   .cation-lbl {
     font-family: var(--font-sans);
-    font-size: calc(var(--t-code-size) * 0.75);
+    font-size: max(calc(var(--t-code-size) * 0.75), var(--t-diagram-note-size));
     font-weight: var(--t-label-weight);
     fill: var(--charge-positive);
   }
@@ -276,13 +276,13 @@
      size lands at the code size. */
   .lbl {
     font-family: var(--t-code-ff);
-    font-size: calc(var(--t-code-size) * 0.5);
+    font-size: max(calc(var(--t-code-size) * 0.5), var(--t-diagram-note-size));
     fill: var(--ink-slate-500);
   }
   .lbl.faint { fill: var(--ink-050); }
   .iso {
     font-family: var(--font-sans);
-    font-size: calc(var(--t-code-size) * 0.75);
+    font-size: max(calc(var(--t-code-size) * 0.75), var(--t-diagram-note-size));
     fill: var(--ink-slate-500);
   }
 </style>
