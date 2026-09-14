@@ -23,16 +23,27 @@
       atlas tells them apart: what each one is, what it was measured on, and who
       reported it.
     </p>
-    <p class="hero-what">
-      It covers the CO₂-to-methanol and RWGS/methanation story: the gases that go in
-      and come out, the formate, carbonate, bicarbonate and methoxy that appear on the
-      way, CO on metals and on cations, the support hydroxyls, and the water. Both
-      infrared and Raman, gas-phase and adsorbed.
-    </p>
-    <p class="hero-scope">
-      {#if bandCount}{bandCount} bands &middot; {assignmentCount} assignments &middot; {referenceCount} sources{/if}
-    </p>
   </div>
+
+  {#if bandCount}
+    <!-- How much is in here, before anything is clicked. Claims are the
+         largest of the three and the one worth reading twice: a band four
+         papers disagree about is counted four times. -->
+    <div class="scope">
+      <div class="stat">
+        <span class="stat-n">{bandCount}</span>
+        <span class="stat-l">bands</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">{assignmentCount}</span>
+        <span class="stat-l">assignments</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">{referenceCount}</span>
+        <span class="stat-l">sources</span>
+      </div>
+    </div>
+  {/if}
 
   <div class="cards">
     <!-- Knowledge -->
@@ -110,6 +121,13 @@
       <span class="card-cta" style="color:var(--accent-red-fg)">Open dataset →</span>
     </button>
   </div>
+
+  <p class="hero-what">
+    It covers the CO₂-to-methanol and RWGS/methanation story: the gases that go in
+    and come out, the formate, carbonate, bicarbonate and methoxy that appear on the
+    way, CO on metals and on cations, the support hydroxyls, and the water. Both
+    infrared and Raman, gas-phase and adsorbed.
+  </p>
 </main>
 
 <style>
@@ -126,7 +144,7 @@
 
   .hero {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 30px;
     max-width: 580px;
   }
 
@@ -154,21 +172,51 @@
     margin: 0;
   }
 
-  /* What is actually in scope, under the framing and above the counts. Reads
-     as prose rather than as a list, because the list would go stale the first
-     time a family is added. */
+  /* What is actually in scope. It sits under the cards because it is a note
+     on what is covered rather than something to get past on the way to them,
+     and it reads as prose rather than as a list, because the list would go
+     stale the first time a family is added. */
   .hero-what {
+    max-width: 700px;
+    text-align: center;
     font-size: 13.5px;
     color: var(--ink-slate-300);
     line-height: 1.6;
-    margin: 14px 0 0;
+    margin: 34px 0 0;
   }
 
-  /* Deliberately quiet: the scope will widen, the framing above it will not. */
-  .hero-scope {
-    margin: 14px 0 0;
-    font-size: var(--t-code-size);
-    color: var(--ink-200);
+  /* How much is in here. Three numbers, large, above the cards: the size of
+     the thing is the second fact about it after what it is. */
+  .scope {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 56px;
+    margin-bottom: 42px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .stat-n {
+    font-size: var(--t-stat-size);
+    font-weight: var(--t-stat-weight);
+    color: var(--t-stat-color);
+    letter-spacing: var(--t-stat-ls);
+    line-height: var(--t-stat-lh);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-l {
+    font-size: var(--t-stat-label-size);
+    font-weight: var(--t-stat-label-weight);
+    color: var(--t-stat-label-color);
+    text-transform: var(--t-stat-label-tt);
+    letter-spacing: var(--t-stat-label-ls);
   }
 
   /* Four destinations in one row where there is room for it, so the whole
