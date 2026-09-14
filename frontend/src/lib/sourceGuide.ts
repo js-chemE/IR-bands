@@ -351,6 +351,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['irras', 'Grazing-incidence reflection off a flat single crystal, in vacuum'],
         ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background'],
         ['emission', 'The hot sample is the source; no beam passes through it'],
+        ['mioirs', 'Mixed Isotope Operando IR: the cell is fed a mixed isotopic stream (a little ¹³CO in ¹²CO) so neighbouring adsorbates stop sharing a frequency and the dipole coupling between them is detuned. It names what went into the cell rather than how the beam arrived, and it is a value of its own because a decoupled adlayer is a different measurement whatever geometry recorded it'],
         ['ftir', 'Placeholder: the paper names the interferometer, not the geometry'],
         ['raman', 'A Raman shift, whatever the geometry: scattering, not absorption'],
         ['srs', 'Spontaneous Raman scattering, where the source says so. One laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) that drive it with a second beam. Leave it at `raman` where the paper does not specify'],
@@ -418,6 +419,10 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'Unicode throughout: cm⁻¹, °C, mL min⁻¹, CO₂/H₂, ¹³CO. No markup, no LaTeX, no bare CO2.',
       'Name the other band when the paper distinguishes this one from it. That is the most useful ' +
       'sentence a note can carry.',
+      'Where the note records something the paper did not say, name whose reading it is. It is the ' +
+      'author’s, or a thing this collection assumes; never “the atlas’s”. A dataset cannot infer, and ' +
+      'attributing a judgement to one hides the fact that a person made it and could be wrong. ' +
+      'Write “the monodentate placement is the author’s reading of the position”, not “the atlas’s”.',
     ],
     never: [
       'The wavenumber (that is `wn`), the surface (`measured_on`), the technique (`technique`).',

@@ -67,20 +67,27 @@
   const SX0 = 110;
   const SX1 = 212;
   const BASE = 86;
+  /**
+   * Where a signal drawn *downward* hangs from. Chosen so that the deepest
+   * dip bottoms out on BASE, the floor every other diagram's baseline sits
+   * on, and the two halves of the page keep one horizon.
+   */
+  const HANG = 40;
   type Peak = { x: number; h: number; w: number; ghost?: boolean };
-  function trace(peaks: Peak[]): string {
+  /** `base` is the baseline; `dir` is -1 for peaks up, +1 for dips down. */
+  function trace(peaks: Peak[], base = BASE, dir = -1): string {
     const pts: string[] = [];
     for (let x = SX0; x <= SX1; x += 0.5) {
       let y = 0;
       for (const p of peaks) if (!p.ghost) y += p.h * Math.exp(-(((x - p.x) / p.w) ** 2));
-      pts.push(`${x.toFixed(1)},${(BASE - y).toFixed(1)}`);
+      pts.push(`${x.toFixed(1)},${(base + dir * y).toFixed(1)}`);
     }
     return 'M' + pts.join(' L');
   }
-  function ghostPath(p: Peak): string {
+  function ghostPath(p: Peak, base = BASE, dir = -1): string {
     const pts: string[] = [];
     for (let x = p.x - 3 * p.w; x <= p.x + 3 * p.w; x += 0.5) {
-      pts.push(`${x.toFixed(1)},${(BASE - p.h * Math.exp(-(((x - p.x) / p.w) ** 2))).toFixed(1)}`);
+      pts.push(`${x.toFixed(1)},${(base + dir * p.h * Math.exp(-(((x - p.x) / p.w) ** 2))).toFixed(1)}`);
     }
     return 'M' + pts.join(' L');
   }
@@ -112,13 +119,34 @@
     { x: 126, h: 12 * k + 0.5, w: 3.5 },
   ] as Peak[];
 
-  // Degeneracy: one level for two motions; a surface lowers the symmetry
-  // and it splits.
+  /**
+   * Degeneracy: one ball per mode, so CO₂'s bend moves two molecules.
+   *
+   * They bob in step while they share a frequency. Once the surface makes
+   * the in-plane and out-of-plane directions different, one runs faster and
+   * the two visibly drift apart, which is the same fact the spectrum shows.
+   *
+   * The band is two peaks of equal height sitting on top of each other, so
+   * `trace()` sums them into one peak of twice the height on its own: the
+   * single band really is the two components, and the drawing says so
+   * rather than asserting it.
+   */
+  /**
+   * One excited level, drawn twice because it is two modes at one energy,
+   * with an arrow up to each; and the band below it drawn as the two equal
+   * contributions it is made of.
+   *
+   * Both pairs come apart and merge again rather than splitting for good:
+   * nothing in the animation lowers the symmetry, so the point being made
+   * is that the single line and the single band are each already a pair.
+   * What a real loss of symmetry does is the prose's job.
+   */
+  $: split = 7 * Math.sin(Math.PI * k);
+  $: sep = 13 * Math.sin(Math.PI * k);
   $: degen = {
-    split: 7 * k,
     peaks: [
-      { x: 160 - 11 * k, h: lerp(44, 28, k), w: 3.2 },
-      { x: 160 + 11 * k, h: lerp(0, 28, k), w: 3.2 },
+      { x: 160 - sep, h: 23, w: 3.4 },
+      { x: 160 + sep, h: 23, w: 3.4 },
     ] as Peak[],
   };
 
@@ -137,6 +165,35 @@
   $: coY = lerp(prevSite.y, site.y, siteBlend);
   $: sitePeak = { x: lerp(prevSite.wn, site.wn, siteBlend), h: 44, w: 3.5 } as Peak;
 
+  // Coverage: the surface fills, the neighbours compete for the same
+  // back-donation, the C-O bond stiffens and the band climbs. Higher
+  // wavenumber is to the LEFT, so the peak slides that way.
+  const METALS = [22, 40, 58, 76];
+  $: cov = {
+    // The three extra molecules arrive one after another, not together.
+    arrived: METALS.map((_, i) => (i === 1 ? 1 : ramp(k, 0.1 * i, 0.35 + 0.22 * i))),
+    peak: { x: lerp(178, 150, k), h: 44, w: 3.5 } as Peak,
+    ghost: { x: 178, h: 44, w: 3.5, ghost: true } as Peak,
+    stretch: 2.2 * vib,
+  };
+
+  // Coupling: two neighbours stop being independent oscillators. Their
+  // phase difference closes from opposite to together as k rises, the
+  // in-phase mode takes the intensity and sits above the singleton, and
+  // the out-of-phase one is left dark.
+  $: cpl = {
+    a: 2.6 * Math.sin(2 * Math.PI * 1.1 * time),
+    b: 2.6 * Math.sin(2 * Math.PI * 1.1 * time + Math.PI * (1 - k)),
+    bright: { x: lerp(174, 152, k), h: lerp(44, 48, k), w: 3.2 } as Peak,
+    singleton: { x: 174, h: 44, w: 3.2, ghost: true } as Peak,
+    // Drawn as an outline: a real normal mode of the pair, with no dipole
+    // change to make it absorb.
+    dark: { x: lerp(174, 194, k), h: 11, w: 3.2, ghost: true } as Peak,
+  };
+
+  /** Degeneracy hangs its signal from HANG; everything else stands on BASE. */
+  $: axisY = kind === 'degeneracy' ? HANG : BASE;
+
   $: labelOpacity = ramp(t, 0.75, 1);
 
   const up = (x: number, y: number) => `M${x - 2.6},${y + 4} L${x},${y} L${x + 2.6},${y + 4}`;
@@ -147,7 +204,7 @@
 </script>
 
 <svg class="diagram" width={W * scale} height={H * scale} viewBox="0 0 {W} {H}" role="img" aria-label="{kind} diagram">
-  <line class="axis" x1={SX0} x2={SX1} y1={BASE} y2={BASE} />
+  <line class="axis" x1={SX0} x2={SX1} y1={axisY} y2={axisY} />
 
   {#if kind === 'fermi'}
     <!-- Levels: dashed where they would sit alone, solid where the mixing puts them. -->
@@ -200,24 +257,22 @@
       <text class="lbl faint" x="114" y="68">overtone, weak</text>
     </g>
   {:else if kind === 'degeneracy'}
-    <!-- CO₂'s bend, in the plane and out of it: one frequency. -->
-    <line class="bond" x1="32" x2="68" y1="26" y2="26" />
-    <circle cx="32" cy="26" r="5" fill={O_FILL} />
-    <circle cx="50" cy="26" r="5.3" fill={C_FILL} />
-    <circle cx="68" cy="26" r="5" fill={O_FILL} />
-    <path class="motion" d="M50,17 L50,11 M47.5,13.5 L50,11 L52.5,13.5" />
-    <circle class="motion" cx="50" cy="40" r="3.4" />
-    <circle class="motion-dot" cx="50" cy="40" r="1" />
-    <line class="surface" x1="18" x2="82" y1="48" y2="48" style="opacity:{k}" />
-    <line class="level" x1="22" x2="78" y1={66 - degen.split} y2={66 - degen.split} />
-    <line class="level" x1="22" x2="78" y1={66 + degen.split} y2={66 + degen.split} />
-    <path class="trace" d={trace(degen.peaks)} />
+    <!-- One excited level, drawn twice because it is two modes, with an
+         arrow up to each. The dashed line is where the pair sits while it
+         is one, the way the Fermi card marks where its levels would be. -->
+    <line class="level" x1="18" x2="84" y1="88" y2="88" />
+    <line class="level faint" x1="18" x2="84" y1="46" y2="46" />
+    <line class="level" x1="18" x2="84" y1={46 - split} y2={46 - split} />
+    <line class="level" x1="18" x2="84" y1={46 + split} y2={46 + split} />
+    <line class="arrow" x1="34" x2="34" y1="88" y2={46 - split + 1} />
+    <path class="arrow-head" d={up(34, 46 - split)} />
+    <line class="arrow" x1="62" x2="62" y1="88" y2={46 + split + 1} />
+    <path class="arrow-head" d={up(62, 46 + split)} />
+    <path class="trace" d={trace(degen.peaks, HANG, 1)} />
     <g style="opacity:{labelOpacity}">
-      <text class="lbl faint" x="86" y="22">in the plane</text>
-      <text class="lbl faint" x="86" y="42">out of it</text>
-      <text class="lbl faint" x="50" y="87" text-anchor="middle">a surface lowers</text>
-      <text class="lbl faint" x="50" y="95" text-anchor="middle">the symmetry</text>
-      <text class="lbl faint" x="160" y="34" text-anchor="middle">one band, or two</text>
+      <text class="lbl faint" x="18" y="97">two modes</text>
+      <text class="lbl" x={160 - sep} y="34" text-anchor="middle">δ</text>
+      <text class="lbl" x={160 + sep} y="34" text-anchor="middle" style="opacity:{Math.min(1, sep / 6)}">ω</text>
     </g>
   {:else if kind === 'site-sensitivity'}
     <line class="surface" x1="10" x2="96" y1="80" y2="80" />
@@ -237,6 +292,49 @@
       {#each SITES as s}
         <text class="lbl" class:faint={s !== site} x={s.wn} y="96" text-anchor="middle">{s.label}</text>
       {/each}
+    </g>
+  {:else if kind === 'coverage-shift'}
+    <!-- One CO on a bare metal, then the surface filling up around it. -->
+    <line class="surface" x1="10" x2="90" y1="80" y2="80" />
+    {#each METALS as mx}
+      <circle cx={mx} cy="80" r="6" fill={M_FILL} />
+    {/each}
+    {#each METALS as mx, i}
+      <g style="opacity:{cov.arrived[i]}">
+        <line class="bond" x1={mx} x2={mx} y1="72" y2={56 - cov.stretch} />
+        <circle cx={mx} cy="72" r="5.2" fill={C_FILL} />
+        <circle cx={mx} cy={56 - cov.stretch} r="5" fill={O_FILL} />
+      </g>
+    {/each}
+    <path class="ghost" d={ghostPath(cov.ghost)} style="opacity:{k}" />
+    <path class="trace" d={trace([cov.peak])} />
+    <g style="opacity:{labelOpacity}">
+      <text class="lbl" x="150" y="28" text-anchor="middle">crowded</text>
+      <text class="lbl faint" x="180" y="46" text-anchor="middle">alone</text>
+      <text class="lbl faint" x="50" y="95" text-anchor="middle">filling up</text>
+    </g>
+  {:else if kind === 'vibrational-coupling'}
+    <!-- Two neighbours: opposite while independent, together once coupled. -->
+    <line class="surface" x1="14" x2="86" y1="80" y2="80" />
+    <circle cx="34" cy="80" r="6" fill={M_FILL} />
+    <circle cx="66" cy="80" r="6" fill={M_FILL} />
+    <line class="bond" x1="34" x2="34" y1="72" y2={56 - cpl.a} />
+    <circle cx="34" cy="72" r="5.2" fill={C_FILL} />
+    <circle cx="34" cy={56 - cpl.a} r="5" fill={O_FILL} />
+    <line class="bond" x1="66" x2="66" y1="72" y2={56 - cpl.b} />
+    <circle cx="66" cy="72" r="5.2" fill={C_FILL} />
+    <circle cx="66" cy={56 - cpl.b} r="5" fill={O_FILL} />
+    <!-- The field of one swinging dipole, reaching the other. -->
+    <path class="motion" d="M42,44 C48,38 52,38 58,44" style="opacity:{k}" />
+    <path class="motion" d="M42,40 C48,32 52,32 58,40" style="opacity:{0.5 * k}" />
+    <path class="ghost" d={ghostPath(cpl.singleton)} style="opacity:{k}" />
+    <path class="ghost" d={ghostPath(cpl.dark)} style="opacity:{k}" />
+    <path class="trace" d={trace([cpl.bright])} />
+    <g style="opacity:{labelOpacity}">
+      <text class="lbl" x="150" y="28" text-anchor="middle">in phase</text>
+      <text class="lbl faint" x="178" y="48" text-anchor="middle">alone</text>
+      <text class="lbl faint" x="198" y="68" text-anchor="middle">dark</text>
+      <text class="lbl faint" x="50" y="95" text-anchor="middle">one system</text>
     </g>
   {/if}
 </svg>
@@ -263,7 +361,6 @@
   .bond { stroke: var(--ink-slate-400); stroke-width: 2; }
   .surface { stroke: var(--line-slate-strong); stroke-width: 1.2; }
   .motion { fill: none; stroke: var(--ink-slate-500); stroke-width: 1; stroke-linecap: round; }
-  .motion-dot { fill: var(--ink-slate-500); }
   .cation { fill: var(--surface); stroke: var(--charge-positive); stroke-width: 1.2; }
   .cation-lbl {
     font-family: var(--font-sans);

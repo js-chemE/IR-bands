@@ -8,9 +8,22 @@
  * the card itself, the full explanation once it is opened, and links down to
  * the phenomena that build on it.
  *
- * The explanations follow the Springer Handbook of Advanced Catalyst
- * Characterization (Wachs and Bañares, 2023), cited chapter by chapter with
- * `[@alias, locator]` markers; the aliases and chapters are in lib/cite.ts.
+ * Most of what is written here rests on three works, and the page says so at
+ * the top rather than leaving a reader to reconstruct it from the
+ * superscripts:
+ *
+ *   - the Springer Handbook of Advanced Catalyst Characterization (Wachs and
+ *     Bañares, 2023), cited chapter by chapter, for the infrared and the
+ *     practice of measuring a catalyst;
+ *   - Long, The Raman Effect (2002), for the theory of Raman scattering: the
+ *     selection rules, the branches, and what the scattered light carries;
+ *   - Davydov, Molecular Spectroscopy of Oxide Catalyst Surfaces (2003), for
+ *     what an adsorbed species does on an oxide and what a probe molecule
+ *     reports about the site under it.
+ *
+ * Single papers are cited where one card needs them. Every citation is an
+ * `[@alias, locator]` marker; the aliases, and the handbook's chapters, are
+ * in lib/cite.ts.
  *
  * Where a marker goes:
  *
@@ -25,7 +38,7 @@
  *     move the marker to the end of the paragraph, or mark each sentence
  *     because the locators differ.
  *
- * A sentence without a marker is the atlas's own data, its own reasoning,
+ * A sentence without a marker is the atlas's own data, the author's own reasoning,
  * or a cross-reference to another card, and is deliberately unmarked.
  *
  * The diagram is chosen by `key` in KnowledgePage.svelte, so a new entry
@@ -124,6 +137,13 @@ export interface Fundamental {
    */
   related: { key: string; why: string }[];
   /**
+   * Not finished: the prose, the drawing, or both. It shows as a chip on the
+   * card, and it says "do not copy this one's style". The finished cards to
+   * work from are Rotational Branches, Overtone, Combination and Difference,
+   * Fermi Resonance and Degeneracy. Clear it when the card is done.
+   */
+  wip?: boolean;
+  /**
    * Band ids the diagram draws, resolved live from the dataset so their
    * positions, widths and labels are the atlas's own. An id that stops
    * resolving is simply left out. `{ id, wn }` pins the position where the
@@ -217,7 +237,14 @@ export const FUNDAMENTALS: Fundamental[] = [
         ],
         note: 'CO: B = 1.93 cm⁻¹, so the first gap, J = 0 to 1, is 3.9 cm⁻¹. CO₂: 0.39 cm⁻¹. The rigid rotor; a real molecule stretches a little as it spins faster.',
       },
-      'The levels are close together. At room temperature kT is about 207 cm⁻¹, dozens of times the first gap, so a gas is spread over many levels at once: for CO the most filled is J ≈ 7, and levels up to J ≈ 20 still hold a noticeable share. The bars in the diagram show that population, which sets how tall each line of a rotational branch is.',
+      'The levels are close together. At room temperature kT is about 207 cm⁻¹, dozens of times the first gap, so a gas is spread over many levels at once: for CO the most filled is J ≈ 7, and levels up to J ≈ 20 still hold a noticeable share [@long, p. 181]. The bars in the diagram show that population, which sets how tall each line of a rotational branch is.',
+      {
+        label: 'The Fullest Level',
+        lines: [
+          'J_\\mathrm{max} = \\sqrt{\\frac{kT}{2Bhc}} - \\frac{1}{2} \\;\\approx\\; 0.5896\\,\\sqrt{\\frac{T/\\unit{K}}{B/\\unit{cm^{-1}}}} - \\frac{1}{2}',
+        ],
+        note: 'The degeneracy 2J + 1 rises with J while the Boltzmann factor falls, and the product peaks between them. A small B or a high temperature pushes the peak up: HCl, with B = 10.44 cm⁻¹, peaks at J = 3 at 300 K and is nearly empty by J = 12, while CO at B = 1.92 cm⁻¹ peaks at J = 7 and still holds a real population past J = 20 [@long, p. 181]. Note that J = 0 is never empty [@long, p. 181].',
+      },
       'How a molecule turns depends on its shape. A linear molecule such as CO or CO₂ has one moment of inertia and one B. CH₄, a spherical top, turns alike about every axis, again with one B, 5.24 cm⁻¹. H₂O has three different moments and three constants, about 27.9, 14.5 and 9.3 cm⁻¹, and its levels no longer follow one simple formula. The bottom row of the diagram turns all three.',
       'A molecule held on a surface cannot turn at all: its rotations become rocking vibrations, the subject of the Frustrated Motion card.',
     ],
@@ -320,6 +347,7 @@ export const FUNDAMENTALS: Fundamental[] = [
   },
   {
     key: 'lambertbeer',
+    wip: true,
     section: 'basics',
     label: 'The Lambert–Beer Law',
     teaser:
@@ -522,7 +550,9 @@ export const FUNDAMENTALS: Fundamental[] = [
       'Scattered, not absorbed: a rare photon comes back out short by exactly one vibrational gap.',
     body: [
       'Raman spectroscopy lights the sample with a monochromatic laser, visible or near-infrared, and collects the scattered light, usually at right angles to the beam. What it measures is the shift in frequency between the laser and the scattered light, and that shift is the vibration [@moon, p. 76].',
-      'Most of the scattered light keeps the laser’s energy: Rayleigh scattering, by far the strongest. Where energy is exchanged with a vibration, the photon comes out shifted down (Stokes) or up (anti-Stokes), and identical lines sit on both sides of the Rayleigh line [@moon, pp. 76–77]. On an energy diagram the molecule passes through a virtual state, not a level it can stay in [@stair, p. 133].',
+      'Most of the scattered light keeps the laser’s energy: Rayleigh scattering, by far the strongest. Where energy is exchanged with a vibration, the photon comes out shifted down (Stokes) or up (anti-Stokes), and identical lines sit on both sides of the Rayleigh line [@moon, pp. 76–77].',
+      'The two names are borrowed and the loan is worth knowing about, because it hides how different the two processes are. Stokes’ law says fluorescent light is never of higher frequency than the light that caused it, so a fluorescence line that obeys it is a Stokes line and one that breaks it is anti-Stokes. The Raman lines took the same names for sitting on the same two sides, and Raman scattering is not fluorescence [@long, pp. 5–6].',
+      'Counted in photons, one photon of the laser is annihilated and one new photon is created, and the molecule takes up the difference. The incident photon is not absorbed in the spectroscopic sense at all: its energy matches no transition of the molecule, and its part is to perturb the molecule and open a route other than direct absorption [@long, p. 7]. That is what the virtual state on an energy diagram means, a level the molecule cannot stay in and never really reaches [@long, p. 7] [@stair, p. 133].',
       {
         label: 'Raman shift',
         lines: [
@@ -542,6 +572,18 @@ export const FUNDAMENTALS: Fundamental[] = [
         tone: 'raman',
       },
       'Because the shift does not depend on the laser, a Raman line sits at the same number as the vibration, and any source gives the same pattern [@moon, p. 77].',
+      'Raman scattering is incoherent, and that is what makes it quantitative. The intensity from N molecules that are not interacting is simply N times the intensity from one, whatever the bulk structure of the sample. Rayleigh scattering is not: it depends on the structure of the system as well as on the concentration, and it is coherent in the forward direction [@long, p. 10]. Both are linear in the irradiance of the incident light, which is what separates them from the hyper- and coherent variants that need an intense beam or a second one [@long, p. 10].',
+      'The vibrational rule is Δv = ±1, and in the harmonic approximation the levels are evenly spaced, so every hot band v + 1 ← v lands at exactly the shift of the fundamental however high v is [@long, pp. 122, 124]. Anharmonicity does two things to that. It separates the hot bands slightly, which broadens the band or splits it into a close-spaced set [@long, p. 122], and it opens Δv = ±2, ±3 and the sums and differences, so overtones and combinations appear at all [@long, p. 123].',
+      {
+        label: 'Where a Raman Line Sits, Once It Is Anharmonic',
+        lines: [
+          '|\\Delta\\tilde\\nu| = \\tilde\\nu_e - 2(v + 1)\\,\\tilde\\nu_e x_e',
+          '|\\Delta\\tilde\\nu|_{1 \\leftarrow 0} = \\tilde\\nu_e - 2\\tilde\\nu_e x_e',
+        ],
+        note: 'ν̃(e): the harmonic wavenumber, the one infinitely small vibrations would have; ν̃(e)x(e): the anharmonicity constant, much smaller and in practice always positive. Measure the fundamental and the first overtone and the two together give both [@long, p. 125].',
+        tone: 'raman',
+      },
+      'They stay weak, though, and for a reason worth separating from the selection rule. What an overtone needs is the second derivative of α with respect to the normal coordinate, and that is small beside the first: α varies very nearly linearly with Q around the equilibrium position, so the term that would give the overtone its intensity is the small one [@long, p. 123].',
       'Stokes lines are the ones usually measured, because they are stronger [@moon, p. 77]. Anti-Stokes needs molecules already in v = 1, which the Boltzmann factor keeps rare [@busca, p. 4]; for the 300 cm⁻¹ mode drawn here the ratio is about a quarter at room temperature. Measuring both at once gives the temperature of the spot under the laser [@stair, p. 136].',
       {
         label: 'Anti-Stokes against Stokes',
@@ -557,11 +599,13 @@ export const FUNDAMENTALS: Fundamental[] = [
         note: 'ω: frequency of the scattered light, N: number of scatterers; a sum over the tensor components of α in full [@stair, Eq. (6.1)].',
         tone: 'raman',
       },
-      'Only about one photon in ten million is Raman-scattered even by a strong vibration, so a laser is essential: 1 mW is about 10¹⁵ photons per second and yields 10⁶ to 10⁸ counts per second at the detector [@stair, p. 132].',
+      'Only about one photon in ten million is Raman-scattered even by a strong vibration, so a laser is essential: 1 mW is about 10¹⁵ photons per second and yields 10⁶ to 10⁸ counts per second at the detector [@stair, p. 132]. Counted at the sample instead, a 1 W beam focused to a spot about 10 μm across lights a focal volume of roughly 10⁻⁶ cm³. For a gas at standard conditions that holds some 3 × 10¹³ molecules and scatters of the order of 10⁶ photons per steradian per second; the same volume of a liquid such as CCl₄ holds about 6 × 10¹⁵ and scatters some 2 × 10⁹ [@long, p. 127]. The difference between those two numbers is why a gas-phase Raman spectrum is hard and a liquid one is not.',
+      'Nothing says the laser has to stay away from an electronic transition. As its photon energy comes closer to one, the scattering is enhanced, and enhanced rapidly: that is resonance Raman scattering, and its properties differ from ordinary scattering in several important respects rather than being simply the same thing but brighter [@long, p. 5].',
       'Anything else the laser sets off can bury that signal. Fluorescence, with a cross-section up to 10⁶ times larger, can hide the spectrum completely, even from a trace impurity or from coke [@stair, p. 132]. Anti-Stokes lines escape it [@moon, p. 77], and an ultraviolet laser moves the Raman lines away from it [@stair, p. 132]. The laser can also heat or change the catalyst it probes, so its power is kept low [@moon, p. 78].',
       'Water and gases scatter very weakly, so Raman can watch a catalyst being made in water, or working under flowing gas, where IR would see mostly the medium [@moon, p. 78].',
     ],
     related: [
+      { key: 'overtone', why: 'Weak in Raman, and the reason is the second derivative' },
       { key: 'ir-inactive', why: 'Silent in the IR, often strong in Raman' },
       { key: 'fermi', why: 'CO₂’s Raman lines come as a Fermi pair' },
       { key: 'isotopologue', why: 'Same rule as IR: heavier isotope, smaller shift' },
@@ -697,6 +741,8 @@ export const FUNDAMENTALS: Fundamental[] = [
         tone: 'raman',
       },
       'Δv = ±1 holds for a harmonic oscillator in both and is relaxed by anharmonicity [@busca, pp. 4–5]. The second rule is where the two part: a mode that changes the dipole absorbs in the IR; one that changes only the polarizability is Raman-active and IR-inactive [@busca, p. 6].',
+      'The derivative form above is the practical one, but it is not the most general statement of the Raman rule, and the difference matters when a mode is close to the edge. In full, a fundamental is Raman-active when its normal coordinate and at least one product of the type xy belong to the same symmetry species of the molecule’s point group, which is a question about symmetry alone and can be settled for a point group once and for all [@long, p. 122]. Nothing in that argument assumes the vibration is harmonic: anharmonicity changes the energies of the levels but not the symmetry of the mode, so a rule derived from harmonic wave functions carries over unchanged [@long, p. 123].',
+      'What the rule gives is a necessary condition and not a sufficient one. A mode it allows can still be too weak to see, and its intensity can even be accidentally zero [@long, p. 121]. It can also fail the other way: it rests on the Born-Oppenheimer approximation, which is safe enough, and on vibration-rotation interactions being negligible, which is not always, and a Coriolis interaction can make a transition appear that the rule forbids [@long, p. 121].',
       'CO₂ shows both at work. In the symmetric stretch both C=O bonds lengthen together: the dipole stays zero while the cloud swells and shrinks, so the mode is Raman-active and silent in the IR. In the asymmetric stretch and the bend the dipole swings back and forth, so both absorb, at 2349 and 667 cm⁻¹. The cloud changes size in the asymmetric stretch too, but identically on either side of rest, so (∂α/∂Q)₀ is zero and it is silent in Raman [@moon, p. 77].',
       {
         label: 'Mutual exclusion rule (centre of symmetry)',
@@ -875,9 +921,14 @@ export const PLANNED: { label: string; part: string; what: string }[] = [
     what: 'Why an OH stretch shifts down and broadens when the H is shared.',
   },
   {
-    label: 'Coverage and Dipole Coupling',
-    part: 'Bands That Move',
-    what: 'Why a CO band climbs as the surface fills.',
+    label: 'The νₛ/νₐₛ Splitting',
+    part: 'Molecular Motion',
+    what:
+      'Why two equivalent C-O bonds give two bands and not one: they are one pair of coupled ' +
+      'oscillators, not two independent ones. Then what the gap between them measures, since ' +
+      'Δν = νₐₛ − νₛ is how a formate, a bicarbonate or a carbonate has its binding geometry read off ' +
+      'the spectrum. Nine band descriptions in the atlas each carry a fragment of this and none ' +
+      'of them says why the pair splits at all.',
   },
   {
     label: 'TO/LO Splitting',

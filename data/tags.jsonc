@@ -62,6 +62,9 @@
     "emission": {
       "tip": "The hot sample is the infrared source rather than something the beam passes through; used where a bed is too opaque or too hot for the other geometries."
     },
+    "mioirs": {
+      "tip": "Mixed Isotope Operando Infrared Spectroscopy: the cell is fed a deliberately mixed isotopic stream, a little ¹³CO in ¹²CO, so neighbouring adsorbates stop vibrating at the same frequency and the dipole coupling between them is detuned. The odd chip of the infrared family, naming what went into the cell rather than how the beam reached the sample, because a decoupled adlayer is a different measurement whichever geometry recorded it. Proposed by Monai in 2024; nothing in the atlas carries it yet."
+    },
     "fermi-resonance": {
       "tip": "Auto-tagged: this band is one half of a Fermi-resonance doublet with another band."
     },

@@ -179,6 +179,22 @@
       "oxidation_state": 2,
       "note": "Fully oxidised copper, carrying a carbonyl some 25 cm⁻¹ above the Cu⁺ one. Rare in this dataset, because a working methanol catalyst is reduced: where a source reports it on one, it is claiming a minority site that survived the reduction, and the claim is worth reading against the Cu⁺ assignment it sits next to."
     },
+    "ag_1p": {
+      "label": "Ag\u207a",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ag",
+      "oxidation_state": 1,
+      "note": "Oxidised silver, carrying a carbonyl well above the gas-phase CO value because there is little back-donation to lower it. Its position moves when the silver is alloyed, which is what makes it a probe of alloying rather than only of oxidation state."
+    },
+    "au_1p": {
+      "label": "Au\u207a",
+      "level": "site",
+      "kind": "cation",
+      "element": "Au",
+      "oxidation_state": 1,
+      "note": "Oxidised gold. Distinguished from metallic Au\u2070 by a carbonyl above 2120 cm\u207b\u00b9; the assignment is contested, since restructured metallic gold gives bands low enough to confuse the picture from the other side."
+    },
     "zn_2p": {
       "label": "Zn²⁺",
       "level": "site",
@@ -412,6 +428,14 @@
       "parts": ["cu_0", "cu_1p", "cu_2p", "ga_3p", "ga2o3", "sio2"],
       "note": "Ga₂O₃-promoted Cu on silica, published as a loading series written CuGa(x) where x is the Ga/(Cu+Ga) molar ratio. The family is recorded here and the member named in the note, because the distinction the spectra turn on is against the Ga-free cu_sio2 rather than between members: the Cu⁺ carbonyl is absent without Ga and its area grows with the loading."
     },
+    "cu_zro2": {
+      "label": "Cu/ZrO\u2082",
+      "level": "sample",
+      "composition": "Cu/ZrO\u2082",
+      "elements": ["Cu", "Zr", "O"],
+      "parts": ["cu_0", "zro2"],
+      "note": "Copper on monoclinic zirconia by incipient wetness, 6 wt% Cu, calcined at 450 \u00b0C and reduced in situ at 350 \u00b0C. The zirconia carries about 93 % of the surface area, which is why almost every band on it is a zirconia band and why the copper-bound formate had to be dug out of a difference spectrum."
+    },
     "cu_zno": {
       "label": "Cu/ZnO",
       "level": "sample",
@@ -472,6 +496,22 @@
       "elements": ["Ru", "Na", "Al", "O"],
       "parts": ["ru_0", "al2o3", "na_1p"],
       "note": "The sodium-promoted counterpart of Ru/Al₂O₃; the quotes are the authors' own."
+    },
+    "pd_al2o3": {
+      "label": "Pd/Al\u2082O\u2083",
+      "level": "sample",
+      "composition": "Pd/Al\u2082O\u2083",
+      "elements": ["Pd", "Al", "O"],
+      "parts": ["pd_0", "al2o3"],
+      "note": "Palladium on alumina, the monometallic reference against which the Sn- and Zn-modified counterparts are read: it is the one that still has Pd-Pd pairs, so it is the one that still shows bridged CO."
+    },
+    "au_ag_silicalite": {
+      "label": "Au-Ag/silicalite-1",
+      "level": "sample",
+      "composition": "Au-Ag/silicalite-1",
+      "elements": ["Au", "Ag", "Si", "O"],
+      "parts": ["au_0", "au_1p", "ag_0", "ag_1p", "sio2"],
+      "note": "Gold and silver nanoparticles embedded in silicalite-1, the all-silica MFI zeotype. Recorded with sio2 as its phase rather than with zsm5: silicalite-1 has no aluminium and therefore none of the exchange sites that make ZSM-5 what it is."
     },
     "co_al2o3": {
       "label": "Co/Al₂O₃",

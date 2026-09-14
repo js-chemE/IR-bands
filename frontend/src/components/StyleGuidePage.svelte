@@ -21,10 +21,18 @@
     { id: 'chart-layout', label: 'Chart layout & marks' },
     { id: 'links',        label: 'Band relationships' },
     { id: 'tooltip',      label: 'Tooltip anatomy' },
+    { id: 'looks',        label: 'Looks a band takes' },
+    { id: 'legend',       label: 'Legend & tag chips' },
     { id: 'contentrules', label: '3 · Content rules', part: true },
+    { id: 'voice',        label: 'Voice & register' },
     { id: 'limits',       label: 'Length limits' },
     { id: 'notation',     label: 'Notation' },
     { id: 'fields',       label: 'Fields & vocabularies' },
+    { id: 'pages',        label: '4 · Pages', part: true },
+    { id: 'knowledgepage', label: 'Knowledge page' },
+    { id: 'datasetpage',  label: 'Dataset page' },
+    { id: 'drawing',      label: 'Drawing molecules' },
+    { id: 'guides',       label: 'The other guides' },
   ];
 </script>
 
@@ -57,10 +65,20 @@
     PAGE_LAYOUT,
     CHART_LAYOUT_DOCS,
     CONTENT_LIMITS,
+    CARD_LAYOUT,
     FONTS,
     C,
   } from '../lib/tokens';
-  import { ELEMENT_COLORS } from '../lib/elementColors';
+  import {
+    TAG_ROLE_ORDER,
+    TAG_ROLE_LABEL,
+    TAG_ROLE_NOTE,
+    TAG_ROLE_BAND,
+    TECHNIQUES,
+    TECHNIQUE_FAMILY,
+  } from '../lib/dataModel';
+  import { ELEMENT_COLORS, ELEMENT_RADIUS_PM } from '../lib/elementColors';
+  import DrawingExample from './DrawingExample.svelte';
   import { lightTint } from '../lib/lightColor';
   import { SUB_CHARS, SUP_CHARS, MISSING_SUBSCRIPT_LETTERS, htmlToUnicode } from '../lib/notation';
   import type { TypeRole } from '../lib/tokens';
@@ -68,6 +86,26 @@
   const dispatch = createEventDispatcher<{ active: { id: string } }>();
 
   const generalTypeGroups = TYPE_GROUPS.filter(g => g.key !== 'tip');
+
+  /* The new sections below read these rather than restating them: the tag
+     roles in their declared order, and the techniques grouped by family. */
+  const tagRoles = TAG_ROLE_ORDER.map(r => ({
+    key: r,
+    label: TAG_ROLE_LABEL[r],
+    note: TAG_ROLE_NOTE[r],
+    row: TAG_ROLE_BAND[r],
+  }));
+  const FAMILIES = ['infrared', 'raman', 'computational'] as const;
+  const techFamilies = FAMILIES.map(f => ({
+    family: f,
+    values: TECHNIQUES.filter(x => TECHNIQUE_FAMILY[x.key] === f),
+  }));
+  /** Real element colours and real relative sizes, both from the data. */
+  const drawnElements = ['C', 'O', 'H', 'N', 'M'].map(el => ({
+    el,
+    color: ELEMENT_COLORS[el],
+    pm: ELEMENT_RADIUS_PM[el],
+  }));
   const tipTypeGroup = TYPE_GROUPS.find(g => g.key === 'tip')!;
 
   /** Black or white text, whichever stays legible on a given swatch. */
@@ -860,6 +898,184 @@
   <!-- Clean cut again: the writing rules are not a chart topic. -->
   <hr class="part-cut" />
 
+  <!-- ── Spread: the looks a band can take ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="looks" data-sg-section="looks">
+        <h3>Looks a band takes</h3>
+        <p>
+          Three things change how a band is drawn without changing where it
+          sits. All three are <strong>about the band or the evidence behind
+          it</strong>, never about the colour dimension, so they survive every
+          switch in the sidebar and can be read together.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <th>Hollow</th>
+              <td class="spec-val">selection rule</td>
+              <td>
+                The mode is inactive in the spectroscopy the chart is set to.
+                <code>ir-inactive</code> hollows it while the switch reads IR,
+                <code>raman-inactive</code> while it reads Raman. The position
+                never moves: only the fill goes.
+              </td>
+            </tr>
+            <tr>
+              <th>Faded</th>
+              <td class="spec-val">nothing stands</td>
+              <td>
+                No claim on the band survives the current view: every one of
+                them is greyed out or has no technique at all
+                (<code>isReferenced</code> in <code>chart.ts</code>). A
+                calculation never fades, because it was never a measurement
+                that could fail to apply.
+              </td>
+            </tr>
+            <tr>
+              <th>Hatched</th>
+              <td class="spec-val">isotopologue</td>
+              <td>
+                Diagonal 5px: the same normal mode on a heavier molecule. On a
+                band that is also hollow or faded the hatch is drawn in the
+                band's own colour instead of white, since white lines vanish
+                on an unfilled shape.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The two pills in the sidebar do double duty, and which one they do
+          depends on the heading they are under. Under <em>Color by</em> they
+          switch the look on and off; under <em>Enable &amp; Disable</em> they
+          take those bands out of the chart altogether
+          (<code>LookPill.svelte</code>).
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">One band, four looks</div>
+      <div class="lane-demo">
+        <div class="lane-label">plain</div>
+        <div class="lane-track">
+          <div class="lane-band" style="left:8%; width:40%; background-color:{VIBRATION_PALETTE['stretch']}"></div>
+        </div>
+      </div>
+      <div class="lane-demo">
+        <div class="lane-label">hollow</div>
+        <div class="lane-track">
+          <div class="lane-band hollow-demo" style="left:8%; width:40%; border-color:{VIBRATION_PALETTE['stretch']}"></div>
+        </div>
+      </div>
+      <div class="lane-demo">
+        <div class="lane-label">faded</div>
+        <div class="lane-track">
+          <div class="lane-band" style="left:8%; width:40%; background-color:{VIBRATION_PALETTE['stretch']}; opacity:0.32"></div>
+        </div>
+      </div>
+      <div class="lane-demo">
+        <div class="lane-label">hatched</div>
+        <div class="lane-track">
+          <div class="lane-band hatched" style="left:8%; width:40%; background-color:{VIBRATION_PALETTE['stretch']}"></div>
+        </div>
+      </div>
+      <div class="surface-note">
+        The looks compose. A hatched band can also be hollow and faded, which
+        is exactly the case the hatch colour rule exists for.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Spread: the legend and its chips ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="legend" data-sg-section="legend">
+        <h3>Legend &amp; tag chips</h3>
+        <p>
+          Every tag has a <strong>role</strong>, and the roles have one
+          declared order (<code>TAG_ROLE_ORDER</code> in
+          <code>dataModel.ts</code>). It runs from what the band is, through
+          how it was measured, to how far to trust it, and everything that
+          renders tags in sequence sorts by it, so the chart legend and the
+          Dataset page cannot disagree. The legend marks a change of role with
+          a small gap rather than a heading.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            {#each tagRoles as r}
+              <tr>
+                <th>{r.label}</th>
+                <td class="spec-val">{r.row === 'band' ? 'the band' : 'the measurement'}</td>
+                <td>{r.note}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+        <p>
+          The cut between the two rows is one question: <em>would the tag still
+          be true if a different group had measured the band?</em> A
+          combination band stays a combination and an IR-inactive mode stays
+          forbidden; the state the sample was in, the technique and the laser
+          are facts about one experiment.
+        </p>
+
+        <h4>Colour, sparingly</h4>
+        <p>
+          Most chips are the neutral grey pill. A tag gets a colour only where
+          it earns one, and the caveat role is the single exception that is
+          coloured for being a role at all: red, because a warning has to read
+          as a warning at a glance rather than after being looked up.
+        </p>
+
+        <h4>The chip no vocabulary can hold</h4>
+        <p>
+          A Raman excitation wavelength is a number, not a member of a closed
+          list, so it cannot live in <code>TAG_STYLES</code>. It is matched by
+          shape and coloured from the colour of that light
+          (<code>lib/lightColor.ts</code>). Anything that renders a tag from
+          the data therefore goes through <code>tagStyle()</code> in
+          <code>lib/colors.ts</code> and never indexes the table directly.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">Technique chips, by family</div>
+      {#each techFamilies as f}
+        <div class="map-block">
+          <div class="map-head"><code>{f.family}</code></div>
+          <div class="tag-row">
+            {#each f.values as v}
+              <span
+                class="tag-pill"
+                style="background:{(TAG_STYLES[v.key] ?? DEFAULT_TAG_STYLE).background};
+                       border-color:{(TAG_STYLES[v.key] ?? DEFAULT_TAG_STYLE).border};
+                       color:{(TAG_STYLES[v.key] ?? DEFAULT_TAG_STYLE).color}"
+              >{v.key}</span>
+            {/each}
+          </div>
+        </div>
+      {/each}
+      <div class="surface-note">
+        The family is derived beside the value, so the legend can ask "seen in
+        the infrared at all" without ticking seven chips. The gap in the row
+        falls at each change of family.
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">Laser lines, coloured from the light</div>
+      <div class="tag-row">
+        {#each [244, 325, 442, 515, 633, 785] as nm}
+          {@const tint = lightTint(nm)}
+          <span
+            class="tag-pill"
+            style="background:{tint.background}; border-color:{tint.border}; color:{tint.color}"
+          >{nm} nm</span>
+        {/each}
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════════════════════ 3 · CONTENT RULES ══════════════════════════ -->
   <h2 class="part" id="contentrules" data-sg-section="contentrules">3 &middot; Content rules</h2>
   <p class="part-sub">
@@ -868,6 +1084,76 @@
     mode panel, so they are written once, for all of them, and never for the
     surface that happens to be in front of you.
   </p>
+
+  <!-- ── Spread: voice ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="voice" data-sg-section="voice">
+        <h3>Voice &amp; register</h3>
+        <p>
+          The default is the register of the literature this atlas is built
+          out of: scientific, professional, and written as though a referee
+          will read it. Monai's perspectives and Urakawa's papers are the
+          model. Say what is the case, attribute what is not yours, and give
+          the number rather than the adjective.
+        </p>
+        <ul class="plain-list">
+          <li><strong>Claims carry their source.</strong> A sentence that rests on a paper takes the citation; a sentence that does not is the author's own reading, and reads as such. Never the atlas's reading: an atlas does not have one.</li>
+          <li><strong>Numbers, not intensifiers.</strong> &ldquo;About 10&nbsp;cm⁻¹ apart&rdquo;, not &ldquo;very close&rdquo;. Where the number is not known, say that.</li>
+          <li><strong>Hedge only where the literature does.</strong> <code>tentative</code> is a field; it does not need saying twice in prose.</li>
+          <li><strong>No salesmanship.</strong> Nothing here is powerful, elegant or exciting. The chemistry is interesting enough without being told it is.</li>
+        </ul>
+
+        <h4>Where it loosens, and how far</h4>
+        <p>
+          This is a website and not a manuscript, so the register is allowed
+          to breathe. Two places in particular:
+        </p>
+        <ul class="plain-list">
+          <li><strong>Drawings and diagrams.</strong> A label on a plate has a few characters to work in, so it may be plain and informal where a paper's caption would not be: <span class="mono-demo">two modes</span>, <span class="mono-demo">one band</span>, <span class="mono-demo">bands seen</span>. What it may never be is loose about the science. A shorthand that would mislead is not shorthand, it is an error.</li>
+          <li><strong>Headings.</strong> A card title or a section heading may carry a pun or a turn of phrase, and several already do: <em>Where the Radiation Goes</em>, <em>More Bands than Modes</em>, <em>Two Modes, One Frequency</em>. The heading sets up the idea; the paragraph under it does the work and stays straight.</li>
+        </ul>
+        <p>
+          The test either way: <strong>could the sentence be quoted back at
+          you by someone who works on this?</strong> A heading that raises a
+          smile passes. A sentence that overstates what a spectrum shows does
+          not, however well it reads.
+        </p>
+        <p class="see-also">
+          See also <a href="#limits">Length limits</a>
+          for how much of it there may be, and
+          <a href="#notation">Notation</a>
+          for what the characters may be.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">The same fact, three registers</div>
+      <table class="spec-table">
+        <tbody>
+          <tr><th>paper</th><td colspan="2">The doubly degenerate bending mode of CO₂ absorbs near 667&nbsp;cm⁻¹; both components contribute to the single observed band.</td></tr>
+          <tr><th>this atlas</th><td colspan="2">Absorption at that wavenumber goes into both modes, so the band carries the intensity of the pair and not of one of them.</td></tr>
+          <tr><th>on a plate</th><td colspan="2"><span class="mono-demo">two modes</span> &nbsp;<span class="mono-demo">one band</span></td></tr>
+          <tr><th>never</th><td colspan="2">CO₂'s bend is a beautiful example of how symmetry works its magic on a spectrum.</td></tr>
+        </tbody>
+      </table>
+      <div class="surface-note">
+        The first three say the same thing at three lengths. The fourth says
+        less than any of them and takes longer doing it.
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">Headings already in the page</div>
+      <table class="spec-table">
+        <tbody>
+          <tr><th>Where the Radiation Goes</th><td>Reflected, absorbed, transmitted.</td></tr>
+          <tr><th>More Bands than Modes</th><td>Overtones, combinations, Fermi pairs.</td></tr>
+          <tr><th>Two Modes, One Frequency</th><td>Degeneracy.</td></tr>
+          <tr><th>One Band, Two Contributions</th><td>The spectrum half of the same plate.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <!-- ── Spread: length limits ── -->
   <div class="spread">
@@ -1129,9 +1415,613 @@
       </div>
     </div>
   </div>
+  <!-- ══════════════════════════════ 4 · PAGES ══════════════════════════════ -->
+  <h2 class="part" id="pages" data-sg-section="pages">4 &middot; Pages</h2>
+  <p class="part-sub">
+    Two pages are built out of their own specification modules rather than out
+    of markup, the way this one is built out of <code>tokens.ts</code>. Their
+    layouts have rules of their own, and so does the one thing they both draw:
+    a molecule.
+  </p>
+
+  <!-- ── Spread: the Knowledge page ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="knowledgepage" data-sg-section="knowledgepage">
+        <h3>Knowledge page</h3>
+        <p>
+          Rows of cards, every card the size of a home page card
+          (<code>CARD_LAYOUT</code>: {CARD_LAYOUT.width}px wide, at least
+          {CARD_LAYOUT.height}px tall), each with a diagram that plays on hover.
+          A click grows one to the full row, morphs its diagram into a larger
+          drawing and opens the text. The page states at the top which three
+          works most of it rests on, so provenance is read once rather than
+          reconstructed from superscripts.
+        </p>
+
+        <h4>A closed card</h4>
+        <p>
+          Always the same three parts, in this order, and always the same size
+          so a row of them lines up: the diagram bled to the card's edges, then
+          the title, the teaser, and an arrow at the foot. The teaser is two to
+          five lines; a card whose teaser runs longer grows rather than
+          clipping, and the row equalises to the tallest.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr><th>diagram</th><td class="spec-val">.card-visual</td><td>The small layout of the card's own diagram, 220 &times; 100, bled to the edges. It plays on hover; one that cannot move says so instead of promising motion.</td></tr>
+            <tr><th>title</th><td class="spec-val">.card-title</td><td>The card's name, plus the <span class="wip-demo">wip</span> chip where the card is unfinished.</td></tr>
+            <tr><th>teaser</th><td class="spec-val">.card-desc</td><td>Two to five lines. One claim, not a summary of the card.</td></tr>
+            <tr><th>arrow</th><td class="spec-val">.card-cta</td><td>Bottom right, coloured with the section accent. The only thing that says the card opens.</td></tr>
+          </tbody>
+        </table>
+
+        <h4>What an opened card must have</h4>
+        <p>
+          Two things, and only their place is fixed: <strong>related</strong>
+          and <strong>references</strong>, in that order, at the bottom. A card
+          that leads somewhere says so, and a card that cites something shows
+          what. Everything above them is whatever that card needs.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr><th>related</th><td class="spec-val">.kn-related</td><td><strong>Required.</strong> Where the card leads, as blocks linking to other cards. Second from last.</td></tr>
+            <tr><th>references</th><td class="spec-val">.card-refs</td><td><strong>Required.</strong> What the superscripts point at, behind a divider. Always last.</td></tr>
+            <tr><th>anything else</th><td class="spec-val">.kn-sec</td><td>Optional, in whatever order the card reads best. A flow of prose and floats, a full-width list, a three-column comparison, a table: the shape follows the argument.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The usual opening is a two-column flow, the diagram floated left with
+          the prose running past it, because most cards are one idea explained
+          once. It is a habit, not a rule. Where a card wants three columns, or
+          a list of everything in the atlas that shows the pattern, or a table
+          before any prose at all, it takes that instead.
+        </p>
+
+        <h4>The flow, where a card uses one</h4>
+        <p>
+          The diagram and every callout <code>float: left; clear: left</code>
+          into a column of their own and the prose runs past them, taking the
+          full width the moment the floats run out. Floats rather than grid for
+          two reasons a grid would cost:
+        </p>
+        <ul class="plain-list">
+          <li><strong>No holes.</strong> A short callout beside a long paragraph closes up by itself; a grid row would hold the gap open.</li>
+          <li><strong>It collapses correctly.</strong> Under 860px the floats are off and every box is back inline exactly where it was authored, which is the order a phone wants. Nothing is measured, so nothing has to be recomputed.</li>
+        </ul>
+        <p>
+          Placement is a guideline, not a law. A float should sit
+          <strong>near the text that calls it</strong>, and running a little
+          ahead of its paragraph is fine, the way a figure in a paper often
+          arrives before the sentence that points at it. What to avoid is a
+          float stranded pages from what it illustrates.
+        </p>
+        <p>
+          A callout goes wherever the card wants it. In the flow it takes a
+          column beside the prose; <code>wide</code> spans the full width,
+          which is what a callout that is really a table or whose lines are
+          too long for half a card should do; and nothing stops one standing
+          on its own in a section of its own, or several sharing a section
+          with the prose that needs them. The shape follows the argument, the
+          same as every other section.
+        </p>
+        <p>
+          Whatever you add, keep the collapse property: it is what makes the
+          card readable on a phone without anything being measured.
+        </p>
+
+        <h4>What a card's diagram looks like</h4>
+        <p>
+          A technical drawing rather than an illustration: thin clean lines,
+          the construction geometry left visible, one small face for every
+          label, and nothing shaded. The specimen beside this is a live one,
+          drawn to the rules and animating the way a card's diagram does.
+          The rules themselves, the ink ladder and the four label fills, are
+          in <a href="#drawing">Drawing molecules &amp; atoms</a>.
+        </p>
+
+        <h4>A diagram has two layouts, not one scaled up</h4>
+        <p>
+          A finished card's diagram is its own component with a small viewBox
+          for the card (220 &times; 100) and a much larger one for the opened
+          state (about 480 &times; 300), lerped by <code>t</code>. That is what
+          keeps the ratio of text to drawing right: scaling one 220-wide
+          drawing to double size gives huge labels and a sparse figure, which
+          is how the unfinished cards still look.
+        </p>
+        <p>
+          Cards whose prose or drawing is not done carry a <span class="wip-demo">wip</span>
+          chip. It is a note about the card, not a caveat about the chemistry,
+          so it stays quiet and grey; the red pills are reserved for caveats.
+          Do not take a card that carries it as a model for a new one.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">A card's diagram, live</div>
+      <DrawingExample />
+      <div class="surface-note">
+        A specimen: a diagram about nothing, drawn and animated exactly the
+        way a card's is. Every rung of the ink ladder appears on it once.
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">A closed card</div>
+      <div class="kn-closed">
+        <div class="kn-closed-fig">diagram</div>
+        <div class="kn-closed-body">
+          <div class="kn-closed-title">Title<span class="wip-demo">wip</span></div>
+          <div class="kn-demo-lines">
+            <span></span><span></span><span class="short"></span>
+          </div>
+          <div class="kn-closed-cta">&rarr;</div>
+        </div>
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">An opened card, top to bottom</div>
+      <div class="kn-demo">
+        <div class="kn-demo-flow">
+          <div class="kn-demo-fig">diagram</div>
+          <div class="kn-demo-lines beside">
+            <span></span><span></span><span></span><span class="short"></span>
+          </div>
+          <div class="kn-demo-call">callout</div>
+          <div class="kn-demo-lines beside">
+            <span></span><span class="short"></span>
+          </div>
+          <div class="kn-demo-lines past">
+            <span></span><span></span><span class="short"></span>
+          </div>
+        </div>
+        <div class="kn-demo-sec">anything the card needs</div>
+        <div class="kn-demo-sec req">related</div>
+        <div class="kn-demo-sec req refs">references</div>
+      </div>
+      <div class="surface-note">
+        The two marked sections are the required ones, and only their place is
+        fixed. Above them the prose takes the full width the moment the last
+        float ends, which is the behaviour to preserve: it is why nothing here
+        has to be measured.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Spread: the Dataset page ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="datasetpage" data-sg-section="datasetpage">
+        <h3>Dataset page</h3>
+        <p>
+          What the atlas holds <em>and</em> how it is put together, in two
+          views chosen from the sidebar. It renders itself out of
+          <code>lib/dataModel.ts</code> plus an <code>analyse()</code> pass over
+          the shipped JSON, so every count, every distinct site and every
+          unmatched species on it is the current state rather than a snapshot
+          somebody has to remember to update.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr><th>Structure</th><td class="spec-val">the model</td><td>Entity map, the entities and their fields, relations, band-to-band links, and what nothing checks yet.</td></tr>
+            <tr><th>Contents</th><td class="spec-val">the data</td><td>Vibration modes, species, surfaces, techniques, tags and references, each read off the live JSON.</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Status is the spine</h4>
+        <p>
+          Every entity carries how real it is, and the map is coloured by it.
+          The point of the scale is to make the weak links visible rather than
+          to flatter the schema: two bare strings are still left in the model.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr><th>record</th><td class="spec-val">own file</td><td>Own object with its own key. The build fails on an unresolved key.</td></tr>
+            <tr><th>lookup</th><td class="spec-val">nested</td><td>Own object with a key, in another file's header block.</td></tr>
+            <tr><th>inline</th><td class="spec-val">owned</td><td>A structured object, but owned by its parent.</td></tr>
+            <tr><th>enum</th><td class="spec-val">vocabulary</td><td>A closed list in <code>schema.py</code>. Validated, but carries no attributes.</td></tr>
+            <tr><th>string</th><td class="spec-val">unchecked</td><td>A repeated bare string. Nothing validates it and nothing can hang off it.</td></tr>
+            <tr><th>derived</th><td class="spec-val">computed</td><td>Never authored, so it cannot drift.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          A relation is <code>weak</code> when nothing enforces it and
+          <code>derived</code> when nobody authors it. Band/Region and
+          Species/Group are derived; do not add an authored copy of either.
+        </p>
+        <p>
+          The obligation that keeps the page honest: <strong>change a field in
+          <code>schema.py</code> or <code>types.ts</code> and change it in
+          <code>dataModel.ts</code> in the same commit</strong>, the same rule
+          the JSONC preambles carry. A stale entity spec is worse than none.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">Where each page gets its truth</div>
+      <div class="surface-card">
+        <div class="surface-head">This page &rarr; tokens.ts</div>
+        <div class="surface-body">Every swatch, size, radius and limit. Change a value there and the guide, the chart and the tooltip move together.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">Dataset page &rarr; dataModel.ts</div>
+        <div class="surface-body">Entities, relations, tag roles and techniques, plus live counts from the shipped JSON.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">Source guide &rarr; sourceGuide.ts</div>
+        <div class="surface-body">How a paper becomes an entry: one claim per paper, which field takes what, and the second-pass list.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">Knowledge page &rarr; fundamentals.ts + phenomena.ts</div>
+        <div class="surface-body">The prose, its citations, and the resolvers that find the bands each card is about.</div>
+      </div>
+      <div class="surface-note">
+        None of the four is documentation beside the thing. Each one <em>is</em>
+        the thing, rendered.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Spread: drawing molecules ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="drawing" data-sg-section="drawing">
+        <h3>Drawing molecules &amp; atoms</h3>
+        <p>
+          Molecules are drawn in three places, the Knowledge diagrams, the
+          Vibration Modes viewer and the mode panel, and they all read from one
+          source: <code>lib/moleculeGeometry.ts</code> for the atoms and their
+          displacement vectors, <code>lib/elementColors.ts</code> for the
+          colours and sizes. Nothing redraws a molecule by hand.
+        </p>
+
+        <h4>Colour and size</h4>
+        <p>
+          CPK colours, and radii that are the real single-bond covalent radii
+          in picometres rather than arbitrary circles, so a hydrogen is
+          genuinely small beside an oxygen. <code>M</code> is the generic metal
+          centre, for a diagram whose mode is deliberately metal-agnostic.
+          These are distinct from the band chart's <code>ATOMS_PALETTE</code>,
+          which colours whole bond environments and is a different concern.
+        </p>
+
+        <h4>Displacement</h4>
+        <p>
+          A mode is a list of vectors, one per atom, and every atom that moves
+          in it has one. The two conventions worth knowing before drawing a new
+          mode:
+        </p>
+        <ul class="plain-list">
+          <li><strong>Every atom moves, and the central one usually moves least.</strong> CO₂'s bend is the oxygens swinging together with the carbon recoiling the other way at 0.6 of their amplitude, which is what keeps the centre of mass still.</li>
+          <li><strong>Out of the page is a size pulse.</strong> A flat drawing cannot show a displacement towards the reader, so those vectors carry a <code>scale</code> instead and the atoms grow and shrink. CO₂'s second bend component is the worked case.</li>
+        </ul>
+
+        <h4>A still molecule still says what it does</h4>
+        <p>
+          A molecule that is not moving carries faint grey arrows along its own
+          displacement vectors, and loses them as soon as it starts moving, so
+          nothing is labelled twice. The Normal Modes and Vibration Modes cards
+          both do this. A mode with no in-plane displacement to draw keeps no
+          arrows and lets its caption say the motion leaves the page.
+        </p>
+
+        <h4>The drawing style: a technical drawing, not an illustration</h4>
+        <p>
+          The reference is an old architectural plate on parchment: thin clean
+          lines, construction geometry left visible, and everything labelled
+          in one small face. Nothing is filled in for decoration, nothing is
+          shaded, and no line is thick enough to be the first thing seen.
+        </p>
+        <p>
+          <strong>Hierarchy is carried by saturation, and only secondarily by
+          weight.</strong> All the strokes live in one narrow band, about
+          0.6&ndash;2px, so the plate reads as one drawing; what separates a
+          guideline from a bond is how strongly it is inked, not how fat it
+          is. The ladder runs from construction geometry, which should be
+          almost invisible until looked for, up to the one thing the card is
+          about, which is the only saturated colour on the plate. Two lines
+          at the same saturation claim to be the same kind of thing, so
+          before adding a stroke, decide which rung it is on.
+        </p>
+        <p>
+          Weight then separates within a rung, and the steps are small: a bond
+          is 2px against an axis's 1px because a bond is the content and the
+          axis is the frame, not because 2px is twice as important. Reach for
+          a lighter colour before a thinner line, and never for a thicker one.
+        </p>
+
+        <h4>Labels: one face, one size, four inks</h4>
+        <p>
+          Every label in every diagram is set in the code face
+          (<code>--t-code-ff</code>) at <code>--t-code-size</code>, never
+          below <code>--t-diagram-note-size</code>, and the four fills are the
+          top four rungs of the same ladder: faint for a construction note,
+          plain for the usual annotation, strong for a value being read off,
+          and strong plus <code>--t-label-weight</code> where the label names
+          the subject. One family, one size, four inks: a diagram that needs a
+          bigger label needs fewer labels.
+        </p>
+
+        <h4>Perspective and construction geometry</h4>
+        <p>
+          Where a diagram needs depth it goes through
+          <code>components/knowledge/view3d.ts</code>: turn a point, then
+          project it in perspective, with <code>Axes3D</code> for the x, y and
+          z axes and one of them lit. Around it, the plate's furniture is the
+          same everywhere: a dashed outline for a plane, a dashed line for an
+          axis a motion runs along, a capped dimension line for an extent, and
+          a hairline rule under a small table of counts.
+        </p>
+
+        <h4>The cards to copy</h4>
+        <p>
+          These are drawn and revised, and a new diagram should look as though
+          it came from the same hand. Match them rather than inventing a
+          treatment, and do not take a
+          <span class="wip-demo">wip</span> card as a model.
+        </p>
+        <ul class="plain-list">
+          <li><strong>Molecular Motion, all of it:</strong> Normal Modes (the expanded state especially), Vibration Modes, Rotation Modes, Translation Modes, Frustrated Motion.</li>
+          <li><strong>Light&ndash;Matter Interaction, except the Lambert&ndash;Beer Law:</strong> Where the Radiation Goes, Vibrational Excitation, Dipole Moment, Induced Dipole, Polarizability.</li>
+          <li><strong>Spectroscopy, through Selection Rules:</strong> IR Spectroscopy, Raman Spectroscopy, Spectral Units, Spectral Representations, Selection Rules.</li>
+        </ul>
+        <p>
+          One more convention they all keep: <strong>a spectrum is drawn as an
+          absorption.</strong> The baseline sits near the top of its box and
+          the band hangs down from it, so a trace never has to be read twice.
+        </p>
+        <p class="see-also">
+          See also <a href="#notation">Notation</a>
+          for what may be written in a label: real Unicode characters, never
+          markup, with point-group and Mulliken symbols the one exception.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">Elements, at their real relative sizes</div>
+      <div class="atom-row">
+        {#each drawnElements as a}
+          <div class="atom-cell">
+            <span
+              class="atom-sw"
+              style="width:{a.pm / 3}px; height:{a.pm / 3}px; background:{a.color}"
+            ></span>
+            <span class="atom-el">{a.el}</span>
+            <span class="atom-pm">{a.pm} pm</span>
+          </div>
+        {/each}
+      </div>
+      <div class="surface-note">
+        <code>M</code> is drawn large because a metal centre is, and because a
+        mode pivoting on it has to read as pivoting on something solid.
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">A worked plate, live</div>
+      <DrawingExample />
+      <div class="surface-note">
+        A diagram about nothing, drawn the way the cards are: every rung of
+        the ladder once, every stroke between 0.6 and 2px, and the only
+        saturated thing on it is the band. What separates the plane from the
+        bond is ink, not width.
+      </div>
+
+      <div class="visual-label" style="margin-top:18px">Saturation, faintest first</div>
+      <table class="spec-table">
+        <tbody>
+          <tr><th>construction</th><td class="spec-val">--ink-025</td><td>1px dashed. A plane, a guideline, an axis a motion is measured along. Should be findable, not noticeable.</td></tr>
+          <tr><th>rule</th><td class="spec-val">--line-faint</td><td>1px. The hairline under a small table of counts inside a diagram.</td></tr>
+          <tr><th>dimension</th><td class="spec-val">--ink-050</td><td>1px with end caps, and the same ink as a faint label, because a dimension line is an annotation.</td></tr>
+          <tr><th>structure</th><td class="spec-val">--line-slate-strong</td><td>1px. A drawn axis, a baseline, a box the subject sits in.</td></tr>
+          <tr><th>content</th><td class="spec-val">--ink-slate-400</td><td>2px for a bond, 0.6px for an atom outline. The thing being drawn, before anything is said about it.</td></tr>
+          <tr><th>subject</th><td class="spec-val">--brand-700</td><td>1.3&ndash;2px. The one thing the card is about: a trace, a photon (<code>--diagram-photon</code>), a mode being excited (<code>--accent-green-fg</code>). At most one per plate.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="visual-label" style="margin-top:18px">Label inks</div>
+      <table class="spec-table">
+        <tbody>
+          <tr><th>faint</th><td class="spec-val">--ink-050</td><td>A construction note, next to the line it explains.</td></tr>
+          <tr><th>plain</th><td class="spec-val">--ink-slate-500</td><td>The default, and most labels.</td></tr>
+          <tr><th>strong</th><td class="spec-val">--ink-slate-900</td><td>A number or a value being read off the drawing.</td></tr>
+          <tr><th>name</th><td class="spec-val">--ink-slate-900 + --t-label-weight</td><td>The label that names the subject. One or two per plate.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Spread: the other guides ── -->
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="guides" data-sg-section="guides">
+        <h3>The other guides</h3>
+        <p>
+          This guide covers what the interface looks like. Two others cover the
+          rest, and all three are modules the pages render themselves out of,
+          so none of them can go stale quietly.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <th>Source guide</th>
+              <td class="spec-val">sourceGuide.ts</td>
+              <td>
+                How to get from a PDF to a correct entry. Read it before
+                extracting a paper and before going over one again: one row per
+                (band, paper) claim and never an average, which field each fact
+                belongs in, how to choose the surface level from the sentence
+                that makes the assignment, what a note carries and in what
+                order, and the fork between an isotopologue band and the
+                <code>isotope-labeling</code> tag.
+              </td>
+            </tr>
+            <tr>
+              <th>Data model</th>
+              <td class="spec-val">dataModel.ts</td>
+              <td>
+                Every entity, how they link and with what cardinality, which
+                links are enforced and which only hold because two strings
+                match. Rendered by the Dataset page.
+              </td>
+            </tr>
+            <tr>
+              <th>Notation</th>
+              <td class="spec-val">this guide</td>
+              <td>
+                Real Unicode in the data, never markup; the point-group and
+                Mulliken exception; underscores; and how a mode is named. See
+                <a href="#notation">Notation</a>
+                above.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          One rule ties them together: <strong>change a rule in the same commit
+          as the code or schema change that caused it</strong>. A guide that
+          describes last month's schema is worse than no guide, because it is
+          believed.
+        </p>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">Where a rule lives</div>
+      <div class="surface-card">
+        <div class="surface-head">A colour, a size, a limit</div>
+        <div class="surface-body"><code>lib/tokens.ts</code>, with a <code>usage</code> note. That note is the text beside the swatch here.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">A field, a link, a vocabulary</div>
+        <div class="surface-body"><code>schema.py</code> and <code>types.ts</code>, then <code>lib/dataModel.ts</code> in the same change.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">How to read a paper</div>
+        <div class="surface-body"><code>lib/sourceGuide.ts</code>, in the same commit as whatever made the rule necessary.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-head">What a key means in the data</div>
+        <div class="surface-body">The commented preamble of the JSONC file itself. A stale preamble is actively misleading.</div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <style>
+  /* ── Part 4 and the two new band-chart sections ── */
+
+  /* An unfilled band: the selection rule says the mode is silent here. */
+  .hollow-demo { background: none !important; border: 1.5px solid; }
+
+  /* The chip an unfinished Knowledge card carries, shown inline in prose. */
+  .wip-demo {
+    font-family: var(--t-code-ff);
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-200);
+    border: 1px solid var(--line-slate);
+    border-radius: var(--radius-sm);
+    padding: 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .plain-list { margin: 0 0 var(--space-3); padding-left: 18px; }
+  .plain-list li { margin-bottom: 6px; }
+  .see-also { color: var(--ink-500); }
+
+  /* An opened Knowledge card, in miniature: the float column on the left and
+     the prose running past it, then the three sections under it. */
+  .kn-demo {
+    border: 1px solid var(--line-slate);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    background: var(--surface);
+  }
+  .kn-demo-flow::after { content: ''; display: block; clear: both; }
+  .kn-demo-fig,
+  .kn-demo-call {
+    float: left;
+    clear: left;
+    width: 96px;
+    margin: 0 10px 8px 0;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--t-code-ff);
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-200);
+    text-align: center;
+  }
+  .kn-demo-fig { height: 58px; line-height: 58px; }
+  .kn-demo-call { height: 34px; line-height: 34px; }
+  .kn-demo-lines span {
+    display: block;
+    height: 5px;
+    margin-bottom: 5px;
+    border-radius: 2px;
+    background: var(--line-soft);
+  }
+  .kn-demo-lines span.short { width: 62%; }
+  /* Beside a float the lines are indented past it; once the floats have run
+     out they take the full width, which is the behaviour being illustrated. */
+  .kn-demo-lines.beside { margin-left: 106px; }
+  .kn-demo-lines.past { clear: left; padding-top: 6px; }
+  .kn-demo-sec {
+    clear: both;
+    margin-top: 8px;
+    padding: 5px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-sunken);
+    font-family: var(--t-code-ff);
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-200);
+  }
+  .kn-demo-sec.refs { border-top: 1px solid var(--line-soft); }
+
+  /* A diagram label quoted in running text: the code face at the size the
+     plates use, so the example looks like the thing it is quoting. */
+  .mono-demo {
+    font-family: var(--t-code-ff);
+    font-size: var(--t-code-size);
+    color: var(--ink-slate-500);
+  }
+
+
+
+  /* The closed card: diagram bled to the edges, then title, teaser, arrow. */
+  .kn-closed {
+    width: 160px;
+    border: 1px solid var(--line-slate);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .kn-closed-fig {
+    height: 52px;
+    line-height: 52px;
+    text-align: center;
+    background: var(--surface-sunken);
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--t-code-ff);
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-200);
+  }
+  .kn-closed-body { padding: 8px 9px 6px; }
+  .kn-closed-title {
+    font-size: var(--t-card-title-size);
+    font-weight: var(--t-card-title-weight);
+    color: var(--t-card-title-color);
+    margin-bottom: 6px;
+  }
+  .kn-closed-cta { text-align: right; color: var(--accent-green-fg); margin-top: 6px; }
+  /* The two sections a card cannot leave out. */
+  .kn-demo-sec.req { color: var(--ink-500); border-left: 2px solid var(--brand-700); }
+
+  /* Elements at their real relative radii. */
+  .atom-row { display: flex; align-items: flex-end; gap: var(--space-3); flex-wrap: wrap; }
+  .atom-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .atom-sw { border-radius: 50%; border: 1px solid var(--ink-slate-400); display: block; }
+  .atom-el { font-family: var(--t-code-ff); font-size: var(--t-code-size); color: var(--ink-800); }
+  .atom-pm { font-family: var(--t-code-ff); font-size: var(--t-diagram-note-size); color: var(--ink-200); }
+
   /* Every value here comes from lib/tokens.ts. Nothing on this page is allowed
      to be a literal colour or font size, for the obvious reason. */
   .content {
