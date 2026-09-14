@@ -100,12 +100,21 @@
 
   /* ── The small spectrum, and row 1 once opened ── */
   $: fr = {
-    x0: lerp(22, 40, t),
-    x1: lerp(210, 300, t),
+    // Narrower on the card than it was: the ticks sit closer together so the
+    // axis has room to run past both of them and still carry a head.
+    x0: lerp(30, 40, t),
+    x1: lerp(196, 300, t),
     top: lerp(14, 34, t),
     base: lerp(80, 134, t),
   };
   $: wx = (wn: number) => fr.x0 + ((4000 - wn) / 3600) * (fr.x1 - fr.x0);
+  /**
+   * How far the axis runs past its outermost tick before the head. Wide
+   * enough that the head clears the widest tick label either end can carry:
+   * the reel turns the axis into µm, THz, eV and kJ/mol as well as cm⁻¹,
+   * and `4000` is not the longest of those.
+   */
+  $: lead = lerp(22, 24, t);
   const BANDS = [
     { wn: 3400, h: 0.45, w: 180 },
     { wn: 2143, h: 0.9, w: 40 },
@@ -118,7 +127,9 @@
       return `${wx(wn).toFixed(1)},${(fr.base - y * (fr.base - fr.top) * 0.9).toFixed(1)}`;
     })
     .join(' L');
-  const TICKS = [4000, 3000, 2000, 1000];
+  /* Out to the end of the axis, not to a round number short of it: a tick
+     block that stops at 1000 while the line runs to 400 leans the drawing. */
+  const TICKS = [4000, 3000, 2000, 1000, 400];
 
   const CO_LIST = [
     { v: '2143', u: 'cm⁻¹' },
@@ -181,15 +192,16 @@
 >
   <!-- ── The spectrum: its horizontal axis lit ── -->
   <line class="axis faint" x1={fr.x0} x2={fr.x0} y1={fr.top} y2={fr.base} style="opacity:{ramp(t, 0.3, 0.7)}" />
-  <line class="axis lit" x1={fr.x0} x2={fr.x1 + 4} y1={fr.base} y2={fr.base} />
-  <path class="axis-head lit" d="M {fr.x1} {fr.base - 3} L {fr.x1 + 5} {fr.base} L {fr.x1} {fr.base + 3}" />
+  <line class="axis lit" x1={fr.x0 - lead} x2={fr.x1 + lead} y1={fr.base} y2={fr.base} />
+  <path class="axis-head lit" d="M {fr.x1 + lead - 5} {fr.base - 3} L {fr.x1 + lead} {fr.base} L {fr.x1 + lead - 5} {fr.base + 3}" />
+  <path class="axis-head lit" d="M {fr.x0 - lead + 5} {fr.base - 3} L {fr.x0 - lead} {fr.base} L {fr.x0 - lead + 5} {fr.base + 3}" />
   <path class="trace" d={trace} style="opacity:{ramp(t, 0.3, 0.7)}" />
   {#each TICKS as wn}
     <line class="axis lit" x1={wx(wn)} x2={wx(wn)} y1={fr.base} y2={fr.base + 3} />
     <text class="tick lit" x={wx(wn)} y={fr.base + 12} text-anchor="middle">{UNITS[unitIndex].of(wn)}</text>
   {/each}
   {#if t > 0.5}
-    <text class="tick lit" x={fr.x1 + 6} y={fr.top + 4} text-anchor="end">{UNITS[unitIndex].name} / {UNITS[unitIndex].unit}</text>
+    <text class="tick lit" x={fr.x1 + lead} y={fr.base + 26} text-anchor="end">{UNITS[unitIndex].name} / {UNITS[unitIndex].unit}</text>
   {:else}
     <!-- The reel: the axis's unit, sliding sideways as on a wheel. -->
     <g style="opacity:{1 - ramp(t, 0.1, 0.5)}">

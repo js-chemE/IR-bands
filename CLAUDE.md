@@ -73,6 +73,9 @@ frontend/src/
     ReferencesPage.svelte    ← cited bands, grouped by any two of
                               reference / group / site / sample / element
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
+    DrawingExample.svelte    ← the style guide's specimen plate: a diagram about nothing,
+                              drawn and animated the way the Knowledge cards are, with
+                              every rung of the line/ink ladder on it exactly once
     SourceGuidePage.svelte   ← source guide, rendered live from lib/sourceGuide.ts
                               (linked from Impressum): how a paper becomes data
     DataModelPage.svelte     ← the Dataset page, in two views: Structure (entity map,
@@ -92,14 +95,19 @@ frontend/src/
     refGrouping.ts        ← the References page's two-level grouping dimensions
     phenomena.ts          ← the Knowledge page's phenomena: prose slots (empty for now,
                               or a written `body` in the fundamentals' format, as for
-                              Rotational branches) plus resolvers that find the bands
+                              Rotational branches, Coverage Shift and Vibrational
+                              Coupling) plus resolvers that find the bands
                               showing each one. `group`
                               puts one in a Band patterns row; `into` hosts it inside a
                               fundamentals card instead (IR-inactive → Selection rules)
     fundamentals.ts       ← the Knowledge page's fundamentals cards: teaser, full text (paragraphs
                               and formula boxes), links to the phenomena; diagrams in
-                              components/knowledge/. The text follows the Springer Handbook
-                              of Advanced Catalyst Characterization, cited per chapter
+                              components/knowledge/. Most of the text rests on three works,
+                              named at the top of the page itself: the Springer Handbook of
+                              Advanced Catalyst Characterization (cited per chapter) for the
+                              infrared, Long's The Raman Effect for the theory of Raman
+                              scattering, and Davydov's Molecular Spectroscopy of Oxide
+                              Catalyst Surfaces for adsorbates on oxides
     cite.ts               ← `[@alias, locator]` citation markers → numbered superscripts and
                               the reference list under each card; SOURCES maps aliases to
                               citekeys and chapters
@@ -342,6 +350,15 @@ guide, source guide):
   Spectroscopy, whose Spectral Units and Spectral Representations cards are
   the two axes of a spectrum, each diagram lighting its own axis), then Band patterns, one card per phenomenon (Selection rules
   sits in the "fewer" row, as a fundamentals card with `section: 'fewer'`),
+  and the "moved" row ends with the two halves of a coverage effect:
+  **Coverage Shift**, the chemical change in the bond as neighbouring sites
+  compete for back-donation, and **Vibrational Coupling**, the through-space
+  coupling of neighbouring transition dipoles that moves the observed band
+  without moving the underlying frequency. The two link to each other, and
+  isotope dilution, which separates them, is what the `mioirs` technique
+  value is for. The page states at the top which three works most of it
+  rests on (`PAGE_SOURCES` in `KnowledgePage.svelte`, kept in step with
+  `SOURCES` in `lib/cite.ts`),
   then Notation, one card per notation the atlas uses. Cards planned but not
   written are listed at the end ("Still to come") from `PLANNED` in
   `lib/fundamentals.ts`; move an entry out of it when its card is written. The phenomenon explanations in
@@ -350,44 +367,86 @@ guide, source guide):
   atlas" box under each is resolved live from the link fields, so every card
   already points at real bands and the papers behind them. Fill in `what` and
   `spotting` to finish a card. In the sidebar a part heading scrolls to the
-  part; a card name scrolls to that card and opens it.
+  part; a card name scrolls to that card and opens it. The sidebar marks two
+  different things and marks them differently: the filled highlight follows
+  the scroll spy (`active`, where the reader is), while an unfilled box marks
+  the card that is open (`opened`, from the page's `opened` event). They are
+  usually the same card, and then the box simply frames the highlight.
 
-  **An opened card is a stack of sections, and the order is a convention
-  every card keeps** (`KnowledgePage.svelte`, the `.kn-sec` classes):
+  **A closed card is always the same three parts**, in this order and at one
+  size (`CARD_LAYOUT`), so a row of them lines up: the diagram bled to the
+  card's edges (`.card-visual`, the diagram's small 220 × 100 layout, playing
+  on hover), then `.card-title` with the `wip` chip where the card is
+  unfinished, `.card-desc` as a two- to five-line teaser, and `.card-cta`, the
+  arrow at the foot. A longer teaser grows the card rather than clipping, and
+  the row equalises to the tallest.
 
-  1. `.kn-flow` — the diagram and the prose (see below). Closed, the wrapper
-     is `display: contents` and the card stacks as it always did.
-  2. a `.kn-list` per list the card carries.
-  3. `.kn-related` — where the card leads, as blocks linking to other cards.
-  4. `.card-refs` — the references, behind a divider.
+  **An opened card has two required sections and is otherwise free**
+  (`KnowledgePage.svelte`, the `.kn-sec` classes). Only these two, and only
+  their place is fixed:
 
-  **Section 1 is one flow, not a grid.** The diagram and every callout
-  `float: left; clear: left` into a column of their own, and the prose runs
-  past them and takes the full width the moment the floats run out. That is
-  deliberate, and it is why floats rather than grid or columns:
+  - `.kn-related` — where the card leads, as blocks linking to other cards.
+    Second from last.
+  - `.card-refs` — the references, behind a divider. Always last.
+
+  Everything above them is whatever the card needs, in whatever order reads
+  best: a flow of prose and floats, a full-width list, a three-column
+  comparison, a table before any prose. The usual opening is a two-column
+  flow (`.kn-flow`: the diagram floated left, the prose running past it, and
+  closed, the wrapper is `display: contents` so the card stacks as it always
+  did), but that is a habit rather than a rule.
+
+  **Where a card uses the flow, it is a flow and not a grid.** The diagram
+  and every callout `float: left; clear: left` into a column of their own,
+  and the prose runs past them and takes the full width the moment the floats
+  run out. That is deliberate, and it is why floats rather than grid or
+  columns:
 
   - **No holes.** A short callout beside a long paragraph, or a long tail of
     prose after the last callout, both close up by themselves. A grid row
     would hold the gap open.
-  - **A callout lands where the text calls it**, because a float cannot rise
-    above the line it was written on. Position follows the writing, with
-    nothing to keep in sync.
   - **It collapses correctly.** Under 860px the floats are turned off and
     every box is back inline exactly where it was authored, which is the
     order a phone wants. Nothing is measured, so there is nothing to
     recompute.
 
-  Blocks are therefore rendered in **authored order** in one `.detail-text`;
-  do not reorder them for layout. A callout that is really a table, or whose
-  lines are too long for half a card, sets `wide` on its `Formula` and spans
-  the width instead. **Keep the collapse property when adding anything.**
+  Placement is a guideline rather than a law: a float should sit **near the
+  text that calls it**, and running a little ahead of its paragraph is fine,
+  the way a figure in a paper often arrives before the sentence pointing at
+  it. What to avoid is a float stranded far from what it illustrates.
+
+  **A callout goes wherever the card wants it**: a column beside the prose in
+  the flow, the full width with `wide` on its `Formula` (which is what a
+  callout that is really a table, or whose lines are too long for half a
+  card, should do), a section of its own, or several sharing a section with
+  the prose that needs them. **Keep the collapse property when adding
+  anything.**
 
   **Where a citation marker goes** (stated in full at the top of
   `lib/fundamentals.ts`): on the sentence it supports while the source or
   the locator keeps changing; once, at the end of the paragraph, where the
   whole paragraph rests on one source at one locator; never on the first
   sentence alone with the rest of that source's material left bare. An
-  unmarked sentence is the atlas's own reasoning or a cross-reference.
+  unmarked sentence is the author's own reasoning or a cross-reference.
+
+  **The diagrams are technical drawings, and the hierarchy is saturation
+  before weight.** Every stroke sits in one narrow band (about 0.6-2px), so
+  what separates a guideline from a bond is how strongly it is inked. The
+  ladder, faintest first: construction (`--ink-025`, 1px dashed: a plane, a
+  guideline, an axis) → rule (`--line-faint`) → dimension (`--ink-050`, 1px
+  capped) → structure (`--line-slate-strong`, 1px: a drawn axis or baseline)
+  → content (`--ink-slate-400`, 2px bond, 0.6px atom outline) → subject
+  (`--brand-700`, `--diagram-photon`, `--accent-green-fg`, 1.3-2px), of which
+  there is at most one per plate. Reach for a lighter colour before a thinner
+  line and never for a thicker one. Labels are one family at one size
+  (`--t-code-ff` at `--t-code-size`, never below `--t-diagram-note-size`) with
+  four fills: `--ink-050` faint, `--ink-slate-500` plain, `--ink-slate-900`
+  strong, and strong plus `--t-label-weight` where the label names the
+  subject. A spectrum is drawn as an absorption: baseline near the top, band
+  hanging down. The drawn and revised cards to match are all of Molecular
+  Motion, Light-Matter Interaction except the Lambert-Beer Law, and
+  Spectroscopy through Selection Rules; a `wip` card is not a model. The full
+  version is the **Drawing molecules & atoms** section of the style guide.
 
   A diagram that does not animate is listed in `STATIC_CARD` / `STATIC_OPEN`
   in `KnowledgePage.svelte`, which stops the hover and strikes the "hover"
@@ -513,7 +572,7 @@ Valid enum values:
 - `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
 - `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form). Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
-- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | ftir | raman | srs | computational`. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation). The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand `raman` is a Raman shift whatever the geometry; while the chart is set to Raman, the infrared claims in a tooltip are greyed out and folded (and `raman` ones while it is set to IR), from `TECHNIQUES[].spectroscopy` in `dataModel.ts`. A claim with no technique is greyed out and folded in both views; `computational` never is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is drawn faded, and the sidebar's unreferenced pill takes such bands out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
+- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | mioirs | ftir | raman | srs | computational`. `mioirs` is Mixed Isotope Operando Infrared Spectroscopy, the odd value of the infrared family: it names what was fed to the cell rather than how the beam reached the sample. A deliberately mixed isotopic stream (a little ¹³CO in ¹²CO) stops neighbouring adsorbates sharing a frequency and detunes the dipole coupling between them, so the spectrum is of a decoupled adlayer whichever geometry recorded it, which is why it is a value and not a tag. Monai proposed it in 2024 and nothing in the atlas carries it yet. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation). The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand `raman` is a Raman shift whatever the geometry; while the chart is set to Raman, the infrared claims in a tooltip are greyed out and folded (and `raman` ones while it is set to IR), from `TECHNIQUES[].spectroscopy` in `dataModel.ts`. A claim with no technique is greyed out and folded in both views; `computational` never is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is drawn faded, and the sidebar's unreferenced pill takes such bands out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
 - `state` in a reference object: what was in the beam for that one claim, one of `gas | liquid | matrix | solid | adsorbed`. **Every claim should carry one**; `build.py` prints a single count of the ones that do not. It is not the band's own `phase`: that says what the band *is* wherever it appears, while this says how the sample was held for this measurement, and it moves the number. Methanol's O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those three rows read as a disagreement instead of three different experiments. `matrix` is a solid, but the molecule in it is isolated and not rotating, so it stays separate from `solid`, which means the bulk substance. Derives a tag of the same name, so never write one by hand
 - `laser_nm` in a reference object: the Raman excitation wavelength in nm, as a plain number (`"laser_nm": 515`). Only meaningful where `technique` is `raman`; `build.py` warns otherwise, since an infrared measurement has no excitation line. It derives a per-claim tag chip of its own (`515 nm`) which is coloured from the colour of that light (`frontend/src/lib/lightColor.ts`) rather than from `TAG_STYLES`, because a wavelength is a number and no fixed tag vocabulary can hold one. That is why anything rendering a tag from the data must go through `tagStyle()` in `lib/colors.ts` rather than indexing `TAG_STYLES` directly. Record it only where the paper names the line: "argon ion laser" with no wavelength is not a wavelength
 - `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`

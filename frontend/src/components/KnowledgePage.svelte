@@ -11,18 +11,30 @@
     /** The row it sits in: a fundamentals section or a pattern group. */
     section: string;
     kind: 'fundamental' | 'phenomenon';
+    /** Prose or drawing unfinished: shown as a chip, and not a style model. */
+    wip?: boolean;
   }
 
   // Within the band patterns, the simplest cause first.
-  const PATTERN_ORDER = ['branches', 'overtone', 'combination', 'fermi', 'degeneracy', 'isotopologue', 'site-sensitivity'];
+  // Within "Bands That Move", the cause that is the band's own first
+  // (a heavier nucleus, a different site), then the two that are the
+  // neighbours': the chemical shift, then the through-space coupling.
+  const PATTERN_ORDER = [
+    'branches', 'overtone', 'combination', 'fermi', 'degeneracy',
+    'isotopologue', 'site-sensitivity', 'coverage-shift', 'vibrational-coupling',
+  ];
 
   export const CARDS: KnCard[] = [
     ...FUNDAMENTALS.map(f => ({
-      key: f.key, label: f.label, teaser: f.teaser, section: f.section as string, kind: 'fundamental' as const,
+      key: f.key, label: f.label, teaser: f.teaser,
+      section: f.section as string, kind: 'fundamental' as const, wip: f.wip,
     })),
     ...PHENOMENA.filter(p => p.group)
       .sort((a, b) => PATTERN_ORDER.indexOf(a.key) - PATTERN_ORDER.indexOf(b.key))
-      .map(p => ({ key: p.key, label: p.label, teaser: p.teaser, section: p.group as string, kind: 'phenomenon' as const })),
+      .map(p => ({
+        key: p.key, label: p.label, teaser: p.teaser,
+        section: p.group as string, kind: 'phenomenon' as const, wip: p.wip,
+      })),
   ];
 
   /** The cards of one row, in their order. */
@@ -131,6 +143,7 @@
   import MathNotationDiagram from './knowledge/MathNotationDiagram.svelte';
   import LadderDiagram from './knowledge/LadderDiagram.svelte';
   import FermiDiagram from './knowledge/FermiDiagram.svelte';
+  import DegeneracyDiagram from './knowledge/DegeneracyDiagram.svelte';
   import LightPathDiagram from './knowledge/LightPathDiagram.svelte';
   import LambertBeerDiagram from './knowledge/LambertBeerDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
@@ -138,7 +151,7 @@
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
   import FormulaLine from './knowledge/FormulaLine.svelte';
-  import { citer, summarizeLocators, type Cited, type Segment } from '../lib/cite';
+  import { citer, summarizeLocators, SOURCES, type Cited, type Segment } from '../lib/cite';
   import { isFormula } from '../lib/fundamentals';
   import type { SelectionExample } from './knowledge/SelectionDiagram.svelte';
   import type { SpectrumExample } from './knowledge/SpectrumDiagram.svelte';
@@ -157,10 +170,28 @@
 
   const dispatch = createEventDispatcher<{
     active: { id: string };
+    /** Which card is open, or null: the sidebar's second mark. */
+    opened: { key: string | null };
     navigateBand: { id: string };
     navigateRef: { key: string };
     navigateMode: { moleculeId: string; topologyId: string; modeId: string };
   }>();
+
+  /**
+   * The three works the page is written out of, named once at the top.
+   *
+   * The per-card reference lists already say which claim came from where,
+   * but one citation at a time never adds up to "whose account of the
+   * subject is this". These three do most of the carrying, so they are
+   * stated rather than inferred. Keep it in step with SOURCES in
+   * lib/cite.ts: an alias added there for a fourth pillar belongs here too,
+   * and a one-off paper does not.
+   */
+  const PAGE_SOURCES: { key: string; forWhat: string }[] = [
+    { key: SOURCES.busca.key, forWhat: 'for the infrared and the practice of measuring a catalyst' },
+    { key: SOURCES.long.key, forWhat: 'for the theory of Raman scattering' },
+    { key: SOURCES.davydov.key, forWhat: 'for what an adsorbed species does on an oxide' },
+  ];
 
   // Each phenomenon's occurrences in the atlas, resolved live.
   $: examplesOf = Object.fromEntries(PHENOMENA.map(p => [p.key, p.find(bands)]));
@@ -198,6 +229,7 @@
     | typeof MathNotationDiagram
     | typeof LadderDiagram
     | typeof FermiDiagram
+    | typeof DegeneracyDiagram
     | typeof LightPathDiagram
     | typeof LambertBeerDiagram;
   const DIAGRAMS: Record<string, Diagram> = {
@@ -215,6 +247,7 @@
     overtone: LadderDiagram,
     combination: LadderDiagram,
     fermi: FermiDiagram,
+    degeneracy: DegeneracyDiagram,
     lightpath: LightPathDiagram,
     lambertbeer: LambertBeerDiagram,
     vibration: VibrationDiagram,
@@ -573,6 +606,13 @@
     if (e.key === 'Escape') closeCard();
   }
 
+  /**
+   * Which card is open, out to the sidebar. Separate from the scroll spy on
+   * purpose: one says where the reader is, the other says what they have
+   * opened, and the two are usually but not always the same card.
+   */
+  $: dispatch('opened', { key: openKey });
+
   /* ── Scroll spy, same mechanism as the other long-form pages ── */
   let root: HTMLElement;
   let scroller: HTMLElement | null = null;
@@ -652,6 +692,25 @@
     happen, click to read it. Each pattern lists the bands in this atlas that show it,
     resolved from the data rather than written down twice, and the papers that
     reported them.
+  </p>
+
+  <!-- Which books this is written out of. The superscripts under each card
+       say it one citation at a time; this says it once, up front, because
+       three works carry most of the page and a reader deserves to know
+       whose account of the subject they are reading. -->
+  <p class="lead sources">
+    Most of what follows rests on three works, cited by page throughout:
+    {#each PAGE_SOURCES as src, i (src.key)}<!--
+      --><button
+        class="ref-chip"
+        title={htmlToUnicode(ieeeHtml(refs?.[src.key] ?? {}, src.key))}
+        on:click|stopPropagation={() => dispatch('navigateRef', { key: src.key })}
+      >{shortCite(refs?.[src.key] ?? {}, src.key, { journal: false })}</button><!--
+      --><span class="source-for"> {src.forWhat}</span>{i < PAGE_SOURCES.length - 1 ? ';' : '.'}
+    {/each}
+    Everything else is a single paper cited where one card needs it, and a
+    sentence with no marker on it is the author's own reasoning or a
+    cross-reference.
   </p>
 
   {#each GROUPS as grp (grp.key)}
@@ -746,7 +805,9 @@
 
         {#if !isOpen || phase === 'closed'}
           <div class="card-body" transition:fade={{ duration: FADE }}>
-            <h3 class="card-title">{f.label}</h3>
+            <h3 class="card-title">
+              {f.label}{#if f.wip}<span class="wip" title="Unfinished: the prose, the drawing or both. Not a model for a new card.">wip</span>{/if}
+            </h3>
             <p class="card-desc">{f.teaser}</p>
             <span class="card-cta" aria-hidden="true">→</span>
           </div>
@@ -754,7 +815,9 @@
           <div class="detail-text" transition:slide={{ duration: 260, axis: 'y' }}>
             <button class="detail-close" title="Close (Esc)" aria-label="Close"
               on:click|stopPropagation={closeCard}>×</button>
-            <h3 class="detail-title">{f.label}</h3>
+            <h3 class="detail-title">
+              {f.label}{#if f.wip}<span class="wip" title="Unfinished: the prose, the drawing or both. Not a model for a new card.">wip</span>{/if}
+            </h3>
             {#if RENDERED[f.key]}
               <!-- Authored order throughout: a callout floats to the left
                    column at the point the text reaches it, and squeezed to
@@ -911,11 +974,22 @@
     margin: 0 0 14px;
   }
 
+  /* As wide as the row of cards under it. A 760px column left the intro
+     looking squeezed against four cards spanning the whole content width. */
   .lead {
-    max-width: 760px;
     color: var(--ink-slate-700);
     margin: 0 0 var(--space-6);
   }
+
+  /* The three works the page is written out of. A second lead paragraph
+     rather than a box: it is provenance for what follows, not a sidebar.
+     Same type as the lead, one step quieter in colour. */
+  .sources {
+    color: var(--ink-500);
+    margin-top: calc(var(--space-6) * -0.6);
+  }
+  .sources .ref-chip { margin: 0 2px 0 4px; }
+  .source-for { color: var(--ink-500); }
 
   .part {
     font-size: var(--t-page-title-size);
@@ -1096,6 +1170,23 @@
     gap: 8px;
     /* The bottom padding holds the arrow's line: it sits in the corner. */
     padding: 14px 22px 44px;
+  }
+
+  /* Says the card is not finished, to a reader and to whoever works on the
+     page next. Quiet on purpose: it is a note about the card, not a caveat
+     about the chemistry, which is what the red caveat pills are for. */
+  .wip {
+    font-family: var(--t-code-ff);
+    font-size: var(--t-diagram-note-size);
+    color: var(--ink-200);
+    border: 1px solid var(--line-slate);
+    border-radius: var(--radius-sm);
+    padding: 0 4px;
+    margin-left: 7px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 400;
   }
 
   .card-title {

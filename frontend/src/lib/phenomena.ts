@@ -17,6 +17,14 @@
  * that stops resolving to anything renders as an empty section, which is the
  * signal that the data moved on without the prose.
  *
+ * `wip: true` marks a card whose prose or drawing is not finished. Four
+ * carry it: Isotopic Shift, Site Sensitivity, Coverage Shift and Vibrational
+ * Coupling. Do not take their figures as a style reference; the finished
+ * ones are Rotational Branches, Overtone, Combination and Difference, Fermi
+ * Resonance and Degeneracy, each with a component of its own under
+ * components/knowledge/ and a small and a full layout rather than one
+ * drawing scaled up.
+ *
  * On the Knowledge page the phenomena are cards, grouped by what a reader
  * sees in a spectrum rather than by their physics: more bands than there are
  * modes, fewer, or bands that sit somewhere else (PATTERN_GROUPS). A
@@ -78,6 +86,18 @@ export interface Phenomenon {
    * through one block.
    */
   related?: { key: string; why: string }[];
+  /**
+   * Not finished: the prose, the drawing, or both.
+   *
+   * It shows as a chip on the card, so a reader knows not to trust the
+   * figure yet, and it is the answer to "which cards can I copy the style
+   * of": not these. The finished ones are Rotational Branches, Overtone,
+   * Combination and Difference, Fermi Resonance and Degeneracy; take the
+   * layout, the type sizes and the text-to-drawing ratio from those.
+   *
+   * Clear the flag in the same change that finishes the card.
+   */
+  wip?: boolean;
   /** Which field in the data records it. Factual, not editorial. */
   field: string;
   /** Pull the real occurrences out of the dataset. */
@@ -237,6 +257,7 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'isotopologue',
+    wip: true,
     group: 'moved',
     teaser: 'A heavier atom slows the vibration: the same band, shifted down, the bond unchanged.',
     label: 'Isotopic Shift',
@@ -298,6 +319,8 @@ export const PHENOMENA: Phenomenon[] = [
       'Whether a Q branch appears depends on the direction of the dipole change. In a linear molecule, a vibration that swings the dipole along the axis, such as the stretch of CO or the asymmetric stretch of CO₂, has none; one that swings it across the axis, such as the bend of CO₂, has a strong one, all its lines piled up at the centre. Gas-phase acetylene in a reflection cell shows the P and R pair: its asymmetric C–H stretch appears as two branches, at 3269 and 3309 cm⁻¹ [@trenary, p. 56].',
       'Rotation can also be excited alone, J → J + 1 with no vibration, by a photon in the microwave or far infrared, well below the mid-infrared window. That rule mirrors the IR one: the molecule must carry a permanent dipole for the field to turn it. CO has one; CO₂, N₂ and CH₄ have none. Raman sees rotation through the polarizability instead, wherever the cloud is longer than it is wide, so N₂ and CO₂ show pure rotational Raman lines close to the laser.',
       'A pure rotational Raman spectrum is an S branch and nothing else. Only ΔJ = +2 arises, because with no vibration to change, the upper level is by definition the higher one, so ΔJ = −2 cannot occur at all. The first line sits 6B from the laser and the rest follow every 4B [@long, p. 171 and p. 174]. Hydrogen is the case the atlas carries: ten lines from S(2) at 814 cm⁻¹ to S(11) at 2387, about 180 cm⁻¹ apart, each held as a band of its own because they are genuinely that far apart. It is the one spectrum here with no vibration in it, which is why those bands take the rotational category rather than a stretch or a bend.',
+      'One thing decides the heights of those H₂ lines that has nothing to do with how full the level is, and it alternates. In a homonuclear molecule the two nuclei are identical, so the whole wave function has to behave properly when they are swapped, and that ties the rotational level to the nuclear spin state. For hydrogen, whose nuclei are spin-½ fermions, the odd-J levels carry a nuclear spin weight of 3 and the even-J levels a weight of 1: ortho and para hydrogen, in a fixed 3:1 ratio [@long, p. 180]. The odd lines of the atlas’s S branch, S(3), S(5), S(7), S(9) and S(11), are therefore about three times the height their populations alone would give, and the even ones S(2), S(4), S(6), S(8) and S(10) about a third. The positions are untouched; only the intensities alternate.',
+      'It can go further than an alternation. The two nuclei of ¹⁶O₂ have no spin at all, which leaves the even-J levels with a weight of zero: they are not underpopulated, they do not exist, and every other line of the oxygen rotational Raman spectrum is simply absent [@long, pp. 179–180]. An alternation or a gap in a homonuclear rotational spectrum is therefore evidence about the nuclei rather than about the chemistry, and reading it as two species would be a mistake.',
       'Why Raman reaches further is a matter of what does the reaching. The infrared absorbs one photon through the dipole, an operator of rank one, and that limits it to ΔJ = 0, ±1. Raman scatters through the polarizability, a tensor of rank two, whose irreducible parts carry j = 0, 1 and 2; the triangle rule on those admits ΔJ up to ±2. The ranks map straight onto the branches: the isotropic part feeds Q alone, the antisymmetric part P, Q and R, and the anisotropic part all five [@long, pp. 158–159 and p. 276].',
       'Which of the five actually appears is a property of the molecule, not of the letter, and this is the trap. A linear molecule in a non-degenerate vibration gets ΔJ = 0, ±2 only, so N₂ and H₂ show O, Q and S and no P or R. But a symmetric top, a spherical top, or a linear molecule in a degenerate vibration all reach ΔJ = ±1 as well. Methane is the example: its triply degenerate ν₃ genuinely carries all five branches in Raman, fifteen once Coriolis splitting is counted [@long, Table 6.5, p. 167 and pp. 210–211]. So a P branch resting on Raman evidence is not by itself an error, while an O or S branch resting on infrared evidence always is, and the build checks only that second, one-directional half.',
       'The branches are the mark of a free molecule. Adsorbed, a molecule cannot turn, and it gives one band per mode where its gas gives an envelope; the envelope of a gas-phase reactant in the cell is something to subtract, not a surface species. The atlas records each branch of a gas-phase band as a band of its own, grouped with its siblings by branch_group, and the chart keeps a group on one line.',
@@ -491,11 +514,38 @@ export const PHENOMENA: Phenomenon[] = [
   {
     key: 'degeneracy',
     group: 'fewer',
-    teaser: 'Two motions at one frequency give one band. Lower the symmetry and it can split.',
+    teaser: 'Two modes at one frequency give one band. Lower the symmetry and it can split.',
     label: 'Degeneracy',
     field: 'the "degenerated" tag',
     what: '',
     spotting: '',
+    body: [
+      'Symmetry can give two normal modes the same vibrational energy. Both are counted in the 3N − 6, but a photon of that energy is absorbed into either of them, so the spectrum shows one band where the count says two. CO₂’s bend is the standard case: the in-plane bend and the out-of-plane bend are one and the same mode turned by 90°, so four modes give three frequencies. The atlas keeps the two as mode records of their own, δ(OCO) and ω(OCO), and points one band at the pair, which is why the diagram animates two molecules and not one.',
+      'Absorption at that wavenumber goes into both modes, so the band carries the intensity of the pair and not of one of them. Degenerate modes are accordingly among the strongest bands their molecules have: CO₂’s bend at 667 cm⁻¹ and methane’s ν₃ near 3019 cm⁻¹ are both of them. The diagram draws the band as what it is, two contributions lying exactly on top of each other.',
+      {
+        label: 'How Many Modes Share One Frequency',
+        lines: [
+          '\\begin{array}{ll}' +
+            'A,\\ B,\\ \\Sigma & \\text{one-dimensional: never degenerate} \\\\' +
+            'E,\\ \\Pi & \\text{twofold: } \\ce{CO2}\\ \\delta(\\ce{OCO}),\\ \\ce{CH4}\\ \\nu_2 \\\\' +
+            'T,\\ F & \\text{threefold: } \\ce{CH4}\\ \\nu_3,\\ \\nu_4' +
+            '\\end{array}',
+        ],
+        note: 'The symmetry species a mode belongs to already says how many share its frequency, because the degeneracy is the dimension of that species. Counting the modes of each species is what predicts a spectrum before it is measured [@busca, p. 6]. The atlas carries all three kinds.',
+        wide: true,
+      },
+      'Lower the symmetry and the coincidence has no reason to hold. Carbonate is the case this atlas is built around. The free ion is trigonal, D₃ₕ, and has one strong infrared band, ν₃, a doubly degenerate asymmetric CO stretch near 1415 cm⁻¹ in bulk metal carbonates, with two weaker deformations below it; coordinating it to a surface lowers that symmetry and ν₃ splits in two [@busca, p. 23].',
+      'How far it splits then reads the structure, and that is why the atlas carries carbonate as several pairs rather than one species. The splitting runs bidentate ≈ chelating > monodentate ≈ polydentate > trigonal, while the stability runs almost the other way, polydentate > bidentate > chelating > monodentate, so the two together separate structures that either one alone would confuse [@busca, p. 23]. The symmetric deformation ν₁, Raman-active in the free ion, appears in the infrared as well once the symmetry is gone [@busca, p. 23].',
+      'Two things are easy to mistake for this. A pair that splits need not have been degenerate: formate’s νₛ(OCO) and νₐₛ(OCO) are two modes of a molecule that never had the symmetry to make them equal, and the gap between them measures something else. And a coincidence need not be symmetry: methanol’s δ(CH₃) scissor and ρ(CH₂) lie about 10 cm⁻¹ apart and rarely resolve in a catalyst spectrum, but methanol is Cₛ, which has no symmetry element to enforce a coincidence. The two are close because a free methyl group would be symmetric, and the rest of the molecule separates them a little.',
+      'The degenerated tag marks a band that stands for more than one mode, and it is authored rather than derived: nothing in the data counts the components for you.',
+    ],
+    related: [
+      { key: 'modes', why: 'Where the 3N − 6 count comes from, and why it overcounts the bands' },
+      { key: 'vibmodes', why: 'The modes being counted, drawn one at a time' },
+      { key: 'selection', why: 'The other thing a symmetry species decides' },
+      { key: 'fermi', why: 'Near-degeneracy that symmetry did not cause' },
+      { key: 'site-sensitivity', why: 'The surface that lifts it also moves what is left' },
+    ],
     find(bands) {
       return bands
         .filter(b => b.tags.includes('degenerated'))
@@ -520,7 +570,150 @@ export const PHENOMENA: Phenomenon[] = [
     },
   },
   {
+    key: 'coverage-shift',
+    wip: true,
+    group: 'moved',
+    teaser: 'Fill the surface and the same CO climbs: the neighbours are competing for the same metal electrons.',
+    label: 'Coverage Shift',
+    field: 'nothing yet: the band window holds the spread, the claim’s note the conditions',
+    what: '',
+    spotting: '',
+    body: [
+      'One CO molecule alone on a clean metal has a frequency of its own, its singleton. Put more CO on the surface beside it and that frequency moves, before any two molecules have touched: they are drawing on the same metal, and what each one gets changes. This is a chemical change in the bond, and it is the half of the coverage effect that survives when the through-space coupling of the Vibrational Coupling card is switched off [@monai].',
+      'CO binds a metal in two directions at once. It donates the lone pair on its carbon, the 5σ orbital, into empty metal orbitals; the metal gives back into CO’s empty 2π*. The 2π* is antibonding between the carbon and the oxygen, so the more the metal gives back, the weaker the C-O bond and the lower the band [@monai]. Fill the surface and there is less metal to go round, each molecule gets less back-donation, its bond stiffens, and the band climbs.',
+      {
+        label: 'Which Way the Bond Moves',
+        lines: [
+          '\\ce{CO}\\,(5\\sigma) \\longrightarrow \\text{M} \\qquad \\tilde\\nu\\ \\text{up}',
+          '\\text{M} \\longrightarrow \\ce{CO}\\,(2\\pi^{*}) \\qquad \\tilde\\nu\\ \\text{down}',
+        ],
+        note: 'The Dewar-Chatt-Duncanson picture. Free CO sits at 2143 cm⁻¹. Where the bond is essentially σ only, as on a coordinatively unsaturated cation, ν(CO) lies above that value, and how far above follows the cation’s ratio of charge to radius; where the metal has d electrons to give back it drops below 2100, linear between 2100 and 1900, bridged below 1900, three-coordinated below 1800 [@davydov, pp. 95–96].',
+        tone: 'ir',
+      },
+      'Which way coverage pushes is not the same on every metal, and on copper it reverses. Woodruff and co-workers read it off where the metal’s Fermi level sits: the 2π* broadens against the metal band and splits into a lower level and an upper one, and only the lower can be filled. On palladium that lower level lies above the Fermi level, so broadening it further with coverage empties it, back-donation falls and the band climbs. On copper it lies below, so broadening fills it, back-donation rises and the band falls [@monai].',
+      'The two extremes are worth carrying as numbers. Atop CO on Pd(100) climbs by almost 100 cm⁻¹, from 1895 to 1997, as the coverage goes from nothing to about 0.8, and roughly 60 of those 100 are chemical. Atop CO on Cu(110) moves by 6, from 2088 to 2094 [@monai]. That 6 is not a small effect: it is a chemical redshift of about −44 cm⁻¹ cancelling a coupling blueshift of about +50 [@monai]. On platinum the chemical part is negligible and essentially the whole shift is coupling [@monai].',
+      'The trap is that a fuller surface and a different site move the band the same way, and one spectrum cannot tell them apart. Heal, Leisegang and Torrington watched the CO band on Ni/SiO₂ move down as they heated and read it as CO sitting on weakly binding sites when cold and strongly binding ones when hot, which is backwards for an adsorption energy. What was falling was the coverage [@monai].',
+      'The atlas has no coverage field. Each adsorbed-CO band carries a window wide enough to hold the whole spread, and where a paper states the pressure, the temperature or the coverage it worked at, that sits in the claim’s note. Two rows on one band at different numbers are more often two coverages than two species.',
+    ],
+    related: [
+      { key: 'vibrational-coupling', why: 'The other half of the shift, and the only way to separate them' },
+      { key: 'site-sensitivity', why: 'The shift that is a different site rather than a fuller one' },
+      { key: 'dipole', why: 'Why a stiffer C-O bond moves the band at all' },
+    ],
+    /**
+     * The adsorbed-CO families, because that is where the effect is
+     * documented and where the atlas's windows are widened by it. No field
+     * records coverage, so the window itself is the evidence: the note says
+     * how wide each family's is.
+     */
+    find(bands) {
+      const FAMILIES = [
+        { group: 'co_metal', label: 'CO on a reduced metal' },
+        { group: 'co_cation', label: 'CO on a cation' },
+      ];
+      const out: Example[] = [];
+      for (const f of FAMILIES) {
+        const members = bands
+          .filter(b => b.species === 'co' && b.phase === 'adsorbed' && b.group === f.group)
+          .sort(byWnUp);
+        if (!members.length) continue;
+        const lo = Math.min(...members.map(b => b.wn_min));
+        const hi = Math.max(...members.map(b => b.wn_max));
+        out.push({
+          label: f.label,
+          bands: members,
+          note:
+            `${hi - lo} cm⁻¹ from the bottom of the lowest window to the top of the highest. ` +
+            'Coordination sets most of that spread; coverage moves each band inside it by tens of cm⁻¹, ' +
+            'and nothing in the atlas records which claim was measured at what coverage.',
+        });
+      }
+      return out;
+    },
+  },
+  {
+    key: 'vibrational-coupling',
+    wip: true,
+    group: 'moved',
+    teaser: 'Neighbouring oscillators vibrate as one. The in-phase mode takes the intensity, and it sits high.',
+    label: 'Vibrational Coupling',
+    field: 'nothing: resolved from how close the adsorbed-CO bands lie to each other',
+    what: '',
+    spotting: '',
+    body: [
+      'A CO molecule on a metal carries a dipole that swings as it vibrates, and its neighbours feel the field of that swing. Molecules close enough to feel each other stop being independent oscillators: they become one system with collective normal modes, as many of them as there are molecules [@monai]. No bond has changed length and the metal has given away nothing more. Only the arrangement of neighbours is different, which is why this is the through-space half of a coverage shift and the Coverage Shift card is the other.',
+      'Take two identical CO molecules standing parallel. They have two collective modes, one with the dipoles in phase and one against. The in-phase mode is the higher of the two, and it is the only one with a net dipole change, so it is the only one that absorbs; the out-of-phase mode cancels itself and is dark. For a singleton at 2100 cm⁻¹ and a realistic polarizability the two land at 2106 and 2094, and the spectrum shows one band 6 cm⁻¹ above the singleton [@monai].',
+      {
+        label: 'What Sets the Size of It',
+        lines: ['V_{12} \\;\\propto\\; \\frac{\\alpha_v}{d^{3}}'],
+        note: 'αᵥ: the vibrational polarizability, which is also what makes a molecule absorb strongly; d: the distance between neighbours, which falls as the surface fills. So a strong absorber packed close couples hard, and CO on a working catalyst is exactly that case. The effect is already significant at about 10 % coverage [@monai].',
+        tone: 'ir',
+      },
+      'Add molecules and the same thing happens on a larger scale. N coupled oscillators have N collective modes, and almost all of the intensity goes into the one with every molecule in phase, which is the highest of them. A line of five CO with a singleton of 2077 cm⁻¹ puts its band 9 cm⁻¹ up; a three-by-three patch of nine puts it 16 cm⁻¹ up [@monai].',
+      {
+        label: 'What Coupling Does to a Spectrum',
+        lines: [
+          '\\begin{array}{ll}' +
+            '\\text{blueshift} & \\text{up to about } \\qty{50}{cm^{-1}} \\text{ as the surface fills} \\\\' +
+            '\\text{intensity transfer} & \\text{the highest-frequency mode takes it} \\\\' +
+            '\\text{spurious bands} & \\text{more bands than there are species} \\\\' +
+            '\\text{lost proportionality} & \\text{area stops tracking coverage}' +
+            '\\end{array}',
+        ],
+        note: 'The first is the one everybody knows and the other three are the ones that break an assignment. The integrated area of an adsorbed-CO band is linear in coverage only up to about 30 %; beyond that it flattens and can even fall, because the molecules screen each other and the absorption per molecule drops [@monai].',
+        wide: true,
+      },
+      'Intensity transfer is where this stops being a correction and starts being a wrong answer. When two kinds of CO couple, the collective modes belong to the whole system rather than to either kind, so the band that grows is not the band of the molecules that are there. A minority species holding under 5 % of the surface can carry the most intense band in the spectrum, if its singleton is the highest one in the array [@monai]. On copper, where an undercoordinated site sits above a terrace, that makes the defects look dominant and the terraces vanish: Pritchard’s polycrystalline copper foils showed no terrace band at all. On platinum the frequencies run the other way and it is the defects that go missing [@monai].',
+      'So there is no one-to-one correspondence between a band and a kind of site, and that is the finding rather than a caveat attached to one. Greenler and Brandt’s own model of a 4.2 nm platinum particle puts thirteen CO molecules on four kinds of site and produces three bands, each a collective mode running across several kinds of CO at once [@monai]. Elgayyar and co-workers arrive at the same place from the other end for gold: the absence of a band above 2080 cm⁻¹ has been read more than once as the absence of gold from the surface, when restructured gold gives its bands at 2080 to 2060 [@elgayyar, p. 63].',
+      'Coupling needs the neighbours to vibrate at nearly the same frequency, and it falls away once the singletons are more than about 200 cm⁻¹ apart [@monai]. That is the handle. Mix a little ¹³CO into ¹²CO and each ¹²CO finds itself surrounded by molecules some 50 cm⁻¹ away, which drops the coupling by about an order of magnitude and touches nothing else: same molecule, same bond, same site, one heavier nucleus [@monai]. ¹³C¹⁸O against ¹²C¹⁶O doubles the separation to 100 cm⁻¹ and breaks it further [@monai].',
+      'Diluting at a fixed coverage is what splits a measured shift into its two halves. The coupling part is the difference between pure ¹³CO and ¹³CO at infinite dilution; the chemical part is what is left once the dilution is extrapolated down to zero coverage [@monai]. Crossley and King measured 35 cm⁻¹ of coupling in the CO/Pt(111) shift that way, and Linke and co-workers 26 cm⁻¹ for CO/Rh(111) [@monai]. It also gives back the bands that intensity transfer had hidden, since a ¹²CO on a defect surrounded by ¹³CO has nothing left to lend its intensity to [@monai].',
+      'None of this is confined to metals. CO and NO on the cations of an oxide couple at high coverage in the same way, and singletons on those have been recovered by the same trick of an isotopic mixture [@davydov, p. 275].',
+      'Monai’s proposal is to stop treating the dilution as a separate characterisation and run it under reaction conditions instead, feeding an operando cell a mixed ¹³CO₂/¹²CO₂ or ¹³CO/¹²CO stream and following the exhaust by mass spectrometry: Mixed Isotope Operando Infrared Spectroscopy, MIOIRS [@monai]. The atlas carries mioirs as a technique value for it. Nothing is recorded under it yet.',
+      'Nothing in the data records coupling, and the atlas is in no position to correct for it. What it does do is keep the ¹³CO band as a band of its own rather than as a second number on the ¹²CO one, which is the shape a dilution experiment has to be recorded in.',
+    ],
+    related: [
+      { key: 'coverage-shift', why: 'The chemical half of the same shift' },
+      { key: 'isotopologue', why: '¹³CO is the tool here, not only a heavier twin' },
+      { key: 'dipole', why: 'The oscillating dipole the neighbours feel' },
+      { key: 'degeneracy', why: 'The other place where modes at one frequency give one band' },
+    ],
+    /**
+     * Which adsorbed-CO bands are close enough to couple, read straight off
+     * their positions. Nothing in the data records coupling, so the resolver
+     * reads the one thing that decides it: how far apart two singletons are.
+     * Monai's two thresholds are the boundaries, strong coupling below about
+     * 30 cm-1 and essentially none beyond about 200.
+     */
+    find(bands) {
+      const REACH = 200;
+      const STRONG = 30;
+      const centre = (b: Band) => (b.wn_min + b.wn_max) / 2;
+      const co = bands
+        .filter(b => b.species === 'co' && b.phase === 'adsorbed')
+        .sort((x, y) => centre(x) - centre(y));
+      const out: Example[] = [];
+      for (let i = 0; i + 1 < co.length; i++) {
+        const lo = co[i];
+        const hi = co[i + 1];
+        const gap = Math.round(centre(hi) - centre(lo));
+        if (gap > REACH) continue;
+        const twins = hi.isotopologue_of === lo.id || lo.isotopologue_of === hi.id;
+        out.push({
+          label: `${vibrationName(lo)} with ${vibrationName(hi)}`,
+          bands: [lo, hi],
+          note: twins
+            ? `${gap} cm⁻¹ apart, and the same mode on two isotopes: this is the separation a dilution experiment buys, wide enough to break the coupling and narrow enough to leave the chemistry alone.`
+            : gap <= STRONG
+              ? `${gap} cm⁻¹ apart: close enough to couple strongly, so the pair is one system rather than two bands.`
+              : `${gap} cm⁻¹ apart: within reach, though the coupling weakens as the separation grows.`,
+        });
+      }
+      return out;
+    },
+  },
+  {
     key: 'site-sensitivity',
+    wip: true,
     group: 'moved',
     teaser: 'The same species on a different site vibrates at a different wavenumber.',
     label: 'Site Sensitivity',

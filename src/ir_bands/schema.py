@@ -47,9 +47,16 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # than guessing. Reflection geometries are separate values because the surface
 # selection rule makes them a different experiment: on a flat conducting
 # sample IRRAS sees only dipoles with a component along the surface normal.
+#
+# "mioirs" is the odd one out of the infrared family: it names what is fed to
+# the cell rather than how the beam reaches the sample. A mixed isotopic
+# stream (a little 13CO in 12CO) detunes the dipole coupling between
+# neighbouring adsorbates, so the spectrum is of a deliberately decoupled
+# adlayer whatever geometry recorded it. That changes what the numbers mean
+# enough to be worth its own value; Monai proposed it in 2024.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "raman", "srs", "computational",
+    "mioirs", "ftir", "raman", "srs", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -63,7 +70,7 @@ VALID_ISOTOPES = set(ISOTOPE_TAGS)
 # rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "ftir", "raman", "srs", "computational",
+    "mioirs", "ftir", "raman", "srs", "computational",
 }
 
 # What was actually in the beam for one claim. Distinct from Band.phase above,

@@ -873,6 +873,7 @@ TECHNIQUE_FAMILY = {
     "irras": "infrared",
     "pm_irras": "infrared",
     "emission": "infrared",
+    "mioirs": "infrared",
     "raman": "raman",
     "srs": "raman",
     "computational": "computational",

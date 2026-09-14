@@ -23,7 +23,15 @@ export interface Source {
   chapter?: string;
 }
 
-/** The chapters of the handbook the Knowledge page draws on. */
+/**
+ * The works the Knowledge page draws on.
+ *
+ * Three of them carry most of it, and the page says so at the top: the
+ * Springer Handbook for the infrared and its practice, chapter by chapter;
+ * Long for the theory of Raman scattering; Davydov for what an adsorbed
+ * species does on an oxide surface. The rest are single papers cited where
+ * one card needs them.
+ */
 export const SOURCES: Record<string, Source> = {
   busca: { key: WACHS, chapter: 'Ch. 1, G. Busca, “Infrared (IR) Spectroscopy”' },
   trenary: { key: WACHS, chapter: 'Ch. 3, R. Ranjan and M. Trenary, “Reflection Absorption Infrared Spectroscopy”' },
@@ -32,6 +40,13 @@ export const SOURCES: Record<string, Source> = {
   stair: { key: WACHS, chapter: 'Ch. 6, P. C. Stair, “Ultraviolet (UV) Raman Spectroscopy”' },
   vogt: { key: WACHS, chapter: 'Ch. 11, C. Vogt, C. S. Wondergem and B. M. Weckhuysen, “Ultraviolet-Visible (UV-Vis) Spectroscopy”' },
   long: { key: 'Long.RamanEffectUnified.2002' },
+  // The 2003 volume, which is the rewritten and expanded successor to the
+  // 1990 Infrared Spectroscopy of Adsorbed Species on the Surface of
+  // Transition Metal Oxides. Every locator on this alias is a page of the
+  // 2003 book; the two are easy to confuse and their pagination differs.
+  davydov: { key: 'Davydov.MolecularSpectroscopyOxide.2003' },
+  monai: { key: 'Monai.NewLookCatalyst.2024' },
+  elgayyar: { key: 'Elgayyar.ContributionsLimitationsIR.2021' },
   meunier: { key: 'Meunier.InadequateUnitSelection.2026' },
   armaroli: { key: 'Armaroli.DiffuseReflectionInfrared.2004' },
   li: { key: WACHS, chapter: 'Ch. 14, Q. Li, M. Anpo, J. You, T. Yan and X. Wang, “Photoluminescence (PL) Spectroscopy”' },

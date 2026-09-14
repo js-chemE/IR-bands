@@ -59,6 +59,42 @@
   const WATER = geometryFor('water', 'gas')!;
   const CO2 = geometryFor('co2', 'gas')!;
 
+  /*
+   * Still, a molecule has to say what it would do. These are the Normal Modes
+   * card's resting arrows (ModesDiagram.svelte), drawn from the atoms that
+   * move along each mode's own displacement vectors, and they fade out as the
+   * molecules start moving so nothing is labelled twice.
+   *
+   * A mode whose atoms only grow and shrink, CO₂'s out-of-page bend, has no
+   * in-plane displacement to draw: it keeps no arrows, and its caption is
+   * what says the motion leaves the page.
+   */
+  const head = (x: number, y: number, dx: number, dy: number, sz = 3) => {
+    const n = Math.hypot(dx, dy) || 1;
+    const ux = dx / n;
+    const uy = dy / n;
+    return `M${x - ux * sz - uy * sz * 0.6},${y - uy * sz + ux * sz * 0.6} L${x},${y} L${x - ux * sz + uy * sz * 0.6},${y - uy * sz - ux * sz * 0.6}`;
+  };
+  /** Arrows on the atoms that move in `modeId`, each leaving its atom. */
+  function restArrows(g: typeof WATER, modeId: string, cx: number, cy: number, k: number) {
+    const vecs = g.modes[modeId] ?? [];
+    return g.atoms.flatMap((a, i) => {
+      const v = vecs[i];
+      if (!v || v.rotateDeg || Math.hypot(v.dx, v.dy) < 0.15) return [];
+      const n = Math.hypot(v.dx, v.dy);
+      const ux = v.dx / n;
+      const uy = v.dy / n;
+      const r = 6.5 * k;
+      const x1 = cx + a.x * k + ux * r;
+      const y1 = cy + a.y * k + uy * r;
+      const x2 = x1 + ux * 7 * n;
+      const y2 = y1 + uy * 7 * n;
+      return [{ x1, y1, x2, y2, head: head(x2, y2, ux, uy) }];
+    });
+  }
+  /** Full while still, gone once the molecules swing. */
+  $: restOpacity = running ? 0 : 1;
+
   const WATER_ROW = [
     { id: 'h2o_stretch_symmetric', local: 'νₛ(OH)', num: 'ν₁ · 3657 cm⁻¹', sx: 42, fx: 100 },
     { id: 'h2o_bend', local: 'δ(HOH)', num: 'ν₂ · 1595 cm⁻¹', sx: 110, fx: 240 },
@@ -85,13 +121,16 @@
 >
   <!-- ── Row 1: the three modes of H₂O, on the card and opened ── -->
   {#each WATER_ROW as m (m.id)}
-    <MiniMolecule
-      atoms={pose(WATER, m.id, swing, 4)}
-      bonds={WATER.bonds}
-      x={lerp(m.sx, m.fx, t)}
-      y={lerp(58, 64, t)}
-      k={lerp(0.95, 1.15, t)}
-    />
+    {@const k = lerp(0.95, 1.15, t)}
+    {@const cx = lerp(m.sx, m.fx, t)}
+    {@const cy = lerp(58, 64, t)}
+    <MiniMolecule atoms={pose(WATER, m.id, swing, 4)} bonds={WATER.bonds} x={cx} y={cy} {k} />
+    <g class="hints" style="opacity:{restOpacity}">
+      {#each restArrows(WATER, m.id, cx, cy, k) as a}
+        <line class="hint" x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2} />
+        <path class="hint" d={a.head} />
+      {/each}
+    </g>
   {/each}
   <g style="opacity:{labelOpacity}">
     <text class="lbl name" x="14" y="16">The Three Modes of H₂O</text>
@@ -105,6 +144,12 @@
   <g style="opacity:{fullOpacity}">
     {#each CO2_ROW as m (m.id)}
       <MiniMolecule atoms={pose(CO2, m.id, swing, 4)} bonds={CO2.bonds} x={m.x} y={186} k={1.2} />
+      <g class="hints" style="opacity:{restOpacity}">
+        {#each restArrows(CO2, m.id, m.x, 186, 1.2) as a}
+          <line class="hint" x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2} />
+          <path class="hint" d={a.head} />
+        {/each}
+      </g>
     {/each}
   </g>
   <g style="opacity:{labelOpacity}">
@@ -132,4 +177,8 @@
   }
   .lbl.faint { fill: var(--ink-050); }
   .lbl.strong, .lbl.name { fill: var(--ink-slate-900); }
+
+  /* The resting arrows, as faint as the ones on the Normal Modes card. */
+  .hints { transition: opacity 240ms ease; }
+  .hint { fill: none; stroke: var(--ink-025); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
 </style>

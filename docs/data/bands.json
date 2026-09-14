@@ -705,6 +705,40 @@
         "Cu"
       ]
     },
+    "ag_1p": {
+      "key": "ag_1p",
+      "label": "Ag⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ag",
+      "oxidation_state": 1,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "facet": null,
+      "parts": [],
+      "note": "Oxidised silver, carrying a carbonyl well above the gas-phase CO value because there is little back-donation to lower it. Its position moves when the silver is alloyed, which is what makes it a probe of alloying rather than only of oxidation state.",
+      "all_elements": [
+        "Ag"
+      ]
+    },
+    "au_1p": {
+      "key": "au_1p",
+      "label": "Au⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Au",
+      "oxidation_state": 1,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "facet": null,
+      "parts": [],
+      "note": "Oxidised gold. Distinguished from metallic Au⁰ by a carbonyl above 2120 cm⁻¹; the assignment is contested, since restructured metallic gold gives bands low enough to confuse the picture from the other side.",
+      "all_elements": [
+        "Au"
+      ]
+    },
     "zn_2p": {
       "key": "zn_2p",
       "label": "Zn²⁺",
@@ -1370,6 +1404,32 @@
         "Si"
       ]
     },
+    "cu_zro2": {
+      "key": "cu_zro2",
+      "label": "Cu/ZrO₂",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Cu/ZrO₂",
+      "elements": [
+        "Cu",
+        "Zr",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "cu_0",
+        "zro2"
+      ],
+      "note": "Copper on monoclinic zirconia by incipient wetness, 6 wt% Cu, calcined at 450 °C and reduced in situ at 350 °C. The zirconia carries about 93 % of the surface area, which is why almost every band on it is a zirconia band and why the copper-bound formate had to be dug out of a difference spectrum.",
+      "all_elements": [
+        "Cu",
+        "O",
+        "Zr"
+      ]
+    },
     "cu_zno": {
       "key": "cu_zno",
       "label": "Cu/ZnO",
@@ -1594,6 +1654,63 @@
         "Na",
         "O",
         "Ru"
+      ]
+    },
+    "pd_al2o3": {
+      "key": "pd_al2o3",
+      "label": "Pd/Al₂O₃",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Pd/Al₂O₃",
+      "elements": [
+        "Pd",
+        "Al",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "pd_0",
+        "al2o3"
+      ],
+      "note": "Palladium on alumina, the monometallic reference against which the Sn- and Zn-modified counterparts are read: it is the one that still has Pd-Pd pairs, so it is the one that still shows bridged CO.",
+      "all_elements": [
+        "Al",
+        "O",
+        "Pd"
+      ]
+    },
+    "au_ag_silicalite": {
+      "key": "au_ag_silicalite",
+      "label": "Au-Ag/silicalite-1",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Au-Ag/silicalite-1",
+      "elements": [
+        "Au",
+        "Ag",
+        "Si",
+        "O"
+      ],
+      "facet": null,
+      "parts": [
+        "au_0",
+        "au_1p",
+        "ag_0",
+        "ag_1p",
+        "sio2"
+      ],
+      "note": "Gold and silver nanoparticles embedded in silicalite-1, the all-silica MFI zeotype. Recorded with sio2 as its phase rather than with zsm5: silicalite-1 has no aluminium and therefore none of the exchange sites that make ZSM-5 what it is.",
+      "all_elements": [
+        "Ag",
+        "Au",
+        "O",
+        "Si"
       ]
     },
     "co_al2o3": {
@@ -3750,7 +3867,7 @@
           "technique": "raman",
           "laser_nm": 515,
           "state": "gas",
-          "note": "Sect. 4.1 and Fig. 2: the Raman spectrum of the dyad (about 1300–1850 cm⁻¹) is totally anisotropic and dominated by ν₂ (E), a strong central Q branch with rotational lines on both sides; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. No number is recorded: the text’s only one, “near 1530 cm⁻¹”, is printed against ν₄, which the same paragraph calls very weak in Raman and leaves out of the fit. That it belongs to ν₂ is the atlas’s reading, not the paper’s. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
+          "note": "Sect. 4.1 and Fig. 2: the Raman spectrum of the dyad (about 1300–1850 cm⁻¹) is totally anisotropic and dominated by ν₂ (E), a strong central Q branch with rotational lines on both sides; spontaneous Raman of ¹²CH₄ in a heated gas cell at low density (about one amagat, below 1 atm to avoid line mixing), 4 W argon-ion laser, room temperature to 900 K. No number is recorded: the text’s only one, “near 1530 cm⁻¹”, is printed against ν₄, which the same paragraph calls very weak in Raman and leaves out of the fit. That it belongs to ν₂ is the author’s reading, not the paper’s. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
           "tags": [
             "raman",
             "515 nm",
@@ -4016,7 +4133,7 @@
           "technique": "raman",
           "laser_nm": 515,
           "state": "gas",
-          "note": "Sect. 4.3, Figs. 11–13 and Table 5: the octad Raman spectrum (Table 1: about 3500–4700 cm⁻¹), extremely weak, recorded over 1 h with the 300 gr/mm grating at room temperature, in the same gas cell (about one amagat, 4 W argon-ion laser). Its fit needed six first-order polarisability operators: ν₁+ν₂ (E), ν₁+ν₄ (F₂), ν₂+ν₃ (F₂) and the A₁, E and F₂ components of ν₃+ν₄, the E one the largest. The paper ties no peak to a band, so reading the main feature near 4300 cm⁻¹ as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Its neighbours ν₁+ν₄ and ν₁+ν₂ fill the wings. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
+          "note": "Sect. 4.3, Figs. 11–13 and Table 5: the octad Raman spectrum (Table 1: about 3500–4700 cm⁻¹), extremely weak, recorded over 1 h with the 300 gr/mm grating at room temperature, in the same gas cell (about one amagat, 4 W argon-ion laser). Its fit needed six first-order polarisability operators: ν₁+ν₂ (E), ν₁+ν₄ (F₂), ν₂+ν₃ (F₂) and the A₁, E and F₂ components of ν₃+ν₄, the E one the largest. The paper ties no peak to a band, so reading the main feature near 4300 cm⁻¹ as ν₃+ν₄ is the author’s inference, and no number is recorded. Its neighbours ν₁+ν₄ and ν₁+ν₂ fill the wings. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
           "tags": [
             "raman",
             "515 nm",
@@ -4084,7 +4201,7 @@
           "technique": "raman",
           "laser_nm": 515,
           "state": "gas",
-          "note": "Sect. 4.3 and Figs. 11–13: the low-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
+          "note": "Sect. 4.3 and Figs. 11–13: the low-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the author’s inference, and no number is recorded. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
           "tags": [
             "raman",
             "515 nm",
@@ -4152,7 +4269,7 @@
           "technique": "raman",
           "laser_nm": 515,
           "state": "gas",
-          "note": "Sect. 4.3 and Figs. 11–13: the high-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the atlas’s inference, and no number is recorded. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
+          "note": "Sect. 4.3 and Figs. 11–13: the high-wavenumber side of the octad feature near 4300 cm⁻¹, at room temperature in the same gas cell (about one amagat, 4 W argon-ion laser, 300 gr/mm grating). The paper names neither the branches nor their positions and ties no peak to a band, so reading this wing as ν₃+ν₄ is the author’s inference, and no number is recorded. Laser line assumed, not reported: the paper names only a 4 W argon-ion laser, and 515 nm is its strongest green line.",
           "tags": [
             "raman",
             "515 nm",
@@ -4197,7 +4314,7 @@
       "wn_start": 2000,
       "wn_end": 2120,
       "short": "ν(CO) linear (μ₁)",
-      "description": "CO bonded end-on to a single metal atom, the commonest coordination and usually the strongest, sharpest band in a CO-probe spectrum. Its position follows metal to CO π-backdonation: more backdonation into the 2π* orbital weakens the C-O bond and pushes the band down, while electron-poor or oxidised sites push it up, so metal identity, oxidation state, coordination and coverage all move it. ¹³CO substitution shifts it by tens of cm⁻¹, the standard check that a band really is a CO stretch.",
+      "description": "CO bonded end-on to a single metal atom, the commonest coordination and usually the strongest, sharpest band in a CO-probe spectrum. Its position follows metal to CO π-backdonation: more backdonation into the 2π* orbital weakens the C-O bond and pushes the band down, while electron-poor or oxidised sites push it up, so metal identity, oxidation state, coordination and coverage all move it. ¹³CO substitution shifts it by tens of cm⁻¹, the standard check that a band really is a CO stretch. Coverage moves it as far as the site does, partly by stiffening the bond and partly by coupling neighbouring oscillators, so the observed bands are collective modes of the adlayer rather than one band per kind of CO.",
       "based_on": [],
       "references": [
         {
@@ -4343,10 +4460,69 @@
             "adsorbed"
           ],
           "uid": "co_linear_mu1::Phongprueksathat.KeyDriversActivity.2026"
+        },
+        {
+          "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "wn": [
+            2113,
+            2076
+          ],
+          "measured_on": [
+            "au_0",
+            "au_sio2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 2A (3 % Au/SiO₂ pre-reduced in H₂, 1 % CO in He at 50 °C, 2 to 120 min; unpublished results reported in this review): a band at 2113 cm⁻¹ turns into one at 2076 through an isosbestic point, so one kind of site is converting quantitatively into another rather than two species growing side by side. The review's own conclusion for gold is three ranges: terraces near 2130 but unoccupied above 70 K, unreconstructed edges and corners 2115 to 2095, and the kinks and roughened edges of a CO-restructured surface 2080 to 2060 (p. 61). Silica cannot make oxygen vacancies, so the low band here is not negatively charged gold.",
+          "tags": [
+            "direct-dosing",
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Elgayyar.ContributionsLimitationsIR.2021"
+        },
+        {
+          "key": "Monai.NewLookCatalyst.2024",
+          "wn": [
+            2077,
+            2088,
+            2094
+          ],
+          "measured_on": [
+            "pt_0",
+            "cu_0"
+          ],
+          "technique": "irras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Sections 2.1 to 2.3 of a perspective; the numbers are from the RAIRS studies it reviews rather than from its own measurements. The singleton of atop CO on Pt(100), one molecule with no neighbours to couple to, is 2077 cm⁻¹, and coupling alone puts a line of five coupled CO 9 cm⁻¹ above it and a nine-molecule patch 16 above. Atop CO on Cu(110) moves only from 2088 to 2094 across the whole coverage range, a chemical redshift near −44 cm⁻¹ almost exactly cancelling a coupling blueshift near +50. The perspective's conclusion is that no observed band corresponds one-to-one to a kind of site: the bands are collective modes of the whole adlayer.",
+          "tags": [
+            "direct-dosing",
+            "irras",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Monai.NewLookCatalyst.2024"
+        },
+        {
+          "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "wn": null,
+          "measured_on": null,
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 2.3.2, p. 96 of a monograph summarising infrared work on oxide surfaces rather than reporting one measurement, which is why no position, surface or sampling geometry is recorded here. Where the metal has d electrons to donate into CO's 2π*, a genuine carbonyl forms and ν(CO) falls below the gas-phase value: linear CO between 2100 and 1900 cm⁻¹, bridged below 1900, three-coordinated below 1800. The book's point is that one probe molecule reports two opposite things depending on the site, because a σ-only bond to a cation pushes the same band the other way instead.",
+          "tags": [
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Davydov.MolecularSpectroscopyOxide.2003"
         }
       ],
       "tags": [
         "site-sensitive",
+        "misassignment-warning",
         "fundamental"
       ],
       "phase": "adsorbed",
@@ -4363,7 +4539,7 @@
         "co_stretch_linear"
       ],
       "lane": 5,
-      "sub_lane": 1,
+      "sub_lane": -1,
       "wn_min": 2000,
       "wn_max": 2120
     },
@@ -4398,6 +4574,22 @@
             "adsorbed"
           ],
           "uid": "co_linear_13co::VicovanBerkel.ExploitingContinuityEquation.2024"
+        },
+        {
+          "key": "Monai.NewLookCatalyst.2024",
+          "wn": null,
+          "measured_on": [
+            "pt_0"
+          ],
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 3 of a perspective, on the isotope-dilution method rather than on one spectrum, which is why no position and no sampling geometry are recorded here. The ¹³CO and ¹²CO singletons lie about 50 cm⁻¹ apart, enough to cut the coupling between a molecule and its neighbours by roughly an order of magnitude once one is diluted in the other; ¹³C¹⁸O against ¹²C¹⁶O gives 100 cm⁻¹ and cuts it further. Diluting at a fixed coverage separates the chemical and coupling halves of a coverage shift, and recovers bands that intensity transfer had hidden, such as CO on copper terraces. The perspective proposes running it under reaction conditions and names that MIOIRS.",
+          "tags": [
+            "isotope-labeling",
+            "adsorbed"
+          ],
+          "uid": "co_linear_13co::Monai.NewLookCatalyst.2024"
         }
       ],
       "tags": [
@@ -4435,7 +4627,7 @@
       },
       "atoms": "C-O",
       "wn_start": 1820,
-      "wn_end": 1990,
+      "wn_end": 2000,
       "short": "ν(CO) bridge (μ₂)",
       "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from the extra metal center, and typically broader/weaker than the linear band, often appearing as a shoulder below it rather than a fully separate peak. Usually emerges or grows in only at higher CO coverage, since it needs two adjacent free metal sites to form.",
       "based_on": [],
@@ -4506,6 +4698,62 @@
             "adsorbed"
           ],
           "uid": "co_bridge_mu2::Gomez.InterdependenceExtentGa.2024"
+        },
+        {
+          "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "wn": [
+            1987,
+            1954
+          ],
+          "measured_on": [
+            "pd_0",
+            "pd_al2o3"
+          ],
+          "technique": "ftir",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 6A, p. 63 (2 % Pd/Al₂O₃, 1 % CO in He at 300 K, adapted from Jbir et al.; the review says IR and not which sampling geometry): two bridged carbonyls at 1987 and 1954 cm⁻¹ beside atop CO at about 2090. On a Pd-Sn sample of equal Pd and Sn loading only the atop species survives, at about 2075, and Zn does the same (Fig. 7A). That disappearance is the review's evidence for an intermetallic compound: bridged CO needs two adjacent palladium atoms, so its absence says the pairs are gone. Adsorption heats separate the two cleanly, about 90 kJ mol⁻¹ for the atop CO against more than 165 for the bridged.",
+          "tags": [
+            "direct-dosing",
+            "ftir",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Elgayyar.ContributionsLimitationsIR.2021"
+        },
+        {
+          "key": "Monai.NewLookCatalyst.2024",
+          "wn": [
+            1895,
+            1997
+          ],
+          "measured_on": [
+            "pd_0"
+          ],
+          "technique": "irras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 3A of a perspective, reviewing RAIRS of CO on Pd(100) from Ortega and co-workers: a single band moving from 1895 to 1997 cm⁻¹ as the coverage goes from about zero to 0.8, almost 100 cm⁻¹ in all, of which roughly 60 is a chemical shift and the rest dipole coupling. The perspective labels the band atop CO; the positions are the bridged range for palladium, and it is recorded on the bridged band here for that reason. The integrated area levels off near half a monolayer, so area stops tracking coverage well before saturation.",
+          "tags": [
+            "direct-dosing",
+            "irras",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Monai.NewLookCatalyst.2024"
+        },
+        {
+          "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "wn": null,
+          "measured_on": null,
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: bridged carbonyls lie below 1900 cm⁻¹ and three-coordinated ones below 1800. The book adds a constraint the position alone does not give: a carbonyl on a cation can only be linear, because in an M–O–M arrangement the cations are too far apart for one CO molecule to bond to two of them at once. A bridged band is therefore evidence of an ensemble of reduced metal atoms rather than of a cation, whatever else is on the surface. Where a cation has two free coordination places it forms a dicarbonyl instead.",
+          "tags": [
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Davydov.MolecularSpectroscopyOxide.2003"
         }
       ],
       "tags": [
@@ -4528,7 +4776,7 @@
       "lane": 5,
       "sub_lane": 1,
       "wn_min": 1820,
-      "wn_max": 1990
+      "wn_max": 2000
     },
     {
       "id": "co_3fold_mu3",
@@ -4560,12 +4808,42 @@
             "computational"
           ],
           "uid": "co_3fold_mu3::Yudanov.COAdsorptionPd.2026"
+        },
+        {
+          "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "wn": 1850,
+          "measured_on": [
+            "co_0",
+            "co_al2o3"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Figs. 8A and 9A, p. 65 (14 % Co/Al₂O₃, operando DRIFTS at 220 °C, 30 % CO + 60 % H₂ in Ar, atmospheric pressure, 22 h on stream): a broad band near 1850 cm⁻¹ the review calls Hollow-CO and describes as bridged or multi-coordinated without separating the two, sitting under two linear components between 2100 and 1950. Small amounts of tin, Sn:Co from 1:120 to 1:30, titrate it selectively, and the methane and propene rates track the Hollow-CO fraction. Its decomposition rate is about twice the rate of methane formation, which the review takes as evidence that it is on the main path to hydrocarbons while the linear CO is not.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_3fold_mu3::Elgayyar.ContributionsLimitationsIR.2021"
+        },
+        {
+          "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "wn": null,
+          "measured_on": null,
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: three-coordinated bridged carbonyls lie below 1800 cm⁻¹, the lowest of the three coordination ranges the book sets out, because the more metal atoms share the CO the more they donate into its 2π* and the weaker the C–O bond becomes.",
+          "tags": [
+            "adsorbed"
+          ],
+          "uid": "co_3fold_mu3::Davydov.MolecularSpectroscopyOxide.2003"
         }
       ],
       "tags": [
         "site-sensitive",
-        "fundamental",
-        "computational"
+        "fundamental"
       ],
       "phase": "adsorbed",
       "topology": "hollow",
@@ -4938,6 +5216,46 @@
             "adsorbed"
           ],
           "uid": "co_cation_stretch::Zdravkova.SurprisingCoordinationChemistry.2015"
+        },
+        {
+          "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "wn": [
+            2189,
+            2172,
+            2160,
+            2134
+          ],
+          "measured_on": [
+            "ag_1p",
+            "au_1p",
+            "au_ag_silicalite"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 5A, p. 63 (Au, Au-Ag and Ag embedded in silicalite-1, operando DRIFTS at 100 °C under 2.8 % CO + 8 % O₂ in He): Ag⁺-CO at 2189 and 2172 cm⁻¹ on the plain silver sample moves to about 2160 on the alloy, and the Au⁺-CO signal at 2134 falls by half with the gold loading and particle size unchanged. The two together are the review's evidence for a genuinely alloyed phase. Silver has the lower surface tension of the pair, 1086 against 1333 mJ m⁻², so it takes the corner and edge sites and displaces the gold that would otherwise sit there.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "co_cation_stretch::Elgayyar.ContributionsLimitationsIR.2021"
+        },
+        {
+          "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "wn": 2190,
+          "measured_on": [
+            "zn_2p",
+            "zno"
+          ],
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 2.3.2, pp. 95–96 and Table 2.11, p. 99 (a monograph; the sampling geometry behind the number is not stated). One band at 2190 cm⁻¹ after CO adsorption on ZnO at 293 K, with photoelectron work on the same system showing the bond is made through the carbon and the 5σ orbital. On a coordinatively unsaturated cation the bond is essentially σ only, so ν(CO) sits above the 2143 cm⁻¹ of the free molecule, and the shift upward grows with the cation's ratio of charge to radius. Such complexes are relatively unstable and are usually removed by degassing at room temperature, which is one way to tell them from the far more stable M⁺ and M⁰ carbonyls (p. 274).",
+          "tags": [
+            "adsorbed"
+          ],
+          "uid": "co_cation_stretch::Davydov.MolecularSpectroscopyOxide.2003"
         }
       ],
       "tags": [
@@ -5166,6 +5484,19 @@
             "computational"
           ],
           "uid": "co_isocarbonyl::Ugliengo.QuantumChemicalCalculations.1999::11"
+        },
+        {
+          "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "wn": null,
+          "measured_on": null,
+          "technique": null,
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Section 2.3.2, p. 95 of a monograph, with no single measurement behind it, so no position is recorded here. A low-frequency band between 2100 and 2130 cm⁻¹ has been assigned by several authors to Mⁿ⁺···OC adducts, CO bound through the oxygen lone pair rather than the carbon, which shifts the stretch down where the ordinary orientation shifts it up. The book records an isomerisation equilibrium between the two orientations on NaZSM-5, Z-Na···CO against Z-Na⁺···OC, with an enthalpy of 3.8 kJ mol⁻¹, so on an alkali cation the two coexist rather than one of them winning.",
+          "tags": [
+            "adsorbed"
+          ],
+          "uid": "co_isocarbonyl::Davydov.MolecularSpectroscopyOxide.2003"
         }
       ],
       "tags": [
@@ -5882,6 +6213,27 @@
             "adsorbed"
           ],
           "uid": "carbonate_monodentate_asym::Baltrusaitis.FTIRSpectroscopyCombined.2006"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": [
+            1468,
+            1465
+          ],
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (operando DRIFTS, 6 wt% Cu/ZrO₂, 220 °C, 3 bar, 20 % CO₂ + 60 % H₂ in He): carbonate on the zirconia at 1468 cm⁻¹, and an ill-defined negative feature at 1465 in the difference spectrum of Fig. 3b where carbonate is being lost 9 s after CO₂ removal. The paper writes only carbonates on ZrO₂ and gives no dentation, so the monodentate placement is the author's reading of the position. Integrating the formate with the carbonate (region 4) and without it (region 3) gives the same decay, which is the paper's evidence that the carbonate contributes little. It reads these as the carbonates far from the copper, reduced slowly because hydrogen spillover does not reach them.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "carbonate_monodentate_asym::Meunier.CuBoundFormatesAre.2023"
         }
       ],
       "tags": [
@@ -7877,6 +8229,42 @@
             "adsorbed"
           ],
           "uid": "formate_ch_stretch::Oing.RoleZnHf.2026::3"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 2873,
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (operando DRIFTS, 6 wt% Cu/ZrO₂, 220 °C, 3 bar, 20 % CO₂ + 60 % H₂ in He, steady state, background the reduced sample under H₂): ν(CH) of formate on the zirconia at 2873 cm⁻¹, with νₐₛ(OCO) at 1575 and a third band at 1380. Sodium-formate standards dry-impregnated on Cu-free zirconia give the same position and band shape (Fig. 1B), which is what makes the quantification possible; of the paper's two calibration bands this is the more accurate, because the C–H bond is not the part touching the surface (Fig. 1C). Two kinetically distinct zirconia formates share it, a fast one near the copper interface and a slow one away from it, and their spectra differ only in a slight shift of the maxima.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_ch_stretch::Meunier.CuBoundFormatesAre.2023"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 2840,
+          "measured_on": [
+            "cu_0",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 3b and Table 1: ν(CH) of a copper-bound formate at 2840 cm⁻¹, visible only in the difference spectrum taken 9 s after CO₂ was cut from the feed and magnified 20 times, with the carboxylate stretch at 1644 and a third band at 1307. The methoxy and zirconia-formate contributions were subtracted first (Figs. S3A and S3C). The trio is assigned from formic acid adsorbed on Cu(100) rather than argued from this spectrum. It is only about 7 % of the surface formate, but it decays with k = 2.3 min⁻¹, one and three orders of magnitude faster than the two zirconia formates, at a rate matching methanol formation: the paper's case that this is the intermediate that matters.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_ch_stretch::Meunier.CuBoundFormatesAre.2023::2"
         }
       ],
       "tags": [
@@ -7915,7 +8303,7 @@
       },
       "atoms": "O-C-O",
       "wn_start": 1515,
-      "wn_end": 1620,
+      "wn_end": 1650,
       "short": "νₐₛ(OCO) HCOO*",
       "description": "Formate asymmetric OCO stretch, the marker band of HCOO* and usually the stronger of the two OCO stretches. Its position is not fixed: it moves with the adsorption geometry, so read it together with the symmetric partner and the Δν between them rather than on its own. The in-phase and antiphase C-O pair is what separates formate from carbonate and carboxylate features.",
       "based_on": [],
@@ -8157,6 +8545,45 @@
             "adsorbed"
           ],
           "uid": "formate_asym::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": [
+            1575,
+            1577
+          ],
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the C–H stretch): νₐₛ(OCO) of formate on the zirconia at 1575 cm⁻¹, the paper's second calibration band against sodium-formate standards on Cu-free zirconia (Fig. 1D). The 1577 cm⁻¹ value is from Fig. 3b, where zirconia formate appears as a positive band 9 s after CO₂ was cut while the copper formate decays, which the paper reads as formate re-forming on the sites the lost carbonates had held. Calibrating the copper-bound formate on this band gives 0.133 wt% against 0.0945 wt% from the C–H stretch; the paper prefers the C–H value, since the carboxylate group is the part interacting with the surface.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_asym::Meunier.CuBoundFormatesAre.2023"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 1644,
+          "measured_on": [
+            "cu_0",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Table 1, given as 1639 cm⁻¹ in the text (Fig. 3b, difference spectrum 9 s after CO₂ removal, magnified 20 times, zirconia-formate contribution subtracted, Figs. S3B and S3D): the carboxylate stretch of copper-bound formate, some 65 cm⁻¹ above the zirconia formate on the same sample. Integration region 1 runs 1900 to 1644 cm⁻¹ (Table S1) and was chosen because it gives the cleanest signal for this species. It is the highest νₐₛ(OCO) recorded in the atlas and it is what widened this band's window; the assignment comes from formic acid on Cu(100).",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_asym::Meunier.CuBoundFormatesAre.2023::2"
         }
       ],
       "tags": [
@@ -8179,7 +8606,7 @@
       "lane": 10,
       "sub_lane": 0,
       "wn_min": 1515,
-      "wn_max": 1620
+      "wn_max": 1650
     },
     {
       "id": "formate_sym",
@@ -8192,7 +8619,7 @@
         "j": null
       },
       "atoms": "O-C-O",
-      "wn_start": 1313,
+      "wn_start": 1305,
       "wn_end": 1390,
       "short": "νₛ(OCO) HCOO*",
       "description": "Formate symmetric OCO stretch (HCOO*), paired with νₐₛ(OCO) above. The splitting Δν = νₐₛ − νₛ between the two paired bands is a standard diagnostic for adsorption geometry — how it compares between a more bridging-like and a more chelating-like coordination is a recurring theme in formate vibrational assignments. Where multiple coordination geometries coexist and overlap, polarization-dependent IRRAS/DRIFTS can resolve components that look like a single broad feature in an unpolarized spectrum.",
@@ -8398,6 +8825,45 @@
             "adsorbed"
           ],
           "uid": "formate_sym::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": [
+            1380,
+            1374
+          ],
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the C–H stretch): the third of the three zirconia-formate bands, at 1380 cm⁻¹, and 1374 in the difference spectrum of Fig. 3b where it grows back as carbonate is lost. Table 1 lists the trio 2873, 1575, 1380 as formates on ZrO₂ and names no individual modes, so placing this one on νₛ(OCO) is the author's reading and not the paper's: δ(OCH) overlaps the same region. Integration region 3, 1415.5 to 1313.1 cm⁻¹ (Table S1), is the window the group's earlier kinetics were built on; regions 2 and 4 give the same decay, which is how the paper shows the carbonate contribution is minor.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_sym::Meunier.CuBoundFormatesAre.2023"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 1307,
+          "measured_on": [
+            "cu_0",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 3b and Table 1: the third band of the copper-bound formate trio, at 1307 cm⁻¹, about 70 cm⁻¹ below its zirconia counterpart. The paper names no mode for it either, citing formic acid on Cu(100) for the set as a whole, so the placement on νₛ(OCO) is the author's. Seen only in the difference spectrum 9 s after CO₂ removal, magnified 20 times, with the methoxy and zirconia-formate contributions subtracted. It widened this band's window downward.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "formate_sym::Meunier.CuBoundFormatesAre.2023::2"
         }
       ],
       "tags": [
@@ -8418,8 +8884,8 @@
         "formate_stretch_symmetric_bidentate"
       ],
       "lane": 10,
-      "sub_lane": -1,
-      "wn_min": 1313,
+      "sub_lane": 1,
+      "wn_min": 1305,
       "wn_max": 1390
     },
     {
@@ -9009,7 +9475,7 @@
         "formate_stretch_symmetric_bidentate"
       ],
       "lane": 10,
-      "sub_lane": 1,
+      "sub_lane": -1,
       "wn_min": 1310,
       "wn_max": 1370
     },
@@ -9167,6 +9633,24 @@
             "adsorbed"
           ],
           "uid": "methoxy_asym::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 2927,
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): νₐₛ(CH₃) of methoxy at 2927 cm⁻¹. The paper distinguishes two methoxy types that share this band and the 2822 cm⁻¹ one and differ only in the C–O stretch, 1150 for type I and 1049 for type II. Most of the methoxy is read as a spectator formed by methanol re-adsorbing on the zirconia, removed by hydrolysis with water rather than by reductive elimination.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Meunier.CuBoundFormatesAre.2023"
         }
       ],
       "tags": [
@@ -9380,6 +9864,24 @@
             "adsorbed"
           ],
           "uid": "methoxy_sym::Oing.RoleZnHf.2026::3"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 2822,
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): νₛ(CH₃) of methoxy at 2822 cm⁻¹, shared by both methoxy types the paper distinguishes, which differ only in the C–O stretch. It sits 18 cm⁻¹ below the 2840 cm⁻¹ C–H stretch of the copper-bound formate, which is why the methoxy contribution had to be subtracted before that formate could be integrated (Figs. S3A and S3C).",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Meunier.CuBoundFormatesAre.2023"
         }
       ],
       "tags": [
@@ -9614,6 +10116,27 @@
             "adsorbed"
           ],
           "uid": "methoxy_co_stretch_mono::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": [
+            1150,
+            1159
+          ],
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): the C–O stretch of the paper's methoxy type I at 1150 cm⁻¹, paired with 2927 and 2822 in the C–H region. The 1159 cm⁻¹ value is from the difference spectrum of Fig. 3b, where it appears pointing downward 9 s after CO₂ removal, meaning methoxy newly formed. The paper places that one on the zirconia rather than on the copper, because the C–O stretch of methoxy on Cu(100) is reported at 998 cm⁻¹, far below anything seen here. Type I and type II are named as such and not resolved into binding geometries, so the monodentate placement is the author's.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "methoxy_co_stretch_mono::Meunier.CuBoundFormatesAre.2023"
         }
       ],
       "tags": [
@@ -9703,6 +10226,24 @@
             "adsorbed"
           ],
           "uid": "methoxy_co_stretch_bi::Oing.RoleZnHf.2026"
+        },
+        {
+          "key": "Meunier.CuBoundFormatesAre.2023",
+          "wn": 1049,
+          "measured_on": [
+            "zro2",
+            "cu_zro2"
+          ],
+          "technique": "drifts",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): the C–O stretch of the paper's methoxy type II at 1049 cm⁻¹, sharing 2927 and 2822 with type I. The two types are named I and II and never resolved into binding geometries, so the bidentate placement is the author's reading of the position rather than the paper's claim.",
+          "tags": [
+            "drifts",
+            "infrared",
+            "adsorbed"
+          ],
+          "uid": "methoxy_co_stretch_bi::Meunier.CuBoundFormatesAre.2023"
         }
       ],
       "tags": [
@@ -9806,7 +10347,7 @@
           "technique": "drifts",
           "laser_nm": null,
           "state": "adsorbed",
-          "note": "D₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S14; Table S2): the deuterated methoxy made by the surface Ga-D. Table S2 writes only ν(CD) of CD₃O and does not say which CH₃ mode it replaces. It is recorded as the asymmetric one because 2940/2194 = 1.34 matches the νₐₛ(CH₃) the same table reports, while the νₛ(CH₃) at 2834 cm⁻¹ would put its partner near 2080 cm⁻¹; that reading is the atlas's, not the paper's. A second feature marked C-D at 2067 cm⁻¹ in the figure is absent from Table S2 and left unassigned.",
+          "note": "D₂-TPSR after CO₂ adsorption on precipitated Ga₂O₃ (Fig. S14; Table S2): the deuterated methoxy made by the surface Ga-D. Table S2 writes only ν(CD) of CD₃O and does not say which CH₃ mode it replaces. It is recorded as the asymmetric one because 2940/2194 = 1.34 matches the νₐₛ(CH₃) the same table reports, while the νₛ(CH₃) at 2834 cm⁻¹ would put its partner near 2080 cm⁻¹; that reading is the author's, not the paper's. A second feature marked C-D at 2067 cm⁻¹ in the figure is absent from Table S2 and left unassigned.",
           "tags": [
             "drifts",
             "infrared",

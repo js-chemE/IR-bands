@@ -100,6 +100,9 @@
   let dmView: DmView = 'structure';
   let dmActive = sectionsFor('structure')[0].id;
   let knActive = KN_SECTIONS[0].id;
+  /** Which Knowledge card is open, which is not the same as where the page
+      is scrolled to: the sidebar marks the two separately. */
+  let knOpenKey: string | null = null;
   $: dmSections = sectionsFor(dmView);
 
   // Shared by the long-form pages that own a sidebar table of contents.
@@ -144,6 +147,8 @@
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
+  /* The Color by looks, collapsed like the group list below. */
+  let showLooks = false;
   let hiddenCats: ReadonlySet<string> = new Set();
   let hiddenTags: ReadonlySet<string> = new Set();
   let tagIsolate: string | null = null;
@@ -537,8 +542,21 @@
               label="Color by"
               on:change={e => pickColorDim(e.detail.value)}
             />
-            <!-- The look of two kinds of band, whatever the colour: off, they
-                 are drawn like any other. Enable & Disable below filters them. -->
+            <!-- The look of three kinds of band, whatever the colour: off,
+                 they are drawn like any other. Enable & Disable below filters
+                 them instead. Collapsed, and one to a line once opened: side
+                 by side they read as part of the colour choice above rather
+                 than as three separate looks. -->
+            <button
+              class="disclosure"
+              on:click={() => (showLooks = !showLooks)}
+              aria-expanded={showLooks}
+            >
+              <span class="caret">{showLooks ? '▾' : '▸'}</span>
+              Options
+            </button>
+
+            {#if showLooks}
             <div class="look-pills">
               <LookPill
                 look="hollow"
@@ -565,6 +583,7 @@
                 on:toggle={e => (lookCalculated = e.detail.on)}
               >computational</LookPill>
             </div>
+            {/if}
           </section>
 
           <hr class="divider" />
@@ -658,6 +677,7 @@
                 class="sg-toc-item"
                 class:sg-part={s.part}
                 class:active={knActive === s.id}
+                class:opened={knOpenKey === s.id}
                 on:click={() => scrollToSection(s.id, 'kn')}
               >{s.label}</button>
             {/each}
@@ -888,6 +908,7 @@
           {refs}
           {vibrations}
           on:active={e => knActive = e.detail.id}
+          on:opened={e => (knOpenKey = e.detail.key)}
           on:navigateBand={handleNavigateBand}
           on:navigateRef={handleNavigateRef}
           on:navigateMode={handleNavigateMode}
@@ -1150,11 +1171,15 @@
   }
   .sidebar-toggle:hover { background: var(--surface-hover); color: var(--ink-700); }
 
+  /* One look to a line. Side by side they read as part of the colour choice
+     above rather than as three separate cuts, and the pill shapes, which are
+     what say what each switch does to a band, get lost in the wrap. */
   .look-pills {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 5px;
-    margin-top: 8px;
+    margin-top: 4px;
   }
 
   .sidebar :global(h3) {
@@ -1352,6 +1377,16 @@
     border-left-color: var(--brand-tint-line);
     color: var(--brand-accent);
     font-weight: 600;
+  }
+
+  /* The card that is open. An outline rather than a fill, so it can sit on
+     top of the scroll highlight without either one being hidden: where the
+     reader is and what they have opened are usually the same card, and then
+     the box simply frames the highlight. Drawn as an inset shadow so it
+     costs no layout and the row does not shift when it appears. */
+  .sg-toc-item.opened {
+    box-shadow: inset 0 0 0 1px var(--brand-tint-line);
+    color: var(--brand-accent);
   }
 
   /* ── Page navigation ── */

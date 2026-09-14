@@ -53,24 +53,48 @@
 </script>
 
 <section>
-  <div class="head">
-    <h3>X axis</h3>
-    <div class="toggles">
-    <button
-      class="axis-toggle"
-      class:on={reversed}
-      aria-pressed={reversed}
-      title="Reverse the axis: large values on the left"
-      on:click={() => dispatch('reverseToggle', { on: !reversed })}
-    >reverse</button>
+  <h3>X axis</h3>
+
+  <!-- Two two-sided switches, the Spectroscopy switch's shape at the size the
+       pills were: each names both of its states, because "reverse off" and
+       "shift off" are directions and data in their own right rather than the
+       absence of something. -->
+  <div class="axis-switches">
+    <div class="switch" role="radiogroup" aria-label="Axis direction">
+      <span class="thumb" class:right={reversed} aria-hidden="true"></span>
+      <button
+        role="radio"
+        aria-checked={!reversed}
+        class:on={!reversed}
+        title="Normal: low values on the left, the way a number line runs"
+        on:click={() => reversed && dispatch('reverseToggle', { on: false })}
+      >normal</button>
+      <button
+        role="radio"
+        aria-checked={reversed}
+        class:on={reversed}
+        title="Inverted: high values on the left, the way an infrared spectrum is printed"
+        on:click={() => !reversed && dispatch('reverseToggle', { on: true })}
+      >inverted</button>
+    </div>
+
     <!-- Any axis, read from a zero rather than from nothing. -->
-    <button
-      class="axis-toggle shift-toggle"
-      class:on={shiftOn}
-      aria-pressed={shiftOn}
-      title="Read the axis as a shift from a zero, e.g. a laser line"
-      on:click={() => dispatch('shiftToggle', { on: !shiftOn })}
-    >shift</button>
+    <div class="switch" role="radiogroup" aria-label="Axis datum">
+      <span class="thumb" class:right={shiftOn} aria-hidden="true"></span>
+      <button
+        role="radio"
+        aria-checked={!shiftOn}
+        class:on={!shiftOn}
+        title="No zero: read the axis as an absolute position"
+        on:click={() => shiftOn && dispatch('shiftToggle', { on: false })}
+      >absolute</button>
+      <button
+        role="radio"
+        aria-checked={shiftOn}
+        class:on={shiftOn}
+        title="Read the axis as a shift from a zero, e.g. a laser line"
+        on:click={() => !shiftOn && dispatch('shiftToggle', { on: true })}
+      >shift</button>
     </div>
   </div>
 
@@ -111,23 +135,9 @@
 </section>
 
 <style>
-  .head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--ink-500);
-  }
-
-  /* The unit column as wide as its longest unit, the quantity the rest. */
+  /* The quantity and its unit on one line, and when the shift is on, the zero
+     and its own unit beneath in the same split, so the number lines up under
+     the quantity it is a zero for. */
   .row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -135,9 +145,7 @@
     gap: 6px;
   }
   .zero-row { margin-top: 6px; }
-
   .wide, .narrow { min-width: 0; }
-
   .zero-hint {
     display: block;
     margin: 2px 0 0 2px;
@@ -145,23 +153,52 @@
     color: var(--ink-050);
   }
 
-  .toggles { display: flex; gap: 4px; }
-
-  /* The reverse and shift switches: small pills, filled while on. */
-  .axis-toggle {
-    padding: 1px 10px;
+  /* Two switches on one row, at the size the pills were. Same track and
+     sliding thumb as SpectroscopySwitch, tighter padding and the code face,
+     so the row sits under the heading without competing with it. */
+  .axis-switches {
+    display: grid;
+    gap: 4px;
+    margin: 6px 0 8px;
+  }
+  .switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 2px;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-sm);
-    background: var(--surface);
+    background: var(--surface-sunken);
+  }
+  .thumb {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    border-radius: var(--radius-sm);
+    background: var(--brand-700);
+    transition: transform 0.2s ease;
+  }
+  .thumb.right { transform: translateX(100%); }
+  .switch button {
+    position: relative;
+    padding: 2px 0;
+    border: none;
+    background: none;
     font: inherit;
     font-size: var(--t-code-size);
+    font-family: var(--t-code-ff);
     color: var(--ink-400);
     cursor: pointer;
+    transition: color 0.2s;
+    white-space: nowrap;
   }
-  .axis-toggle:hover { border-color: var(--ink-050); }
-  .axis-toggle.on {
-    background: var(--brand-700);
-    border-color: var(--brand-700);
-    color: var(--surface);
+  .switch button:hover:not(.on) { color: var(--ink-900); }
+  .switch button.on { color: var(--surface); }
+  .switch button:focus-visible {
+    outline: 2px solid var(--brand-tint-line);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
   }
 </style>
