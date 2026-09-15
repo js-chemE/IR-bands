@@ -46,8 +46,14 @@ frontend/src/
   App.svelte              ← root component; owns color/axis/group state and page routing
                             Four destinations: Knowledge, Band chart, References, Dataset
   components/
-    BandChart.svelte         ← Observable Plot chart with zoom/pan
+    BandChart.svelte         ← Observable Plot chart with zoom/pan; floats a quiet
+                              BandCard on hover and reports the selection out
+    BandCard.svelte          ← what a band is, in the one rendering both hosts use:
+                              the chart's floating card and the sidebar's column
     Sidebar.svelte           ← the chart's filter: a set, then the groups
+    Icon.svelte              ← the atlas's symbols by name, one source: the four
+                              destinations as the home page draws them, the two
+                              guides, and the rail's three control glyphs
     ColorLegend.svelte       ← legend swatches for the active color dimension
     AxisSelect.svelte        ← x-axis property and unit selectors, reverse and shift switches
     SpectroscopySwitch.svelte← IR | Raman: which selection rule the chart draws. Bands tagged
@@ -92,6 +98,8 @@ frontend/src/
                               scale and editorial limit, in one place
     zoom.ts               ← viewport pixels ↔ shell pixels while presentation
                               mode's zoom is on (the band chart is the only caller)
+    vibrationLinks.ts     ← a band's vibration_modes ids → the modes and the
+                              geometry each is drawn with (chart and card both ask)
     dataModel.ts          ← DATA MODEL: entities, relations, band-to-band links, tag
                               roles, plus analyse() which counts the live JSON
     labels.ts             ← species/surface key → label resolution (installed once)
@@ -196,6 +204,25 @@ the technique chip from `references[].technique`, the way it already wrote
 fields. Never author a derived tag by hand; the list is in `DERIVED_TAGS` in
 `frontend/src/lib/dataModel.ts`.
 
+**Degeneracy is authored once and inherited.** `degenerated` goes on the mode
+itself, and `spread_degeneracy` in `loader.py` carries it down every `based_on`
+link, transitively: an overtone or a combination of a degenerate mode reaches a
+set of levels too, which is exactly why CO₂'s 2ν₂ can resonate with ν₁. Eight
+modes are authored; thirty-four bands end up carrying the tag. The Degeneracy
+card lists six rows, not thirty-four: its `find()` shows only the modes that
+stand on nothing (built on no band, and nobody's isotopologue), folds their
+branches into one row, and hangs everything that descends from them
+underneath, by either link. CD₄'s bend is methane's bend on heavier hydrogens,
+so it belongs inside that entry rather than beside it as a second discovery.
+
+**One vibration, several branches.** O, P, Q, R and S of a `branch_group` are
+the same transition seen from different rotational levels, so they document the
+same normal mode. `vibration_modes` is therefore written on one of them and
+shared out by `share_branch_modes` in `loader.py`; authoring it five times is
+how methane's Raman O and S branches ended up with no mode and no diagram while
+its P, Q and R had one. Two siblings naming *different* modes is an error and
+is reported: it means one is in the wrong `branch_group`.
+
 **Every tag has a role**, in `TAG_ROLES`, and the roles have one declared
 order, `TAG_ROLE_ORDER`: structure, phase, activity, technique, evidence,
 caveat. It runs from what the band is, through how it was measured, to how far
@@ -203,6 +230,24 @@ to trust it. Everything that renders tags in sequence sorts by it, so the chart
 legend and the Dataset page agree; the legend puts a small gap at each change
 of role rather than a heading. A new tag gets an entry in `TAG_ROLES` and a tip
 in `data/tags.jsonc` in the same change.
+
+**An umbrella tag is a legend switch, not a band label.** `infrared` over the
+seven sampling geometries, `raman` over the scattering ones, `isotope` over the
+three substitutions: each is one click instead of seven on the legend, and on a
+band it is a second chip saying more vaguely what the specific one already
+said. So the umbrella stays on the band's real tag list, which is what the
+legend counts and what hiding a chip filters against, and `getBandChipTags`
+in `chart.ts` drops it from what is drawn. The one exception is a technique
+umbrella a paper actually named: a claim that says nothing finer than "Raman"
+has named its technique, and that chip is a label like any other. Claims never
+carry the family at all (`tag_techniques` in `loader.py` writes the value
+only).
+
+**Anything that MATCHES a tag must use the full list, not the chips.** The
+legend's hover highlight, the hide filter and the isolate all ask "does this
+band carry this tag", and an umbrella is exactly the tag that is on the band
+but not drawn on it. Matching on the chips silently breaks the chips whose
+whole purpose is to select a family at once.
 
 Tag pills are coloured per tag in `TAG_STYLES`, sparingly, and only where the
 tag deserves to stand out; anything without an entry falls back to the neutral
@@ -290,6 +335,31 @@ instead: `.main-area` is a named container (`container-name: content`) and the
 page writes `@container content (max-width: N)`. The band chart's `.plot-area`
 is deliberately not a container, being the one place whose flex and overflow
 behaviour is worth not perturbing.
+
+### The sidebar, open and collapsed
+
+One menu, `NAV` in `App.svelte`, rendered twice: as words while the sidebar is
+open, as symbols on the 36px rail while it is collapsed. The rail is legible
+only because the reader has already met those symbols on the home page cards,
+so both draw `Icon.svelte` and neither keeps a copy of the paths.
+
+- **The heavy rule is a boundary, not a divider.** Above it the atlas (the same
+  six entries on every page), below it whatever this page offers. It is 2px of
+  `--line-slate-strong` against the 1px `--line-soft` that separates one
+  control from the next, and the rail draws the same cut so it reads the same
+  way collapsed. It stays even where the page has no controls.
+- **A rail button says its name on hover**, as a flyout: the title first, then
+  the options where it has any. A destination has only the title; a control has
+  the title and its options under it.
+- **The rail carries the chart's controls in miniature**, in the order the open
+  sidebar puts them: which selection rule is drawn (`IR` / `R`, a toggle, not a
+  menu), Color by, X axis, Enable & Disable, and Group filter. Each is the
+  minimal form of the full control: the group filter offers the sets and not
+  the per-group toggles, and the axis offers the quantity and the two switches
+  but neither the unit (every quantity opens in the unit it is usually drawn
+  in) nor the shift zero (a number to type).
+- **The boundary rule is grey (`--line-boundary`), never blue.** Blue in the
+  sidebar means "you are here", and nothing else may borrow it.
 
 ### Presentation mode
 
@@ -441,7 +511,13 @@ guide, source guide):
   on hover), then `.card-title` with the `wip` chip where the card is
   unfinished, `.card-desc` as a two- to five-line teaser, and `.card-cta`, the
   arrow at the foot. A longer teaser grows the card rather than clipping, and
-  the row equalises to the tallest.
+  **the row equalises to its own tallest card, row by row** (`equalizeCards`),
+  with `CARD_LAYOUT.height` as the floor. Two rows are independent: one height
+  for the whole page would let the two longest teasers on it make every other
+  card a fifth taller than its content. The grouping reads `offsetTop` /
+  `offsetHeight` and never a bounding rect, because a card carries a hover lift
+  and a FLIP glide, and a rect reports where a card is being animated to rather
+  than where the layout put it.
 
   **An opened card has two required sections and is otherwise free**
   (`KnowledgePage.svelte`, the `.kn-sec` classes). Only these two, and only
@@ -583,6 +659,96 @@ free-molecule families drop out and a phase-less band (true of both forms)
 stays in both sets.
 
 **Lane layout (`layout.py`):** Two-level layout. `assign_lanes()` is a lookup, not a packing problem: it reads the `lanes` table in `bands.jsonc` (the chart's rows, in order, each naming the groups that share it) and gives every band the index of its group's row. Every group must sit in exactly one lane; `build.py` fails otherwise. `assign_sub_lanes()` then staggers overlapping bands within a lane into five sub-lanes (0, +1, −1, +2, −2), placing each `branch_group` as one unit so the branches of a transition share a sub-lane. The one exception is a family whose ΔJ = ±1 and ±2 branches actually run over each other, as methane's Raman bands do: only then is it split, and only on that boundary. Units that still do not fit fall back to the centre line and are logged. Treat that log line as a signal about the data rather than about the layout: it usually means one mode has been split into more bands than it needs.
+
+**A band's detail: one card, two hosts** (`BandCard.svelte`). A hover floats it
+beside the pointer, quiet: name, range, tags, the mode diagrams beside it, and
+the bare citations. A click puts the same card in the sidebar right of the
+chart, with the mode diagrams in its header, the band's own description and
+every reference with its note.
+
+`BandCard` is one component on purpose, with `full` saying how much of it to
+show. The card is the densest thing in the atlas and the two readings differ
+only in how much is drawn, so two implementations would drift within a month.
+What differs is the box around it, which is the host's business.
+
+**The sidebar is a sibling of the plot *and* the legend** (`.chart-row` in
+`App.svelte`), not a child of the chart's scroller. That is what keeps the
+plot's vertical scrollbar on the plot, to the sidebar's left, and lets the
+column run the full height of the page rather than scrolling away with the
+lanes. `fill` on the card then gives the leftover height to the reference
+list, which is the one part that scrolls: the identity, the tags and the
+description stay put, and the hint line sits directly after the last
+reference rather than pinned to the floor.
+
+**The three looks are not three defaults.** Hollow (inactive) and faded
+(unreferenced) are on: both say the chosen spectroscopy cannot see the band,
+which is about the chart the reader is looking at. The computational grey-out
+is **off**: a calculation is evidence, and greying a band before anybody asked
+reads as a caveat about the chemistry rather than an answer to a question about
+method. It stays one click away, under Color by → Options.
+
+**The mode line is `category (subtype) | branch X | atoms`.** The bracket holds
+only the subtype, which for a stretch can only be symmetric or asymmetric, so
+the branch gets a named slot of its own: appended bare it read as a subtype and
+N₂'s Raman stretch announced itself as "stretch S". The letter is on the title
+too, through `branchSuffix`, bracketed there; `branchLabel` is the same
+spelling without the brackets, for the slot.
+
+**The hovered band is painted last.** The highlight overlay paints its glows
+in list order and SVG paints later on top, so the list ends with whatever the
+pointer is on. A band shares its lane with its branch siblings and is
+staggered into a sub-lane that overlaps them, so painting the active band
+first (as it once did) drew every sibling over the top of it: the band you
+asked about was the one you could not see.
+
+**Connector rules** (`BandChart.svelte`), all three learned the hard way:
+
+- **Clipped to the plot.** Every arc is drawn inside `clipPath#plot-clip`,
+  which is the box from `marginLeft` to the last tick. A connector that leaves
+  it is a line over the lane labels. Clipped, not shortened: shortening would
+  move endpoints that mean something.
+- **An isotopologue link anchors band to band where the child names a branch.**
+  CD₄'s δₛ O branch names CH₄'s δₛ O branch, P names P; collapsing the parent
+  to its branch group (which is right for fermi and based_on) landed the arc on
+  the family's midpoint, a position no band occupies and four times out of five
+  not even the right sibling. A child with no branch is the whole transition
+  and keeps the family anchor.
+- **Its bridge height comes from the lane, not from the two bands**
+  (`laneTopY`). Measured off whichever band sat higher, the horizontal hopped
+  up and down with the sub-lane stagger as you stepped through a family, as if
+  the links differed. They do not.
+
+**The floating card never takes the pointer** (`pointer-events: none`, on it
+and on the mode cards beside it). It used to, back when a click pinned it and
+its references had to be clickable. With the sidebar holding that job, leaving
+it on cost a dead zone the size of the card wherever it happened to sit, which
+is always over the bands next to the one being read: they simply could not be
+hovered.
+
+**A hover still shows while a band is selected.** The hovered band glows on top
+of the selection's highlight, and its quiet card floats as usual, but the arcs
+stay the selected band's: they say what the band being *read* is built from,
+and a second set chasing the pointer would turn one readable statement into two
+competing ones.
+
+**The chart owns the selection; the sidebar only reads it.** The highlight and
+the arcs to a band's partners belong to the chart, so it keeps `selected` and
+reports it through a `select` event. Closing the sidebar has to clear that
+selection (`clearNonce`), or the same band could not be selected again:
+clicking it a second time is not a change, so nothing would reopen.
+
+**Once open it stays open.** Dismissing a band leaves the column standing with
+a grey line saying nothing is selected, and that line carries the only way to
+close it. The chart would otherwise jump a third of its width every time
+somebody clicked past a band. There is deliberately no ✕ over the card: a
+band's detail is what the column is for, and a close button sitting on it all
+day is chrome competing with content.
+
+Why docked at all: a pinned card is 300px of dense text over the neighbouring
+lanes, which is exactly where the arcs to a selected band's partners are drawn.
+The column leaves those visible, gives the chart a stable width, and stops the
+detail moving with the pointer, which is what makes the chart followable from
+the back of a room.
 
 **Frontend rendering (`chart.ts`):** `buildChart()` builds a fresh Observable Plot SVG on every reactive update. Color dimension, axis property/unit, enabled groups, and hidden legend categories are all passed in as props; the chart is fully recomputed rather than mutated.
 

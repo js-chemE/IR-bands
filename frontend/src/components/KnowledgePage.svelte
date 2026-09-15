@@ -148,6 +148,7 @@
   import LambertBeerDiagram from './knowledge/LambertBeerDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
+  import IsotopeShiftTable from './knowledge/IsotopeShiftTable.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
   import FormulaLine from './knowledge/FormulaLine.svelte';
@@ -640,29 +641,91 @@
   }
 
   /*
-   * Every closed card the same size. The width is fixed; the height is the
-   * tallest closed card's (a two-line title, a longer teaser), measured once
-   * the fonts are in, so a card with less text does not sit shorter than its
-   * neighbours. CARD_LAYOUT.height stays the floor.
+   * Every closed card in a ROW the same size, and rows independent of each
+   * other. A row has to line up or the page looks broken; two rows do not,
+   * and tying them together is what a single page-wide height did. The two
+   * longest teasers on the page (Where the Radiation Goes, the Lambert-Beer
+   * Law) run to about 360px, everything else to 287-309, so one number for
+   * the whole page made twenty-odd cards a fifth taller than their own
+   * content for the sake of two. CARD_LAYOUT.height stays the floor.
+   *
+   * Measured rather than counted: which cards share a row depends on how many
+   * fit, which depends on the width the page has, which changes with the
+   * sidebar, the window and the presentation scale. Asking the browser where
+   * each card actually landed answers all three at once.
    */
-  let cardH = CARD_LAYOUT.height;
   function equalizeCards() {
-    let tallest = CARD_LAYOUT.height;
-    for (const c of CARDS) {
-      const el = cardEls[c.key];
-      if (!el || c.key === openKey) continue;
-      const visual = el.querySelector<HTMLElement>('.card-visual');
-      const body = el.querySelector<HTMLElement>('.card-body');
-      if (!visual || !body) continue;
-      // Content plus the 1px border top and bottom, at its exact (fractional)
-      // height, so no card ends up a pixel taller than the rest.
-      tallest = Math.max(tallest, visual.getBoundingClientRect().height + body.getBoundingClientRect().height + 2);
+    // Only with everything closed: an open card is several times the height
+    // of its neighbours and would drag its whole row up to its own size.
+    if (phase !== 'closed') return;
+    const els = CARDS.map(c => cardEls[c.key]).filter(Boolean) as HTMLElement[];
+    if (!els.length) return;
+
+    // Back to the floor first, so what is read next is each card's own
+    // content height rather than whatever the last pass imposed.
+    for (const el of els) el.style.minHeight = `${CARD_LAYOUT.height}px`;
+
+    /* Group by the line the card landed on, through `offsetTop` and never
+       through a bounding rect. A card carries a hover lift and a FLIP glide,
+       both transforms, and a rect reports where a card is being animated to
+       rather than where the layout put it: measured that way, three cards
+       sharing a row read as three different rows and each keeps its own
+       height. `offsetTop` and `offsetHeight` are layout, so they ignore
+       every transform in flight.
+
+       Keyed by container as well, because each part of the page is its own
+       flex box and the first row of every one of them is at offsetTop 0. */
+    const byContainer = new Map<Element, Map<number, HTMLElement[]>>();
+    for (const el of els) {
+      const parent = el.parentElement;
+      if (!parent) continue;
+      let rows = byContainer.get(parent);
+      if (!rows) byContainer.set(parent, (rows = new Map()));
+      const top = el.offsetTop;
+      const row = rows.get(top);
+      if (row) row.push(el);
+      else rows.set(top, [el]);
     }
-    cardH = Math.ceil(tallest);
+
+    for (const rows of byContainer.values()) {
+      for (const row of rows.values()) {
+        const tallest = Math.max(...row.map(el => el.offsetHeight));
+        for (const el of row) el.style.minHeight = `${tallest}px`;
+      }
+    }
   }
+
+  /* Rows change membership whenever the width does (the sidebar opening, the
+     window, the presentation scale), and a card that Svelte rebuilt on close
+     has lost the height that was written on it. Both are answered by running
+     it again after the layout has settled. */
+  let equalizeFrame = 0;
+  function queueEqualize() {
+    if (equalizeFrame) cancelAnimationFrame(equalizeFrame);
+    equalizeFrame = requestAnimationFrame(() => {
+      equalizeFrame = 0;
+      equalizeCards();
+    });
+  }
+  /* Both conditions, not just the phase: `closed` is set one statement before
+     `openKey` is cleared, and the card that was open is still drawn open at
+     that moment. */
+  $: if (phase === 'closed' && openKey === null) queueEqualize();
+
+  let rowObserver: ResizeObserver | null = null;
+  let lastRowWidth = 0;
 
   onMount(() => {
     (document.fonts?.ready ?? Promise.resolve()).then(equalizeCards);
+    /* Width only. Watching the height too would be a loop: writing the row
+       heights changes the page's height, which would call this again. */
+    rowObserver = new ResizeObserver(entries => {
+      const w = Math.round(entries[0].contentRect.width);
+      if (w === lastRowWidth) return;
+      lastRowWidth = w;
+      queueEqualize();
+    });
+    rowObserver.observe(root);
     if (openOnMount && CARDS.some(c => c.key === openOnMount)) {
       const key = openOnMount;
       requestAnimationFrame(() => {
@@ -677,13 +740,15 @@
 
   onDestroy(() => {
     if (frame) cancelAnimationFrame(frame);
+    if (equalizeFrame) cancelAnimationFrame(equalizeFrame);
+    rowObserver?.disconnect();
     scroller?.removeEventListener('scroll', onScroll);
   });
 </script>
 
 <svelte:window on:keydown={onKey} on:click={onPageClick} />
 
-<main class="content" bind:this={root} style="--card-h:{cardH}px">
+<main class="content" bind:this={root}>
   <h1 class="page-title">Knowledge</h1>
   <p class="lead">
     Why the bands behave the way they do. First how molecules move and how light and
@@ -858,6 +923,14 @@
           <!-- A section of its own for each list the card carries. -->
           {#if f.kind === 'phenomenon'}
             {@const p = phenomenon(f.key)}
+            <!-- The isotope card earns a table of its own: the shift is the
+                 one phenomenon here that can be predicted from first
+                 principles, so the card can be asked how well that works. -->
+            {#if f.key === 'isotopologue'}
+              <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
+                <IsotopeShiftTable {bands} on:band={e => dispatch('navigateBand', { id: e.detail.id })} />
+              </div>
+            {/if}
             <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
               <AtlasExamples
                 examples={examplesOf[f.key] ?? []}

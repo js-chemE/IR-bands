@@ -106,6 +106,7 @@ export const COLOR_GROUPS: ColorGroup[] = [
       'surface-sunken': { value: '#fafafa', usage: 'Sidebar' },
       'surface-hover':  { value: '#f0f0f0', usage: 'Hovered button or row' },
       'line-strong':    { value: '#d0d0d0', usage: 'Control borders (buttons, selects)' },
+      'line-boundary':  { value: '#b5b5b5', usage: 'The one rule that separates two kinds of thing rather than two controls: the sidebar cut between the main menu and the page\'s own controls, drawn 2px. Grey and not blue, because blue in the sidebar means "you are here"' },
       'line':           { value: '#dddddd', usage: 'Tooltip border' },
       'line-soft':      { value: '#e5e5e5', usage: 'Dividers, sidebar edge' },
       'line-faint':     { value: '#eeeeee', usage: 'Inner rules inside a card' },
@@ -655,7 +656,12 @@ export const CHART_LAYOUT = {
   /** Vertical offset of sub-lanes +1 / -1, as a fraction of the bar height. */
   subLaneOffsetFrac: 0.52,
   /** Plot margins, shared by the chart and the sticky axis strip so ticks align. */
-  marginLeft: 200,
+  /* The left one is the lane labels' column, and nothing else: the widest
+     label in the dataset ("Support oxide") measures 118px, so this is that
+     plus the gap and a little room for a longer name. It was 200 for a long
+     time, which spent 60px of every screen on white space. Check it against
+     the real labels before widening a group's name. */
+  marginLeft: 140,
   marginRight: 20,
   // Only left/right carry anything (the lane labels). The x axis is a
   // separate sticky strip, so top and bottom are pure breathing room and stay
@@ -668,6 +674,10 @@ export const CHART_LAYOUT = {
   width: 1100,
   /** Tooltip content-box width in px. */
   tooltipWidth: 300,
+  /** The docked band panel's column, px. Wider than the floating tooltip
+      because it holds the mode diagrams and the full reference list, and
+      because it is read at leisure rather than glanced at. */
+  panelWidth: 360,
   /** Linked-vibrations panel width, as a fraction of the tooltip width. */
   vibPanelFrac: 0.55,
   /** Gap between tooltip and vibrations panel, px. */
@@ -682,7 +692,8 @@ export const CHART_LAYOUT_DOCS: { name: string; value: string; usage: string }[]
   { name: 'laneHeight',      value: '1.2 y-units',      usage: 'One lane of the stack; lanes are packed by wavenumber range in layout.py' },
   { name: 'barFraction',     value: '0.25',             usage: 'Band rectangle fills a quarter of its lane, the rest is breathing room' },
   { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1, +2. A branch family moves as one unit, so its members share a sub-lane unless its ΔJ = ±1 and ±2 branches actually run over each other. A fifth overlapping band falls back to the centre line and is logged, which is the signal that the data has been split too finely' },
-  { name: 'margins',         value: '200 / 20 / 12 / 12 px', usage: 'left / right / top / bottom. The 200px left margin holds the lane labels; top and bottom are just breathing room, since the x axis is a separate strip' },
+  { name: 'margins',         value: '140 / 20 / 12 / 12 px', usage: 'left / right / top / bottom. The left margin is the lane labels\' column and is sized to the widest of them (118px today); top and bottom are just breathing room, since the x axis is a separate strip' },
+  { name: 'panelWidth',      value: '360px',            usage: 'The band panel docked beside the chart when a band is selected. It takes its room from the plot rather than covering it, so the arcs to a band\'s partners stay visible; a hover still floats, and goes quiet while the panel is the place detail is read' },
   { name: 'vertical padding', value: 'half a lane, top and bottom', usage: 'The y domain ends half a lane pitch beyond the outermost bar edge, so the stack is not floating in empty space' },
   { name: 'axis strip',      value: '50px, sticky',     usage: 'Drawn as a separate plot pinned above the scrolling lane stack, sharing width and margins' },
   { name: 'tooltip',         value: '300px content box', usage: 'Plus 22px of padding and border. Flips to the other side of the cursor when it would run off screen' },
@@ -764,6 +775,7 @@ export function tokenCss(): string {
     for (const [name, t] of Object.entries(map)) lines.push(`  --${name}: ${t.value};`);
   }
   lines.push(`  --tip-width: ${CHART_LAYOUT.tooltipWidth}px;`);
+  lines.push(`  --band-panel-w: ${CHART_LAYOUT.panelWidth}px;`);
   lines.push(`  --tip-refs-max-h: ${CHART_LAYOUT.refsScrollMaxHeight}px;`);
   lines.push(`  --card-w: ${CARD_LAYOUT.width}px;`);
   lines.push(`  --card-h: ${CARD_LAYOUT.height}px;`);

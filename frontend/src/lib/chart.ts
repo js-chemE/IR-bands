@@ -1,13 +1,13 @@
 import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
-import { TECHNIQUES } from './dataModel';
+import { TECHNIQUES, TECHNIQUE_FAMILY, TAG_ROLES, isUmbrellaTag } from './dataModel';
 import { getCat, getCatLabel, getCatColor, getColor, fadeColor, tagStyle, EVIDENCE_ORDER } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
 import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
-import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
+import { branchSuffix, branchLabel, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
 import {
   TAG_ROLE_LABEL,
   isUmbrellaTag,
@@ -403,10 +403,11 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
      separate switches would split one question into two. */
   for (const r of b.references ?? []) {
     if (r.technique && !auto.includes(r.technique)) auto.push(r.technique);
-    /* The family beside the value, as loader.py derives it onto the claim:
-       "infrared" for any sampling geometry, "raman" for the scattering ones.
-       Read from the technique rather than from r.tags so the chart does not
-       depend on the build having run the derivation. */
+    /* The family beside the value: "infrared" for any sampling geometry,
+       "raman" for the scattering ones. It is a legend switch, not a label,
+       and getBandChipTags below is what keeps it off the band itself. Read
+       from the technique rather than from r.tags, so the chart does not
+       depend on any derivation having run. */
     const family = r.technique ? TECHNIQUE_FAMILY[r.technique] : undefined;
     if (family && !auto.includes(family)) auto.push(family);
     /* The phase, which a band no longer carries of its own. Nothing was ever
@@ -435,6 +436,36 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
   if (b.isotopologue_of) auto.push('isotope');
   // auto-tags first, then explicit tags (deduped)
   return [...auto, ...explicit.filter(t => !auto.includes(t))];
+}
+
+/**
+ * The chips a band wears, as against the switches the legend offers.
+ *
+ * An umbrella tag is a way to ask a question of the whole chart, not a label
+ * for one band. Beside the specific chip it says the same thing again and
+ * more vaguely: "deuterium" already implies "isotope", "transmission" already
+ * implies "infrared". On a legend that is one click instead of seven; on a
+ * band it is a second chip earning nothing.
+ *
+ * So the umbrella stays on the band's real tag list, which is what the legend
+ * counts and what hiding a chip filters against, and only the display drops
+ * it. The one exception is a technique umbrella a paper actually named: a
+ * claim that says nothing finer than "Raman" HAS named its technique, and
+ * that chip is a label like any other.
+ */
+export function getBandChipTags(b: Band, spectroscopy: Spectroscopy | null = null): string[] {
+  const all = getBandTags(b, spectroscopy);
+  const named = new Set(
+    (b.references ?? []).map(r => r.technique).filter(Boolean) as string[],
+  );
+  return all.filter(tag => {
+    const role = TAG_ROLES[tag];
+    if (!role || !isUmbrellaTag(tag, role)) return true;
+    if (role === 'technique') return named.has(tag);
+    // Every other umbrella is derived, so it is redundant exactly when the
+    // specific tag it covers is there to say it better.
+    return !all.some(o => o !== tag && TAG_ROLES[o] === role && !isUmbrellaTag(o, role));
+  });
 }
 
 export const UNTAGGED_KEY = '__untagged__';
@@ -932,10 +963,18 @@ export function buildChart(
       if (bt.length === 0 ? hiddenTags.has(UNTAGGED_KEY) : bt.some(t => hiddenTags.has(t))) continue;
     }
 
+    /* What kind of motion this is, and nothing else. The bracket holds the
+       subtype, which for a stretch can only be symmetric or asymmetric.
+
+       The branch gets a slot of its own rather than being appended to this
+       one. Written bare after the category it read as a subtype, and for a
+       stretch the only subtypes there are are symmetric and asymmetric, so
+       N₂'s Raman stretch announced itself as "stretch S". Named and
+       separated, it says what it is. */
     const vib = b.vibration.subtype
       ? `${b.vibration.category} (${b.vibration.subtype})`
       : b.vibration.category;
-    const branch = b.vibration.branch ? ` ${b.vibration.branch}` : '';
+    const branch = b.vibration.branch ? ` | branch ${branchLabel(b)}` : '';
 
     const color = getColor(b, groups, colorDim);
 
@@ -956,7 +995,7 @@ export function buildChart(
 
     if (x2 < xMin || x1 > xMax) continue; // outside visible domain
 
-    const bandTags = getBandTags(b, spectroscopy);
+    const bandTags = getBandChipTags(b, spectroscopy);
 
     plotBands.push({
       x1, x2,

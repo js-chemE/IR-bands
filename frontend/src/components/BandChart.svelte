@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
-  import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
+  import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
   import { cssZoom } from '../lib/zoom';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
@@ -18,6 +18,8 @@
   const ISO_STROKE = ISOTOPE_STYLE.color;
   import { geometryFor, type MoleculeGeometry } from '../lib/moleculeGeometry';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
+  import BandCard from './BandCard.svelte';
+  import { linkedModesFor, type LinkedMode } from '../lib/vibrationLinks';
 
   // Everything the chart draws comes from this list, not from `bands`.
   $: shownBands = showIsotopes ? bands : bands.filter(b => !b.isotopologue_of);
@@ -25,18 +27,11 @@
   const dispatch = createEventDispatcher<{
     navigateRef: { key: string };
     navigateMode: { moleculeId: string; topologyId: string; modeId: string };
+    /* Which band is selected, out to whoever draws the sidebar. The chart
+       still owns the selection, because it owns the highlight and the arcs
+       that go with it; this only reports it. */
+    select: { hit: PlotBandHit | null };
   }>();
-
-  function goToRef(key: string) {
-    selected = null;
-    selectedId = null;
-    dispatch('navigateRef', { key });
-  }
-
-  function wnList(wn: number | number[] | null): number[] {
-    if (wn == null) return [];
-    return Array.isArray(wn) ? wn : [wn];
-  }
 
   export let bands: Band[];
   export let groups: GroupMap;
@@ -70,13 +65,25 @@
 
   const HIT_PAD = 3; // must match chart.ts
 
+  /* Band by id, so the two legend-hover lookups below do not scan the whole
+     dataset once per drawn band. */
+  $: bandById = new Map(bands.map(b => [b.id, b]));
+
   $: highlightedHits = hoveredCat
     ? hitBands.filter(h => {
-        const b = bands.find(b => b.id === h.tipData.id);
+        const b = bandById.get(h.tipData.id);
         return b ? getCat(b, colorDim) === hoveredCat : false;
       })
     : hoveredTag
-      ? hitBands.filter(h => h.tipData.tags.includes(hoveredTag!))
+      /* Matched against the band's FULL tag list, not the chips it wears.
+         An umbrella (infrared, raman, isotope) is a legend switch that is
+         deliberately not drawn on the band, so matching on `tipData.tags`
+         would highlight nothing for exactly the chips whose whole purpose
+         is to select a family at once. */
+      ? hitBands.filter(h => {
+          const b = bandById.get(h.tipData.id);
+          return b ? getBandTags(b, spectroscopy).includes(hoveredTag!) : false;
+        })
       : [];
 
   // The "active" band for partner highlighting: a frozen selection takes
@@ -169,7 +176,47 @@
   }
   $: fermiGroups = active ? resolveTargetGroups(active, 'fermi') : [];
   $: basedOnGroups = active ? resolveTargetGroups(active, 'based_on') : [];
-  $: isotopologueGroups = active ? resolveTargetGroups(active, 'isotopologue') : [];
+
+  /*
+   * Isotopologue links anchor on the band, not on the family, wherever the
+   * data is that precise.
+   *
+   * CD₄'s δₛ O branch names CH₄'s δₛ O branch, P names P, and so on: the link
+   * is between two single lines. Collapsing the parent to its branch group,
+   * the way a fermi or based_on target is collapsed, threw that away and
+   * landed the arc on the family's midpoint, a position no band occupies and
+   * four fifths of the time not even the right sibling.
+   *
+   * The test is whether the CHILD carries a branch. If it does it is one line
+   * talking to one line, and both ends anchor on themselves. If it does not
+   * (CD₄'s ν₃, whose parent happens to be the Q of a family) then the child is
+   * the whole transition, it has no one sibling to mean, and the family centre
+   * is the honest anchor.
+   */
+  interface LinkPair { src: PlotBandHit[]; dst: PlotBandHit[]; }
+
+  function isotopologuePairsFor(activeHit: PlotBandHit): LinkPair[] {
+    const branchResolved = !!bandById.get(activeHit.tipData.id)?.vibration?.branch;
+    const ids = activeHit.tipData.partners.filter(p => p.kind === 'isotopologue').map(p => p.id);
+    const seen = new Set<string>();
+    const pairs: LinkPair[] = [];
+    for (const id of ids) {
+      const found = findHitOrSynthetic(id);
+      if (!found) continue;
+      if (branchResolved) {
+        if (seen.has(found.hit.tipData.id)) continue;
+        seen.add(found.hit.tipData.id);
+        pairs.push({ src: [activeHit], dst: [found.hit] });
+      } else {
+        const key = found.hit.tipData.branchGroup ?? `__single__${found.hit.tipData.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        pairs.push({ src: activeGroup, dst: groupHits(found.hit) });
+      }
+    }
+    return pairs;
+  }
+  $: isotopologuePairs = active ? isotopologuePairsFor(active) : [];
 
   // The active band's own group (its branch siblings, or just itself) — the
   // shared source anchor for every fermi/based_on connector, so hovering any
@@ -181,12 +228,37 @@
   // links, not just the center point used to anchor the connector. Synthetic
   // (currently-hidden) hits are filtered out here — only real, drawn bands
   // get the glow treatment; hidden partners only anchor a connector.
+  /* With a band selected and open in the sidebar, the pointer still has to
+     say where it is: the hovered band glows too, on top of the selection's
+     own highlight and its arcs.
+
+     Only the glow, though, and never a second set of connectors. The arcs say
+     what the band being READ is built from, and a second set chasing the
+     pointer would turn the one readable statement on the chart into two
+     competing ones. */
+  $: hoverAlso = selected && hovered && hovered !== selected ? [hovered] : [];
+
+  /* Painted in this order, and SVG paints later on top, so the list ends with
+     whatever the reader is pointing at.
+
+     It used to start with it. A band shares its lane with its branch siblings
+     and is staggered into a sub-lane that overlaps them, so hovering the one
+     underneath glowed it and then painted every sibling over the top of it:
+     the band you asked about was the one you could not see. Partners first,
+     then the active band, then the hovered one where a selection means those
+     are two different bands. */
   $: glowHits = (hoveredCat || hoveredTag)
     ? highlightedHits
     : active
-      ? [active, ...directLinks.map(l => l.hit), ...activeGroup,
-         ...fermiGroups.flat(), ...basedOnGroups.flat(), ...isotopologueGroups.flat()]
-          .filter(h => hitBands.includes(h))
+      ? (() => {
+          const top = [active, ...hoverAlso].filter(h => hitBands.includes(h));
+          const under = [
+            ...directLinks.map(l => l.hit), ...activeGroup,
+            ...fermiGroups.flat(), ...basedOnGroups.flat(),
+            ...isotopologuePairs.flatMap(pr => pr.dst),
+          ].filter(h => hitBands.includes(h) && !top.includes(h));
+          return [...new Set([...under, ...top])];
+        })()
       : [];
 
   // Connector geometry differs by kind:
@@ -205,7 +277,9 @@
   //  - isotopologue: the same staple as fermi, dotted and lifted less, from
   //    the substituted band back to its natural-abundance parent. Child ->
   //    parent only, like based_on: hovering ν(C-H) doesn't fan out to every
-  //    isotopologue someone happened to measure.
+  //    isotopologue someone happened to measure. Unlike the other two it
+  //    anchors band to band where the child names one branch — see
+  //    isotopologuePairsFor.
   // Fermi, based_on and isotopologue share the same anchor (group center,
   // expanding any multi-branch side to its center) but not the same peak
   // height; the visual difference is shape (staple vs arc), line style, and
@@ -215,6 +289,29 @@
   const ISOTOPOLOGUE_LIFT_FRAC = 0.5;
   function midLaneLift(frac: number) {
     return frac * (laneHeightPx / 2);
+  }
+
+  /**
+   * The top of the lane(s) two hits sit in: the highest sub-lane any band
+   * there occupies.
+   *
+   * An isotopologue staple used to bridge off whichever of its two bands sat
+   * higher, so stepping through the branches of one family made the
+   * horizontal hop up and down with the sub-lane stagger, as if the links
+   * differed. They do not: every branch of CD₄'s δₛ points at the matching
+   * branch of CH₄'s, and the line saying so should sit at one height and only
+   * move when the lane does.
+   */
+  function laneTopY(hits: PlotBandHit[]): number {
+    const lanes = new Set(
+      hits.map(h => bandById.get(h.tipData.id)?.lane).filter(l => l !== undefined),
+    );
+    let top = Math.min(...hits.map(h => h.py1));
+    for (const h of hitBands) {
+      const ln = bandById.get(h.tipData.id)?.lane;
+      if (ln !== undefined && lanes.has(ln)) top = Math.min(top, h.py1);
+    }
+    return top;
   }
 
   type Connector =
@@ -245,7 +342,12 @@
     const src = groupCenter(srcHits);
     const dst = groupCenter(dstHits);
     const lift = liftOverride ?? midLaneLift(LIFT_FRAC[kind]);
-    const peakY = Math.min(src.y, dst.y) - lift;
+    // Isotopologue staples measure from the lane, not from the two bands, so
+    // the whole family of them shares one height. See laneTopY.
+    const base = kind === 'isotopologue'
+      ? laneTopY([...srcHits, ...dstHits])
+      : Math.min(src.y, dst.y);
+    const peakY = base - lift;
     if (kind === 'fermi' || kind === 'isotopologue') {
       return { kind, xA: src.x, xB: dst.x, yA: src.y, yB: dst.y, bridgeY: peakY };
     }
@@ -277,7 +379,7 @@
     ? [
         ...directLinks.map(l => connectorBetween(active!, l.hit)),
         ...fermiGroups.map(g => groupConnector(activeGroup, g, 'fermi')),
-        ...isotopologueGroups.map(g => groupConnector(activeGroup, g, 'isotopologue')),
+        ...isotopologuePairs.map(pr => groupConnector(pr.src, pr.dst, 'isotopologue')),
         ...scaledBasedOnConnectors,
       ]
     : [];
@@ -376,11 +478,6 @@
     requestAnimationFrame(() => {
       const x = (found.hit.px1 + found.hit.px2) / 2;
       const y = (found.hit.py1 + found.hit.py2) / 2;
-      const place = () => {
-        const rect = shellRect(container);
-        selectedTipX = rect.left + x;
-        selectedTipY = rect.top + y;
-      };
       // Vertical scroll now happens inside .chart-scroll (so the sticky
       // axis-strip/legend stay put — see App.svelte), while horizontal
       // scroll still happens on .main-area — two different ancestors now,
@@ -408,11 +505,9 @@
               behavior: 'smooth',
             });
           }
-          setTimeout(place, 350);
           return;
         }
       }
-      place();
     });
   }
 
@@ -425,11 +520,30 @@
 
   let mouseX = 0;
   let mouseY = 0;
-  let selectedTipX = 0;  // click position, in the chart's own pixels
-  let selectedTipY = 0;
   let tipH = 0;
 
+  /* What the chart itself is about: the selection if there is one, otherwise
+     whatever the pointer is over. The highlight, the arcs to a band's
+     partners and the mode resolution all follow this. */
+  /* Closing the sidebar clears the selection through this, because a band
+     that stayed selected with nothing showing it could not be selected again:
+     clicking it a second time is not a change, so nothing would reopen. */
+  export let clearNonce = 0;
+  let appliedClearNonce = clearNonce;
+  $: if (clearNonce !== appliedClearNonce) {
+    appliedClearNonce = clearNonce;
+    selected = null;
+    selectedId = null;
+  }
+
   $: shown = selected ?? hovered;
+  $: dispatch('select', { hit: selected });
+
+  /* What the floating card shows, which is not the same thing. A selected
+     band is read in the sidebar, so pinning a second copy of it to the
+     pointer would be the same card twice; the float is for the band under
+     the pointer and nothing else. */
+  $: floating = hovered && hovered.tipData.id !== selectedId ? hovered : null;
 
   // Per-reference expand/collapse, scoped to whichever band's tooltip is
   // currently shown (collapsed-by-default whenever a band cites more than
@@ -456,34 +570,8 @@
   // tooltip's own position below, since whether there's a linked-vibrations
   // panel at all changes how much horizontal room the flip check needs.
   // ---------------------------------------------------------------------------
-  interface LinkedMode {
-    mode: VibrationMode;
-    geometry: MoleculeGeometry | null;
-    moleculeId: string;
-    topologyId: string;
-  }
-
-  function resolveMode(modeId: string): LinkedMode | null {
-    for (const molecule of vibrations.molecules) {
-      const mode = molecule.modes.find(m => m.id === modeId);
-      if (mode) {
-        const topologyId = mode.topology ?? molecule.topologies[0]?.id ?? '';
-        return {
-          mode,
-          geometry: topologyId ? geometryFor(molecule.id, topologyId) : null,
-          moleculeId: molecule.id,
-          topologyId,
-        };
-      }
-    }
-    return null;
-  }
-
-  $: linkedModes = shown
-    ? shown.tipData.vibrationModeIds
-        .map(resolveMode)
-        .filter((m): m is LinkedMode => m !== null)
-    : [];
+  $: linkedModes = shown ? linkedModesFor(vibrations, shown.tipData.vibrationModeIds) : [];
+  $: floatModes = floating ? linkedModesFor(vibrations, floating.tipData.vibrationModeIds) : [];
 
   // Selected tooltip stays at click position; hover tooltip follows the mouse.
   const TIP_W = CHART_LAYOUT.tooltipWidth;
@@ -500,8 +588,13 @@
   const VIB_GAP = CHART_LAYOUT.vibPanelGap; // small, purely aesthetic separation from the tooltip
   const VIB_OUTER_W = VIB_W + 14; // padding (6px×2) + border (1px×2)
 
-  $: _anchorX = selected ? selectedTipX : mouseX;
-  $: _anchorY = selected ? selectedTipY : mouseY;
+  /* The pointer, and nothing else. The anchor used to freeze at the click
+     position while a band was selected, because back then the card WAS the
+     selection, pinned where it had been clicked. The sidebar holds the
+     selection now and this card only ever shows the band under the pointer,
+     so a frozen anchor drew it at the last place something was clicked. */
+  $: _anchorX = mouseX;
+  $: _anchorY = mouseY;
   // Reserve room for the vibrations panel too whenever one will actually be
   // shown — otherwise the flip threshold only knows about the tooltip's own
   // width, and a panel attached further out can clip off the right edge of
@@ -535,7 +628,12 @@
   // ---------------------------------------------------------------------------
   // Chart layout constants (must match chart.ts)
   // ---------------------------------------------------------------------------
-  const ML = 200, MR = 20, MT = 30, MB = 50;
+  /* The plot's margins, for hit-testing and for the axis strip's own maths.
+     Left and right come from CHART_LAYOUT, because buildChart draws with those
+     and a second copy of the number here would silently move every hit zone
+     the day one of them changed. Top and bottom are this file's own: they are
+     the dead band the pointer ignores, not the margins Plot is given. */
+  const ML = CHART_LAYOUT.marginLeft, MR = CHART_LAYOUT.marginRight, MT = 30, MB = 50;
 
   // ---------------------------------------------------------------------------
   // Interaction state
@@ -594,6 +692,8 @@
      presentation mode shows one reference rather than three. Everything else
      about the tooltip is the same; the full list is still one click away. */
   export let presenting = false;
+
+
   $: refsPreview = presenting
     ? PRESENTATION.chart.refsPreviewCount
     : CHART_LAYOUT.refsPreviewCount;
@@ -725,8 +825,6 @@
       if (hit) {
         selected = hit;
         selectedId = hit.tipData.id;
-        selectedTipX = toShell(e.clientX);
-        selectedTipY = toShell(e.clientY);
         playNonce++;
       } else {
         selected = null;
@@ -839,6 +937,14 @@
           <!-- The highlight paints a solid rect over the band, which would
                wipe the hatch off exactly the bands whose hatch is the point.
                Same pattern as the chart's own, redrawn here. -->
+          <!-- The plot proper: everything left of ML is the lane labels' column
+               and everything right of the last tick is margin. A connector that
+               leaves that box is a line drawn over the labels, so the arcs are
+               clipped to it rather than shortened, which would move endpoints
+               that mean something. -->
+          <clipPath id="plot-clip">
+            <rect x={ML} y="0" width={Math.max(0, containerWidth - ML - MR)} height={chartSvgHeight} />
+          </clipPath>
           <pattern id="glow-hatch" width={HATCH.size} height={HATCH.size}
                    patternUnits="userSpaceOnUse" patternTransform="rotate({HATCH.angle})">
             <line x1="0" y1="0" x2="0" y2={HATCH.size}
@@ -846,6 +952,7 @@
                   stroke-width={HATCH.strokeWidth}/>
           </pattern>
         </defs>
+        <g clip-path="url(#plot-clip)">
         {#each connectors as c}
           {#if c.kind === 'branch'}
             <line x1={c.xA} y1={c.y} x2={c.xB} y2={c.y}
@@ -869,6 +976,7 @@
                   fill="none" stroke={CONN_STROKE} stroke-width="1.25" stroke-linecap="round" opacity="0.8"/>
           {/if}
         {/each}
+        </g>
         {#each glowHits as hit, gi}
           {@const x = hit.px1}
           {@const y = hit.py1 + HIT_PAD}
@@ -925,139 +1033,45 @@
     on:pointerleave={onAxisPointerLeave}
   ></div>
 
-  {#if shown}
-    {@const td = shown.tipData}
+  {#if floating}
+    {@const shown = floating}
     <div
       class="band-tooltip"
       class:is-selected={!!selected}
       bind:clientHeight={tipH}
-      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{shown.color}; pointer-events:{selected ? 'auto' : 'none'};"
+      style="left:{tipX}px; top:{tipY}px; transform:{tipTransform}; border-top-color:{shown.color};"
     >
-      <!-- Header -->
-      <div class="tip-header" style="border-left-color:{shown.color}">
-        <div class="tip-name">{td.name}</div>
-        <div class="tip-vib">{td.vib}</div>
-        <div class="tip-wn">{td.wnRange}</div>
-        <div class="tip-group" style="color:{shown.color}">{td.group}</div>
-      </div>
-
-      <!-- Quality tags -->
-      {#if td.noteLines.length || td.tags.length}
-        <div class="tip-tags">
-          {#each td.noteLines as tag}<span class="tip-tag">{tag}</span>{/each}
-          {#each td.tags as tag}
-            {@const style = TAG_STYLES[tag]}
-            <span
-              class="tip-tag tip-tag-extra"
-              style={style ? `background:${style.background};border-color:${style.border};color:${style.color}` : ''}
-            >{tag}</span>
-          {/each}
-        </div>
-      {/if}
-
-      <!-- General description -->
-      {#if td.description}
-        <div class="tip-desc">{td.description}</div>
-      {/if}
-
-      <!-- Per-reference boxes -->
-      {#if td.refs.length}
-        {@const isCollapsible = td.refs.length > 1}
-        {@const useScroll = selected && td.refs.length > refsPreview}
-        {@const refsToShow = selected ? td.refs : td.refs.slice(0, refsPreview)}
-        <div class="tip-refs-section">
-          <div class="tip-refs-header">
-            References
-            {#if !selected && td.refs.length > refsPreview}
-              <span class="tip-refs-overflow">+{td.refs.length - refsPreview} more · click band</span>
-            {/if}
-          </div>
-
-          <div class:tip-refs-scroll={useScroll}>
-            {#each refsToShow as ref, i}
-              <!-- A claim from the other spectroscopy, or one with no
-                   technique recorded, folds even when it is the only one,
-                   and is greyed out. -->
-              {@const foldable = isCollapsible || ref.off}
-              {@const expanded = !foldable || expandedRefs.has(i)}
-              <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-              <div
-                class="tip-ref-box"
-                class:tip-ref-btn={foldable}
-                class:tip-ref-off={ref.off}
-                on:click={foldable ? () => toggleRefExpand(i) : null}
-                title={ref.off === 'other'
-                  ? `Measured by ${spectroscopy === 'raman' ? 'infrared' : 'Raman'}, not the spectroscopy the chart shows. Click to ${expanded ? 'collapse' : 'expand'}`
-                  : ref.off === 'unknown'
-                    ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
-                    : ref.off === 'calculated'
-                      ? `A calculation, not a measurement. Dimmed because the Color by computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
-                      : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
-              >
-                <button
-                  class="tip-ref-goto-btn"
-                  on:click|stopPropagation={() => goToRef(ref.key)}
-                  title="Open in References page"
-                >↗</button>
-                <div class="tip-ref-title">
-                  {ref.short}
-                  {#if foldable}
-                    <span class="tip-ref-chevron" class:open={expanded}>▸</span>
-                  {/if}
-                </div>
-                {#if ref.wn != null || ref.surfaces.length}
-                  <div class="tip-ref-badges">
-                    {#each wnList(ref.wn) as w}
-                      <span class="badge-wn">{w} cm⁻¹</span>
-                    {/each}
-                    {#each ref.surfaces as s}
-                      <span
-                        class="badge-site"
-                        class:badge-coarse={s.level !== 'site'}
-                        title={SURFACE_LEVEL_TITLE[s.level]}
-                      >{s.label}</span>
-                    {/each}
-                  </div>
-                {/if}
-                {#if ref.tags.length}
-                  <div class="tip-ref-tags">
-                    {#each ref.tags as tag}
-                      {@const style = tagStyle(tag)}
-                      <span class="tip-ref-tag" style="background:{style.background};border-color:{style.border};color:{style.color}">{tag}</span>
-                    {/each}
-                  </div>
-                {/if}
-                {#if expanded && ref.note}
-                  <div class="tip-ref-note">{ref.note}</div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if selected}
-        <div class="tip-lock-hint">click ref to expand · ↗ for ref page · click band to switch · click empty to dismiss</div>
-      {/if}
+      <BandCard
+        td={shown.tipData}
+        color={shown.color}
+        full={false}
+        {spectroscopy}
+        refsPreview={refsPreview}
+        linkedModes={[]}
+        {playNonce}
+        on:navigateRef
+        on:navigateMode
+      />
     </div>
 
-    {#if linkedModes.length}
+    {#if floatModes.length}
       <div
         class="vib-panel"
-        style="left:{vibX}px; top:{tipY}px; transform:{vibTransform}; max-height:{vibPanelMaxH}px; pointer-events:{selected ? 'auto' : 'none'};"
+        style="left:{vibX}px; top:{tipY}px; transform:{vibTransform}; max-height:{vibPanelMaxH}px;"
       >
-        {#each linkedModes as lm (lm.mode.id)}
+        {#each floatModes as lm (lm.mode.id)}
           <VibrationMiniCard
             mode={lm.mode}
             geometry={lm.geometry}
             triggerNonce={playNonce}
-            interactive={!!selected}
+            interactive={false}
             on:navigate={() => dispatch('navigateMode', { moleculeId: lm.moleculeId, topologyId: lm.topologyId, modeId: lm.mode.id })}
           />
         {/each}
       </div>
     {/if}
   {/if}
+
 </div>
 
 <style>
@@ -1113,7 +1127,11 @@
   .band-tooltip {
     position: fixed;
     z-index: 200;
-    pointer-events: none; /* overridden to auto when selected — see inline style */
+    /* The float never takes the pointer. It used to, back when a click pinned
+       it and its references had to be clickable; the sidebar is that card now,
+       so all this one does is swallow hovers over whatever it happens to be
+       covering, which is always the bands next to the one being read. */
+    pointer-events: none;
     background: var(--surface);
     border: 1px solid var(--line);
     border-top: 3px solid var(--ink-200); /* overridden inline with band color */
@@ -1130,243 +1148,11 @@
     border-color: var(--ink-025);
   }
 
-  .tip-header {
-    border-left: 3px solid var(--ink-200); /* overridden inline */
-    padding-left: 7px;
-    margin-bottom: 6px;
-  }
-  /* Every text role below is defined once in lib/tokens.ts and shown on the
-     Style guide page; edit the value there, never here. */
-  .tip-name {
-    font-size: var(--t-tip-name-size);
-    font-weight: var(--t-tip-name-weight);
-    color: var(--t-tip-name-color);
-    line-height: var(--t-tip-name-lh);
-  }
-  .tip-vib {
-    font-size: var(--t-tip-vib-size);
-    font-weight: var(--t-tip-vib-weight);
-    color: var(--t-tip-vib-color);
-    margin-top: 1px;
-  }
-  .tip-wn {
-    font-size: var(--t-tip-wn-size);
-    font-weight: var(--t-tip-wn-weight);
-    color: var(--t-tip-wn-color);
-    font-family: var(--t-tip-wn-ff);
-    margin-top: 1px;
-  }
-  .tip-group {
-    font-size: var(--t-tip-group-size);
-    font-weight: var(--t-tip-group-weight);
-    text-transform: var(--t-tip-group-tt);
-    letter-spacing: var(--t-tip-group-ls);
-    margin-top: 3px;
-  }
-
-  .tip-tags {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-bottom: 5px;
-  }
-  .tip-tag {
-    background: var(--pill-bg);
-    border: 1px solid var(--pill-border);
-    border-radius: var(--radius-sm);
-    padding: 1px 5px;
-    font-size: var(--t-tip-tag-size);
-    color: var(--t-tip-tag-color);
-  }
-  .tip-tag-extra {
-    background: var(--pill-muted-bg);
-    border-color: var(--pill-muted-border);
-    color: var(--pill-muted-fg);
-  }
-
-  .tip-desc {
-    font-size: var(--t-tip-desc-size);
-    color: var(--t-tip-desc-color);
-    line-height: var(--t-tip-desc-lh);
-    margin-bottom: 6px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--line-faint);
-  }
-
-  .tip-refs-section { margin-top: 2px; }
-
-  .tip-refs-header {
-    font-size: var(--t-tip-refs-head-size);
-    font-weight: var(--t-tip-refs-head-weight);
-    text-transform: var(--t-tip-refs-head-tt);
-    letter-spacing: var(--t-tip-refs-head-ls);
-    color: var(--t-tip-refs-head-color);
-    margin-bottom: 4px;
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  .tip-refs-overflow {
-    font-size: 10px;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--ink-025);
-  }
-
-  .tip-refs-scroll {
-    max-height: var(--tip-refs-max-h);
-    overflow-y: auto;
-    overflow-x: hidden;
-    border-radius: 3px;
-  }
-  .tip-refs-scroll::-webkit-scrollbar { width: 4px; }
-  .tip-refs-scroll::-webkit-scrollbar-thumb { background: var(--ref-scroll-thumb); border-radius: 2px; }
-
-  .tip-ref-box {
-    position: relative;
-    background: var(--ref-surface);
-    border: 1px solid var(--ref-border);
-    border-left: 3px solid var(--ref-accent);
-    border-radius: var(--radius);
-    padding: 5px 26px 5px 7px; /* right padding clears .tip-ref-goto-btn */
-    margin-top: 4px;
-  }
-
-  /* Clickable ref box — toggles its own note/badges open or closed
-     (2+ references only; a band with a single reference always shows it
-     fully, never collapsed — see isCollapsible in the markup above).
-     The jump-to-reference-page button below is a separate nested control
-     (stopPropagation'd) so it doesn't also trigger this toggle. */
-  .tip-ref-btn {
-    cursor: pointer;
-    transition: background 0.1s, border-left-color 0.1s;
-  }
-  .tip-ref-btn:hover {
-    background: var(--ref-surface-hover);
-    border-left-color: var(--ref-accent-strong);
-  }
-
-  .tip-ref-chevron {
-    display: inline-block;
-    font-size: 9px;
-    color: var(--ref-accent-strong);
-    margin-left: 4px;
-    transition: transform 0.15s;
-  }
-  .tip-ref-chevron.open { transform: rotate(90deg); }
-
-  /* A claim from the other spectroscopy, or with no technique: greyed out,
-     folded until clicked. */
-  .tip-ref-off {
-    filter: grayscale(1);
-    opacity: 0.55;
-  }
-  .tip-ref-off:hover { opacity: 0.8; }
-
-  .tip-ref-title {
-    font-size: var(--t-tip-ref-title-size);
-    font-weight: var(--t-tip-ref-title-weight);
-    color: var(--t-tip-ref-title-color);
-  }
-
-  /* Per-reference corner button — jumps straight to this one citation on
-     the References page; separate from the box's own expand/collapse click. */
-  .tip-ref-goto-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--surface);
-    border: 1px solid var(--ref-border);
-    border-radius: 4px;
-    color: var(--ref-accent-strong);
-    font-size: 11px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-  }
-  .tip-ref-goto-btn:hover {
-    background: var(--ref-surface-hover);
-    border-color: var(--ref-accent-strong);
-    color: var(--ref-accent-deep);
-  }
-
-  .tip-ref-badges {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .badge-wn {
-    background: var(--badge-wn-bg);
-    border: 1px solid var(--badge-wn-border);
-    color: var(--badge-wn-fg);
-    border-radius: var(--radius-sm);
-    padding: 1px 6px;
-    font-size: var(--t-tip-badge-size);
-    font-family: var(--font-mono);
-    white-space: nowrap;
-  }
-
-  .badge-site {
-    background: var(--badge-site-bg);
-    border: 1px solid var(--badge-site-border);
-    color: var(--badge-site-fg);
-    border-radius: var(--radius-sm);
-    padding: 1px 6px;
-    font-size: var(--t-tip-badge-size);
-    white-space: nowrap;
-  }
-
-  /* A phase or a sample is coarser than a site: same amber pair, hollow
-     instead of filled, so the scale of the claim reads at a glance. A variant
-     of the site badge, not a second pill style. */
-  .badge-coarse {
-    background: var(--badge-site-bg-soft);
-  }
-
-  .tip-ref-tags {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .tip-ref-tag {
-    border: 1px solid;
-    border-radius: var(--radius-sm);
-    padding: 1px 5px;
-    font-size: var(--t-tip-tag-size);
-  }
-
-  .tip-ref-note {
-    font-size: var(--t-tip-ref-note-size);
-    color: var(--t-tip-ref-note-color);
-    font-style: var(--t-tip-ref-note-fs);
-    margin-top: 4px;
-    line-height: var(--t-tip-ref-note-lh);
-  }
-
-  .tip-lock-hint {
-    margin-top: 6px;
-    padding-top: 5px;
-    border-top: 1px solid var(--line-faint);
-    font-size: var(--t-tip-hint-size);
-    color: var(--t-tip-hint-color);
-    text-align: center;
-  }
-
   /* ── Linked vibrations panel — a separate, narrow box attached to the
      outer side of the band tooltip (top-aligned with it), one mini-card per
      linked mode stacked vertically when there's more than one. ── */
   .vib-panel {
+    pointer-events: none; /* same reason as the tooltip above */
     position: fixed;
     z-index: 200;
     display: flex;
