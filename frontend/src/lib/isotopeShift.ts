@@ -25,7 +25,18 @@
  */
 import type { Band } from './types';
 
-/** Masses in u, of the specific nuclide rather than the element average. */
+/**
+ * Masses in u, of the specific nuclide rather than the element average. For
+ * the light elements the two are the same number to four figures, natural
+ * hydrogen being 99.98% ¹H and natural oxygen 99.76% ¹⁶O.
+ *
+ * The metals are the exception and are the standard atomic weight, because
+ * they are not what was substituted: the sample holds natural gallium, a
+ * 60/40 mix of ⁶⁹Ga and ⁷¹Ga, and the partner in the reduced mass is that
+ * mixture. It hardly matters either way, a heavy partner being nearly
+ * irrelevant to μ: taking ⁶⁹Ga alone moves the Ga–H/Ga–D ratio by 0.02%,
+ * against the 1.3% by which the harmonic model misses this band anyway.
+ */
 const MASS: Record<string, number> = {
   H: 1.00783,
   D: 2.01410,
@@ -34,6 +45,9 @@ const MASS: Record<string, number> = {
   N: 14.00307,
   O: 15.99491,
   '18O': 17.99916,
+  // Standard atomic weights: never substituted, only ever the partner.
+  Zn: 65.38,
+  Ga: 69.723,
 };
 
 /** `band.isotope` -> which element is substituted, and by what. */
@@ -80,6 +94,29 @@ export interface ShiftRow {
    * the size of the thing the model leaves out.
    */
   caveat: string | null;
+  /**
+   * The same named rather than merely flagged, for a pill on a row. Each
+   * word is the actual phenomenon, so the reader learns something from the
+   * list instead of only being warned off it:
+   *
+   *   delocalised    the mode spans more than one pair of atoms, so a
+   *                  two-body reduced mass is not what is vibrating
+   *   mode mixing    the normal mode is a mixture of internal coordinates,
+   *                  so loading one of them drags on a mode that does not
+   *                  contain the substituted atom at all. This is the
+   *                  intramolecular, mechanical kind of coupling, NOT the
+   *                  through-space dipole coupling between neighbouring
+   *                  adsorbates that the Vibrational Coupling card covers
+   *   generic metal  the partner is the M placeholder and has no mass
+   *   unlabelled     no substitution was recorded on the child
+   */
+  caveatShort: string | null;
+  /**
+   * How loudly to say it. `alert` where taking the number for a prediction
+   * would mislead badly: mode mixing puts formate's OCO stretches 27% out.
+   * `limit` where the model is merely out of scope and the row is sound.
+   */
+  caveatTone: 'alert' | 'limit' | null;
 }
 
 const centre = (b: Band) => (b.wn_min + b.wn_max) / 2;
@@ -104,9 +141,13 @@ export function isotopeShiftRows(bands: Band[]): ShiftRow[] {
     let bond: string | null = null;
     let ratio: number | null = null;
     let caveat: string | null = null;
+    let caveatShort: string | null = null;
+    let caveatTone: 'alert' | 'limit' | null = null;
 
     if (!sub) {
       caveat = 'no substitution recorded';
+      caveatShort = 'unlabelled';
+      caveatTone = 'limit';
     } else {
       // The substituted atom, and whatever it is bonded to. In "H-C-H" the
       // deuterium is an H and its partner is the carbon; in "O-C-O" the
@@ -120,16 +161,27 @@ export function isotopeShiftRows(bands: Band[]): ShiftRow[] {
         // The labelled atom is not in the bond this band names: deuterating
         // the methyl moves methanol's C-O stretch, but not by loading the C-O
         // bond. Whatever moved, moved through the coupling between the two.
-        caveat = `no ${sub.to.replace('13', '¹³').replace('18', '¹⁸')} in ${child.atoms}: the shift is coupling, not mass`;
+        /* No inner colon: the sentence is quoted after one already. */
+        caveat = `no ${sub.to.replace('13', '¹³').replace('18', '¹⁸')} in ${child.atoms}, so nothing in this oscillator got heavier, and whatever moved the band moved through mechanical coupling to a neighbouring coordinate rather than through mass`;
+        caveatShort = 'mode mixing';
+        caveatTone = 'alert';
       } else if (partnerMass === undefined) {
         caveat = `${partner} is a stand-in for whichever metal, so it has no mass`;
+        caveatShort = 'generic metal';
+        caveatTone = 'limit';
       } else {
-        bond = `${sub.from}–${partner}`;
+        /* Heavier atom first, the way the atlas names a mode: the row above
+           this sentence says ν(Ga-H), so the sentence cannot say H–Ga. */
+        bond = MASS[sub.from] > partnerMass
+          ? `${sub.from}–${partner}`
+          : `${partner}–${sub.from}`;
         const mu = reducedMass(MASS[sub.from], partnerMass);
         const muPrime = reducedMass(MASS[sub.to], partnerMass);
         ratio = Math.sqrt(mu / muPrime);
         if (child.vibration.category !== 'stretch') {
-          caveat = `a ${child.vibration.category}: no single bond is the mode`;
+          caveat = `a ${child.vibration.category}: no single pair of atoms is the mode, so a two-body reduced mass describes something the molecule is not doing`;
+          caveatShort = 'delocalised';
+          caveatTone = 'limit';
         }
       }
     }
@@ -151,6 +203,8 @@ export function isotopeShiftRows(bands: Band[]): ShiftRow[] {
       residual,
       residualPct: residual === null ? null : (residual / childWn) * 100,
       caveat,
+      caveatShort,
+      caveatTone,
     });
   }
 
@@ -164,24 +218,4 @@ export function isotopeShiftRows(bands: Band[]): ShiftRow[] {
     return aa - bb;
   });
   return rows;
-}
-
-/** How many rows the estimate actually applies to, and how well it did. */
-export function shiftSummary(rows: ShiftRow[]) {
-  const clean = rows.filter(r => r.caveat === null && r.residualPct !== null);
-  const errs = clean.map(r => Math.abs(r.residualPct!));
-  return {
-    total: rows.length,
-    applicable: clean.length,
-    medianPct: errs.length ? median(errs) : null,
-    worstPct: errs.length ? Math.max(...errs) : null,
-    within1: errs.filter(e => e <= 1).length,
-    within3: errs.filter(e => e <= 3).length,
-  };
-}
-
-function median(xs: number[]): number {
-  const s = [...xs].sort((a, b) => a - b);
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }

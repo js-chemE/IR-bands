@@ -35,6 +35,8 @@
 import type { Band } from './types';
 import type { Block } from './fundamentals';
 import { speciesLabel } from './labels';
+import { isotopeShiftRows } from './isotopeShift';
+import type { ShiftRow } from './isotopeShift';
 
 export interface Example {
   /** Short heading for this one occurrence. */
@@ -43,6 +45,37 @@ export interface Example {
   bands: Band[];
   /** One line on what makes this occurrence worth showing. */
   note?: string;
+  /**
+   * Band id -> a note about that band in particular, shown on its row. The
+   * isotope card uses it to put the harmonic prediction beside the recorded
+   * position: the comparison belongs on the band it is about, not in a
+   * second table saying the same names again.
+   *
+   * Two strings rather than one, because a row has two amounts of space for
+   * it: `pill` is what the row itself shows and has to be short, and
+   * `detail` is the whole comparison, on hover.
+   */
+  bandNotes?: Record<string, BandNote>;
+}
+
+/**
+ * What a row says about one band, in the two lengths a row has room for, and
+ * in the two kinds it can be: an estimate, and a reason the estimate does not
+ * apply. A row can carry both, since a bend still gets a number and the
+ * number is still not a prediction.
+ */
+export interface BandNote {
+  /** The estimate, short enough to sit on the row beside the position. */
+  pill?: string;
+  /** The whole comparison, on hover. */
+  detail?: string;
+  /** Why mass alone does not settle this one. One or two words. */
+  caveat?: string;
+  /** The whole of that, on hover. */
+  caveatDetail?: string;
+  /** Red where the number would mislead, the quieter rose where it is only
+      out of scope. */
+  caveatTone?: 'alert' | 'limit';
 }
 
 /**
@@ -265,14 +298,16 @@ export const PHENOMENA: Phenomenon[] = [
     spotting: '',
     body: [
       'Substituting an isotope changes the mass of one nucleus and nothing else. The electrons are untouched, so the bond is the same bond and its force constant is the same number; only the inertia the restoring force has to move is different. The frequency follows the mass alone, which makes this the one shift in the atlas that can be predicted before it is measured.',
+      'What the shift is for, in practice, is evidence, and it is the routine way an assignment is confirmed. A surface hydroxyl is shown to be one by exchanging it with D₂ or D₂O and watching the O–H stretch move to a well-separated O–D [@busca, p. 12]; a metal-oxygen double bond is shown to be one by ¹⁶O/¹⁸O exchange, because M=¹⁶O and M=¹⁸O do not sit in the same place [@busca, p. 14]. For adsorbed hydrocarbons the size of the CH → CD shift is the main criterion for what kind of vibration a band is at all: a C–H deformation moves by 300 to 400 cm⁻¹ and a C=C stretch by 50 to 100, so the two can be told apart even where they overlap [@davydov, pp. 351–352]. A ratio does the same job for hydrides: four bands on reduced Pt/Al₂O₃ shifting by a factor of about 1.39 under deuterium are hydride species and not something else [@negri, p. 44].',
       {
         label: 'The Shift',
         lines: [
           '\\tilde\\nu = \\frac{1}{2\\pi c}\\sqrt{\\frac{k}{\\mu}}',
           '\\frac{\\tilde\\nu\'}{\\tilde\\nu} = \\sqrt{\\frac{\\mu}{\\mu\'}}, \\qquad \\mu = \\frac{m_1 m_2}{m_1 + m_2}',
         ],
-        note: 'k is the force constant and μ the reduced mass of the two atoms the bond joins. Because k cancels, the ratio needs no spectroscopy at all: two masses give the new position from the old one. μ is dominated by the lighter atom, which is why hydrogen is the substitution that moves a band and a heavy atom is the one that nudges it.',
+        note: 'k is the force constant and μ the reduced mass of the two atoms the bond joins: a diatomic vibration reduces to one particle of mass μ on a spring [@davydov, p. 28]. Because k cancels, the ratio needs no spectroscopy at all: two masses give the new position from the old one. μ is dominated by the lighter atom, which is why hydrogen is the substitution that moves a band and a heavy atom is the one that nudges it.',
       },
+      'That is the whole of it, and it rests on three assumptions. The bond is treated as harmonic, which no real X-H bond is. The mode is treated as one pair of atoms on a spring, which only a stretch localised on one bond is. And the band is assumed to sit where that mode alone would put it, which across a Fermi resonance it does not. Each assumption holds most of the time. Where one fails, it fails in a particular way, and the atlas has a case of each.',
       {
         label: 'What the Atlas Substitutes',
         wide: true,
@@ -286,25 +321,100 @@ export const PHENOMENA: Phenomenon[] = [
         ],
         note: 'Deuteration is the violent one. A hydrogen carries almost all of the motion in an X–H stretch, so μ is close to the mass of the hydrogen itself and doubling it would divide the frequency by √2 = 0.707; the partner atom’s finite mass pulls the ratio back up to about 0.73. The heavy-atom substitutions move a band by two percent, which sounds like nothing and is in fact enormous: 47 cm⁻¹ on ν(CO) is many times any line width, wide enough to resolve two isotopologues side by side and narrow enough to leave the chemistry alone.',
       },
-      'That is the whole of the prediction, and it is worth being clear about what it is not. It is harmonic, and a real X–H stretch is not, so the observed shift comes out a little smaller than the ratio asks. It is pseudo-diatomic, and a normal mode is a motion of the whole molecule: only where one bond dominates does a two-atom reduced mass describe it. And it assumes the level sits where the mode alone would put it, which across a Fermi resonance it does not, because substitution detunes the resonance and moves both partners.',
-      'The table below runs the prediction against every labelled band in the atlas. Over the localised stretches it is out by around a percent, and the rows where it misses are not bad data: they are bends, where no single pair of atoms is the mode, and bands whose labelled atom is not even in the bond that moved, where the whole shift arrived through coupling to a neighbouring one. Methanol is the instructive case: deuterating the methyl moves the C–O stretch, which contains no hydrogen at all.',
-      'What the shift is for, in practice, is evidence. A band that moves by the predicted factor on deuteration contains the hydrogen it was assigned; one that does not, does not. It separates species that overlap: a surface OH and an adsorbed water can sit in the same window and then part by a thousand wavenumbers when the sample is exposed to D₂O. And a deliberately mixed isotopic feed separates a molecule from its neighbours rather than from another species: a little ¹³CO among ¹²CO detunes the dipole coupling between adsorbed molecules and leaves a decoupled singleton, which is the point of the mioirs technique value and of the Vibrational Coupling card.',
+      'The table below runs the prediction against every labelled band in the atlas. Over the localised stretches it is out by about a percent. The rest miss, and not in the same way. Some get a poor estimate. Others get a number that was never a prediction at all, because the model does not describe that mode. The box says which assumption breaks where, and every row in the list carries a pill naming the one that applies to it.',
+      {
+        label: 'What the Estimate Assumes',
+        wide: true,
+        lines: [
+          '\\begin{array}{lll}' +
+            '\\textbf{it assumes} & \\textbf{it fails when} & \\textbf{in the atlas} \\\\[2pt]' +
+            '\\text{the bond is harmonic} & \\text{always, a little} & \\text{every X-H stretch, about }1\\% \\\\' +
+            '\\text{one bond carries the mode} & \\text{it is a bend} & \\ce{CD4}\\ \\delta_\\mathrm{s} \\\\' +
+            '\\text{the label sits in that bond} & \\text{it does not} & \\ce{DCOO^-}\\ \\nu_\\mathrm{as}(\\text{OCO}) \\\\' +
+            '\\text{the level is the mode\'s own} & \\text{a resonance moved it} & \\ce{CH3OH}\\ \\nu(\\text{CH}) \\\\' +
+            '\\end{array}',
+        ],
+        note: 'Formate is the clearest case, because it falls on both sides. Deuterium sits in its C-H bond, so that stretch is a fair test: the estimate lands 3.4% out. It does not sit in the O-C-O bonds, and those two barely move, about 8 cm⁻¹ each. Force the C-H ratio onto them and it predicts 1162 and 989 cm⁻¹ against 1590 and 1340 recorded, wrong by a quarter. What little they do move is the C-H deformation leaking into the vibration, up to 50 cm⁻¹ for νₛ(OCO) [@davydov, p. 370]. Predicting that needs the whole force field, which is a normal-coordinate or DFT calculation and not a reduced mass.',
+      },
+      'A deliberately mixed isotopic feed does something different again: it separates a molecule from its neighbours rather than from another species. Adsorbing a ¹²CO/¹³CO mixture turns one pair of bands into two pairs, the second displaced by the ¹³CO shift, and that is how it is settled whether two nearby bands are two complexes or one complex whose molecules were talking to each other [@davydov, p. 247]. The same trick at high dilution leaves a decoupled singleton, which is what the mioirs technique value names and what the Vibrational Coupling card is about.',
       'A labelled band is recorded here as a band in its own right, with isotopologue_of pointing at the natural-abundance one and isotope naming the substitution. Never as a second wavenumber inside the parent’s claims: the two are different molecules with different spectra, and burying one inside the other would make the parent’s position a range covering both. A source that merely used substitution as evidence for an ordinary band gets the isotope-labeling tag on that claim instead, which is a statement about the method rather than about the molecule.',
     ],
+    /**
+     * One entry per labelled band, with the harmonic prediction on the band
+     * itself. Mass alone is a real prediction here, so the list can be asked
+     * how well it does rather than only what exists: every row carries what
+     * √(μ/μ′) said, what was recorded, and the gap between them.
+     */
     find(bands) {
-      const byId = bandById(bands);
-      return bands
-        .filter(b => b.isotopologue_of)
-        .map(child => {
-          const parent = byId.get(child.isotopologue_of!);
-          return {
-            label: `${child.isotope ?? 'isotope'}: ${child.short || child.id}`,
-            bands: parent ? [parent, child] : [child],
-            note: parent
-              ? `About ${Math.round(parent.wn_min - child.wn_min)} cm⁻¹ below the natural-abundance band.`
-              : undefined,
-          };
-        });
+      const groups = bandsByGroup(bands);
+      /* A parent or child that is one branch of a family stands for the whole
+         family here: the substitution is of the transition, not of its Q
+         branch, and rowsOf() folds the members back into a single row with
+         the letters beside it. */
+      const family = (b: Band) => (b.branch_group ? groups.get(b.branch_group) ?? [b] : [b]);
+      const off = (r: ShiftRow) =>
+        r.residual === null
+          ? null
+          : `${r.residual > 0 ? '+' : r.residual < 0 ? '−' : ''}${Math.round(Math.abs(r.residual))} cm⁻¹ (${Math.abs(r.residualPct ?? 0).toFixed(1)}%)`;
+      /* The substitution is of the transition, not of one of its lines, so
+         the rows have to be folded before they are listed. CD₄'s bend is
+         five branches, each the isotopologue of the matching CH₄ branch, so
+         isotopeShiftRows() hands back five rows that expand to the same pair
+         of families: listed raw they were five identical entries, and since
+         AtlasExamples keys its list by the bands in it, five identical keys.
+         A duplicate key aborts the whole {#each}, which is how this list came
+         to render its header and nothing under it.
+
+         One entry per family pair, then, but every branch keeps its own
+         estimate: the notes are accumulated across the rows, so whichever
+         line leads the folded row shows the number computed for that line. */
+      const folded = new Map<string, {
+        rep: ShiftRow;
+        bands: Band[];
+        notes: Record<string, BandNote>;
+      }>();
+      for (const r of isotopeShiftRows(bands)) {
+        const members = [...family(r.parent), ...family(r.child)];
+        const key = members.map(b => b.id).sort().join('|');
+        let e = folded.get(key);
+        if (!e) {
+          e = { rep: r, bands: members, notes: {} };
+          folded.set(key, e);
+        } else if (r.child.vibration.branch === 'Q') {
+          // The centre line speaks for the family where there is one.
+          e.rep = r;
+        }
+        const d = off(r);
+        const n: BandNote = {};
+        if (r.predicted !== null && d) {
+          /* The number is the point of the pill: a reader comparing theory
+             with the atlas wants to see where mass alone put the band, and
+             having to hover for it makes the column say only that a
+             comparison exists. The size of the miss stays on hover, being
+             the second question. */
+          n.pill = `est. ${Math.round(r.predicted)}`;
+          n.detail = `harmonic estimate ${Math.round(r.predicted)} cm⁻¹ against a recorded centre of ${Math.round(r.childWn)}: off by ${d}`;
+        }
+        if (r.caveat && r.caveatShort) {
+          /* Marked on the row rather than left in the paragraph above it: a
+             reader scanning the column has to be able to see which numbers
+             are predictions and which are only arithmetic. */
+          n.caveat = r.caveatShort;
+          n.caveatDetail = r.caveat;
+          n.caveatTone = r.caveatTone ?? 'limit';
+        }
+        if (n.pill || n.caveat) e.notes[r.child.id] = n;
+      }
+      return [...folded.values()].map(({ rep: r, bands: members, notes }) => ({
+        // The label names the transition, so it drops the branch letter the
+        // representative line happens to carry.
+        label: `${r.isotope}: ${(r.child.short || r.child.id).replace(/\s*\([OPQRS](\(\d+\))?\)\s*$/, '')}`,
+        bands: members,
+        note: r.predicted === null
+          ? `Mass alone cannot predict this one: ${r.caveat}.`
+          : `√(μ/μ′) = ${r.ratio!.toFixed(4)} for ${r.bond}, so the harmonic estimate is ${Math.round(r.predicted)} cm⁻¹ and the recorded centre is ${Math.round(r.childWn)}: off by ${off(r)}.${r.caveat ? ` Expected, since it is ${r.caveat}.` : ''}`,
+        bandNotes: Object.keys(notes).length ? notes : undefined,
+      }));
     },
   },
   {
@@ -647,30 +757,34 @@ export const PHENOMENA: Phenomenon[] = [
           const head = members.slice().sort(byWn)[0];
           const kids = (built.get(key) ?? []).sort(byWn);
           const twins = (twinned.get(key) ?? []).sort(byWn);
-          // Transitions, not bands: a branched combination is one thing built
-          // on the mode, however many branches it shows.
+          /* Counted by branch family, which is one row of the list: a band
+             with five branches is one band here, not five. */
           const nBuilt = new Set(kids.map(famOf)).size;
           const nTwins = new Set(twins.map(famOf)).size;
           const parts: string[] = [];
           if (nBuilt) {
-            parts.push(
-              `${nBuilt} transition${nBuilt > 1 ? 's are' : ' is'} built on it`,
-            );
+            parts.push(`${nBuilt} band${nBuilt > 1 ? 's are' : ' is'} built on it`);
           }
           if (nTwins) {
             parts.push(
-              `${nTwins} labelled twin${nTwins > 1 ? 's carry' : ' carries'} the same mode on heavier atoms`,
+              `${nTwins} isotopologue${nTwins > 1 ? 's carry' : ' carries'} the same mode on heavier atoms`,
             );
           }
           return {
             label: head.short || head.id,
-            bands: [...members.slice().sort(byWn), ...kids, ...twins],
+            /* Everything in one order, up the spectrum: the fundamental, its
+               overtones and combinations and its labelled twins interleaved by
+               where they actually sit, rather than grouped by how they are
+               related. The relation is already in each row's tags, and low to
+               high is the order a fundamental and the things built on it come
+               in anyway. */
+            bands: [...members, ...kids, ...twins].sort(byWnUp),
             note: parts.length
               ? `${parts.join(', and ')}. The degeneracy comes with ${nBuilt + nTwins > 1 ? 'them' : 'it'}: an overtone, a combination or an isotopologue of a degenerate mode reaches a set of levels too.`
               : undefined,
           };
         })
-        .sort((a, b) => byWn(a.bands[0], b.bands[0]));
+        .sort((a, b) => byWnUp(a.bands[0], b.bands[0]));
     },
   },
   {
@@ -678,15 +792,66 @@ export const PHENOMENA: Phenomenon[] = [
     // The selection rule at work: its examples live on the Selection rules card.
     into: 'selection',
     teaser: 'A vibration that leaves the dipole unchanged has no IR band.',
-    label: 'Infrared-Inactive Modes',
-    field: 'the "ir-inactive" tag',
+    /* The list covers both kinds of silence now, so the heading cannot name
+       one of them. The card it hangs under is Selection Rules either way. */
+    label: 'Modes a Technique Cannot See',
+    field: 'the "ir-inactive" and "raman-inactive" tags',
     what: '',
     spotting: '',
+    /**
+     * One entry per molecule, not per band.
+     *
+     * Silence is a property of a mode in a molecule of some symmetry, so the
+     * question a reader has is "which of CO₂'s modes are dark, and to what",
+     * not "here are thirty bands in no order". Both kinds of silence are
+     * listed: a mode can be invisible to the infrared, to Raman, or to both,
+     * and a centrosymmetric molecule makes the third case the interesting one.
+     * Branch families fold to a row each, as everywhere else.
+     */
     find(bands) {
-      return bands
-        .filter(b => b.tags.includes('ir-inactive'))
-        .sort(byWn)
-        .map(b => ({ label: b.short || b.id, bands: [b] }));
+      const groups = bandsByGroup(bands);
+      const dark = bands.filter(
+        b => b.tags.includes('ir-inactive') || b.tags.includes('raman-inactive'),
+      );
+      const byMolecule = new Map<string, Band[]>();
+      for (const b of dark) {
+        const seen = byMolecule.get(b.species) ?? [];
+        // The whole family, so a branched mode reads as one dark transition.
+        for (const m of b.branch_group ? groups.get(b.branch_group) ?? [b] : [b]) {
+          if (!seen.includes(m)) seen.push(m);
+        }
+        byMolecule.set(b.species, seen);
+      }
+      return [...byMolecule.entries()]
+        .map(([species, members]) => {
+          /* Mutual exclusion is a statement about the molecule, not a count
+             of bands: in a centrosymmetric one no mode is active in both
+             techniques, so its dark list has entries of each kind. That is
+             what is worth saying here, and counting the bands that carry
+             both tags said something else and said it wrongly, since a
+             folded row shows the tags of its lead branch. */
+          /* By MODE, not by band. CO's stretch is Raman-dark and its Q branch
+             is IR-dark, which is one mode seen twice, not two modes of
+             opposite kinds; testing band by band called carbon monoxide
+             centrosymmetric, which it is not. A family counts as dark to a
+             technique only when every branch of it is. */
+          const fams = new Map<string, Band[]>();
+          for (const b of members) {
+            const k = b.branch_group ?? b.id;
+            fams.set(k, [...(fams.get(k) ?? []), b]);
+          }
+          const allDark = (fs: Band[], tag: string) => fs.every(b => b.tags.includes(tag));
+          const hasIr = [...fams.values()].some(f => allDark(f, 'ir-inactive'));
+          const hasRaman = [...fams.values()].some(f => allDark(f, 'raman-inactive'));
+          return {
+            label: speciesLabel(species),
+            bands: members.slice().sort(byWnUp),
+            note: hasIr && hasRaman
+              ? 'Dark to one technique or the other, mode by mode: this molecule has a centre of symmetry, so what the infrared sees Raman cannot and the other way round. It takes both instruments to see all of it.'
+              : undefined,
+          };
+        })
+        .sort((a, b) => byWnUp(a.bands[0], b.bands[0]));
     },
   },
   {

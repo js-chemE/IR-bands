@@ -1,6 +1,6 @@
 import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
-import { TECHNIQUES, TECHNIQUE_FAMILY, TAG_ROLES, isUmbrellaTag } from './dataModel';
+import { TECHNIQUES, TAG_ROLES } from './dataModel';
 import { getCat, getCatLabel, getCatColor, getColor, fadeColor, tagStyle, EVIDENCE_ORDER } from './colors';
 import { wnToValue, axisRange, axisLabel } from './units';
 import { C, FONTS, CHART_LAYOUT } from './tokens';

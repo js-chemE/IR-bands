@@ -144,11 +144,11 @@
   import LadderDiagram from './knowledge/LadderDiagram.svelte';
   import FermiDiagram from './knowledge/FermiDiagram.svelte';
   import DegeneracyDiagram from './knowledge/DegeneracyDiagram.svelte';
+  import IsotopeDiagram from './knowledge/IsotopeDiagram.svelte';
   import LightPathDiagram from './knowledge/LightPathDiagram.svelte';
   import LambertBeerDiagram from './knowledge/LambertBeerDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
-  import IsotopeShiftTable from './knowledge/IsotopeShiftTable.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
   import FormulaLine from './knowledge/FormulaLine.svelte';
@@ -249,6 +249,7 @@
     combination: LadderDiagram,
     fermi: FermiDiagram,
     degeneracy: DegeneracyDiagram,
+    isotopologue: IsotopeDiagram,
     lightpath: LightPathDiagram,
     lambertbeer: LambertBeerDiagram,
     vibration: VibrationDiagram,
@@ -447,20 +448,60 @@
   }
 
   /**
-   * Runs the tidy once the card is open and again when the window changes
-   * size. Deliberately not a ResizeObserver: this function changes the
-   * height it would be watching.
+   * Runs the tidy once the card is open, again when the window changes size,
+   * and again whenever a float finishes growing.
+   *
+   * That last one matters more than it sounds. A callout's height is not
+   * known on the frame the card opens: KaTeX typesets after layout and a web
+   * font lands later still, so the first measurement sees a box a third of
+   * its final height, finds the float edge one line into the paragraph
+   * below, and clears it. The clear is sticky, so the paragraph stayed
+   * pushed below a box it had room to sit beside, and every callout in the
+   * card left a white hole to its right.
+   *
+   * Watching the floats is safe where watching the paragraphs would not be.
+   * Clearing a paragraph moves a box but never resizes one, so this observer
+   * cannot be woken by its own effect, and it compares heights before acting
+   * in any case.
    */
   function floatTidy(node: HTMLElement, open: boolean) {
     let frame = 0;
+    let ro: ResizeObserver | null = null;
+    const seen = new WeakMap<Element, number>();
     const run = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => tidyWrap(node));
     };
+    function watchFloats() {
+      ro?.disconnect();
+      ro = null;
+      const boxes = [
+        node.querySelector<HTMLElement>(':scope > .kn-flow > .card-visual'),
+        ...Array.from(node.querySelectorAll<HTMLElement>('.formula')),
+      ].filter((el): el is HTMLElement => !!el);
+      if (!boxes.length) return;
+      ro = new ResizeObserver(entries => {
+        let grew = false;
+        for (const e of entries) {
+          const h = e.contentRect.height;
+          if (seen.get(e.target) !== h) {
+            seen.set(e.target, h);
+            grew = true;
+          }
+        }
+        if (grew) run();
+      });
+      for (const b of boxes) ro.observe(b);
+    }
     function setup(isOpen: boolean) {
       window.removeEventListener('resize', run);
+      ro?.disconnect();
+      ro = null;
       if (!isOpen) return;
       run();
+      watchFloats();
+      // The font arrives after the first paint and resizes every box again.
+      document.fonts?.ready.then(run).catch(() => {});
       window.addEventListener('resize', run);
     }
     setup(open);
@@ -468,6 +509,7 @@
       update: setup,
       destroy() {
         cancelAnimationFrame(frame);
+        ro?.disconnect();
         window.removeEventListener('resize', run);
       },
     };
@@ -923,14 +965,6 @@
           <!-- A section of its own for each list the card carries. -->
           {#if f.kind === 'phenomenon'}
             {@const p = phenomenon(f.key)}
-            <!-- The isotope card earns a table of its own: the shift is the
-                 one phenomenon here that can be predicted from first
-                 principles, so the card can be asked how well that works. -->
-            {#if f.key === 'isotopologue'}
-              <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
-                <IsotopeShiftTable {bands} on:band={e => dispatch('navigateBand', { id: e.detail.id })} />
-              </div>
-            {/if}
             <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
               <AtlasExamples
                 examples={examplesOf[f.key] ?? []}
