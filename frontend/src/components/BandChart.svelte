@@ -2,10 +2,11 @@
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
   import { buildChart, buildAxisStrip, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
+  import { cssZoom } from '../lib/zoom';
   import type { TipData, PlotBandHit } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
   import { getCat, TAG_STYLES, tagStyle } from '../lib/colors';
-  import { C, CHART_LAYOUT, ISOTOPE_STYLE } from '../lib/tokens';
+  import { C, CHART_LAYOUT, ISOTOPE_STYLE, PRESENTATION } from '../lib/tokens';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
 
   // Connector strokes drawn as SVG presentation attributes, which cannot read
@@ -347,7 +348,9 @@
 
   onMount(() => {
     containerWidth = container.clientWidth || 1100;
+    zoomF = cssZoom(container);
     const observer = new ResizeObserver(entries => {
+      zoomF = cssZoom(container);
       containerWidth = Math.floor(entries[0].contentRect.width);
     });
     observer.observe(container);
@@ -374,7 +377,7 @@
       const x = (found.hit.px1 + found.hit.px2) / 2;
       const y = (found.hit.py1 + found.hit.py2) / 2;
       const place = () => {
-        const rect = container.getBoundingClientRect();
+        const rect = shellRect(container);
         selectedTipX = rect.left + x;
         selectedTipY = rect.top + y;
       };
@@ -385,11 +388,11 @@
       const vScrollParent = container.closest('.chart-scroll') as HTMLElement | null;
       const hScrollParent = container.closest('.main-area') as HTMLElement | null;
       if (vScrollParent || hScrollParent) {
-        const containerRect = container.getBoundingClientRect();
+        const containerRect = shellRect(container);
         const bandAbsX = containerRect.left + x;
         const bandAbsY = containerRect.top + y;
-        const vRect = vScrollParent?.getBoundingClientRect();
-        const hRect = hScrollParent?.getBoundingClientRect();
+        const vRect = vScrollParent ? shellRect(vScrollParent) : undefined;
+        const hRect = hScrollParent ? shellRect(hScrollParent) : undefined;
         const needsVScroll = !!vRect && (bandAbsY < vRect.top + 60 || bandAbsY > vRect.bottom - 60);
         const needsHScroll = !!hRect && (bandAbsX < hRect.left + 60 || bandAbsX > hRect.right - 60);
         if (needsVScroll || needsHScroll) {
@@ -422,7 +425,7 @@
 
   let mouseX = 0;
   let mouseY = 0;
-  let selectedTipX = 0;  // viewport coords captured at click time
+  let selectedTipX = 0;  // click position, in the chart's own pixels
   let selectedTipY = 0;
   let tipH = 0;
 
@@ -504,10 +507,10 @@
   // width, and a panel attached further out can clip off the right edge of
   // the screen even though the tooltip itself still fit fine.
   $: roomNeeded = TIP_OUTER_W + (linkedModes.length ? VIB_GAP + VIB_OUTER_W : 0);
-  $: flipLeft = _anchorX + 18 + roomNeeded > (typeof window !== 'undefined' ? window.innerWidth : 1200);
+  $: flipLeft = _anchorX + 18 + roomNeeded > (typeof window !== 'undefined' ? window.innerWidth / zoomF : 1200);
   $: tipX = flipLeft ? _anchorX - 16 : _anchorX + 18;
   $: tipTransform = flipLeft ? 'translateX(-100%)' : 'none';
-  $: tipY = Math.max(10, Math.min(_anchorY - 8, (typeof window !== 'undefined' ? window.innerHeight - tipH - 10 : 800)));
+  $: tipY = Math.max(10, Math.min(_anchorY - 8, (typeof window !== 'undefined' ? window.innerHeight / zoomF - tipH - 10 : 800)));
 
   $: vibX = flipLeft ? tipX - TIP_OUTER_W - VIB_GAP : tipX + TIP_OUTER_W + VIB_GAP;
   $: vibTransform = flipLeft ? 'translateX(-100%)' : 'none';
@@ -515,7 +518,7 @@
   // viewport, then scrolls internally instead — same idea as the tooltip's
   // own refs section, just sized against whatever room is actually left
   // below its (shared) top edge rather than a fixed pixel cap.
-  $: vibPanelMaxH = Math.max(80, (typeof window !== 'undefined' ? window.innerHeight : 800) - tipY - 10);
+  $: vibPanelMaxH = Math.max(80, (typeof window !== 'undefined' ? window.innerHeight / zoomF : 800) - tipY - 10);
 
   // Bumped to retrigger every linked mini-card's 3-second auto-play: once
   // whenever a *new* band starts being hovered, and once per real click
@@ -581,9 +584,32 @@
   // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+  /* Presentation mode puts a CSS zoom on the shell, and everything the
+     browser hands us (clientX, a bounding rect, window.innerHeight) is then in
+     a different space from the chart's own pixels by exactly that factor. Both
+     converters below take a viewport length into the chart's space; at zoom 1
+     they are the identity, which is why the arithmetic that follows reads the
+     same as it did before. See lib/zoom.ts. */
+  /* A hovered tooltip is read in a second or two from the back of a room, so
+     presentation mode shows one reference rather than three. Everything else
+     about the tooltip is the same; the full list is still one click away. */
+  export let presenting = false;
+  $: refsPreview = presenting
+    ? PRESENTATION.chart.refsPreviewCount
+    : CHART_LAYOUT.refsPreviewCount;
+
+  let zoomF = 1;
+  const toShell = (px: number) => px / zoomF;
+  /** A bounding rect with every edge in the chart's own pixels. */
+  function shellRect(el: Element): DOMRect {
+    const r = el.getBoundingClientRect();
+    if (zoomF === 1) return r;
+    return new DOMRect(r.left / zoomF, r.top / zoomF, r.width / zoomF, r.height / zoomF);
+  }
+
   function getSvgPos(e: PointerEvent | MouseEvent) {
-    const rect = container.getBoundingClientRect();
-    return { svgX: e.clientX - rect.left, svgY: e.clientY - rect.top };
+    const rect = shellRect(container);
+    return { svgX: toShell(e.clientX) - rect.left, svgY: toShell(e.clientY) - rect.top };
   }
 
   function hitTest(svgX: number, svgY: number): PlotBandHit | null {
@@ -630,12 +656,12 @@
   // Event handlers
   // ---------------------------------------------------------------------------
   function onPointerMove(e: PointerEvent) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    mouseX = toShell(e.clientX);
+    mouseY = toShell(e.clientY);
 
     if (isPanning) {
       const plotWidth = containerWidth - ML - MR;
-      const dx = (e.clientX - panStartClientX) / plotWidth;
+      const dx = toShell(e.clientX - panStartClientX) / plotWidth;
       const span = panStartDomain[1] - panStartDomain[0];
       const [d0, d1] = slideInside(panStartDomain[0] - dx * span, panStartDomain[1] - dx * span);
       wnOverride = domainToWnRange(d0, d1);
@@ -643,7 +669,7 @@
     }
 
     if (isScaling) {
-      const dx = e.clientX - scaleStartClientX;
+      const dx = toShell(e.clientX - scaleStartClientX);
       const factor = Math.exp(-dx * 0.006);
       const d0 = clampValue(scalePivot + (scaleStartDomain[0] - scalePivot) * factor);
       const d1 = clampValue(scalePivot + (scaleStartDomain[1] - scalePivot) * factor);
@@ -699,8 +725,8 @@
       if (hit) {
         selected = hit;
         selectedId = hit.tipData.id;
-        selectedTipX = e.clientX;
-        selectedTipY = e.clientY;
+        selectedTipX = toShell(e.clientX);
+        selectedTipY = toShell(e.clientY);
         playNonce++;
       } else {
         selected = null;
@@ -729,7 +755,7 @@
   // driven by the same onPointerMove/onPointerUp already bound there.
   // ---------------------------------------------------------------------------
   function axisSvgX(e: PointerEvent): number {
-    return e.clientX - container.getBoundingClientRect().left;
+    return toShell(e.clientX) - shellRect(container).left;
   }
 
   function onAxisPointerMove(e: PointerEvent) {
@@ -937,13 +963,13 @@
       <!-- Per-reference boxes -->
       {#if td.refs.length}
         {@const isCollapsible = td.refs.length > 1}
-        {@const useScroll = selected && td.refs.length > CHART_LAYOUT.refsPreviewCount}
-        {@const refsToShow = selected ? td.refs : td.refs.slice(0, CHART_LAYOUT.refsPreviewCount)}
+        {@const useScroll = selected && td.refs.length > refsPreview}
+        {@const refsToShow = selected ? td.refs : td.refs.slice(0, refsPreview)}
         <div class="tip-refs-section">
           <div class="tip-refs-header">
             References
-            {#if !selected && td.refs.length > CHART_LAYOUT.refsPreviewCount}
-              <span class="tip-refs-overflow">+{td.refs.length - CHART_LAYOUT.refsPreviewCount} more · click band</span>
+            {#if !selected && td.refs.length > refsPreview}
+              <span class="tip-refs-overflow">+{td.refs.length - refsPreview} more · click band</span>
             {/if}
           </div>
 

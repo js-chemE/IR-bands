@@ -199,6 +199,29 @@
       "note": "Everything the CO₂ methanation story touches.",
       "phases": []
     },
+    "adsorbed": {
+      "key": "adsorbed",
+      "label": "IR: Adsorbed & surface species",
+      "groups": [
+        "support_oh",
+        "support",
+        "hydride",
+        "formate",
+        "carbonate",
+        "bicarbonate",
+        "carbonyl",
+        "methoxy",
+        "co_metal",
+        "co_cation",
+        "co2",
+        "methanol_product"
+      ],
+      "note": "Everything that only exists because there is a solid under it.",
+      "phases": [
+        "adsorbed",
+        "surface"
+      ]
+    },
     "fluids": {
       "key": "fluids",
       "label": "Raman: Gases + Fluids",

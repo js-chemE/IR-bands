@@ -236,7 +236,7 @@
   .explain { min-width: 0; }
   .visual { min-width: 0; }
 
-  @media (max-width: 1180px) {
+  @container content (max-width: 950px) {
     .spread { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
   }
 

@@ -17,6 +17,7 @@
     { id: 'color',        label: 'Colour tokens' },
     { id: 'colormaps',    label: 'Data colormaps' },
     { id: 'shape',        label: 'Shape & layout' },
+    { id: 'display',      label: 'Screens & presenting' },
     { id: 'bandchart',    label: '2 · Band chart', part: true },
     { id: 'chart-layout', label: 'Chart layout & marks' },
     { id: 'links',        label: 'Band relationships' },
@@ -63,6 +64,8 @@
     SPACING,
     GRADIENTS,
     PAGE_LAYOUT,
+    WIDTH_CLASSES,
+    PRESENTATION,
     CHART_LAYOUT_DOCS,
     CONTENT_LIMITS,
     CARD_LAYOUT,
@@ -565,6 +568,109 @@
           <div class="wire-main">Main area<br /><span>prose caps at 760px, this guide runs wider for its two columns</span></div>
         </div>
         <div class="wire-foot">Hint banner &middot; never scrolls away</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spread">
+    <div class="explain">
+      <section class="section" id="display" data-sg-section="display">
+        <h3>Screens the atlas is read on</h3>
+        <p>
+          Three of them, and the difference between them is how much room the
+          content was given, never how wide the window happens to be. The shell
+          measures itself and writes the answer on the document element, as
+          <code>data-w</code> and, for anything that is not <code>wide</code>,
+          <code>data-narrow</code>.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            {#each WIDTH_CLASSES as w}
+              <tr>
+                <th>{w.key}</th>
+                <td class="spec-val">{w.max === Infinity ? 'wider' : `≤ ${w.max}px`}</td>
+                <td>{w.usage}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+        <ul class="rules">
+          <li>A responsive rule keys off <code>data-w</code>, or off the content box with <code>@container content (…)</code>. Never off <code>@media (max-width: …)</code>: a media query asks the window, and the window is not what the layout was given.</li>
+          <li>The scroll model is the same at every width. The header stays put and the main area scrolls inside itself, because four pages hang their table of contents spy off that element.</li>
+          <li>Below <code>wide</code> the sidebar becomes a drawer and the band chart is withheld rather than reflowed. Everything else is expected to read in one column.</li>
+          <li>A touch target is at least 24px, and 44px where a thumb is the likely pointer.</li>
+        </ul>
+      </section>
+
+      <section class="section" id="presenting">
+        <h3>Presenting to a room</h3>
+        <p>
+          A lecture theatre poses a problem of angular size, not of information
+          density: the projector is too small for the room and everything on it
+          is read from five times the distance a desk gives. So the mode is one
+          magnification, and a short list of subtractions. It is reached by
+          <kbd>Shift</kbd>+<kbd>P</kbd>, by <code>?present=1</code> in the URL,
+          or by the Present button that fades in when the header is hovered.
+        </p>
+        <p>
+          The magnification is a single CSS <code>zoom</code> on the shell.
+          Zoom reflows, where a transform would only paint bigger, and it
+          reaches the font sizes still written as literal pixels in components.
+          It also composes with the steps above for nothing: the shell measures
+          itself from inside the zoom, so at 1.75× on a 1920px projector it
+          reports a <code>mid</code> shell and lays out for the room it
+          actually has. That is the whole reason those steps are measured.
+        </p>
+        <table class="spec-table">
+          <tbody>
+            {#each PRESENTATION.subtractions as sub}
+              <tr><th>{sub.what}</th><td>{sub.why}</td></tr>
+            {/each}
+          </tbody>
+        </table>
+        <ul class="rules">
+          <li>Everything taken away is listed in <code>PRESENTATION.subtractions</code> with the reason it is noise from the back of a room. Add to that list in the same change as the CSS, or this table quietly stops being true.</li>
+          <li>Subtract what cannot be read at that distance or does not belong to the talk. Do not subtract something merely because the presenter is unlikely to point at it.</li>
+          <li>Viewport coordinates and the shell's own coordinates differ by the scale while the mode is on. <code>lib/zoom.ts</code> converts between them; the band chart is the only thing that does arithmetic in pixels, so it is the only caller.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="visual sticky">
+      <div class="visual-label">The three shells</div>
+      {#each WIDTH_CLASSES as w}
+        <div class="wire shell-wire">
+          <div class="wire-header">
+            {#if w.key !== 'wide'}<span class="wire-burger">☰</span>{/if}
+            Header · {w.key}
+          </div>
+          <div class="wire-body">
+            {#if w.key === 'wide'}
+              <div class="wire-side">Sidebar<br /><span>220px, docked</span></div>
+            {/if}
+            <div class="wire-main">
+              {#if w.key === 'wide'}
+                Main area<br /><span>band chart drawn at its full canvas</span>
+              {:else}
+                Main area, full width<br />
+                <span>sidebar is a drawer · band chart withheld</span>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/each}
+
+      <div class="visual-label scale-label">Presentation scale</div>
+      <div class="scale-ladder">
+        {#each PRESENTATION.scales as sc}
+          <div class="ladder-row" class:is-default={sc === PRESENTATION.defaultScale}>
+            <span class="ladder-n">{Math.round(sc * 100)}%</span>
+            <span class="ladder-bar" style="width:{sc * 34}px"></span>
+            <span class="ladder-note">
+              1920px reads as {Math.round(1920 / sc)}px{sc === PRESENTATION.defaultScale ? ' · entry point' : ''}
+            </span>
+          </div>
+        {/each}
       </div>
     </div>
   </div>
@@ -2112,7 +2218,7 @@
     border-bottom: 1px solid var(--line-faint);
   }
 
-  @media (max-width: 1320px) {
+  @container content (max-width: 1080px) {
     .spread { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
     .visual.sticky { position: static; max-height: none; overflow: visible; }
     .content { max-width: 860px; }
@@ -2357,6 +2463,37 @@
     color: var(--notice-fg);
     padding: 6px 12px;
   }
+
+  .shell-wire { margin-top: var(--space-2); }
+  .shell-wire:first-of-type { margin-top: 0; }
+  .wire-burger {
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    padding: 0 4px;
+    margin-right: 6px;
+  }
+
+  .scale-label { margin-top: var(--space-4); }
+
+  .scale-ladder { display: flex; flex-direction: column; gap: 4px; }
+  .ladder-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+  .ladder-n {
+    flex: 0 0 38px;
+    text-align: right;
+    font-family: var(--font-mono);
+    color: var(--ink-500);
+    font-variant-numeric: tabular-nums;
+  }
+  .ladder-bar {
+    flex: 0 0 auto;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--brand-tint-line);
+  }
+  .is-default .ladder-bar { background: var(--brand-500); }
+  .ladder-note { color: var(--ink-300); }
+  .is-default .ladder-note { color: var(--ink-500); }
 
   /* ── Spec tables ── */
   .spec-table {
