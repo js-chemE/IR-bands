@@ -1117,7 +1117,9 @@
 
   /* No room for two columns: the floats go and the card reads straight
      down, in the order it was written. */
-  @media (max-width: 860px) {
+  /* Floats off, one column. Asked of the content box (see .main-area in
+     App.svelte), so it is right at any sidebar state and any shell scale. */
+  @container content (max-width: 640px) {
     .kn-flow.on > .card-visual,
     .kn-flow.on .formula {
       float: none;

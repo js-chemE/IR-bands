@@ -54,6 +54,8 @@ frontend/src/
                               `ir-inactive` or `raman-inactive` (authored, like any tag) are
                               drawn hollow for the chosen technique; positions never change
     Dropdown.svelte / ZeroField.svelte ← the sidebar's selects and the shift's zero input
+    ChartTooNarrow.svelte    ← the band chart's stand-in on a shell too narrow to draw
+                              it, with a "Show it anyway" escape hatch
     LookPill.svelte          ← the hollow (inactive) and faded (unreferenced) pills: under
                               Color by they switch the look, under Enable & Disable they
                               filter the bands out
@@ -86,7 +88,10 @@ frontend/src/
     vibration/               ← MoleculeViewer, MoleculeSelector, ModeList, ModeDetailPanel
   lib/
     tokens.ts             ← DESIGN TOKENS: every color, type role, radius, shadow,
-                              chart dimension and editorial limit, in one place
+                              chart dimension, shell width step, presentation
+                              scale and editorial limit, in one place
+    zoom.ts               ← viewport pixels ↔ shell pixels while presentation
+                              mode's zoom is on (the band chart is the only caller)
     dataModel.ts          ← DATA MODEL: entities, relations, band-to-band links, tag
                               roles, plus analyse() which counts the live JSON
     labels.ts             ← species/surface key → label resolution (installed once)
@@ -256,6 +261,63 @@ Rules when touching the frontend:
   each a stack of "spreads": explanation left, the artefact being explained
   right, the visual sticky where one spans several subsections. A spread never
   crosses a part boundary, so the cut between parts stays clean.
+
+### The shell adapts, the chart does not
+
+The shell measures itself and stamps the step on the document element:
+`<html data-w="compact|mid|wide">`, plus `data-narrow` for anything that is not
+`wide`. The thresholds and the reasoning are `WIDTH_CLASSES` in `tokens.ts`.
+
+- **Key a responsive rule off `data-w` / `data-narrow`, never off
+  `@media (max-width: …)`.** A media query asks the viewport; the question a
+  layout actually has is how much room the content was given. The two part
+  company the moment anything scales the shell, and then the layout stays wide
+  while the content is narrow.
+- **The scroll model does not change with the width.** The header stays put and
+  `.main-area` scrolls internally at every size, because Knowledge, Dataset and
+  both guides hang their sidebar scroll spy off that element.
+- Below `wide` the sidebar becomes an overlay drawer (absolute inside
+  `.page-body`, so it starts under the header) and the band chart is
+  **withheld**, not reflowed: `ChartTooNarrow.svelte` stands in for it, with a
+  "Show it anyway" that hands over the real chart in a horizontal scroller.
+  Everything else in the atlas is expected to read in one column.
+- A touch target is at least 24px (WCAG 2.2 SC 2.5.8) and 44px where a thumb
+  is the likely pointer.
+
+A page's own collapse (a two-column spread going to one, a card grid dropping
+to 2-up) is not a shell step and does not use `data-w`. It asks the content box
+instead: `.main-area` is a named container (`container-name: content`) and the
+page writes `@container content (max-width: N)`. The band chart's `.plot-area`
+is deliberately not a container, being the one place whose flex and overflow
+behaviour is worth not perturbing.
+
+### Presentation mode
+
+The atlas on a screen at the front of a room, specified in `PRESENTATION`
+(`tokens.ts`) and rendered on the style guide. One CSS `zoom` on `.app-root`
+plus a short list of subtractions. Reached three ways, all the same state:
+`Shift+P`, `?present=1` (or `?present=1.75` to name the scale), and the Present
+button that fades in when the header is hovered. `+` / `−` step the scale,
+`Escape` or `Shift+P` leaves.
+
+- **Zoom, not a second stylesheet.** Zoom reflows, where a `transform` would
+  only paint bigger, and it reaches the font sizes still written as literal px
+  in components. It composes with the width steps for nothing: the shell
+  measures itself from inside the zoom, so 1.75× on a 1920px projector reports
+  a `mid` shell and lays out for the room it actually has.
+- **Adding a subtraction means adding it to `PRESENTATION.subtractions`** with
+  the reason it is noise from the back of a room, in the same change as the
+  CSS. Subtract what cannot be read at that distance, not what the presenter
+  happens not to be pointing at.
+- **The chart is exempt from the narrow-shell block while presenting.**
+  Magnifying narrows the shell in its own pixels, so a presenter would
+  otherwise have the chart taken away at the moment they meant to show it. The
+  block was always about a phone-sized touch screen, not about the number.
+- **Viewport pixels and shell pixels differ by the scale while the mode is on.**
+  `lib/zoom.ts` converts between them. The band chart is the only thing doing
+  pixel arithmetic, so it is the only caller: anything arriving from the
+  browser (`clientX`, a bounding rect, `window.innerHeight`) is taken into the
+  chart's own space before it is compared with or written back as a length.
 
 ### Editorial limits
 
@@ -514,7 +576,11 @@ and a hand-picked selection that matches no set shows as "Custom". The chart
 opens on `DEFAULT_SET` in `App.svelte`. A set may also carry `phases`: while it
 is the active selection, only bands of those phases show (a band with no phase
 applies to both forms and stays). `fluids` (Gases + Fluids) uses it to
-drop the adsorbed bands that share a group with the free molecule.
+drop the adsorbed bands that share a group with the free molecule, and
+`adsorbed` (Adsorbed & surface species) is its mirror: every group that carries
+an adsorbed or surface band at all, restricted to those two phases, so the
+free-molecule families drop out and a phase-less band (true of both forms)
+stays in both sets.
 
 **Lane layout (`layout.py`):** Two-level layout. `assign_lanes()` is a lookup, not a packing problem: it reads the `lanes` table in `bands.jsonc` (the chart's rows, in order, each naming the groups that share it) and gives every band the index of its group's row. Every group must sit in exactly one lane; `build.py` fails otherwise. `assign_sub_lanes()` then staggers overlapping bands within a lane into five sub-lanes (0, +1, −1, +2, −2), placing each `branch_group` as one unit so the branches of a transition share a sub-lane. The one exception is a family whose ΔJ = ±1 and ±2 branches actually run over each other, as methane's Raman bands do: only then is it split, and only on that boundary. Units that still do not fit fall back to the centre line and are logged. Treat that log line as a signal about the data rather than about the layout: it usually means one mode has been split into more bands than it needs.
 

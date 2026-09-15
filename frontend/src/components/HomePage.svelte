@@ -232,11 +232,11 @@
     width: 100%;
   }
 
-  @media (max-width: 1240px) {
+  @container content (max-width: 1000px) {
     .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; }
   }
 
-  @media (max-width: 720px) {
+  @container content (max-width: 500px) {
     .cards { grid-template-columns: 1fr; max-width: 340px; }
   }
 

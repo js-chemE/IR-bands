@@ -555,6 +555,17 @@
         "co", "ch4", "h2", "co_metal", "co_cation"
       ]
     },
+    "adsorbed": {
+      "label": "IR: Adsorbed & surface species",
+      "note": "Everything that only exists because there is a solid under it.",
+      "groups": [
+        "support_oh", "support", "hydride",
+        "formate", "carbonate", "bicarbonate", "carbonyl", "methoxy",
+        "co_metal", "co_cation",
+        "co2", "methanol_product"
+      ],
+      "phases": ["adsorbed", "surface"]
+    },
     "fluids": {
       "label": "Raman: Gases + Fluids",
       "note": "The free molecules only: reactants and products as gas or fluid, no surface species. Their adsorbed bands are left out too.",

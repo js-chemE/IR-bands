@@ -1625,7 +1625,7 @@
     display: none;
   }
 
-  @media (max-width: 1000px) {
+  @container content (max-width: 780px) {
     .spread, .map-below { grid-template-columns: 1fr; gap: var(--space-4); }
   }
 </style>

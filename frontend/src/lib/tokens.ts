@@ -525,6 +525,42 @@ export const GRADIENTS: Record<string, ScaleToken> = {
 };
 
 /* ---------------------------------------------------------------------------
+   Shell width
+   --------------------------------------------------------------------------- */
+
+/**
+ * How much room the shell has, in three named steps.
+ *
+ * `App.svelte` measures its own root and stamps the name on the document
+ * element (`<html data-w="compact">`, plus `data-narrow` for anything that is
+ * not `wide`). Every responsive rule in the atlas keys off that attribute and
+ * none off `@media (max-width: …)`.
+ *
+ * The reason is that a media query asks the viewport, while the question the
+ * layout actually has is how much room the content was given. The two part
+ * company the moment anything scales the shell (a browser zoom in a lecture
+ * hall, a presentation mode later), and then the layout stays wide while the
+ * content is narrow. Measuring answers the right question, and it keeps the
+ * thresholds here instead of as bare numbers repeated down a dozen component
+ * stylesheets.
+ *
+ * `max` is the widest shell that still counts as that step, in CSS px.
+ */
+export const WIDTH_CLASSES = [
+  { key: 'compact', max: 720,      usage: 'A phone, or a shell scaled down to about one: single column, the sidebar becomes a drawer, the band chart is withheld' },
+  { key: 'mid',     max: 1180,     usage: 'A tablet or half a desktop window: the sidebar is still a drawer and the band chart is still withheld, but prose has room to breathe' },
+  { key: 'wide',    max: Infinity, usage: 'The layout the atlas is drawn for: sidebar docked at 220px, band chart at its full 1100px canvas' },
+] as const;
+
+export type WidthClass = (typeof WIDTH_CLASSES)[number]['key'];
+
+/** The step a shell of this many CSS px falls in. */
+export function widthClass(px: number): WidthClass {
+  for (const w of WIDTH_CLASSES) if (px <= w.max) return w.key;
+  return 'wide';
+}
+
+/* ---------------------------------------------------------------------------
    Page layout
    --------------------------------------------------------------------------- */
 
@@ -541,8 +577,68 @@ export const PAGE_LAYOUT: Record<string, ScaleToken> = {
   'Sidebar':        { value: '220px, 36px collapsed', usage: 'Fixed width, animates over 0.18s' },
   'Header':         { value: '14px 28px padding', usage: 'Brand gradient, title left, authors right' },
   'Section gap':    { value: '36px',            usage: 'Between two page sections' },
+  'Width steps':    { value: WIDTH_CLASSES.map(w => `${w.key} ≤ ${w.max}px`).join(', ').replace(' ≤ Infinitypx', ''),
+                     usage: 'How much room the shell has, stamped on <html data-w>. Responsive rules key off that attribute, never off a media query, so they stay right when the shell is scaled' },
   'Card':           { value: `${CARD_LAYOUT.width}px × ${CARD_LAYOUT.height}px`, usage: 'Home page destination card and Knowledge Basics card. Home cards fill a grid column of about this width; Knowledge cards are fixed at it and packed 12px apart' },
 };
+
+/* ---------------------------------------------------------------------------
+   Presentation mode
+   --------------------------------------------------------------------------- */
+
+/**
+ * The atlas on a screen at the front of a room.
+ *
+ * The problem a lecture hall poses is angular size, not information density:
+ * the projector is almost always too small for the room, and everything on it
+ * is being read from five times the distance a desk gives. So the mode is a
+ * magnification first, and a short list of subtractions second.
+ *
+ * The magnification is one CSS `zoom` on the shell, not a second stylesheet.
+ * Zoom reflows (a `transform` would only paint bigger and leave the layout box
+ * behind) and it reaches the font sizes still written as literal px in
+ * components, which a rem-based scale would miss. It also composes with the
+ * width steps for free: the shell measures itself from inside the zoom, so at
+ * 1.75x on a 1920px projector it correctly reports a `mid` shell and lays out
+ * for the room it actually has. That is the reason WIDTH_CLASSES is measured
+ * and not a media query.
+ *
+ * The one thing zoom costs is that viewport coordinates and the shell's own
+ * coordinates part company; `lib/zoom.ts` converts between them, and the band
+ * chart is the only place that needs it.
+ */
+export const PRESENTATION = {
+  /** Scale steps, in order. A lecture hall is a nudge, not a slider. */
+  scales: [1.25, 1.5, 1.75, 2] as const,
+  /** What entering the mode picks. */
+  defaultScale: 1.5,
+
+  /**
+   * What the mode takes away. Kept short on purpose: everything here has to be
+   * defensible as noise from the back of a room, not merely as something the
+   * presenter happens not to be pointing at.
+   */
+  subtractions: [
+    {
+      what: 'The hint banner',
+      why: 'A note to the reader about hard-refreshing and where to send corrections. Useful at a desk, pure noise on a wall, and it costs a fifth of a projected screen.',
+    },
+    {
+      what: 'The open sidebar',
+      why: 'Collapsed to its rail on entry, which hands the room the widest content column the screen can give. The presenter can open it again; leaving the mode restores whatever it was before.',
+    },
+    {
+      what: 'All but one reference in an unpinned tooltip',
+      why: 'A hovered tooltip is read in a second or two from the back. The full list is still one click away, where the room has time for it.',
+    },
+  ],
+
+  /** CHART_LAYOUT values that differ while presenting. */
+  chart: {
+    /** Unpinned tooltips show this many references instead of the usual three. */
+    refsPreviewCount: 1,
+  },
+} as const;
 
 /* ---------------------------------------------------------------------------
    Band chart geometry

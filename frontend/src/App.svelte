@@ -4,6 +4,7 @@
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
   import { getLegendCategories, getLegendTags, isCalculatedOnly, isReferenced } from './lib/chart';
   import { installLookups } from './lib/labels';
+  import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
   import {
     GROUP_DIMS,
     ALL_TECHNIQUES,
@@ -27,7 +28,7 @@
   import SourceGuidePage, { SECTIONS as SRC_SECTIONS } from './components/SourceGuidePage.svelte';
   import DataModelPage, { sectionsFor, type DmView } from './components/DataModelPage.svelte';
   import KnowledgePage, { SECTIONS as KN_SECTIONS } from './components/KnowledgePage.svelte';
-  import MobileNotice from './components/MobileNotice.svelte';
+  import ChartTooNarrow from './components/ChartTooNarrow.svelte';
 
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
@@ -127,7 +128,173 @@
   // Every page shares one scroll container, so opening a long page from
   // halfway down another one would start halfway down it. Reset on switch.
   let mainArea: HTMLElement | null = null;
-  $: if (page) mainArea?.scrollTo({ top: 0 });
+  $: if (page) { mainArea?.scrollTo({ top: 0 }); drawerOpen = false; }
+
+  /* ── How much room the shell has ──
+     Measured off the shell itself rather than asked of the viewport, and
+     stamped on <html> so every component can style off one attribute. The
+     reasoning, and the thresholds, are in WIDTH_CLASSES (lib/tokens.ts).
+
+     The scroll model does not change with the width: the header stays put and
+     .main-area keeps scrolling internally at every size, because four pages
+     hang their sidebar scroll spy off that element. `dvh` rather than `vh` so
+     a phone's collapsing URL bar does not cut the last line off. */
+  let appRoot: HTMLElement | null = null;
+  let wClass: WidthClass = 'wide';
+  $: narrow = wClass !== 'wide';
+
+  onMount(() => {
+    const measure = (px: number) => { wClass = widthClass(px); };
+    measure(appRoot?.clientWidth || window.innerWidth);
+    if (!appRoot) return;
+    const ro = new ResizeObserver(e => measure(Math.floor(e[0].contentRect.width)));
+    ro.observe(appRoot);
+    return () => ro.disconnect();
+  });
+
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.dataset.w = wClass;
+    // `data-narrow` is the common case (anything that is not the full desktop
+    // layout), so a rule does not have to list two values of data-w.
+    if (narrow) document.documentElement.dataset.narrow = '';
+    else delete document.documentElement.dataset.narrow;
+  }
+
+  /* ── Presentation mode ──
+     The atlas on a screen at the front of a room: one CSS zoom on the shell,
+     plus the short list of subtractions in PRESENTATION (tokens.ts), which is
+     also what the style guide renders. Three doors lead to the same state, so
+     a lecture-hall machine can be sent straight into it and a presenter who
+     has forgotten how they got there can still leave:
+
+       · Shift+P, unless a field has the keyboard
+       · ?present=1 in the URL, or ?present=1.75 to name the scale
+       · the Present button in the header, which fades in on hover
+
+     The URL and localStorage are both kept in step, so a reload lands back
+     where the presenter was. */
+  let presenting = false;
+  let presentScale: number = PRESENTATION.defaultScale;
+  const SCALE_KEY = 'bandatlas.presentation';
+  /** Restored on leaving: the mode collapses the sidebar, it does not own it. */
+  let sidebarBeforePresenting = true;
+  let presentToast = false;
+  let toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function nearestScale(v: number): number {
+    return PRESENTATION.scales.reduce(
+      (best, s) => (Math.abs(s - v) < Math.abs(best - v) ? s : best),
+      PRESENTATION.scales[0] as number,
+    );
+  }
+
+  function enterPresenting(scale = presentScale) {
+    if (!presenting) sidebarBeforePresenting = sidebarOpen;
+    presenting = true;
+    presentScale = nearestScale(scale);
+    sidebarOpen = false;
+    showToast();
+  }
+
+  function leavePresenting() {
+    presenting = false;
+    sidebarOpen = sidebarBeforePresenting;
+  }
+
+  function stepScale(dir: 1 | -1) {
+    const i = (PRESENTATION.scales as readonly number[]).indexOf(presentScale);
+    const next = Math.min(PRESENTATION.scales.length - 1, Math.max(0, (i < 0 ? 1 : i) + dir));
+    presentScale = PRESENTATION.scales[next];
+  }
+
+  function showToast() {
+    presentToast = true;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (presentToast = false), 4200);
+  }
+
+  /* Reactive statements run before onMount, so the block that writes the mode
+     back to the URL would wipe a ?present= before anything had read it. This
+     flag holds it until the restore below has had its turn. */
+  let modeReady = false;
+
+  onMount(() => {
+    // The URL wins over the remembered state: a bookmarked ?present=1 is a
+    // deliberate instruction, and a stale localStorage flag should never be
+    // able to surprise someone opening the atlas at a desk.
+    const q = new URLSearchParams(window.location.search).get('present');
+    if (q !== null) {
+      const asked = parseFloat(q);
+      enterPresenting(Number.isFinite(asked) && asked > 1 ? asked : PRESENTATION.defaultScale);
+      modeReady = true;
+      return;
+    }
+    try {
+      const saved = localStorage.getItem(SCALE_KEY);
+      if (saved) enterPresenting(parseFloat(saved));
+    } catch { /* private mode: no memory, no harm */ }
+    modeReady = true;
+  });
+
+  $: if (modeReady && typeof window !== 'undefined') {
+    try {
+      if (presenting) localStorage.setItem(SCALE_KEY, String(presentScale));
+      else localStorage.removeItem(SCALE_KEY);
+    } catch { /* ignore */ }
+    const url = new URL(window.location.href);
+    if (presenting) url.searchParams.set('present', String(presentScale));
+    else url.searchParams.delete('present');
+    if (url.href !== window.location.href) history.replaceState(null, '', url);
+  }
+
+  // The scale reaches CSS as one custom property. lib/zoom.ts reads the same
+  // one wherever `currentCSSZoom` is missing, so the two cannot disagree.
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--display-scale', presenting ? String(presentScale) : '1');
+    if (presenting) document.documentElement.dataset.presenting = '';
+    else delete document.documentElement.dataset.presenting;
+  }
+
+  /* Narrow shells get the sidebar as an overlay drawer rather than a rail.
+     `sidebarOpen` below stays the wide layout's collapse and the two never
+     interact: leaving a narrow window does not collapse the desktop rail. */
+  let drawerOpen = false;
+  /* The band chart is withheld on a narrow shell (see ChartTooNarrow). A
+     reader who asks for it anyway keeps it for the session.
+
+     Presentation mode is the exception, and it has to be: magnifying the shell
+     narrows it in its own pixels, so a presenter at 1.75x on a 1920px
+     projector measures as `mid` and would have the chart taken away at exactly
+     the moment they meant to show it. The reason for withholding it was never
+     the number: it was a phone-sized touch screen a reader cannot pan a
+     1100px canvas on. Someone who has deliberately turned the magnification up
+     has a big screen and a mouse, and can turn it back down. */
+  let chartAnyway = false;
+  $: chartWithheld = narrow && !presenting && !chartAnyway;
+
+  function onShellKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && drawerOpen) { drawerOpen = false; return; }
+
+    // Never steal a key from something being typed into.
+    const t = e.target as HTMLElement | null;
+    const typing = !!t && (t.isContentEditable
+      || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName));
+    if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.key === 'P' || e.key === 'p') {
+      if (!e.shiftKey) return;
+      e.preventDefault();
+      presenting ? leavePresenting() : enterPresenting();
+    } else if (presenting && (e.key === '+' || e.key === '=')) {
+      e.preventDefault();
+      stepScale(1);
+    } else if (presenting && (e.key === '-' || e.key === '_')) {
+      e.preventDefault();
+      stepScale(-1);
+    } else if (presenting && e.key === 'Escape') {
+      leavePresenting();
+    }
+  }
 
   let sidebarOpen = true;
   let showColorMenu = false;
@@ -432,23 +599,47 @@
   })();
 </script>
 
-<div class="app-root">
+<svelte:window on:keydown={onShellKeydown} />
+
+<div class="app-root" bind:this={appRoot}>
 <!-- ── Page header ── -->
 <header class="app-header">
   <div class="header-left">
+    {#if narrow}
+      <button
+        class="drawer-btn"
+        on:click={() => (drawerOpen = !drawerOpen)}
+        aria-expanded={drawerOpen}
+        aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
+      >{drawerOpen ? '✕' : '☰'}</button>
+    {/if}
     <button class="header-title-btn" on:click={() => page = 'home'}>Spectral Band Atlas</button>
     <!-- The framing, not the scope: what the atlas currently covers is stated
          on the home page, where it can be widened without touching the chrome. -->
     <span class="header-subtitle">Vibrational spectroscopy</span>
   </div>
+  <!-- Hidden until the header is hovered, and plainly visible once the mode is
+       on: nobody should have to remember Shift+P to get back out of it. -->
+  <div class="present-ctl" class:on={presenting}>
+    {#if presenting}
+      <button class="pc-btn" on:click={() => stepScale(-1)}
+        disabled={presentScale === PRESENTATION.scales[0]} title="Smaller (−)">−</button>
+      <span class="pc-scale">{Math.round(presentScale * 100)}%</span>
+      <button class="pc-btn" on:click={() => stepScale(1)}
+        disabled={presentScale === PRESENTATION.scales[PRESENTATION.scales.length - 1]}
+        title="Bigger (+)">+</button>
+      <button class="pc-btn pc-exit" on:click={leavePresenting} title="Leave presentation mode (Shift+P)">Exit</button>
+    {:else}
+      <button class="pc-btn pc-enter" on:click={() => enterPresenting()}
+        title="Presentation mode (Shift+P)">Present</button>
+    {/if}
+  </div>
+
   <div class="header-right">
     <div class="header-authors">Julius Sommer<sup>1</sup>, Evgeny Pidko<sup>1</sup>, Atsushi Urakawa<sup>1</sup></div>
     <div class="header-affil"><sup>1</sup>Delft University of Technology</div>
   </div>
 </header>
-
-<!-- ── Narrow / mobile viewport notice (full width, under the header) ── -->
-<MobileNotice />
 
 <div class="page-body">
 {#if loading}
@@ -457,14 +648,25 @@
   <div class="state-msg error">Failed to load data: {error}</div>
 {:else if dataset}
     <!-- ── Sidebar (collapsible) ── -->
-    <aside class="sidebar" class:collapsed={!sidebarOpen}>
-      <button
-        class="sidebar-toggle"
-        on:click={() => sidebarOpen = !sidebarOpen}
-        title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-      >{sidebarOpen ? '◀' : '▶'}</button>
+    {#if narrow && drawerOpen}
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <div class="drawer-backdrop" on:click={() => (drawerOpen = false)}></div>
+    {/if}
 
-      {#if !sidebarOpen}
+    <aside
+      class="sidebar"
+      class:collapsed={!sidebarOpen && !narrow}
+      class:drawer-open={narrow && drawerOpen}
+    >
+      {#if !narrow}
+        <button
+          class="sidebar-toggle"
+          on:click={() => sidebarOpen = !sidebarOpen}
+          title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+        >{sidebarOpen ? '◀' : '▶'}</button>
+      {/if}
+
+      {#if !sidebarOpen && !narrow}
         <!-- collapsed: mini page indicator buttons -->
         <div class="collapsed-page-nav">
           <button class="page-mini-btn" class:active={page === 'home'}
@@ -508,7 +710,7 @@
         </div>
       {/if}
 
-      {#if sidebarOpen}
+      {#if sidebarOpen || narrow}
       <div class="sidebar-open-content">
         <!-- Page selector -->
         <nav class="page-nav">
@@ -830,7 +1032,7 @@
     </aside>
 
     <!-- ── Main content ── -->
-    <div class="main-area" class:plot-area={page === 'chart'} bind:this={mainArea}>
+    <div class="main-area" class:plot-area={page === 'chart' && !chartWithheld} bind:this={mainArea}>
       {#if page === 'home'}
         <HomePage
           bandCount={dataset.bands.length}
@@ -838,9 +1040,12 @@
           referenceCount={refs ? Object.keys(refs).length : 0}
           on:navigate={handleHomeNavigate}
         />
+      {:else if page === 'chart' && chartWithheld}
+        <ChartTooNarrow {wClass} on:show={() => (chartAnyway = true)} />
       {:else if page === 'chart'}
         <div class="chart-scroll">
           <BandChart
+            {presenting}
             bands={chartBands}
             groups={dataset.groups}
             {refs}
@@ -937,13 +1142,16 @@
 {/if}
 </div><!-- page-body -->
 
+{#if presentToast}
+  <div class="present-toast" role="status">
+    Presentation mode · <kbd>+</kbd> <kbd>−</kbd> to resize · <kbd>Shift</kbd>+<kbd>P</kbd> to leave
+  </div>
+{/if}
+
 <!-- ── Hint banner (footer) ── -->
 <div class="hint-banner">
   <strong>Tip:</strong> hard-refresh if stale:
   <kbd>Ctrl+Shift+R</kbd> (Win/Linux) or <kbd>⌘+Shift+R</kbd> (macOS).
-  &ensp;<strong>Filter</strong> = pick a set, or open Groups to toggle one (collapses/expands lanes).
-  &ensp;<strong>Legend</strong> = show/hide color categories.
-  &ensp;<strong>Work in progress</strong> — especially the assignment of references is incomplete.
   &ensp;Found an error, have a tip, or know an interesting paper to reference?
   Please contact <a class="contact" href="mailto:j.sommer@tudelft.nl">j.sommer@tudelft.nl</a>.
 </div>
@@ -962,13 +1170,26 @@
   .app-root {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    /* Presentation mode's one magnification (PRESENTATION in tokens.ts). At 1
+       this is inert, which is why nothing else in the app has to know about
+       it. Viewport units are not scaled by zoom, so the shell's own height has
+       to be divided back down or it would stand `scale` screens tall. */
+    zoom: var(--display-scale, 1);
+    height: calc(100vh / var(--display-scale, 1));
+    /* A phone's URL bar eats the difference between the two; dvh is the one
+       that shrinks with it, so the last line of a page is never cut off. */
+    height: calc(100dvh / var(--display-scale, 1));
     overflow: hidden;
   }
 
   .page-body {
     flex: 1 1 0;
     overflow: hidden;
+    /* The drawer and its backdrop are absolute inside this box rather than
+       fixed to the viewport, so both start under the header without anyone
+       measuring how tall the header is, and the ✕ that closes the drawer
+       stays visible while it is open. */
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -1217,6 +1438,20 @@
     overflow-x: auto;
   }
 
+  /* Every page's own layout collapse is asked of this box, not of the window:
+     `@container content (max-width: …)` in the page's stylesheet. The width a
+     page has is the width of this element, which is the window less the
+     sidebar, less whatever the shell is scaled by, and that is the number a
+     two-column spread actually needs to know. Media queries could answer none
+     of those three.
+
+     The band chart is exempt: it runs no container queries and it is the one
+     place whose flex and overflow behaviour is worth not perturbing. */
+  .main-area:not(.plot-area) {
+    container-type: inline-size;
+    container-name: content;
+  }
+
   .plot-area {
     min-width: 1100px;
     display: flex;
@@ -1417,4 +1652,167 @@
     color: var(--brand-accent);
     font-weight: 600;
   }
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     The narrow shell
+
+     Everything below is keyed off `data-narrow` on the document element, set
+     from the measured shell width (see WIDTH_CLASSES in tokens.ts), never off
+     a media query. A media query asks the viewport; this asks how much room
+     the content was actually given, which is the question a layout has and
+     the only one that stays right when the shell is scaled.
+
+     Two things deliberately do NOT change with the width. The scroll model is
+     one: the header stays put and .main-area scrolls internally at every
+     size, because the Knowledge, Dataset and both guide pages hang their
+     sidebar scroll spy off that element. The band chart is the other: it is
+     withheld rather than reflowed (ChartTooNarrow).
+     ───────────────────────────────────────────────────────────────────────── */
+
+  .drawer-btn {
+    flex: 0 0 auto;
+    /* WCAG 2.2 SC 2.5.8 asks 24px; a header control on a phone deserves 44. */
+    width: 44px;
+    height: 44px;
+    margin: -8px 4px -8px -8px;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: var(--radius);
+    color: var(--brand-on-dark);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .drawer-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 790;
+    background: rgba(20, 34, 56, 0.38);
+  }
+
+  :global(html[data-narrow]) .sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 800;
+    flex-basis: auto;
+    width: min(320px, 86vw);
+    height: auto;
+    padding: 10px 12px;
+    box-shadow: var(--shadow-md);
+    transform: translateX(-102%);
+    transition: transform 0.22s ease;
+  }
+  :global(html[data-narrow]) .sidebar.drawer-open { transform: translateX(0); }
+
+  /* The rail's own controls belong to the docked layout only. */
+  :global(html[data-narrow]) .sidebar-open-content { min-height: 0; }
+
+  /* With the sidebar out of flow, the content takes the whole row. */
+  :global(html[data-narrow]) .main-area { width: 100%; }
+
+  /* The authors' line is the first thing to go: on a phone it costs a third
+     of the header and it is repeated on the Impressum anyway. */
+  :global(html[data-w='compact']) .app-header { padding: 10px 14px; }
+  :global(html[data-w='compact']) .header-right { display: none; }
+  :global(html[data-w='compact']) .header-subtitle { display: none; }
+
+  :global(html[data-w='compact']) .hint-banner { padding: 10px 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html[data-narrow]) .sidebar { transition: none; }
+  }
+
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     Presentation mode
+
+     One zoom on .app-root above, and the subtractions below. The list is
+     PRESENTATION.subtractions in tokens.ts, which the style guide renders;
+     anything added here belongs there too, with the reason it is noise from
+     the back of a room.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  :global(html[data-presenting]) .hint-banner { display: none; }
+
+  .present-ctl {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    /* Left of the authors: the top right corner belongs to the names. */
+    margin-left: auto;
+    margin-right: 16px;
+    /* Hidden until wanted: the atlas is read at a desk far more often than it
+       is presented, and a control for the rare case should not sit in the
+       header shouting. Focus reveals it too, so it is reachable by keyboard,
+       and while it is invisible it is also untappable: a transparent button is
+       still a button, and on a touch screen there is no hover to reveal it
+       before the tap lands. */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+  .app-header:hover .present-ctl,
+  .present-ctl:focus-within,
+  .present-ctl.on { opacity: 1; pointer-events: auto; }
+
+  /* No presenting from a phone. Shift+P and ?present= still work for anyone
+     who means it; the header has no room to offer it. */
+  :global(html[data-w='compact']) .present-ctl { display: none; }
+
+  .pc-btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: var(--radius);
+    color: var(--brand-on-dark);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .pc-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.22); }
+  .pc-btn:disabled { opacity: 0.4; cursor: default; }
+  .pc-enter { letter-spacing: 0.02em; }
+  .pc-exit { margin-left: 4px; }
+
+  .pc-scale {
+    min-width: 46px;
+    text-align: center;
+    color: var(--brand-on-dark);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .present-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    z-index: 9000;
+    padding: 9px 16px;
+    background: var(--ink-800);
+    color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+  .present-toast kbd {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .present-ctl { transition: none; }
+  }
+
 </style>
