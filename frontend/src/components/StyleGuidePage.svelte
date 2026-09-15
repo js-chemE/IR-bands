@@ -952,7 +952,25 @@
             {/each}
           </tbody>
         </table>
-      </section>
+      
+        <h3>Where a band's detail goes</h3>
+        <p>
+          Two looks, one card. A <strong>hover</strong> floats it beside the
+          pointer and keeps it quiet: the name, the range, the tags, the
+          mode's diagram and the bare citations. A <strong>click</strong>
+          puts the same card in a sidebar to the right of the chart, with the
+          mode diagrams in its header, the band's own description and every
+          reference with its note, and the plot re-fits into what is left.
+        </p>
+        <ul class="rules">
+          <li>Docked takes its room from the plot rather than covering it. A pinned card sits exactly where the reader is looking, over the neighbouring lanes, and the bands a selection draws arcs to are the ones most likely to be underneath it.</li>
+          <li>Nothing prose-length on a hover. A paragraph is not read off a chart in passing, and it is one click away in the panel.</li>
+          <li>The docked order is fixed: name and tags, the mode diagrams, the description, then the references, scrolling under all of it.</li>
+          <li>The reference list is the only part that scrolls, so the identity and the description stay put, and the hint under it sits directly after the last reference rather than pinned to the floor.</li>
+          <li>Once open the sidebar stays open. Dismissing a band leaves it standing and empty; only its ✕ closes it. A column that came and went with every click would move the chart a third of its width each time.</li>
+          <li>It is one component in both looks (<code>BandCard</code>, with <code>full</code> saying how much to draw), never two. What differs is the box around it, which belongs to the host.</li>
+        </ul>
+</section>
     </div>
 
     <div class="visual sticky">

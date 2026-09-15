@@ -27,6 +27,8 @@ from ir_bands.loader import (
     load_species,
     load_tags,
     load_vibrations,
+    share_branch_modes,
+    spread_degeneracy,
     tag_branch_groups,
     tag_calculated_only,
     tag_fermi_pairs,
@@ -673,6 +675,16 @@ def main() -> int:
 
     branch_warnings = tag_branch_groups(dataset)
     for w in branch_warnings:
+        print(f"  ⚠ {w}", file=sys.stderr)
+
+    # One vibration, several branches: the mode link is written once and
+    # shared, rather than repeated on every letter and forgotten on some.
+    for w in share_branch_modes(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
+
+    # Degeneracy is authored on the mode and inherited by everything built on
+    # it: an overtone of a degenerate bend is degenerate too.
+    for w in spread_degeneracy(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
 
     isotopologue_warnings = tag_isotopologues(dataset)

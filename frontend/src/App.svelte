@@ -29,6 +29,9 @@
   import DataModelPage, { sectionsFor, type DmView } from './components/DataModelPage.svelte';
   import KnowledgePage, { SECTIONS as KN_SECTIONS } from './components/KnowledgePage.svelte';
   import ChartTooNarrow from './components/ChartTooNarrow.svelte';
+  import Icon from './components/Icon.svelte';
+  import BandCard from './components/BandCard.svelte';
+  import { linkedModesFor } from './lib/vibrationLinks';
 
   let dataset: Dataset | null = null;
   let refs: RefMap = null;
@@ -259,6 +262,31 @@
      `sidebarOpen` below stays the wide layout's collapse and the two never
      interact: leaving a narrow window does not collapse the desktop rail. */
   let drawerOpen = false;
+  /* The selected band, reported by the chart, drawn by the sidebar. The chart
+     keeps owning the selection, because the highlight and the arcs to the
+     band's partners belong to it; this is the copy the sidebar reads. */
+  let selectedHit: { tipData: import('./lib/chart').TipData; color: string } | null = null;
+  /* Opened by the first band clicked, and closed only on purpose. Dismissing
+     a band leaves the column standing and empty rather than shutting it: the
+     chart would otherwise jump a third of its width wider every time somebody
+     clicked past a band, which is worse than an empty column. */
+  let sideOpen = false;
+  let bandClearNonce = 0;
+  let bandPlayNonce = 0;
+  function handleBandSelect(e: CustomEvent<{ hit: { tipData: import('./lib/chart').TipData; color: string } | null }>) {
+    selectedHit = e.detail.hit;
+    if (selectedHit) sideOpen = true;
+    bandPlayNonce++;
+  }
+  $: sideModes = selectedHit
+    ? linkedModesFor(vibrations, selectedHit.tipData.vibrationModeIds)
+    : [];
+  function closeBandSide() {
+    sideOpen = false;
+    // Let the chart go of the band too, or clicking it again would not reopen
+    // the column: the same band selected twice is not a change.
+    bandClearNonce++;
+  }
   /* The band chart is withheld on a narrow shell (see ChartTooNarrow). A
      reader who asks for it anyway keeps it for the session.
 
@@ -297,15 +325,55 @@
   }
 
   let sidebarOpen = true;
-  let showColorMenu = false;
-  let colorMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
-  function openColorMenu()  {
-    if (colorMenuTimer) { clearTimeout(colorMenuTimer); colorMenuTimer = null; }
-    showColorMenu = true;
+  /* The main menu, written once and rendered twice: as words while the
+     sidebar is open, as the home page's own symbols while it is collapsed.
+     The rail is only readable because the reader has already met those
+     symbols on the cards, which is why both draw the same component. */
+  const NAV: { page: Page; label: string; icon: string; accent?: string }[] = [
+    { page: 'home',       label: 'Home',       icon: 'home' },
+    { page: 'knowledge',  label: 'Knowledge',  icon: 'knowledge',  accent: 'green' },
+    { page: 'chart',      label: 'Band chart', icon: 'chart',      accent: 'blue' },
+    { page: 'references', label: 'References', icon: 'references', accent: 'amber' },
+    { page: 'datamodel',  label: 'Dataset',    icon: 'dataset',    accent: 'red' },
+    { page: 'impressum',  label: 'Impressum',  icon: 'impressum' },
+  ];
+  /* The two guides have no permanent entry; they appear while open. */
+  const EXTRA_NAV: { page: Page; label: string; icon: string }[] = [
+    { page: 'styleguide',  label: 'Style guide',  icon: 'styleguide' },
+    { page: 'sourceguide', label: 'Source guide', icon: 'sourceguide' },
+  ];
+
+  /* One flyout at a time on the collapsed rail, keyed by whatever opened it.
+     A rail button says what it is on hover (the title), and a control says
+     what it is and then offers its options underneath. The small delay on
+     closing is what lets the pointer travel from the button into the panel. */
+  let flyOpen: string | null = null;
+  let flyTimer: ReturnType<typeof setTimeout> | null = null;
+  function openFly(id: string) {
+    if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+    flyOpen = id;
   }
-  function closeColorMenu() {
-    colorMenuTimer = setTimeout(() => { showColorMenu = false; }, 180);
+  function closeFly() {
+    flyTimer = setTimeout(() => { flyOpen = null; }, 180);
+  }
+
+  /** Which set the current selection is, or null when it matches none. */
+  $: activeSetKey = (() => {
+    if (!dataset) return null;
+    if (enabledGroups.size === Object.keys(dataset.groups).length) return 'all';
+    for (const st of Object.values(dataset.sets ?? {})) {
+      if (st.groups.length === enabledGroups.size && st.groups.every(g => enabledGroups.has(g))) {
+        return st.key;
+      }
+    }
+    return null;
+  })();
+
+  function chooseSet(key: string) {
+    if (!dataset) return;
+    const chosen = dataset.sets?.[key];
+    enabledGroups = new Set(chosen ? chosen.groups : Object.keys(dataset.groups));
   }
 
   // Which set the chart opens on. A set is authored in bands.jsonc; this
@@ -365,6 +433,21 @@
     if (e.detail.key === 'custom') return;
     const chosen = dataset.sets?.[e.detail.key];
     enabledGroups = new Set(chosen ? chosen.groups : Object.keys(dataset.groups));
+  }
+
+  /* The quantity the x axis carries, for the collapsed rail. The unit is not
+     offered there: a new quantity opens in the unit it is usually drawn in,
+     which is the only one most readers ever want. */
+  const AXIS_OPTIONS: { property: AxisProperty; label: string }[] = [
+    { property: 'wavenumber', label: 'Wavenumber' },
+    { property: 'wavelength', label: 'Wavelength' },
+    { property: 'energy',     label: 'Energy' },
+  ];
+
+  function pickAxisProperty(property: AxisProperty) {
+    if (property !== axisProperty) axisReversed = AXES[property].reversed;
+    axisProperty = property;
+    axisUnit = AXES[property].defaultUnit;
   }
 
   function setColorDim(dim: ColorDim) {
@@ -545,9 +628,15 @@
   // like any other band: the Color by pills. A look, not a filter.
   let lookInactive = true;
   let lookUnreferenced = true;
-  // Bands resting on a calculation alone: faded by default too, from a
-  // switch of their own, so "only hard measured proof" is askable.
-  let lookCalculated = true;
+  // Bands resting on a calculation alone, and calculated claims inside a
+  // tooltip: drawn like any other until asked for, from a switch of their own,
+  // so "only hard measured proof" stays askable.
+  //
+  // Off by default, unlike the other two looks. A calculation is evidence, and
+  // a band whose only evidence is one is a band the atlas is reporting, not a
+  // band it doubts; greying it before anybody asked reads as a caveat about
+  // the chemistry rather than an answer to a question about method.
+  let lookCalculated = false;
   let showCalculated = true;
   $: techniqueLabel = spectroscopy === 'raman' ? 'Raman' : 'IR';
   $: inactiveTag = spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive';
@@ -669,43 +758,136 @@
       {#if !sidebarOpen && !narrow}
         <!-- collapsed: mini page indicator buttons -->
         <div class="collapsed-page-nav">
-          <button class="page-mini-btn" class:active={page === 'home'}
-            on:click={() => page = 'home'} title="Home">H</button>
-          <button class="page-mini-btn" class:active={page === 'knowledge'}
-            on:click={() => page = 'knowledge'} title="Knowledge">K</button>
-          <!-- B button: click = go to chart; hover = color quick-switch -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <div class="mini-btn-wrap"
-            on:mouseenter={openColorMenu}
-            on:mouseleave={closeColorMenu}
-          >
-            <button class="page-mini-btn" class:active={page === 'chart'}
-              on:click={() => page = 'chart'} title="Band chart">B</button>
-            {#if showColorMenu}
-              <div class="color-quick-menu">
-                {#each COLOR_DIM_OPTIONS as o}
-                  <button
-                    class="cq-item"
-                    class:cq-active={colorDim === o.dim}
-                    on:click={() => { setColorDim(o.dim); page = 'chart'; showColorMenu = false; }}
-                  >{o.label}</button>
-                {/each}
-              </div>
-            {/if}
-          </div>
-          <button class="page-mini-btn" class:active={page === 'references'}
-            on:click={() => page = 'references'} title="References">R</button>
-          <button class="page-mini-btn" class:active={page === 'datamodel'}
-            on:click={() => page = 'datamodel'} title="Dataset">D</button>
-          <button class="page-mini-btn" class:active={page === 'impressum'}
-            on:click={() => page = 'impressum'} title="Impressum">I</button>
-          {#if page === 'styleguide'}
-            <button class="page-mini-btn active"
-              on:click={() => page = 'styleguide'} title="Style guide">S</button>
-          {/if}
-          {#if page === 'sourceguide'}
-            <button class="page-mini-btn active"
-              on:click={() => page = 'sourceguide'} title="Source guide">G</button>
+          {#each [...NAV, ...EXTRA_NAV.filter(e => page === e.page)] as n (n.page)}
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('nav:' + n.page)}
+              on:mouseleave={closeFly}
+            >
+              <button
+                class="page-mini-btn acc-{n.accent ?? 'plain'}"
+                class:active={page === n.page}
+                on:click={() => (page = n.page)}
+                aria-label={n.label}
+              ><Icon name={n.icon} size={16} width={1.9} /></button>
+              {#if flyOpen === 'nav:' + n.page}
+                <div class="fly"><div class="fly-title">{n.label}</div></div>
+              {/if}
+            </div>
+          {/each}
+
+          <!-- Where the main menu stops and the page's own controls start.
+               The same cut the open sidebar makes, kept here so the rail is
+               read the same way. -->
+          <hr class="rail-rule" />
+
+          {#if page === 'chart' && dataset}
+            <!-- The chart's controls, at their smallest. Which selection rule
+                 is drawn, what the colour means, which groups are on, and
+                 which kinds of band are in at all. The axis and its unit are
+                 not here: they are a reading of the same chart rather than a
+                 change to what is on it, and the shift needs a number typed. -->
+            <button
+              class="page-mini-btn ctl-btn is-text"
+              class:active={spectroscopy === 'raman'}
+              on:click={() => (spectroscopy = spectroscopy === 'raman' ? 'ir' : 'raman')}
+              title={spectroscopy === 'raman'
+                ? 'Raman selection rules. Click for infrared'
+                : 'Infrared selection rules. Click for Raman'}
+            >{spectroscopy === 'raman' ? 'R' : 'IR'}</button>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('colour')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Color by"
+              ><Icon name="color" size={15} width={1.8} /></button>
+              {#if flyOpen === 'colour'}
+                <div class="fly">
+                  <div class="fly-title">Color by</div>
+                  {#each COLOR_DIM_OPTIONS as o}
+                    <button class="fly-item" class:fly-on={colorDim === o.dim}
+                      on:click={() => { setColorDim(o.dim); flyOpen = null; }}
+                    >{o.label}</button>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('axis')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn is-text" aria-label="X axis"
+              >x</button>
+              {#if flyOpen === 'axis'}
+                <div class="fly">
+                  <div class="fly-title">X axis</div>
+                  {#each AXIS_OPTIONS as a}
+                    <button class="fly-item" class:fly-on={axisProperty === a.property}
+                      on:click={() => pickAxisProperty(a.property)}
+                    >{a.label}</button>
+                  {/each}
+                  <!-- The two switches, kept as switches: which way the axis
+                       runs, and whether it is read from a zero. The unit and
+                       the zero itself stay in the open sidebar, one because
+                       every quantity opens in the unit it is usually drawn
+                       in, the other because it is a number to type. -->
+                  <div class="fly-rule"></div>
+                  <button class="fly-item" class:fly-on={axisReversed}
+                    on:click={() => (axisReversed = !axisReversed)}
+                  ><span class="fly-box" class:on={axisReversed}></span>inverted</button>
+                  <button class="fly-item" class:fly-on={shiftOn}
+                    on:click={() => (shiftOn = !shiftOn)}
+                  ><span class="fly-box" class:on={shiftOn}></span>shift from a zero</button>
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('endis')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Enable and disable"
+              ><Icon name="toggles" size={15} width={1.8} /></button>
+              {#if flyOpen === 'endis'}
+                <div class="fly">
+                  <div class="fly-title">Enable &amp; Disable</div>
+                  <button class="fly-item" class:fly-on={showIsotopes}
+                    on:click={() => (showIsotopes = !showIsotopes)}
+                  ><span class="fly-box" class:on={showIsotopes}></span>isotope</button>
+                  <button class="fly-item" class:fly-on={showInactive}
+                    on:click={() => (showInactive = !showInactive)}
+                  ><span class="fly-box" class:on={showInactive}></span>{techniqueLabel}-inactive</button>
+                  <button class="fly-item" class:fly-on={showUnreferenced}
+                    on:click={() => (showUnreferenced = !showUnreferenced)}
+                  ><span class="fly-box" class:on={showUnreferenced}></span>unreferenced</button>
+                  <button class="fly-item" class:fly-on={showCalculated}
+                    on:click={() => (showCalculated = !showCalculated)}
+                  ><span class="fly-box" class:on={showCalculated}></span>computational</button>
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('groups')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Group filter"
+              ><Icon name="filter" size={15} width={1.8} /></button>
+              {#if flyOpen === 'groups'}
+                <div class="fly">
+                  <div class="fly-title">Group filter</div>
+                  <button class="fly-item" class:fly-on={activeSetKey === 'all'}
+                    on:click={() => { chooseSet('all'); flyOpen = null; }}
+                  >All groups</button>
+                  {#each Object.values(dataset.sets ?? {}) as st (st.key)}
+                    <button class="fly-item" class:fly-on={activeSetKey === st.key}
+                      on:click={() => { chooseSet(st.key); flyOpen = null; }}
+                    >{st.label}</button>
+                  {/each}
+                  {#if activeSetKey === null}
+                    <div class="fly-note">Custom selection</div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
           {/if}
         </div>
       {/if}
@@ -714,21 +896,15 @@
       <div class="sidebar-open-content">
         <!-- Page selector -->
         <nav class="page-nav">
-          <button class:active={page === 'home'}       on:click={() => page = 'home'}>Home</button>
-          <button class:active={page === 'knowledge'}  on:click={() => page = 'knowledge'}>Knowledge</button>
-          <button class:active={page === 'chart'}      on:click={() => page = 'chart'}>Band chart</button>
-          <button class:active={page === 'references'} on:click={() => page = 'references'}>References</button>
-          <button class:active={page === 'datamodel'}  on:click={() => page = 'datamodel'}>Dataset</button>
-          <button class:active={page === 'impressum'}  on:click={() => page = 'impressum'}>Impressum</button>
-          {#if page === 'styleguide'}
-            <button class="active" on:click={() => page = 'styleguide'}>Style guide</button>
-          {/if}
-          {#if page === 'sourceguide'}
-            <button class="active" on:click={() => page = 'sourceguide'}>Source guide</button>
-          {/if}
+          {#each [...NAV, ...EXTRA_NAV.filter(e => page === e.page)] as n (n.page)}
+            <button class:active={page === n.page} on:click={() => (page = n.page)}>{n.label}</button>
+          {/each}
         </nav>
 
-        <hr class="divider" />
+        <!-- Where the atlas stops and this page starts. Heavier than the
+             dividers inside a page's own controls, because it is a different
+             kind of boundary: everything above it is the same on every page. -->
+        <hr class="divider strong" />
 
         <!-- Page-specific sidebar controls -->
         {#if page === 'chart'}
@@ -1043,8 +1219,16 @@
       {:else if page === 'chart' && chartWithheld}
         <ChartTooNarrow {wClass} on:show={() => (chartAnyway = true)} />
       {:else if page === 'chart'}
+        <!-- A row, so the sidebar is a sibling of the plot AND the legend and
+             the vertical scrollbar stays on the plot, to the sidebar's left.
+             Inside the scroller it would have scrolled away with the lanes and
+             pushed the scrollbar out to the window's edge. -->
+        <div class="chart-row">
+        <div class="chart-main">
         <div class="chart-scroll">
           <BandChart
+            on:select={handleBandSelect}
+            clearNonce={bandClearNonce}
             {presenting}
             bands={chartBands}
             groups={dataset.groups}
@@ -1089,6 +1273,31 @@
             />
           {/if}
         </div>
+        </div><!-- chart-main -->
+
+        {#if sideOpen}
+          <aside class="band-side">
+            {#if selectedHit}
+              <BandCard
+                td={selectedHit.tipData}
+                color={selectedHit.color}
+                full
+                fill
+                {spectroscopy}
+                linkedModes={sideModes}
+                playNonce={bandPlayNonce}
+                on:navigateRef={handleNavigateRef}
+                on:navigateMode={handleNavigateMode}
+              />
+            {:else}
+              <p class="side-empty">
+                No band selected. Click one in the chart to read it here, or
+                <button class="side-empty-link" on:click={closeBandSide}>close the panel</button>.
+              </p>
+            {/if}
+          </aside>
+        {/if}
+        </div><!-- chart-row -->
       {:else if page === 'references'}
         <ReferencesPage
           bands={dataset.bands}
@@ -1316,18 +1525,21 @@
   }
 
   .page-mini-btn {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: 1px solid var(--line-strong);
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--ink-200);
     cursor: pointer;
     text-align: center;
-    line-height: 22px;
+    line-height: 1;
   }
   .page-mini-btn:hover { background: var(--surface-hover); color: var(--ink-700); }
   .page-mini-btn.active {
@@ -1335,39 +1547,110 @@
     border-color: var(--brand-tint-line);
     color: var(--brand-accent);
   }
+  /* The four destinations keep their own colour on the rail, the way they
+     have it on the home page and in the sidebar's headings. An inactive one
+     is drawn in the page's ink at rest and fills in once it is the page you
+     are on, so the rail says where you are without needing a label. */
+  .acc-green.active  { background: var(--accent-green-bg);  border-color: var(--accent-green-fg);  color: var(--accent-green-fg); }
+  .acc-blue.active   { background: var(--accent-blue-bg);   border-color: var(--accent-blue-fg);   color: var(--accent-blue-fg); }
+  .acc-amber.active  { background: var(--accent-amber-bg);  border-color: var(--accent-amber-fg);  color: var(--accent-amber-fg); }
+  .acc-red.active    { background: var(--accent-red-bg);    border-color: var(--accent-red-fg);    color: var(--accent-red-fg); }
+  .acc-green:hover  { color: var(--accent-green-fg); }
+  .acc-blue:hover   { color: var(--accent-blue-fg); }
+  .acc-amber:hover  { color: var(--accent-amber-fg); }
+  .acc-red:hover    { color: var(--accent-red-fg); }
+
+  /* A control, not a destination: no page colour, and a lighter border so the
+     block below the rule does not compete with the menu above it. */
+  .ctl-btn { border-color: var(--line-soft); color: var(--ink-300); }
+  .ctl-btn:hover { color: var(--ink-700); }
+  .ctl-btn.is-text { font-size: 10.5px; letter-spacing: 0.02em; }
+
+  /* The cut between the menu and the page's controls, as the rail draws it.
+     Same boundary as the open sidebar's heavy divider, and it stays even
+     where the page has no controls, so the rail always reads in two parts. */
+  .rail-rule {
+    width: 26px;
+    margin: 8px 0;
+    border: none;
+    border-top: 2px solid var(--line-boundary);
+  }
 
   .mini-btn-wrap {
     position: relative;
-    width: 24px;
+    width: 26px;
   }
 
-  .color-quick-menu {
+  /* What a rail button says when the pointer rests on it: its full name
+     first, then whatever it offers. A destination has only the name; a
+     control has the name and its options under it. */
+  .fly {
     position: absolute;
-    left: 26px;
-    top: 0;
+    left: 30px;
+    top: -4px;
     background: white;
     border: 1px solid var(--line-strong);
     border-radius: 5px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-sm);
     z-index: 200;
     overflow: hidden;
-    min-width: 100px;
+    min-width: 132px;
+    padding-bottom: 3px;
   }
 
-  .cq-item {
-    display: block;
+  .fly-title {
+    padding: 6px 10px 5px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-700);
+    white-space: nowrap;
+  }
+
+  .fly-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
     width: 100%;
     padding: 5px 10px;
     background: none;
     border: none;
+    font-family: inherit;
     font-size: 12.5px;
     color: var(--ink-600);
     cursor: pointer;
     text-align: left;
     white-space: nowrap;
   }
-  .cq-item:hover { background: var(--surface-hover); }
-  .cq-item.cq-active { color: var(--brand-accent); font-weight: 600; background: var(--brand-tint-soft); }
+  .fly-item:hover { background: var(--surface-hover); }
+  .fly-item.fly-on { color: var(--brand-accent); font-weight: 600; background: var(--brand-tint-soft); }
+
+  /* On or off, said the way a checkbox says it and no other way: these four
+     are switches, while the colour and the group filter are one-of-many. */
+  .fly-box {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+    background: white;
+  }
+  .fly-box.on { background: var(--brand-accent); border-color: var(--brand-accent); }
+
+  .fly-rule {
+    height: 1px;
+    background: var(--line-soft);
+    margin: 4px 0;
+  }
+
+  .fly-note {
+    padding: 3px 10px 2px;
+    font-size: 11.5px;
+    font-style: italic;
+    color: var(--ink-300);
+    white-space: nowrap;
+  }
 
   /* ── Sidebar flex wrapper (open state) ── */
   .sidebar-open-content {
@@ -1430,6 +1713,13 @@
     margin: 12px 0;
   }
 
+  /* The one divider that separates two kinds of thing rather than two
+     controls: above it the atlas, below it this page. */
+  .divider.strong {
+    border-top: 2px solid var(--line-boundary);
+    margin: 14px 0;
+  }
+
   /* ── Main content ── */
   .main-area {
     flex: 1 1 auto;
@@ -1458,6 +1748,62 @@
     flex-direction: column;
     padding: 0 40px;
     overflow-y: hidden; /* vertical scroll happens inside .chart-scroll instead */
+  }
+
+  /* The chart page is a row: everything the chart owns on the left, the
+     selected band's sidebar on the right. Both stretch, so the sidebar is a
+     column the full height of the page rather than a card at the top of one. */
+  .chart-row {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .chart-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .band-side {
+    flex: 0 0 var(--band-panel-w);
+    min-height: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 12px;
+    background: var(--surface);
+    border-left: 1px solid var(--line-panel);
+    /* The page's own padding would otherwise leave the sidebar floating off
+       the right edge; it runs to it instead, the way a sidebar does. */
+    margin-right: -40px;
+  }
+
+  /* The empty column says what it is waiting for, in the same quiet grey the
+     card's own hint line uses, and carries the only way to close the column.
+     There is no ✕ over the card: a band's detail is what the column is for,
+     and a close button sitting on top of it all day is chrome competing with
+     content. Clearing the band (a click on empty chart) is the step before
+     closing anyway, and that is where the offer belongs. */
+  .side-empty {
+    margin: 10px 2px 0;
+    font-size: var(--t-tip-hint-size);
+    color: var(--t-tip-hint-color);
+    line-height: 1.6;
+  }
+
+  .side-empty-link {
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    color: var(--brand-700);
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   /* Chart itself scrolls internally so the legend below stays pinned in
@@ -1737,6 +2083,15 @@
      ───────────────────────────────────────────────────────────────────────── */
 
   :global(html[data-presenting]) .hint-banner { display: none; }
+
+  /* The magnification is for the content. The header is chrome: scaling it
+     only costs the room the content was meant to gain, so it is scaled back
+     out of the shell's zoom and stays exactly the size it always is. Its
+     width needs no help, because a percentage resolves against the parent in
+     the parent's units and the header's own zoom then undoes the difference. */
+  :global(html[data-presenting]) .app-header {
+    zoom: calc(1 / var(--display-scale, 1));
+  }
 
   .present-ctl {
     flex: 0 0 auto;

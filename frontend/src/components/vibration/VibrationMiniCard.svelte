@@ -22,6 +22,9 @@
   // onto this card during a live hover would itself clear the band hover
   // and make the whole thing disappear before the mouseenter ever lands.
   export let interactive: boolean;
+  /** Diagram edge in px. Smaller where the card rides in a header rather
+      than standing on its own in a list. */
+  export let diagramSize = 132;
 
   const GREY = C['data-grey'];
   $: vibKey = mode.subtype ? `${mode.category}.${mode.subtype}` : mode.category;
@@ -84,7 +87,7 @@
       on:mouseenter={() => { if (interactive) hovered = true; }}
       on:mouseleave={() => { hovered = false; }}
     >
-      <MoleculeViewer {geometry} {activeVectors} size={132} />
+      <MoleculeViewer {geometry} {activeVectors} size={diagramSize} />
     </div>
   {/if}
 </div>

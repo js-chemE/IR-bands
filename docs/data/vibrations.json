@@ -37,6 +37,7 @@
           "wn_end": null,
           "bands": [
             "co2_sym",
+            "co2_combo_sym_asym_q",
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
             "co2_combo_sym_bend_q",
@@ -66,6 +67,7 @@
             "co2_bend_r",
             "co2_bend_q",
             "co2_bend_p",
+            "co2_combo_2bend_asym_q",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
             "co2_combo_sym_bend_q",
@@ -96,6 +98,7 @@
             "co2_bend_r",
             "co2_bend_q",
             "co2_bend_p",
+            "co2_combo_2bend_asym_q",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
             "co2_combo_sym_bend_q",
@@ -125,8 +128,10 @@
             "co2_asym_r",
             "co2_asym_q",
             "co2_asym_p",
+            "co2_combo_sym_asym_q",
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
+            "co2_combo_2bend_asym_q",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
             "co2_diff_asym_2bend_r",
@@ -208,9 +213,13 @@
             "ch4g_bend_sym",
             "ch4g_bend_sym_p",
             "ch4g_bend_sym_r",
+            "ch4g_bend_sym_o",
+            "ch4g_bend_sym_s",
+            "ch4g_d4_bend_sym_o",
             "ch4g_d4_bend_sym_p",
             "ch4g_d4_bend_sym",
-            "ch4g_d4_bend_sym_r"
+            "ch4g_d4_bend_sym_r",
+            "ch4g_d4_bend_sym_s"
           ]
         },
         {
@@ -241,6 +250,8 @@
             "ch4g_asym",
             "ch4g_asym_p",
             "ch4g_asym_r",
+            "ch4g_asym_o",
+            "ch4g_asym_s",
             "ch4g_combo",
             "ch4g_combo_p",
             "ch4g_combo_r",

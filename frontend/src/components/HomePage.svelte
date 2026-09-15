@@ -1,5 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  // The same drawings the collapsed sidebar uses, so a reader who learns a
+  // symbol here recognises it in the rail.
+  import Icon from './Icon.svelte';
 
   /** Live scope line: what the atlas currently covers, and how much of it. */
   export let bandCount = 0;
@@ -49,13 +52,7 @@
     <!-- Knowledge -->
     <button class="card" on:click={() => dispatch('navigate', { page: 'knowledge' })}>
       <div class="card-icon" style="background:var(--accent-green-bg); color:var(--accent-green-fg)">
-        <!-- A brain: two lobes over a stem, with the fold down the middle. -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <path d="M12 5.5a3 3 0 0 0-5.6-1.4A2.7 2.7 0 0 0 3.6 8a3 3 0 0 0 .5 4.6A2.9 2.9 0 0 0 6 17.4a3 3 0 0 0 6 .6z"/>
-          <path d="M12 5.5a3 3 0 0 1 5.6-1.4A2.7 2.7 0 0 1 20.4 8a3 3 0 0 1-.5 4.6A2.9 2.9 0 0 1 18 17.4a3 3 0 0 1-6 .6z"/>
-          <path d="M12 5.5V21"/>
-        </svg>
+        <Icon name="knowledge" size={30} width={1.7} />
       </div>
       <h2 class="card-title">Knowledge</h2>
       <p class="card-desc">
@@ -68,10 +65,7 @@
     <!-- Band Chart -->
     <button class="card" on:click={() => dispatch('navigate', { page: 'chart' })}>
       <div class="card-icon" style="background:var(--accent-blue-bg); color:var(--accent-blue-fg)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-        </svg>
+        <Icon name="chart" size={30} width={2} />
       </div>
       <h2 class="card-title">Band Chart</h2>
       <p class="card-desc">
@@ -84,14 +78,7 @@
     <!-- References -->
     <button class="card" on:click={() => dispatch('navigate', { page: 'references' })}>
       <div class="card-icon" style="background:var(--accent-amber-bg); color:var(--accent-amber-fg)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          <line x1="8" y1="7" x2="16" y2="7"/>
-          <line x1="8" y1="11" x2="16" y2="11"/>
-          <line x1="8" y1="15" x2="12" y2="15"/>
-        </svg>
+        <Icon name="references" size={30} width={2} />
       </div>
       <h2 class="card-title">References</h2>
       <p class="card-desc">
@@ -105,13 +92,7 @@
     <!-- Dataset -->
     <button class="card" on:click={() => dispatch('navigate', { page: 'datamodel' })}>
       <div class="card-icon" style="background:var(--accent-red-bg); color:var(--accent-red-fg)">
-        <!-- Stacked records, the usual shorthand for a dataset. -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round" width="30" height="30">
-          <ellipse cx="12" cy="5" rx="8" ry="3"/>
-          <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
-          <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>
-        </svg>
+        <Icon name="dataset" size={30} width={1.8} />
       </div>
       <h2 class="card-title">Dataset</h2>
       <p class="card-desc">

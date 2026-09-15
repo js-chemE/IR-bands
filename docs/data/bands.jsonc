@@ -416,7 +416,7 @@
       "color": "#C73E3A"
     },
     "carbonyl": {
-      "label": "Carbonyl* (R-C=O)",
+      "label": "Carbonyl*",
       "color": "#E07856"
     },
     "carbonate": {
@@ -464,7 +464,7 @@
       "color": "#E6B85C"
     },
     "support": {
-      "label": "Support oxide",
+      "label": "Oxide",
       "color": "#5C5C5C"
     },
     "hydride": {
@@ -647,31 +647,7 @@
       "short": "νₐₛ(OCO) CO₂",
       "description": "Gas CO₂ asymmetric stretch (νₐₛ) — Q-branch at the 2349 cm⁻¹ band origin. Forbidden by symmetry for this Σᵤ⁺←Σg⁺ parallel transition, so no rotational line actually appears here; marks the gap between the R- and P-branch envelopes.",
       "based_on": [],
-      "references": [
-        {
-          "key": "Proano.InsituDRIFTSStudy.2019",
-          "wn": 2345,
-          "technique": "drifts",
-          "state": "gas",
-          "note": "Section 3 (320 °C, 15% CO₂/N₂ over 5%Ru/Al₂O₃, the sorbent phase and the DFM): gas-phase CO₂ in the cell, noted once as present in all the tests rather than tracked.",
-          "tags": []
-        },
-        {
-          "key": "Wu.BondingGeometryReactivity.2000",
-          "state": "gas",
-          "technique": "transmission",
-          "wn": 2349,
-          "note": "Gas-phase CO₂ in the cell, reported as the terminal product of photooxidising methoxy on TiO₂ under 10 Torr O₂. Quoted in the text as a single position rather than shown, so no branch structure is recorded.",
-          "tags": []
-        },
-        {
-          "state": "gas",
-          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "technique": "drifts",
-          "wn": 2349,
-          "note": "νₐₛ band origin (00011←00001) at 2349 cm⁻¹ (Table 2) — the forbidden Q-branch position itself, not an observed line."
-        }
-      ],
+      "references": [],
       "confidence": "confirmed",
       "tags": ["ir-inactive", "raman-inactive"]
     },
@@ -808,7 +784,38 @@
       "tags": ["degenerated", "raman-inactive"]
     },
       // Upper Fermi-resonance pair: ν₁+ν₃. ν₁ is IR-inactive (band_id null).
-    {
+        {
+      "id": "co2_combo_sym_asym_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_combo_upper_branches",
+      "fermi_partner_group": "co2_combo_lower_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3711,
+      "wn_end": 3719,
+      "short": "νₛ+νₐₛ(OCO) CO₂",
+      "description": "Gas CO₂ combination (νₛ + νₐₛ) — Q-branch at the ~3715 cm⁻¹ band origin. Forbidden by symmetry for this Σᵤ⁺←Σg⁺ parallel transition, so no rotational line appears here; it marks the gap between the P- and R-branch envelopes rather than a feature to look for. Carried so the upper Fermi component has the same three branches as the νₐₛ fundamental it is built on, and so the gap is drawn where the origin is. Deliberately unreferenced: a paper quoting 3715 is quoting the origin, and that number belongs to the band, not to a line in it.",
+      "based_on": [
+        {
+          "band_id": "co2_sym",
+          "multiplier": 1
+        },
+        {
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1
+        }
+      ],
+      "references": [],
+      "confidence": "confirmed",
+      "tags": ["ir-inactive", "raman-inactive"]
+    },
+{
       "id": "co2_combo_sym_asym_r",
       "species": "co2",
       "phase": "gas",
@@ -890,7 +897,38 @@
       "tags": ["raman-inactive"]
     },
       // Lower Fermi-resonance pair: 2ν₂+ν₃. Linked to the bending Q-branch.
-    {
+        {
+      "id": "co2_combo_2bend_asym_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "branch_group": "co2_combo_lower_branches",
+      "fermi_partner_group": "co2_combo_upper_branches",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 3609,
+      "wn_end": 3617,
+      "short": "2δ+νₐₛ(OCO) CO₂",
+      "description": "Gas CO₂ combination (2δ + νₐₛ) — Q-branch at the ~3613 cm⁻¹ band origin. Forbidden by symmetry for this Σᵤ⁺←Σg⁺ parallel transition, so no rotational line appears here; it marks the gap between the P- and R-branch envelopes. The lower half of the Fermi pair above 3500 cm⁻¹, and carried for the same reason as its partner's Q: the origin is where the branches are counted from. Deliberately unreferenced, the origin being a property of the band rather than an observed line.",
+      "based_on": [
+        {
+          "branch_group": "co2_nu2_branches",
+          "multiplier": 2
+        },
+        {
+          "branch_group": "co2_nu3_branches",
+          "multiplier": 1
+        }
+      ],
+      "references": [],
+      "confidence": "confirmed",
+      "tags": ["overtone", "ir-inactive", "raman-inactive"]
+    },
+{
       "id": "co2_combo_2bend_asym_r",
       "species": "co2",
       "phase": "gas",
@@ -1147,15 +1185,7 @@
           "label": "less two quanta of the bend: a difference band, from an already vibrating molecule"
         }
       ],
-      "references": [
-        {
-          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "technique": "drifts",
-          "state": "gas",
-          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. No wavenumber is recorded because the paper reports no Q maximum: it gives bands P and Q at about 1079 and 1050 cm⁻¹, which are the R and P branches straddling this origin. Carried for completeness so the branch group is whole, and cited to the same measurement as its two siblings; the gap between them is what places the origin near 1064 cm⁻¹. ΔJ = 0 is forbidden for a Σ to Σ transition, so nothing is expected here and nothing is seen.",
-          "tags": []
-        }
-      ],
+      "references": [],
       "width": "broad",
       "tags": ["ir-inactive", "raman-inactive"]
     },
@@ -1284,15 +1314,7 @@
           "label": "less one quantum of the symmetric stretch: a difference band, from an already vibrating molecule"
         }
       ],
-      "references": [
-        {
-          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
-          "technique": "drifts",
-          "state": "gas",
-          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. No wavenumber is recorded because the paper reports no Q maximum: it gives bands S and R at about 948 and 973 cm⁻¹, which are the P and R branches straddling this origin. Carried for completeness so the branch group is whole, and cited to the same measurement as its two siblings; the gap between them is what places the origin near 960 cm⁻¹. ΔJ = 0 is forbidden for a Σ to Σ transition, so nothing is expected here and nothing is seen.",
-          "tags": []
-        }
-      ],
+      "references": [],
       "width": "broad",
       "tags": ["ir-inactive", "raman-inactive"]
     },

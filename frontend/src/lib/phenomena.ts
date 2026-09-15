@@ -257,13 +257,40 @@ export const PHENOMENA: Phenomenon[] = [
   },
   {
     key: 'isotopologue',
-    wip: true,
     group: 'moved',
     teaser: 'A heavier atom slows the vibration: the same band, shifted down, the bond unchanged.',
     label: 'Isotopic Shift',
     field: 'isotopologue_of + isotope',
     what: '',
     spotting: '',
+    body: [
+      'Substituting an isotope changes the mass of one nucleus and nothing else. The electrons are untouched, so the bond is the same bond and its force constant is the same number; only the inertia the restoring force has to move is different. The frequency follows the mass alone, which makes this the one shift in the atlas that can be predicted before it is measured.',
+      {
+        label: 'The Shift',
+        lines: [
+          '\\tilde\\nu = \\frac{1}{2\\pi c}\\sqrt{\\frac{k}{\\mu}}',
+          '\\frac{\\tilde\\nu\'}{\\tilde\\nu} = \\sqrt{\\frac{\\mu}{\\mu\'}}, \\qquad \\mu = \\frac{m_1 m_2}{m_1 + m_2}',
+        ],
+        note: 'k is the force constant and μ the reduced mass of the two atoms the bond joins. Because k cancels, the ratio needs no spectroscopy at all: two masses give the new position from the old one. μ is dominated by the lighter atom, which is why hydrogen is the substitution that moves a band and a heavy atom is the one that nudges it.',
+      },
+      {
+        label: 'What the Atlas Substitutes',
+        wide: true,
+        lines: [
+          '\\begin{array}{llll}' +
+            '\\text{H} \\to \\text{D} & \\text{O–H} & 0.728 & \\qty{3690}{cm^{-1}} \\to \\qty{2686}{cm^{-1}} \\\\' +
+            '\\text{H} \\to \\text{D} & \\text{C–H} & 0.734 & \\qty{2930}{cm^{-1}} \\to \\qty{2151}{cm^{-1}} \\\\' +
+            '^{12}\\text{C} \\to {}^{13}\\text{C} & \\text{C–O} & 0.978 & \\qty{2143}{cm^{-1}} \\to \\qty{2096}{cm^{-1}} \\\\' +
+            '^{16}\\text{O} \\to {}^{18}\\text{O} & \\text{C–O} & 0.976 & \\qty{2143}{cm^{-1}} \\to \\qty{2091}{cm^{-1}}' +
+            '\\end{array}',
+        ],
+        note: 'Deuteration is the violent one. A hydrogen carries almost all of the motion in an X–H stretch, so μ is close to the mass of the hydrogen itself and doubling it would divide the frequency by √2 = 0.707; the partner atom’s finite mass pulls the ratio back up to about 0.73. The heavy-atom substitutions move a band by two percent, which sounds like nothing and is in fact enormous: 47 cm⁻¹ on ν(CO) is many times any line width, wide enough to resolve two isotopologues side by side and narrow enough to leave the chemistry alone.',
+      },
+      'That is the whole of the prediction, and it is worth being clear about what it is not. It is harmonic, and a real X–H stretch is not, so the observed shift comes out a little smaller than the ratio asks. It is pseudo-diatomic, and a normal mode is a motion of the whole molecule: only where one bond dominates does a two-atom reduced mass describe it. And it assumes the level sits where the mode alone would put it, which across a Fermi resonance it does not, because substitution detunes the resonance and moves both partners.',
+      'The table below runs the prediction against every labelled band in the atlas. Over the localised stretches it is out by around a percent, and the rows where it misses are not bad data: they are bends, where no single pair of atoms is the mode, and bands whose labelled atom is not even in the bond that moved, where the whole shift arrived through coupling to a neighbouring one. Methanol is the instructive case: deuterating the methyl moves the C–O stretch, which contains no hydrogen at all.',
+      'What the shift is for, in practice, is evidence. A band that moves by the predicted factor on deuteration contains the hydrogen it was assigned; one that does not, does not. It separates species that overlap: a surface OH and an adsorbed water can sit in the same window and then part by a thousand wavenumbers when the sample is exposed to D₂O. And a deliberately mixed isotopic feed separates a molecule from its neighbours rather than from another species: a little ¹³CO among ¹²CO detunes the dipole coupling between adsorbed molecules and leaves a decoupled singleton, which is the point of the mioirs technique value and of the Vibrational Coupling card.',
+      'A labelled band is recorded here as a band in its own right, with isotopologue_of pointing at the natural-abundance one and isotope naming the substitution. Never as a second wavenumber inside the parent’s claims: the two are different molecules with different spectra, and burying one inside the other would make the parent’s position a range covering both. A source that merely used substitution as evidence for an ordinary band gets the isotope-labeling tag on that claim instead, which is a statement about the method rather than about the molecule.',
+    ],
     find(bands) {
       const byId = bandById(bands);
       return bands
@@ -546,11 +573,104 @@ export const PHENOMENA: Phenomenon[] = [
       { key: 'fermi', why: 'Near-degeneracy that symmetry did not cause' },
       { key: 'site-sensitivity', why: 'The surface that lifts it also moves what is left' },
     ],
+    /**
+     * One entry per degenerate MODE, not per band that carries the tag.
+     *
+     * The tag is authored on the mode and inherited by everything built on it
+     * (`spread_degeneracy` in loader.py), so listing every tagged band put
+     * thirty-four rows on the card for eight facts: each branch of a family
+     * separately, then every overtone and combination built on it, then each
+     * of THEIR branches. What the card is about is the coincidence itself,
+     * and there are eight of those.
+     *
+     * So a mode is a row, its branches fold into it (AtlasExamples does that
+     * from branch_group), and everything built on it comes along in the same
+     * row: the overtone of a degenerate bend belongs under that bend, not
+     * beside it as a second discovery.
+     */
     find(bands) {
-      return bands
-        .filter(b => b.tags.includes('degenerated'))
-        .sort(byWn)
-        .map(b => ({ label: b.short || b.id, bands: [b] }));
+      const groups = bandsByGroup(bands);
+      /** The family a band belongs to: its branch group, or itself. */
+      const famOf = (b: Band) => b.branch_group ?? b.id;
+
+      /* A mode is degenerate in its own right when it is tagged and stands on
+         nothing: built on no other band, and not the labelled twin of one.
+         Anything tagged that IS built on something, or is somebody's
+         isotopologue, got its degeneracy from there and belongs in that
+         entry rather than beside it. CD₄'s bend is methane's bend with
+         heavier hydrogens, not a second discovery. */
+      const roots = bands.filter(
+        b => b.tags.includes('degenerated') && !b.based_on?.length && !b.isotopologue_of,
+      );
+      const families = new Map<string, Band[]>();
+      for (const r of roots) {
+        const key = famOf(r);
+        families.set(key, groups.get(key) ?? [r]);
+      }
+
+      /**
+       * Which degenerate families a band descends from, however deep, by
+       * either link: built on it, or a labelled twin of it. Both carry the
+       * degeneracy down, so both lead back to the same entry.
+       */
+      function rootFamilies(b: Band, seen = new Set<string>()): Set<string> {
+        const out = new Set<string>();
+        if (seen.has(b.id)) return out;
+        seen.add(b.id);
+        const step = (parent: Band | undefined) => {
+          if (!parent) return;
+          if (families.has(famOf(parent))) out.add(famOf(parent));
+          for (const up of rootFamilies(parent, seen)) out.add(up);
+        };
+        for (const bo of b.based_on ?? []) {
+          if (bo.band_id) step(bands.find(x => x.id === bo.band_id));
+          else for (const m of groups.get(bo.branch_group ?? '') ?? []) step(m);
+        }
+        if (b.isotopologue_of) step(bands.find(x => x.id === b.isotopologue_of));
+        return out;
+      }
+
+      const built = new Map<string, Band[]>();
+      const twinned = new Map<string, Band[]>();
+      for (const b of bands) {
+        if (!b.tags.includes('degenerated')) continue;
+        const isTwin = !!b.isotopologue_of && !b.based_on?.length;
+        if (!b.based_on?.length && !b.isotopologue_of) continue;
+        for (const key of rootFamilies(b)) {
+          const into = isTwin ? twinned : built;
+          into.set(key, [...(into.get(key) ?? []), b]);
+        }
+      }
+
+      return [...families.entries()]
+        .map(([key, members]) => {
+          const head = members.slice().sort(byWn)[0];
+          const kids = (built.get(key) ?? []).sort(byWn);
+          const twins = (twinned.get(key) ?? []).sort(byWn);
+          // Transitions, not bands: a branched combination is one thing built
+          // on the mode, however many branches it shows.
+          const nBuilt = new Set(kids.map(famOf)).size;
+          const nTwins = new Set(twins.map(famOf)).size;
+          const parts: string[] = [];
+          if (nBuilt) {
+            parts.push(
+              `${nBuilt} transition${nBuilt > 1 ? 's are' : ' is'} built on it`,
+            );
+          }
+          if (nTwins) {
+            parts.push(
+              `${nTwins} labelled twin${nTwins > 1 ? 's carry' : ' carries'} the same mode on heavier atoms`,
+            );
+          }
+          return {
+            label: head.short || head.id,
+            bands: [...members.slice().sort(byWn), ...kids, ...twins],
+            note: parts.length
+              ? `${parts.join(', and ')}. The degeneracy comes with ${nBuilt + nTwins > 1 ? 'them' : 'it'}: an overtone, a combination or an isotopologue of a degenerate mode reaches a set of levels too.`
+              : undefined,
+          };
+        })
+        .sort((a, b) => byWn(a.bands[0], b.bands[0]));
     },
   },
   {

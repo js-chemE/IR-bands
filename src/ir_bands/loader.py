@@ -660,6 +660,93 @@ def tag_branch_groups(dataset: Dataset) -> list[str]:
     return warnings
 
 
+def share_branch_modes(dataset: Dataset) -> list[str]:
+    """Give every branch of one transition the same `vibration_modes`.
+
+    The branches are one vibration seen from different rotational levels: the
+    letter is only how far J moved, so O, P, Q, R and S of a branch_group all
+    document the same normal mode. Authoring the link five times invites four
+    of them to be forgotten, which is exactly what happened to methane: its
+    Raman O and S branches carried no mode and so drew no diagram while the
+    P, Q and R of the same transition did.
+
+    Derived rather than authored, then, and for the usual reason: nobody
+    writes it, so it cannot drift. A branch that names a mode of its own keeps
+    it; the rest are filled from whichever sibling has one. Two siblings
+    naming DIFFERENT modes is a real authoring error and is reported, since it
+    means one of the two is in the wrong branch_group.
+    """
+    groups: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            groups.setdefault(b.branch_group, []).append(b)
+
+    warnings: list[str] = []
+    for key, members in groups.items():
+        named = [b for b in members if b.vibration_modes]
+        if not named:
+            continue
+        distinct = {tuple(b.vibration_modes) for b in named}
+        if len(distinct) > 1:
+            listed = "; ".join(
+                f"{b.id}={list(b.vibration_modes)}" for b in named
+            )
+            warnings.append(
+                f"branch_group={key!r}: siblings name different vibration_modes "
+                f"({listed}). The branches of one transition are one mode, so "
+                f"one of these is in the wrong group"
+            )
+            continue
+        modes = list(named[0].vibration_modes)
+        for b in members:
+            if not b.vibration_modes:
+                b.vibration_modes = list(modes)
+    return warnings
+
+
+def spread_degeneracy(dataset: Dataset) -> list[str]:
+    """A band built on a degenerate mode is degenerate too.
+
+    Degeneracy is a fact about the mode: CO2's bend is doubly degenerate
+    because the molecule can bend in two equivalent planes, and methane's
+    triply degenerate stretch for the same kind of reason. An overtone or a
+    combination built on such a mode inherits it, because the level it reaches
+    is still built out of those equivalent components: 2v2 of CO2 is not one
+    level but a set, and that is exactly why its Fermi resonance with v1
+    works at all.
+
+    So the tag is authored once, on the mode itself, and carried down every
+    based_on link from there rather than repeated on each descendant, where it
+    would be forgotten on some. Transitive, because a combination built on a
+    combination is no less degenerate, and a fixed point rather than one pass
+    for the same reason.
+    """
+    TAG = "degenerated"
+    by_id = {b.id: b for b in dataset.bands}
+    by_group: dict[str, list[Band]] = {}
+    for b in dataset.bands:
+        if b.branch_group:
+            by_group.setdefault(b.branch_group, []).append(b)
+
+    changed = True
+    while changed:
+        changed = False
+        for b in dataset.bands:
+            if TAG in b.tags:
+                continue
+            for bo in b.based_on:
+                parents: list[Band] = []
+                if bo.band_id and bo.band_id in by_id:
+                    parents.append(by_id[bo.band_id])
+                if bo.branch_group:
+                    parents.extend(by_group.get(bo.branch_group, []))
+                if any(TAG in p.tags for p in parents):
+                    b.tags.append(TAG)
+                    changed = True
+                    break
+    return []
+
+
 def tag_fundamentals(dataset: Dataset) -> None:
     """Auto-assign the "fundamental" tag: v = 0 -> 1 of a normal mode.
 
@@ -938,14 +1025,18 @@ def tag_techniques(dataset: Dataset) -> list[str]:
     the references page keep working because the tag is regenerated here. The
     tag is simply the technique's own name.
 
-    Two tags come out of one field, the way the isotope role already works.
-    Alongside the specific value a claim gets its family: "infrared" for any
-    of the sampling geometries, "raman" for the scattering ones. The family
-    answers "was this seen in the infrared at all", which is the question most
-    readers actually have, and it lets the legend switch a whole technique off
-    without ticking seven chips. "raman" is both a family and a value, since a
-    paper that says only "Raman" has named the family and nothing finer.
-    "computational" is its own family of one: it is not a measurement.
+    One tag, not two. A claim used to get its family alongside the value,
+    "infrared" beside "transmission", so the legend could ask "seen in the
+    infrared at all" with one chip. In practice it doubled the technique
+    chips on every claim and every band for a question the chart already
+    answers better: the IR | Raman switch greys out and folds the claims of
+    the other spectroscopy, which is that question asked of the whole chart
+    at once rather than of one band.
+
+    The family itself is not gone, only the tag: TECHNIQUE_FAMILY still
+    orders the legend and still decides which claims the spectroscopy switch
+    folds. "raman" and "computational" still appear as chips because they are
+    technique values in their own right, not because they are families.
     """
     for b in dataset.bands:
         for ref in b.references:
@@ -953,9 +1044,6 @@ def tag_techniques(dataset: Dataset) -> list[str]:
                 continue
             if ref.technique not in ref.tags:
                 ref.tags.append(ref.technique)
-            family = TECHNIQUE_FAMILY.get(ref.technique)
-            if family and family not in ref.tags:
-                ref.tags.append(family)
     return []
 
 

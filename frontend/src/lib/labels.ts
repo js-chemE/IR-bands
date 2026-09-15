@@ -36,6 +36,18 @@ export function branchSuffix(b: Band): string {
   return j === null || j === undefined ? ` (${branch})` : ` ${branch}(${j})`;
 }
 
+/**
+ * The branch on its own, for a slot of its own: `S`, or `S(3)` where the
+ * source resolved a single line. Same spelling as the title's suffix, minus
+ * the brackets that mark it as an afterthought there.
+ */
+export function branchLabel(b: Band): string {
+  const branch = b.vibration?.branch;
+  if (!branch) return '';
+  const j = b.vibration?.j;
+  return j === null || j === undefined ? branch : `${branch}(${j})`;
+}
+
 let SPECIES: Record<string, Species> = {};
 let SURFACES: Record<string, Surface> = {};
 
