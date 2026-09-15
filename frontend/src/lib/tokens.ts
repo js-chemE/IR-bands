@@ -306,7 +306,30 @@ export const EVIDENCE_PALETTE: Record<string, string> = {
  * DEFAULT_TAG_STYLE, so adding a tag to the data never breaks the render.
  * Add an entry only when the tag deserves to stand out.
  */
-const CAVEAT_STYLE = { background: '#FBE0DC', border: '#E1897C', color: '#A4382A' };
+/**
+ * The caveat red. Exported as well as used for the caveat tags, because a
+ * computed warning on a Knowledge list has to read as the same kind of thing
+ * as an authored caveat tag, or the reader learns two warning colours.
+ */
+export const CAVEAT_STYLE = { background: '#FBE0DC', border: '#E1897C', color: '#A4382A' };
+
+/**
+ * Where a model does not reach: the pill the isotope list puts on a row whose
+ * harmonic estimate is arithmetic rather than a prediction, because the mode
+ * is a bend, or mixes, or sits across a resonance.
+ *
+ * This is the quiet half of that. A bend, or a metal the source left
+ * generic, is only the model running out of scope: nothing is wrong with the
+ * row and it should not look as though something is. Dusty rose, the gap the
+ * palette had left between raman-active's violet and the caveat red, close
+ * enough to the red to read as a qualification and far enough not to read as
+ * a warning.
+ *
+ * The loud half keeps the caveat red, and mode mixing is what earns it: there
+ * the number is not merely inapplicable, it is wrong by a quarter, and a
+ * reader who took it for a prediction would be badly misled.
+ */
+export const MODEL_LIMIT_STYLE = { background: '#F4E6EC', border: '#C9A2B4', color: '#7A3B57' };
 
 /**
  * The one filled pill in the set. Every other tag is light with dark text;

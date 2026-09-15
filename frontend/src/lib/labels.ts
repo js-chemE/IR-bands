@@ -13,7 +13,7 @@
  * falls back to the key itself, so a page still renders if a table is missing.
  */
 
-import type { Band, Dataset, Species, Surface, SurfaceLevel, BandReference } from './types';
+import type { Band, Dataset, Group, Species, Surface, SurfaceLevel, BandReference } from './types';
 
 /**
  * The rotational branch, as a suffix on a band's display name.
@@ -50,11 +50,37 @@ export function branchLabel(b: Band): string {
 
 let SPECIES: Record<string, Species> = {};
 let SURFACES: Record<string, Surface> = {};
+let GROUPS: Record<string, Group> = {};
+/**
+ * Group key -> its place in the chart's row order. The lanes table is the
+ * atlas's one statement of what order the families come in, and anything
+ * listing bands outside the chart should use it rather than invent a second
+ * order: a reader who knows where formate sits on the chart should find it
+ * in the same place in a list.
+ */
+let GROUP_RANK: Record<string, number> = {};
 
 /** Called once from App.svelte as soon as bands.json has loaded. */
 export function installLookups(dataset: Dataset): void {
   SPECIES = dataset.species ?? {};
   SURFACES = dataset.surfaces ?? {};
+  GROUPS = dataset.groups ?? {};
+  GROUP_RANK = {};
+  let n = 0;
+  for (const lane of dataset.lanes ?? []) for (const key of lane) GROUP_RANK[key] = n++;
+}
+
+export function groupLabel(key: string): string {
+  return GROUPS[key]?.label ?? key;
+}
+
+export function groupColor(key: string): string {
+  return GROUPS[key]?.color ?? '';
+}
+
+/** Where the chart puts this group, top to bottom. Unknown groups sort last. */
+export function groupRank(key: string): number {
+  return GROUP_RANK[key] ?? Number.MAX_SAFE_INTEGER;
 }
 
 export function speciesLabel(key: string): string {

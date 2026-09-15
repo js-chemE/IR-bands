@@ -14,10 +14,15 @@ export const ELEMENT_COLORS: Record<string, string> = {
   Cl: '#1FF01F',
   Br: '#A62929',
   I: '#940094',
+  // The metals the atlas names by element rather than leaving generic. Both
+  // are CPK: zinc's blue-grey, gallium's pink-brown.
+  Zn: '#7D80B0',
+  Ga: '#C28F8F',
   // Generic metal center (Lewis-acidic cation, isolated surface atom, etc.)
   // — for diagrams that need a real bonded/pivot atom drawn, but where the
   // underlying mode is deliberately metal-generic rather than tied to one
-  // specific element.
+  // specific element. Use it where the source did not say which metal; where
+  // it did, name the element, or the band cannot be reasoned about.
   M: '#8C8C94',
 };
 
@@ -41,6 +46,8 @@ export const ELEMENT_RADIUS_PM: Record<string, number> = {
   Cl: 102,
   Br: 120,
   I: 139,
+  Zn: 122,
+  Ga: 122,
   M: 135,
 };
 

@@ -231,6 +231,84 @@ legend and the Dataset page agree; the legend puts a small gap at each change
 of role rather than a heading. A new tag gets an entry in `TAG_ROLES` and a tip
 in `data/tags.jsonc` in the same change.
 
+**Every "In the Atlas" row ends with the position**, as a wavenumber pill in
+the tooltip's own blue (`--badge-wn-*`), so the lists are read down one column.
+A branch family is one row with its letters beside it, never one row per
+branch. Anything else a row has to say goes to the left of the pill, and if it
+is a number rather than a label it goes in a pill of its own **carrying that
+number**, with the detail on hover: the isotope list's `est. 2140` is where
+the harmonic ratio put the band, in the isotope colours because that is the
+list it belongs to, and the size of the miss is the hover. A pill that only
+says a comparison exists makes the column unreadable down the page, which is
+the whole reason it sits beside the position.
+
+**A computed row carries two kinds of pill, and they are different colours
+on purpose.** The isotope list's `est. 2104` is the harmonic estimate, in the
+isotope blue-grey. Beside it, where the two-body model does not describe the
+mode, sits a pill naming why: `mode mixing` where the substituted atom is not
+in the bond at all (the shift arrived through intramolecular mechanical
+coupling, which is NOT the through-space dipole coupling between neighbouring
+adsorbates that the Vibrational Coupling card is about), `delocalised` for a
+bend, `generic metal` where the partner is the `M` placeholder. The word is
+the phenomenon, not a warning label, so a reader learns from the column rather
+than only being warned off it.
+
+`mode mixing` takes the caveat red (`CAVEAT_STYLE`), because there the number
+is not merely inapplicable but wrong by a quarter: putting formate's C–H ratio
+on its OCO stretches predicts 1162 and 989 cm⁻¹ against 1590 and 1340.
+Everything else takes `MODEL_LIMIT_STYLE`, a dusty rose, because the row is
+sound and only the model is out of scope; red there would say the data is
+doubtful, which it is not. **This is a Knowledge-page rendering, not a tag**:
+nothing is derived into `bands.json` and the chart knows nothing about it.
+
+**A row's tags are taken by role, never named one at a time.**
+`TAG_ROLE_ORDER` already splits the vocabulary into what the band is
+(structure, isotope, activity, caveat) and how it was measured; a list whose
+subject is a phenomenon shows the first four and nothing else, umbrellas
+dropped. Naming the tags individually meant a new one was invisible in every
+list until somebody remembered `AtlasExamples.svelte`, which is how hydrogen's
+pure rotation came to show `ir-inactive` alone while carrying a perfectly good
+`rotational` tag. `combination` is the one exception, read off
+`vibration.category` because the build does not write it.
+
+**A list marks exactly one subject, and it is hand-declared.** A phenomenon's
+key and the tag that records it are often spelled differently (`fermi` against
+`fermi-resonance`, `degeneracy` against `degenerated`), so `KEY_TAG` in
+`AtlasExamples.svelte` names the tag for each; there are ten cards and the map
+is the honest way to say it. Without it those lists marked nothing at all.
+
+**A subject is one tag, not one role.** Only `isotope` and `activity` expand,
+because each really is one subject spread over several tags: all three
+substitutions are the isotope card's subject, and Selection Rules is about
+both silences, so `ir-inactive` and `raman-inactive` are marked alike.
+`structure` must never expand: it holds `fundamental`, `overtone`,
+`degenerated`, `rotational-branches` and `combination` at once, and the
+Combination card briefly marked all five.
+
+**A phenomenon list groups by what the phenomenon is about**, not one row per
+band: the isotope card by substitution, the degeneracy card by degenerate mode
+with everything built on it or labelled from it folded in, the selection-rules
+list by molecule. Branch families are always one row, with the letters in ΔJ
+order and counted rather than repeated (`S ×10`, not ten S's), and rows run low
+to high in wavenumber.
+
+**Above that sits the chart's own grouping**, by band group, in the order the
+`lanes` table gives and with the group's colour down the side of each block.
+There is one order for the families in the atlas and it is the chart's, so a
+reader who knows where formate sits finds it in the same place in a list. A
+list holding one family is left flat: a heading that never changes is not a
+heading. `groupLabel` / `groupColor` / `groupRank` in `lib/labels.ts` are
+installed from the dataset alongside the species and surfaces.
+
+**An entry is one transition, and the each key must be unique by
+construction.** Two entries can legitimately resolve to the same bands, since
+a branched transition is reached once per labelled line: CD₄'s bend arrived
+five times over, as five identical entries with five identical keys. A
+duplicate key is not a dropped row, it throws and leaves the box rendered as
+its header and nothing else, and only the dev build checks for it, so the
+production build hides the fault. Fold to one entry per transition **and** key
+by position as well as content.
+
 **An umbrella tag is a legend switch, not a band label.** `infrared` over the
 seven sampling geometries, `raman` over the scattering ones, `isotope` over the
 three substitutions: each is one click instead of seven on the legend, and on a
@@ -533,6 +611,18 @@ guide, source guide):
   flow (`.kn-flow`: the diagram floated left, the prose running past it, and
   closed, the wrapper is `display: contents` so the card stacks as it always
   did), but that is a habit rather than a rule.
+
+  **Measure a float only after it has stopped growing.** `tidyWrap` clears a
+  paragraph that a float edge would cut into a stub, and the clear is sticky.
+  A callout's height is not known on the frame the card opens: KaTeX typesets
+  after layout and the web font lands later still, so a first measurement sees
+  a box a third of its final height, finds the edge one line into the
+  paragraph below, and pushes it down for good. That is where the white holes
+  beside the callouts came from. `floatTidy` therefore re-runs on
+  `document.fonts.ready` and on a `ResizeObserver` over the floats themselves.
+  Watching the floats is safe where watching the paragraphs would not be:
+  clearing a paragraph moves a box but never resizes one, so the observer
+  cannot be woken by its own effect.
 
   **Where a card uses the flow, it is a flow and not a grid.** The diagram
   and every callout `float: left; clear: left` into a column of their own,

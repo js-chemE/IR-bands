@@ -12,9 +12,12 @@
   import type { Band, RefMap } from '../../lib/types';
   import type { Example } from '../../lib/phenomena';
   import { citekeysFor } from '../../lib/phenomena';
-  import { branchSuffix, speciesLabel } from '../../lib/labels';
+  import { branchSuffix, speciesLabel, groupLabel, groupColor, groupRank } from '../../lib/labels';
   import { ieeeHtml, shortCite } from '../../lib/citations';
   import { htmlToUnicode } from '../../lib/notation';
+  import { ISOTOPE_STYLE, MODEL_LIMIT_STYLE, CAVEAT_STYLE } from '../../lib/tokens';
+  import { TAG_ROLES, tagRole, tagRoleRank, isUmbrellaTag } from '../../lib/dataModel';
+  import type { TagRole } from '../../lib/dataModel';
 
   export let title = 'In the Atlas';
   /** Which field records the phenomenon. Shown only while the box is open:
@@ -32,6 +35,10 @@
 
   const dispatch = createEventDispatcher<{ band: { id: string }; ref: { key: string } }>();
 
+  /** The per-band note for a row, from whichever member carries one. */
+  const rowNoteOf = (ex: Example, r: { members: Band[] }) =>
+    r.members.map(m => ex.bandNotes?.[m.id]).find(Boolean);
+
   const bandName = (b: Band) =>
     (b.short || `${speciesLabel(b.species)} ${b.vibration.category}`) + branchSuffix(b);
   /** The vibration alone, for a row that stands for a whole branch group. */
@@ -47,13 +54,68 @@
    * `getBandTags()` in lib/chart.ts uses, because the build does not write
    * that one into `tags`.
    */
+  /**
+   * What a row says the band IS, taken from the band's own tags by role
+   * rather than named one at a time. TAG_ROLE_ORDER already splits the
+   * vocabulary in two: the first four roles are what the band is, the rest
+   * are how it was measured, and only the first four belong in a list whose
+   * subject is a phenomenon. Naming the tags individually meant every new
+   * one was invisible here until somebody remembered this file, which is how
+   * hydrogen's pure rotation came to show `ir-inactive` and nothing else
+   * while carrying a perfectly good `rotational` tag.
+   *
+   * An umbrella is dropped, as everywhere else: `isotope` beside `deuterium`
+   * says the same thing more vaguely.
+   */
+  const IDENTITY_ROLES: TagRole[] = ['structure', 'isotope', 'activity', 'caveat'];
+  /* The one fact of this kind that is not a tag: `combination` is read off
+     vibration.category, since nothing writes it to the band. */
   const structureTags = (b: Band) => {
-    const out: string[] = [];
-    if (b.tags.includes('fundamental')) out.push('fundamental');
-    if (b.tags.includes('overtone')) out.push('overtone');
-    if (b.vibration.category === 'combination') out.push('combination');
-    return out;
+    const out = b.tags.filter(t => {
+      const role = tagRole(t);
+      return IDENTITY_ROLES.includes(role) && !isUmbrellaTag(t, role);
+    });
+    if (b.vibration.category === 'combination' && !out.includes('combination')) {
+      out.push('combination');
+    }
+    return out.sort((a, c) => tagRoleRank(tagRole(a)) - tagRoleRank(tagRole(c)));
   };
+
+  /**
+   * Which one tag a list is about, marked as its subject in every row.
+   *
+   * Two things had to be settled. A phenomenon's key and the tag that records
+   * it are not always spelled the same, and where they differ the list marked
+   * nothing at all: `fermi` against `fermi-resonance`, `degeneracy` against
+   * `degenerated`. The aliases below are the whole of that difference.
+   *
+   * And a subject is one tag, not one role. Selection Rules is genuinely
+   * about both silences and the isotope card about all three substitutions,
+   * so those two roles expand; `structure` never does, because it is a
+   * grab-bag holding `fundamental`, `overtone`, `degenerated` and
+   * `rotational-branches` at once, and expanding it would mark four tags that
+   * have nothing to do with the card the reader is on.
+   */
+  const KEY_TAG: Record<string, string> = {
+    fermi: 'fermi-resonance',
+    branches: 'rotational-branches',
+    degeneracy: 'degenerated',
+    'site-sensitivity': 'site-sensitive',
+    // Stands for its whole role, which is the next rule.
+    isotopologue: 'deuterium',
+  };
+  /** The roles that are one subject between them, and so expand. */
+  const ROLE_IS_ONE_SUBJECT: TagRole[] = ['isotope', 'activity'];
+
+  $: subjectTag = KEY_TAG[ownTag] ?? ownTag;
+  $: subjectRole = TAG_ROLES[subjectTag];
+  $: isOwnTag = (t: string) =>
+    t === subjectTag ||
+    (!!subjectRole && ROLE_IS_ONE_SUBJECT.includes(subjectRole) && tagRole(t) === subjectRole);
+
+  /** Red where the estimate would mislead, rose where it is only out of scope. */
+  const caveatStyle = (tone?: 'alert' | 'limit') =>
+    tone === 'alert' ? CAVEAT_STYLE : MODEL_LIMIT_STYLE;
 
   /**
    * The bands of one example, with a branch group folded into a single row.
@@ -82,7 +144,19 @@
     }
     for (const r of out) {
       if (r.members.length < 2) continue;
-      r.branches = r.members.map(m => m.vibration.branch ?? '?').join(', ');
+      /* In ΔJ order, and counted rather than repeated: hydrogen's pure
+         rotational band is ten resolved S lines, and "S, S, S, S, S, S, S,
+         S, S, S" says nothing that "S ×10" does not. */
+      const ORDER = ['O', 'P', 'Q', 'R', 'S'];
+      const n = new Map<string, number>();
+      for (const m of r.members) {
+        const k = m.vibration.branch ?? '?';
+        n.set(k, (n.get(k) ?? 0) + 1);
+      }
+      r.branches = [...n.entries()]
+        .sort((a, b) => ORDER.indexOf(a[0]) - ORDER.indexOf(b[0]))
+        .map(([k, c]) => (c > 1 ? `${k} ×${c}` : k))
+        .join(', ');
     }
     return out;
   }
@@ -92,6 +166,43 @@
     lo: Math.min(...r.members.map(m => m.wn_min)),
     hi: Math.max(...r.members.map(m => m.wn_max)),
   });
+
+  /**
+   * On top of whatever the phenomenon groups by, the chart's own grouping.
+   * A list of thirty entries reads as thirty entries until the families are
+   * named: with them it reads as CO₂, then the carbonates, then methanol,
+   * in the order the chart draws its rows, and the colour down the side of
+   * each block is the colour those bands are drawn in.
+   *
+   * An example sits in whichever family most of its bands do. They almost
+   * always agree, an isotopologue being in its parent's family, and where
+   * they do not the majority is the honest answer.
+   */
+  const groupOf = (ex: Example): string => {
+    const n = new Map<string, number>();
+    for (const b of ex.bands) n.set(b.group, (n.get(b.group) ?? 0) + 1);
+    let best = ex.bands[0]?.group ?? '';
+    let bestN = 0;
+    for (const [k, c] of n) if (c > bestN) { best = k; bestN = c; }
+    return best;
+  };
+
+  interface Section { key: string; label: string; color: string; items: Example[] }
+  $: sections = (() => {
+    const by = new Map<string, Example[]>();
+    for (const ex of examples) {
+      const g = groupOf(ex);
+      const list = by.get(g);
+      if (list) list.push(ex);
+      else by.set(g, [ex]);
+    }
+    return [...by.entries()]
+      .sort((a, b) => groupRank(a[0]) - groupRank(b[0]))
+      .map(([key, items]) => ({ key, label: groupLabel(key), color: groupColor(key), items }));
+  })();
+  /* One family is not a grouping: the heading would say the same thing over
+     every entry, so a single-family list is left as the flat list it was. */
+  $: grouped = sections.length > 1;
 
   /** A long list starts folded: the explanation is the point, not the tally. */
   const MANY = 3;
@@ -104,7 +215,7 @@
 <section class="atlas">
   <button class="atlas-head" aria-expanded={open} on:click|stopPropagation={() => (open = !open)}>
     <span class="chev" class:open>▸</span>
-    <span>{title}</span>
+    <span class="atlas-title">{title}</span>
     <span class="atlas-count">
       {examples.length} {examples.length === 1 ? 'example' : 'examples'} · {total} bands
     </span>
@@ -115,8 +226,23 @@
   {#if examples.length === 0}
     {#if open}<p class="empty">No band in the atlas currently shows this.</p>{/if}
   {:else if open}
-    <!-- Keyed by the bands: two examples can share a heading. -->
-    {#each examples as ex (ex.bands.map(b => b.id).join('|'))}
+    <!-- The families, in the chart's row order. Keyed by the bands, and by
+         position after them: two examples can legitimately hold the same
+         bands (one transition reached from two labelled lines), and a
+         duplicate key does not drop a row, it throws and leaves the box open
+         and empty. The index costs nothing here, since the list is rebuilt
+         whole rather than reordered. -->
+    {#each sections as sec (sec.key)}
+    <div class="group" class:headed={grouped} style={sec.color ? `--group-color:${sec.color}` : ''}>
+      {#if grouped}
+        <h4 class="group-head">
+          <span>{sec.label}</span>
+          <span class="group-count">
+            {sec.items.length} {sec.items.length === 1 ? 'entry' : 'entries'}
+          </span>
+        </h4>
+      {/if}
+    {#each sec.items as ex, i (sec.key + '#' + i + '#' + ex.bands.map(b => b.id).join('|'))}
       <article class="example">
         <header>
           <span class="ex-label">{ex.label}</span>
@@ -135,10 +261,38 @@
             >
               <span class="band-name">{rowName(r)}</span>
               {#each structureTags(r.lead) as tg (tg)}
-                <span class="band-tag" class:own={tg === ownTag}>{tg}</span>
+                <span class="band-tag" class:own={isOwnTag(tg)}>{tg}</span>
               {/each}
               {#if r.members.length > 1}
                 <span class="band-branches">{r.branches}</span>
+              {/if}
+              <!-- A row that stands for a whole branch family carries the
+                   note of whichever member has one: the comparison is about
+                   the transition, not about one of its branches.
+
+                   A pill rather than the sentence: what most readers want
+                   from this list is the band and where it sits. The pill
+                   holds the estimate itself, so the column can be read down
+                   against the positions beside it, and the size of the miss
+                   is on hover. -->
+              {#if rowNoteOf(ex, r)?.caveat}
+                <!-- Named, not merely flagged: the word is the phenomenon,
+                     so the reader who scans the column learns why the number
+                     beside it is arithmetic rather than a prediction. Its
+                     own colour rather than the caveat red, because nothing
+                     here is wrong: the model just does not reach it. -->
+                <span
+                  class="est"
+                  style="background:{caveatStyle(rowNoteOf(ex, r)?.caveatTone).background};border-color:{caveatStyle(rowNoteOf(ex, r)?.caveatTone).border};color:{caveatStyle(rowNoteOf(ex, r)?.caveatTone).color}"
+                  title={rowNoteOf(ex, r)?.caveatDetail}
+                >{rowNoteOf(ex, r)?.caveat}</span>
+              {/if}
+              {#if rowNoteOf(ex, r)?.pill}
+                <span
+                  class="est"
+                  style="background:{ISOTOPE_STYLE.background};border-color:{ISOTOPE_STYLE.border};color:{ISOTOPE_STYLE.color}"
+                  title={rowNoteOf(ex, r)?.detail}
+                >{rowNoteOf(ex, r)?.pill}</span>
               {/if}
               <span class="band-wn">{span(r).lo}–{span(r).hi} cm⁻¹</span>
             </button>
@@ -147,8 +301,22 @@
                 <button class="band-row sub" on:click|stopPropagation={() => dispatch('band', { id: b.id })}>
                   <span class="band-name">{bandName(b)}</span>
                   {#each structureTags(b) as tg (tg)}
-                    <span class="band-tag" class:own={tg === ownTag}>{tg}</span>
+                    <span class="band-tag" class:own={isOwnTag(tg)}>{tg}</span>
                   {/each}
+                  {#if ex.bandNotes?.[b.id]?.caveat}
+                    <span
+                      class="est"
+                      style="background:{caveatStyle(ex.bandNotes[b.id].caveatTone).background};border-color:{caveatStyle(ex.bandNotes[b.id].caveatTone).border};color:{caveatStyle(ex.bandNotes[b.id].caveatTone).color}"
+                      title={ex.bandNotes[b.id].caveatDetail}
+                    >{ex.bandNotes[b.id].caveat}</span>
+                  {/if}
+                  {#if ex.bandNotes?.[b.id]?.pill}
+                    <span
+                      class="est"
+                      style="background:{ISOTOPE_STYLE.background};border-color:{ISOTOPE_STYLE.border};color:{ISOTOPE_STYLE.color}"
+                      title={ex.bandNotes[b.id].detail}
+                    >{ex.bandNotes[b.id].pill}</span>
+                  {/if}
                   <span class="band-wn">{b.wn_min}–{b.wn_max} cm⁻¹</span>
                 </button>
               {/each}
@@ -172,6 +340,8 @@
         {/if}
       </article>
     {/each}
+    </div>
+    {/each}
   {/if}
 </section>
 
@@ -185,13 +355,18 @@
     border-radius: var(--radius-md);
   }
 
-  /* The heading is the control: the whole box folds away behind it. */
+  /* The heading is the control: the whole box folds away behind it. So it
+     has to be hittable. The line of type is 15px tall, and a click a few
+     pixels off it lands on the card, where nothing happens: the box reads as
+     refusing to open rather than as having been missed. The padding takes it
+     past the 24px minimum (WCAG 2.2 SC 2.5.8) without moving the type, and
+     the hover underline says where the target is. */
   .atlas-head {
     display: flex;
     align-items: baseline;
     gap: 8px;
     width: 100%;
-    padding: 0;
+    padding: 6px 0;
     border: none;
     background: none;
     font-family: inherit;
@@ -204,6 +379,8 @@
     cursor: pointer;
     text-align: left;
   }
+  .atlas-head:hover .atlas-title,
+  .atlas-head:focus-visible .atlas-title { text-decoration: underline; }
   .chev { transition: transform 0.18s ease; display: inline-block; }
   .chev.open { transform: rotate(90deg); }
   .atlas-count {
@@ -237,11 +414,39 @@
     border-radius: var(--radius-sm);
   }
 
+  /* ── One family of bands, in the chart's row order ── */
+  .group.headed { margin-bottom: 14px; }
+  .group-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    font-size: var(--t-micro-label-size);
+    font-weight: var(--t-micro-label-weight);
+    text-transform: var(--t-micro-label-tt);
+    letter-spacing: var(--t-micro-label-ls);
+    /* The family named in the colour it is drawn in: the heading is the one
+       place in the list where the colour is the subject rather than a mark
+       down the edge. */
+    color: var(--group-color, var(--ink-slate-900));
+  }
+  .group-count {
+    margin-left: auto;
+    font-family: var(--t-code-ff);
+    font-size: var(--t-code-size);
+    color: var(--ink-050);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
   /* ── One occurrence ── */
   .example {
     background: var(--surface);
     border: 1px solid var(--line-soft);
-    border-left: 3px solid var(--accent-green-fg);
+    /* The band's own colour, so a block is found in a list the way it is
+       found on the chart. Green where the dataset gives the group none. */
+    border-left: 3px solid var(--group-color, var(--accent-green-fg));
     border-radius: var(--radius);
     padding: 10px var(--space-4);
     margin-bottom: 10px;
@@ -307,13 +512,36 @@
     border-color: var(--accent-green-fg);
   }
 
-  .band-wn {
+  /* "There is a number behind this": the harmonic estimate against the
+     recorded position, on hover. A pill in the isotope colours, because that
+     is the only list that has one and the colour says which. */
+  .est {
     margin-left: auto;
+    padding: 0 5px;
+    border: 1px solid;
+    border-radius: var(--radius-sm);
     font-family: var(--t-code-ff);
-    font-size: var(--t-code-size);
-    color: var(--ink-300);
+    font-size: var(--t-diagram-note-size);
+    cursor: help;
     white-space: nowrap;
   }
+
+  /* The position, in the same blue the tooltip's wavenumber badge uses, and
+     always the last thing on the row: every list is read down this column. */
+  .band-wn {
+    margin-left: auto;
+    padding: 1px 6px;
+    background: var(--badge-wn-bg);
+    border: 1px solid var(--badge-wn-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--t-code-ff);
+    font-size: var(--t-code-size);
+    color: var(--badge-wn-fg);
+    white-space: nowrap;
+  }
+  /* Two things cannot both claim the leftover space: with a pill present it
+     takes the gap and the range follows it. */
+  .est + .band-wn { margin-left: 6px; }
 
   .ex-refs {
     display: flex;

@@ -1263,17 +1263,26 @@ export const MOLECULE_GEOMETRY: Record<string, Record<string, MoleculeGeometry>>
           { dx: -0.196, dy: 0.46 },
           { dx: 0, dy: 0 },
         ],
-        // ν₁₀ — rock: the two out-of-plane H's counter-rotate about C (the
-        // angle between them itself changing) while the in-plane H shears
-        // along its own bond — methoxy's own methoxy_bend_asymmetric
-        // carried over via the rotation, same as this entry used before
-        // ν₄/ν₁₀ were disentangled.
+        // ν₁₀ — rock, built exactly as ν₁₁ (methanol_twist) below is, about
+        // the same pivot and through the same angle, and differing from it in
+        // the one thing that separates the two modes: phase. Here the two
+        // out-of-plane H's turn about C in the SAME sense, so the pair swings
+        // left and right as a unit with the H-C-H angle between them
+        // unchanged; in ν₁₁ they turn oppositely and the angle opens and
+        // closes. The in-plane H (atom 3, the lower one) sits still in both,
+        // as an antisymmetric-species mode requires.
+        //
+        // It used to counter-rotate atoms 2 and 3 and translate atom 4, which
+        // moved the in-plane H and left one of the out-of-plane pair doing
+        // something else entirely — a leftover of methoxy_bend_asymmetric,
+        // carried over before ν₄ and ν₁₀ were disentangled, and a straight
+        // contradiction of this mode's own note in vibrations.jsonc.
         methanol_ch_rock: [
           { dx: 0, dy: 0 },
           { dx: 0, dy: 0 },
-          { dx: 0, dy: 0, rotateDeg: 15 },
-          { dx: 0, dy: 0, rotateDeg: -15 },
-          { dx: -0.165, dy: -0.364 },
+          { dx: 0, dy: 0, rotateDeg: 8, pivot: { x: -16, y: 0 } },
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 0, rotateDeg: 8, pivot: { x: -16, y: 0 } },
           { dx: 0, dy: 0 },
         ],
         // Methyl umbrella deformation — methoxy's own methoxy_bend_symmetric

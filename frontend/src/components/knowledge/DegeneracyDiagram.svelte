@@ -37,6 +37,7 @@
   import { onDestroy } from 'svelte';
   import { project, type V3 } from './view3d';
   import { colorForElement } from '../../lib/elementColors';
+  import Axes3D from './Axes3D.svelte';
 
   const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
   const clamp01 = (k: number) => Math.max(0, Math.min(1, k));
@@ -265,6 +266,26 @@
     <g style="opacity:{r.key === 'out' ? twinOpacity : 1}">
       <g style="opacity:{plateIn}">
         <polygon class="plane" points={r.plane} />
+        <!-- The axes the two bends are told apart by, drawn the way the
+             Rotation Modes card draws them and lit on the one this row
+             swings along: the molecule lies on x, so one bend runs along y
+             and the other along z, and that is the whole difference between
+             them. Opened only: at card size they would crowd the molecule. -->
+        {#if t > 0.5}
+          <!-- Through the molecule's own centre, the way the Rotation Modes
+               card places them, so the lit axis lies along the drawn plane
+               and along the way the oxygens actually swing. Beside the
+               molecule the correspondence would have to be taken on trust.
+               The axis is read off `n` rather than named, so it cannot drift
+               from the motion and the plane, which are built from the same
+               vector. -->
+          <Axes3D
+            x={geo.cx}
+            y={r.cy}
+            len={lerp(14, 30, t)}
+            active={r.n[2] ? 'z' : r.n[1] ? 'y' : 'x'}
+          />
+        {/if}
       </g>
       <line class="guide" x1={r.a0.x} y1={r.a0.y} x2={r.a1.x} y2={r.a1.y} />
       <line class="bond" x1={r.mol.atoms[0].x} y1={r.mol.atoms[0].y} x2={r.mol.atoms[1].x} y2={r.mol.atoms[1].y} />

@@ -7109,7 +7109,7 @@
         "subtype": null,
         "branch": null
       },
-      "atoms": "M-H",
+      "atoms": "Ga-H",
       "wn_start": 1960,
       "wn_end": 2015,
       "short": "ν(Ga-H)",
@@ -7170,7 +7170,7 @@
         "subtype": null,
         "branch": null
       },
-      "atoms": "M-H",
+      "atoms": "Ga-H",
       "wn_start": 1420,
       "wn_end": 1450,
       "short": "ν(Ga-D)",
@@ -7203,7 +7203,7 @@
         "subtype": null,
         "branch": null
       },
-      "atoms": "M-H",
+      "atoms": "Zn-H",
       "wn_start": 1650,
       "wn_end": 1720,
       "short": "ν(Zn-H)",
