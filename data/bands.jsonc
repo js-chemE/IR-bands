@@ -1010,6 +1010,108 @@
       "confidence": "confirmed",
       "tags": ["overtone", "raman-inactive"]
     },
+      // Two hot bands: the lower state is the bend, not the ground state, so
+      // neither shows at ambient conditions and both climb as the cell is
+      // heated. Both land in the linear metal-carbonyl window, and both have
+      // been read as CO on copper by three publications each.
+    {
+      "id": "co2_hot_2sym_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2126,
+      "wn_end": 2134,
+      "short": "2νₛ−δ(OCO) CO₂",
+      "description": "A hot band: two quanta of the symmetric stretch reached from a molecule that already holds one quantum of the bend, so the lower state is the bend and not the ground state. Nothing absorbs here at ambient conditions; the band needs a pressurised cell and grows as that cell is heated, because heating is what populates the level it starts from. Medium and narrow, it sits in the middle of the linear metal-carbonyl window and has been published three times as CO on Cu⁺. The temperature is what separates the two readings: a carbonyl population falls as the cell heats, and this rises.",
+      "based_on": [
+        {
+          "band_id": "co2_sym",
+          "branch_group": null,
+          "multiplier": 2,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less one quantum of the bend: a hot band, from an already bending molecule"
+        }
+      ],
+      "references": [
+        {
+          "state": "gas",
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2130,
+          "technique": "drifts",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band E: 2130 cm⁻¹, medium and narrow, the Q branch of the 20001←01101 transition of ¹²C¹⁶O₂, marked as rising with temperature and one of the bands Gausemel et al. had already described. Table 1 lists Bailey et al. and Table 4 both Fisher and Bell and Martin et al., all three reading this position as CO on Cu⁺."
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["overtone", "misassignment-warning", "raman-inactive"]
+    },
+    {
+      "id": "co2_hot_sym_bend_q",
+      "species": "co2",
+      "phase": "gas",
+      "group": "co2",
+      "vibration": {
+        "category": "combination",
+        "subtype": null,
+        "branch": "Q"
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2090,
+      "wn_end": 2098,
+      "short": "νₛ+2δ−δ(OCO) CO₂",
+      "description": "The hot companion of the 2077 cm⁻¹ combination: the same symmetric stretch with the bend, but reached from a molecule that already holds one bending quantum rather than from the ground state, which puts it about 17 cm⁻¹ higher. Medium and narrow, and among the steepest with temperature of any gas CO₂ band in this window, since heat is what populates the level it starts from and pressure is what makes it visible at all. It lands where CO on stepped or high-index copper is looked for, and has been published three times as exactly that.",
+      "based_on": [
+        {
+          "band_id": "co2_sym",
+          "branch_group": null,
+          "multiplier": 1,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": "co2_nu2_branches",
+          "multiplier": 2,
+          "label": null
+        },
+        {
+          "band_id": null,
+          "branch_group": null,
+          "multiplier": 1,
+          "label": "less one quantum of the bend: a hot band, from an already bending molecule"
+        }
+      ],
+      "references": [
+        {
+          "state": "gas",
+          "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "wn": 2094,
+          "technique": "drifts",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Table 3 of a DRIFTS spectrum of pure KBr under 10 bar of CO₂ at 278 K, 4 cm⁻¹ and 64 scans, intensities normalised to the 2077 cm⁻¹ band. Fehr's band I: 2094 cm⁻¹, medium and narrow, the Q branch of the 12201←01101 transition of ¹²C¹⁶O₂, one of the few in the range marked as rising strongly with temperature. Table 1 lists Bailey et al. reading it as CO on Cu(755); Table 4 adds Fisher and Bell as CO on Cu(110) and Martin et al. as CO on high-index faces such as Cu(755)."
+        }
+      ],
+      "intensity": "m",
+      "width": "sharp",
+      "confidence": "confirmed",
+      "tags": ["overtone", "misassignment-warning", "raman-inactive"]
+    },
     {
       "id": "co2_combo_sym_bend_q",
       "species": "co2",
@@ -1042,7 +1144,7 @@
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
           "technique": "drifts",
           "wn": 2077,
-          "note": "Table 3, band J: very strong and narrow, the Q branch of the 11101←00001 transition of ¹²C¹⁶O₂ and the most intense combination band in the range, which every other intensity in the paper is normalised to. Table 1 lists three earlier papers and Table 4 five more that assigned this position to adsorbed CO. Weaker gas bands are left undrawn: 2112 cm⁻¹, either this transition’s R branch or the P branch of a hot band, which the source cannot separate; 2130 and 2094 cm⁻¹, hot bands published as CO on Cu⁺ and on Cu(110); and 1933 and 1920 cm⁻¹, the 11102←00001 pair published as CO on a CuZn alloy. All of them need CO₂ pressure to show at all.",
+          "note": "Table 3, band J: very strong and narrow, the Q branch of the 11101←00001 transition of ¹²C¹⁶O₂ and the most intense combination band in the range, which every other intensity in the paper is normalised to. Table 1 lists three earlier papers and Table 4 five more that assigned this position to adsorbed CO. The two hot bands at 2130 and 2094 cm⁻¹ have entries of their own. Weaker gas bands are left undrawn: 2112 cm⁻¹, either this transition’s R branch or the P branch of the 2130 cm⁻¹ hot band, which the source cannot separate; and 1933 and 1920 cm⁻¹, the 11102←00001 pair published as CO on a CuZn alloy. All of them need CO₂ pressure to show at all.",
           "tags": ["direct-dosing"]
         },
         {
@@ -1572,14 +1674,14 @@
           "state": "gas",
           "technique": "drifts",
           "tags": [],
-          "note": "Fig. 5a and Sect. 3.3 (Spectra-Tech DRIFTS cell, 14% Co/AlâOâ at 220 Â°C, 30% CO + 60% Hâ + 10% Ar, ambient pressure): the paper records this transition as the pair at 2114 and 2176 cmâ»Â¹ and works throughout with the gap between them. Nothing is observed at this position and nothing could be, the Q branch of a Î£âÎ£ transition being forbidden. The claim is carried for completeness, so the band origin holds the same sources as the two branches flanking it, and it records that the source read the feature as one P/R envelope with a hole at its centre rather than as two unrelated bands."
+          "note": "Fig. 5a and Sect. 3.3 (Spectra-Tech DRIFTS cell, 14% Co/Al₂O₃ at 220 °C, 30% CO + 60% H₂ + 10% Ar, ambient pressure): the paper records this transition as the pair at 2114 and 2176 cm⁻¹ and works throughout with the gap between them. Nothing is observed at this position and nothing could be, the Q branch of a Σ→Σ transition being forbidden. The claim is carried for completeness, so the band origin holds the same sources as the two branches flanking it, and it records that the source read the feature as one P/R envelope with a hole at its centre rather than as two unrelated bands."
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
           "state": "gas",
           "technique": "drifts",
           "tags": [],
-          "note": "Table S5 and Fig. S17 (operando DRIFTS, Cu/SiOâ and CuGa(0.20), 220 to 280 Â°C, Hâ/COâ = 3, 6 bar, 25 mL minâ»Â¹): product CO is reported there as the pair 2112 and 2177 cmâ»Â¹, a 65 cmâ»Â¹ separation whose midpoint is this band origin. No line is observed here, and none can be: the Q branch is symmetry-forbidden for this Î£âÎ£ transition. Recorded for completeness beside the branches it separates, so the forbidden centre carries the same sources as the P and R entries instead of standing unreferenced."
+          "note": "Table S5 and Fig. S17 (operando DRIFTS, Cu/SiO₂ and CuGa(0.20), 220 to 280 °C, H₂/CO₂ = 3, 6 bar, 25 mL min⁻¹): product CO is reported there as the pair 2112 and 2177 cm⁻¹, a 65 cm⁻¹ separation whose midpoint is this band origin. No line is observed here, and none can be: the Q branch is symmetry-forbidden for this Σ→Σ transition. Recorded for completeness beside the branches it separates, so the forbidden centre carries the same sources as the P and R entries instead of standing unreferenced."
         }
       ],
       "confidence": "confirmed",
