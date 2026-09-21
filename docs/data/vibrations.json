@@ -40,6 +40,8 @@
             "co2_combo_sym_asym_q",
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
+            "co2_hot_2sym_q",
+            "co2_hot_sym_bend_q",
             "co2_combo_sym_bend_q",
             "co2_combo_sym_bend_p"
           ]
@@ -70,6 +72,7 @@
             "co2_combo_2bend_asym_q",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
+            "co2_hot_sym_bend_q",
             "co2_combo_sym_bend_q",
             "co2_combo_sym_bend_p",
             "co2_bend_overtone"
@@ -101,6 +104,7 @@
             "co2_combo_2bend_asym_q",
             "co2_combo_2bend_asym_r",
             "co2_combo_2bend_asym_p",
+            "co2_hot_sym_bend_q",
             "co2_combo_sym_bend_q",
             "co2_combo_sym_bend_p",
             "co2_bend_overtone"
