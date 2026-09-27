@@ -7110,7 +7110,7 @@
         },
         {
           "state": "gas",
-          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "key": "Herzberg.InfraredRamanSpectra.1945",
           "wn": 3657,
           "note": "ν₁, the symmetric stretch. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }
@@ -7148,7 +7148,7 @@
         },
         {
           "state": "gas",
-          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "key": "Herzberg.InfraredRamanSpectra.1945",
           "wn": 1595,
           "note": "ν₂, the bend, and the strongest of the three. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }
@@ -7186,7 +7186,7 @@
         },
         {
           "state": "gas",
-          "key": "Herzberg.InfraredRamanSpectra.1946",
+          "key": "Herzberg.InfraredRamanSpectra.1945",
           "wn": 3756,
           "note": "ν₃, the asymmetric stretch and the highest of the three fundamentals. Herzberg's book tabulates the gas-phase fundamentals of H₂O; this is the band origin, not a measured peak width or a value from one spectrum. Recorded without a technique because the book compiles results from many sources rather than reporting its own. Caveat on the source itself: the PDF filed against this citekey is Bryce Crawford's one-page review of the book (J. Phys. Chem. 50, 288, 1946), not the book, so the number here is the standard tabulated value and the book itself was not opened."
         }

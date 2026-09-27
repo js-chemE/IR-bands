@@ -49,6 +49,12 @@ export const SOURCES: Record<string, Source> = {
   elgayyar: { key: 'Elgayyar.ContributionsLimitationsIR.2021' },
   meunier: { key: 'Meunier.InadequateUnitSelection.2026' },
   armaroli: { key: 'Armaroli.DiffuseReflectionInfrared.2004' },
+  // Symmetry: the Point Group and Mulliken cards.
+  cotton: { key: 'Cotton.ChemicalApplicationsGroup.1990' },
+  herzberg: { key: 'Herzberg.InfraredRamanSpectra.1945' },
+  mulliken: { key: 'Mulliken.ReportNotationSpectra.1955' },
+  nakamoto: { key: 'Nakamoto.InfraredRamanSpectra.2009' },
+  hoffmann: { key: 'Hoffmann.InfraredReflectionabsorptionSpectroscopy.1983' },
   li: { key: WACHS, chapter: 'Ch. 14, Q. Li, M. Anpo, J. You, T. Yan and X. Wang, “Photoluminescence (PL) Spectroscopy”' },
 };
 

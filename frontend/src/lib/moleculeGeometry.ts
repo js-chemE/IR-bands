@@ -1665,8 +1665,7 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
       pointCloud: 'A metal atom M with two CO ligands bound to it (M itself anchored to the surface, treated as fixed rather than counted as a vibrating atom) — a C2 axis through M bisecting the C-M-C angle, plus the molecular plane and the perpendicular plane through that axis, giving local C2v symmetry. With M fixed, the six modes below are the internal C-O and M-C stretches plus the C-M-C bend — not a full treatment of the M(CO)2 unit\'s own libration/translation against the surface, the same scope limit as the bridged (μ₂) topology above.',
       terms: [
         { symbol: 'A₁', count: 3 },
-        { symbol: 'B₁', count: 1 },
-        { symbol: 'B₂', count: 2 },
+        { symbol: 'B₂', count: 3 },
       ],
     },
     isocarbonyl: {
@@ -1713,7 +1712,7 @@ export const VIBRATIONAL_SYMMETRY: Record<string, Record<string, PointCloudSymme
       ],
     },
     monodentate: {
-      pointCloud: '4 atoms in one plane: C at the centroid, one surface-bound O along the would-be symmetry axis, and the two free O\'s equivalent to each other across it — but unlike bidentate\'s pair, here it\'s the *anchor* atom alone on the axis, with nothing on the other side to make a true C2 axis, leaving only the molecular plane itself as a mirror — Cs, not C2v.',
+      pointCloud: '4 atoms in one plane: C at the centroid, one surface-bound O and two free O\'s. The CO₃ unit on its own would still be C2v: a 2-fold axis through the bound O and C swaps the two free O\'s, and the molecular plane and the plane across it are both mirrors. What removes the axis is the metal: the M-O-C bond is bent, so M sits off that axis and only the molecular plane still maps the whole unit onto itself, Cs. Were the M-O-C bond straight, monodentate carbonate would be C2v as well',
       terms: [
         { symbol: "A′", count: 5 },
         { symbol: "A″", count: 1 },

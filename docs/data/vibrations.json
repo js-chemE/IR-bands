@@ -642,8 +642,8 @@
           "subtype": "rocking",
           "atoms": "C-M-C",
           "topology": "geminal",
-          "herzberg_notation": "ν₄",
-          "symmetry": "B₁",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₂",
           "wn_start": 400,
           "wn_end": 600,
           "bands": []
@@ -664,7 +664,7 @@
           "subtype": "asymmetric",
           "atoms": "C-O",
           "topology": "geminal",
-          "herzberg_notation": "ν₅",
+          "herzberg_notation": "ν₄",
           "symmetry": "B₂",
           "wn_start": 1980,
           "wn_end": 2150,
@@ -2431,7 +2431,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",
@@ -2457,7 +2457,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "bend",
@@ -2483,7 +2483,7 @@
             "raman-active"
           ],
           "reference": [
-            "Herzberg.InfraredRamanSpectra.1946",
+            "Herzberg.InfraredRamanSpectra.1945",
             "Shimanouchi.TablesMolecularVibrational.1977"
           ],
           "category": "stretch",
