@@ -21,6 +21,11 @@
  *     what an adsorbed species does on an oxide and what a probe molecule
  *     reports about the site under it.
  *
+ * The two symmetry cards (Point Group Notation, Mulliken Symmetry) rest on
+ * works of their own: Cotton's Chemical Applications of Group Theory for the
+ * machinery, Herzberg's Infrared and Raman Spectra for the spectroscopist's
+ * usage, and the 1955 notation report for the labels and the axes.
+ *
  * Single papers are cited where one card needs them. Every citation is an
  * `[@alias, locator]` marker; the aliases, and the handbook's chapters, are
  * in lib/cite.ts.
@@ -111,7 +116,7 @@ export const KNOWLEDGE_SECTIONS: {
   {
     key: 'notation',
     label: 'Notation',
-    lead: 'Two notations for one mode: by what moves, which names every band in the atlas, and by which mode it is, which numbers the modes on the Vibration Modes view. Then the typography every formula on this page obeys.',
+    lead: 'Two notations for one mode: by what moves, which names every band in the atlas, and by which mode it is, which numbers the modes on the Vibration Modes view. Between them the symmetry the numbering rests on: the molecule’s point group, and the species of each mode within it. Then the typography every formula on this page obeys.',
     afterPatterns: true,
   },
 ];
@@ -801,7 +806,7 @@ export const FUNDAMENTALS: Fundamental[] = [
       'Where a subscript is a letter Unicode cannot lower, the prose parenthesises it instead of inventing one: μ(ind), A(HF), V(O). The Knowledge page lowers those brackets again as it renders, so the sentence reads as the formula does.',
     ],
     related: [
-      { key: 'numbering', why: 'Where the g and u subscripts come from' },
+      { key: 'mulliken', why: 'Where the g and u subscripts come from' },
       { key: 'units', why: 'The units this rule sets upright' },
       { key: 'labels', why: 'The other thing the atlas calls notation' },
     ],
@@ -856,6 +861,113 @@ export const FUNDAMENTALS: Fundamental[] = [
     ],
   },
   {
+    // Between the two notations for a mode: the symmetry the second one
+    // rests on. First the molecule's point group, then (next card) the
+    // species of each mode within it. Cotton is the source for the
+    // machinery, Herzberg for the spectroscopist's usage of it.
+    key: 'pointgroups',
+    section: 'notation',
+    label: 'Point Group Notation',
+    teaser:
+      'C₂ᵥ, C₃ᵥ, D∞ₕ: a molecule named by the operations that leave it unchanged. Water survives a half turn and two mirrors.',
+    body: [
+      'A symmetry operation moves a molecule so that every atom lands on an equivalent one, and the molecule looks exactly as it did; the line, plane or point it is carried out about is its symmetry element [@cotton, p. 18]. The complete set of operations a molecule survives is its point group, so called because all of its elements meet in one point that none of the operations moves [@cotton, p. 41]. The groups are named in the notation Schoenflies introduced for crystals [@herzberg, p. 5]: water is C₂ᵥ, methane T(d), carbon dioxide D∞ₕ.',
+      {
+        label: 'The Five Symmetry Elements',
+        lines: [
+          '\\begin{array}{lll}' +
+            '\\mathrm{E} & \\text{identity} & \\text{do nothing; every molecule has it} \\\\' +
+            '\\mathrm{C}_n & \\text{proper axis} & \\text{turn by } 360^\\circ / n \\\\' +
+            '\\sigma & \\text{mirror plane} & \\text{reflect through the plane} \\\\' +
+            '\\mathrm{i} & \\text{inversion centre} & (x, y, z) \\to (-x, -y, -z) \\\\' +
+            '\\mathrm{S}_n & \\text{improper axis} & \\text{turn by } 360^\\circ / n \\text{, then reflect}' +
+            '\\end{array}',
+        ],
+        note: 'The operations as Cotton defines them [@cotton, pp. 19–27]. The axis with the largest n is the principal axis; a mirror is σ(h) when it is perpendicular to it and σᵥ when it contains it, and σ(d), d for dihedral, when it contains it and bisects the angle between two C₂ axes [@cotton, pp. 42–43]. S₁ is a plain mirror and S₂ an inversion, so neither is listed as an axis of its own [@cotton, p. 376].',
+      },
+      'The symbol is built from these elements. Its capital says what kind of rotation the molecule has, the subscript how many-fold the principal axis is, and a trailing h, v or d which mirror planes go with it. C₂ᵥ reads as a two-fold axis with mirrors that contain it; D₃ₕ, the free carbonate ion, as a three-fold axis, three C₂ axes perpendicular to it and a mirror across it. The C stands for cyclic [@herzberg, p. 2]. T, O and I are the groups of the tetrahedron, the octahedron and the icosahedron, with 24, 48 and 120 operations [@cotton, pp. 47–49].',
+      {
+        label: 'Reading a Symbol',
+        wide: true,
+        lines: [
+          '\\begin{array}{ll}' +
+            '\\mathrm{C}_n & \\text{one } n\\text{-fold axis, nothing else} \\\\' +
+            '\\mathrm{C}_{n\\mathrm{v}} & \\text{plus } n \\text{ mirrors containing the axis} \\\\' +
+            '\\mathrm{C}_{n\\mathrm{h}} & \\text{plus one mirror perpendicular to it} \\\\' +
+            '\\mathrm{D}_n & \\text{plus } n \\text{ two-fold axes perpendicular to it} \\\\' +
+            '\\mathrm{D}_{n\\mathrm{h}},\\ \\mathrm{D}_{n\\mathrm{d}} & \\mathrm{D}_n \\text{ with a horizontal mirror, or with } n \\text{ diagonal ones} \\\\' +
+            '\\mathrm{C}_\\mathrm{s},\\ \\mathrm{C}_\\mathrm{i},\\ \\mathrm{C}_1 & \\text{a mirror only, an inversion centre only, nothing} \\\\' +
+            '\\mathrm{C}_{\\infty\\mathrm{v}},\\ \\mathrm{D}_{\\infty\\mathrm{h}} & \\text{linear: without and with a centre of inversion} \\\\' +
+            '\\mathrm{T}_\\mathrm{d},\\ \\mathrm{O}_\\mathrm{h},\\ \\mathrm{I}_\\mathrm{h} & \\text{the tetrahedron, the octahedron, the icosahedron}' +
+            '\\end{array}',
+        ],
+        note: 'The groups as Cotton sets them out [@cotton, pp. 41–44]. Crystallographers write the same groups in a notation of their own, Hermann and Mauguin’s, which lists the elements rather than naming the group: mmm for D(2h), 2/m for C(2h). Schoenflies’ symbols are the ones molecular spectroscopy uses [@cotton, pp. 376–378], and so does the atlas.',
+      },
+      'Finding a molecule’s group is a sequence of questions, and the chart under this card asks them in Cotton’s order [@cotton, pp. 54–56]. The special groups come first, because they are recognised by eye: a linear molecule, and one with several three-fold or higher axes, which is a regular solid. A molecule with no axis at all is sorted by whether it has a mirror or a centre. Everything else has a principal axis, and the question that follows decides between the two large families: are there n two-fold axes perpendicular to it? With them the group is a D group, without them a C group, and only then do the mirror planes add their h, v or d.',
+      'A group belongs to the whole molecule, not to its parts. CO and CO₂ are both linear, but only CO₂ has a centre of inversion, so CO is C∞ᵥ and CO₂ D∞ₕ [@herzberg, p. 9]. The same centre is what keeps H₂ and N₂ silent in the infrared, which the Mulliken Symmetry card explains.',
+      'An adsorbed species has the group of the adsorbate together with the metal atoms it binds to: not the free molecule’s, and not the surface’s. That local group is what the surface selection rule is applied to [@trenary, p. 54]. CO on top of one metal atom is C∞ᵥ, bridging two it drops to C₂ᵥ, and on an uneven bridge to Cₛ; each step down lets another mode absorb, so the number of infrared bands tells the symmetry of the site [@hoffmann, pp. 134–135]. In the atlas, formate is C₂ᵥ bridging two metal atoms and Cₛ held by one oxygen, and CO in a hollow site is recorded without a group, since a three-fold hollow gives C₃ᵥ and a four-fold one C₄ᵥ.',
+      'Binding lowers the symmetry, and a lower group can split one band into several and wake a silent one. Free carbonate is D₃ₕ, with one strong infrared band from its doubly degenerate asymmetric stretch; coordinated, the degeneracy is lifted, the band splits, and the size of the split separates monodentate from bidentate and bridging carbonate, while the symmetric stretch, Raman-only in the free ion, starts to absorb [@busca, p. 23]. A crystal does the same through the site an ion sits on: on the Cₛ site of aragonite, carbonate’s symmetric stretch appears weakly in the infrared and its degenerate bend splits in two [@cotton, p. 343]. Methane held with a three-fold axis along the surface normal is C₃ᵥ rather than T(d): its symmetric stretch, forbidden in the gas, can appear in the infrared, and its triply degenerate stretch splits into a pair and a single [@davydov, p. 390].',
+    ],
+    related: [
+      { key: 'mulliken', why: 'What the group does to each mode' },
+      { key: 'numbering', why: 'Why the modes are numbered by symmetry' },
+      { key: 'selection', why: 'What symmetry decides about a band' },
+      { key: 'degeneracy', why: 'What a three-fold axis does to a mode' },
+    ],
+  },
+  {
+    key: 'mulliken',
+    section: 'notation',
+    label: 'Mulliken Symmetry',
+    teaser:
+      'A₁, B₂, E, T₂: a mode named by what the point group’s operations do to it. The label decides whether it absorbs or scatters.',
+    body: [
+      'A point group acts on a vibration as it acts on the molecule. Carry out one of its operations on the vibrating molecule and compare the displacement arrows with where they were: either every arrow comes back as it was, or every arrow comes back reversed. The first counts +1, the second −1, and that number is the mode’s character under the operation. The row of characters across all of the group’s operations is the mode’s symmetry species, in group theory an irreducible representation [@herzberg, p. 104], and the Mulliken label is its name.',
+      'Water shows it in the diagram. Its symmetric stretch ν₁ survives every operation of C₂ᵥ unchanged, the row 1, 1, 1, 1, which is A₁. Its asymmetric stretch ν₃ reverses under the half turn and under the mirror that swaps the hydrogens, and survives the molecule’s own plane: 1, −1, −1, 1, which is B₂ [@nakamoto, p. 30]. A group’s character table lists only a handful of rows, so every mode of every molecule in that group carries one of a handful of labels.',
+      {
+        label: 'Mulliken’s Letters',
+        wide: true,
+        lines: [
+          '\\begin{array}{ll}' +
+            '\\mathrm{A},\\ \\mathrm{B} & \\text{one mode; symmetric } (+1) \\text{ or antisymmetric } (-1) \\text{ under the principal } \\mathrm{C}_n \\\\' +
+            '\\mathrm{E} & \\text{a degenerate pair, two modes at one wavenumber} \\\\' +
+            '\\mathrm{T},\\ \\mathrm{F} & \\text{a degenerate triple} \\\\' +
+            '\\mathrm{A}_1,\\ \\mathrm{A}_2 & \\text{symmetric or antisymmetric under a } \\mathrm{C}_2 \\perp \\mathrm{C}_n \\text{, or failing one, under } \\sigma_\\mathrm{v} \\\\' +
+            '\\mathrm{A}_\\mathrm{g},\\ \\mathrm{A}_\\mathrm{u} & \\text{gerade or ungerade: even or odd under inversion} \\\\' +
+            '\\mathrm{A}^{\\prime},\\ \\mathrm{A}^{\\prime\\prime} & \\text{symmetric or antisymmetric under } \\sigma_\\mathrm{h} \\\\' +
+            '\\Sigma^{+},\\ \\Pi,\\ \\Delta & \\text{linear molecules: along the axis, and degenerate pairs across it}' +
+            '\\end{array}',
+        ],
+        note: 'The letters as Cotton gives them [@cotton, pp. 90–91]; the linear-molecule symbols are those of a diatomic’s electronic states [@herzberg, p. 112]. The rules were fixed in 1955 by a report of the Joint Commission for Spectroscopy, conventionally credited to Mulliken [@mulliken, p. 1997]. It keeps F for a triple in a molecule and T for atoms in a crystal, and asks for lower case for a single mode, a₁, and capitals for a state, A₁ [@mulliken, pp. 2000–2001]. Herzberg and Nakamoto write F; chemistry mostly writes T, as Cotton does, and most vibrational papers, the atlas among them, write capitals throughout.',
+      },
+      {
+        label: 'The C₂ᵥ Character Table',
+        wide: true,
+        lines: [
+          '\\begin{array}{c|cccc|c|c|c}' +
+            '\\mathrm{C}_{2\\mathrm{v}} & \\mathrm{E} & \\mathrm{C}_2 & \\sigma_\\mathrm{v}(xz) & \\sigma_\\mathrm{v}^{\\prime}(yz) & \\text{IR} & \\text{Raman} & \\ce{H2O} \\\\ \\hline ' +
+            '\\mathrm{A}_1 & 1 & 1 & 1 & 1 & z & x^2,\\ y^2,\\ z^2 & \\nu_1,\\ \\nu_2 \\\\' +
+            '\\mathrm{A}_2 & 1 & 1 & -1 & -1 & & xy & \\\\' +
+            '\\mathrm{B}_1 & 1 & -1 & 1 & -1 & x & xz & \\\\' +
+            '\\mathrm{B}_2 & 1 & -1 & -1 & 1 & y & yz & \\nu_3' +
+            '\\end{array}',
+        ],
+        note: 'The characters and functions of Cotton’s table [@cotton, p. 429]. Water lies in the yz plane, as the 1955 report recommends for any planar C₂ᵥ molecule, with x perpendicular to the plane [@mulliken, p. 2002]. Herzberg and Cotton put it in xz instead and call the asymmetric stretch B₁ [@herzberg, p. 258] [@cotton, p. 324], and the report itself notes that most infrared work did the same [@mulliken, p. 2003]. Nothing about the molecule changes; only the names of two axes do.',
+      },
+      'The table also says what the label decides. A mode is active in the infrared if it belongs to the same species as x, y or z, the components of the dipole moment [@cotton, p. 327]. It is active in Raman if it belongs to the same species as one of the squares or products, the components of the polarizability [@cotton, pp. 327–328]. Those species depend only on the point group, so they are worked out once for each group and printed with its table [@long, pp. 121–122]. In C₂ᵥ every species but A₂ absorbs and all four scatter, so all three of water’s modes are seen both ways.',
+      'In a group with a centre of inversion, x, y and z are all odd under it and every square or product is even, so no species can be both [@cotton, p. 338]. That is the mutual exclusion rule, read straight off the g and u [@busca, p. 5]. CO₂ is the textbook case: its symmetric stretch, Σ(g)⁺, is Raman-only, while its asymmetric stretch Σ(u)⁺ and its bend Π(u) are infrared-only [@long, pp. 39–41]. The lone Σ(g)⁺ stretch of H₂ or N₂ never absorbs at all. The second row of the diagram carries out the inversion on both of CO₂’s stretches.',
+      'A degenerate species is two or three modes that the group forces to one wavenumber: an E pair of NH₃, a T₂ triple of CH₄. They are carried into one another by the operations, so the character is taken over the whole set rather than being ±1: under the identity it is 2 for E and 3 for T. Methane’s A₁ and E modes are Raman-only, its two T₂ modes are seen both ways [@cotton, pp. 335–336].',
+      'The label also sets the order of Herzberg’s numbering: the modes are grouped by species, in the order of the character table, and within a species the highest wavenumber comes first [@herzberg, pp. 271–272]. That is why water’s asymmetric stretch is ν₃ although it lies highest: B₂ comes after A₁. It is also why a number belongs to one molecule and not to a motion: the O–H stretch is ν₁ of CH₃OH, but deuterate the hydroxyl and the O–D stretch falls below two C–H stretches of the same species, so in CH₃OD it is ν₃ [@Dinu.HowVibrationalNotations.2024, p. 684]. The atlas stores the label beside each mode on the Vibration Modes view.',
+      'Formate shows the two conventions side by side. Ito and Bernstein, whose assignment of the ion later work follows, put it in the xz plane, so its in-plane asymmetric stretch is B₁ and its out-of-plane wag B₂ [@Ito.VibrationalSpectraFormate.1956, p. 177]. Nakamoto, on the 1955 axes, calls the same two modes B₂ and B₁ [@nakamoto, p. 185]. The atlas keeps Ito and Bernstein’s labels for formate, so its numbers match the formate literature, and the 1955 convention for every other planar C₂ᵥ species.',
+    ],
+    related: [
+      { key: 'pointgroups', why: 'The group whose operations these are' },
+      { key: 'numbering', why: 'Numbered species by species' },
+      { key: 'selection', why: 'What the label decides' },
+      { key: 'degeneracy', why: 'What E and T mean for a band' },
+    ],
+  },
+  {
     key: 'numbering',
     section: 'notation',
     label: 'Herzberg Numbering',
@@ -871,10 +983,10 @@ export const FUNDAMENTALS: Fundamental[] = [
             '2. & \\text{within a species, by falling wavenumber}' +
             '\\end{array}',
         ],
-        note: 'Herzberg’s convention, which the Vibration Modes view follows even where a cited paper numbers its figure differently.',
+        note: 'Herzberg’s convention [@herzberg, pp. 271–272], adopted as the standard in 1955 [@mulliken, p. 2003]. The Vibration Modes view follows it even where a cited paper numbers its figure differently.',
       },
       'H₂O shows the rule at work. Its two A₁ modes come first: the symmetric stretch at 3657 cm⁻¹ is ν₁, the bend at 1595 cm⁻¹ is ν₂. The B₂ asymmetric stretch comes last as ν₃, although at 3756 cm⁻¹ it is the highest of the three. The number follows the symmetry, not the position; the top row of the diagram sorts them.',
-      'CO₂ keeps an older, traditional numbering. Its modes are ν₁, the symmetric stretch; ν₂, the bend, twice; and ν₃, the asymmetric stretch. By the rule above the asymmetric stretch would be ν₂ and the bend ν₃, but in the literature the bend of a linear molecule like CO₂ is always ν₂.',
+      'CO₂ keeps an older, traditional numbering. Its modes are ν₁, the symmetric stretch; ν₂, the bend, twice; and ν₃, the asymmetric stretch. By the rule above the asymmetric stretch would be ν₂ and the bend ν₃, but Herzberg made the bend of a linear XY₂ or XYZ molecule ν₂ always, the one exception to his rule, in keeping with long custom [@herzberg, p. 272].',
       {
         label: 'CO₂ in both notations',
         lines: [
@@ -886,13 +998,14 @@ export const FUNDAMENTALS: Fundamental[] = [
         ],
         note: 'A Mulliken label needs letter subscripts Unicode does not have. Here they are typeset; in the data the atlas stores them with markup, in exactly two fields.',
       },
-      'Each number comes with its symmetry species, written as a Mulliken label. A and B mark a mode of its own, E a doubly degenerate pair, T a triple; linear molecules use Σ for a mode along the axis and Π for a degenerate pair across it. The subscripts say how the mode behaves under the molecule’s symmetry operations. Two of them carry the mutual exclusion rule, which group theory proves for any molecule with a centre of symmetry [@busca, p. 5]: g, even under inversion, and u, odd. Only u modes can absorb in the IR, only g modes can scatter in Raman.',
+      'Each number comes with its symmetry species, written as a Mulliken label: A and B for a mode of its own, E for a degenerate pair, T for a triple, Σ and Π on a linear molecule. The Mulliken Symmetry card reads the labels off the molecule; two of the subscripts, g and u, carry the mutual exclusion rule, which group theory proves for any molecule with a centre of symmetry [@busca, p. 5].',
       'Papers mix the two notations freely, often in one sentence. Ranjan and Trenary assign gas-phase ethylene’s band at 949 cm⁻¹ to its ρw(CH₂) mode, of B(1u) symmetry in D(2h), and the one at 2988 cm⁻¹ to its B(3u) C–H stretch [@trenary, p. 56]: a local label and a symmetry species for bands of one molecule.',
       'In the atlas the numbers stand beside each mode’s label on the Vibration Modes view, with its Mulliken label, and appear in a band name only to tell two modes of one kind apart. The band names themselves use the group-frequency form throughout, gas-phase CO₂ included, so one notation runs through the whole chart.',
     ],
     related: [
       { key: 'labels', why: 'The other notation: what moves' },
       { key: 'modes', why: 'What is being numbered' },
+      { key: 'mulliken', why: 'Where the symmetry species come from' },
       { key: 'selection', why: 'What the symmetry species decide' },
       { key: 'mathnotation', why: 'Why g and u are upright and ν is not' },
     ],
@@ -944,16 +1057,6 @@ export const PLANNED: { label: string; part: string; what: string }[] = [
     label: 'Electromagnetic Spectrum',
     part: 'Light–Matter Interaction',
     what: 'Where the infrared sits among the other regions, what each one excites, and why rotations, vibrations and electronic transitions land decades apart in energy.',
-  },
-  {
-    label: 'Point Group Notation',
-    part: 'Notation',
-    what: 'What C₂ᵥ, D∞ₕ and the rest say about a molecule: the symmetry operations it survives, and how the point group is read off the shape.',
-  },
-  {
-    label: 'Mulliken Symmetry',
-    part: 'Notation',
-    what: 'A₁, B₂, Eᵤ: how a mode is labelled by the way it behaves under the point group’s operations, and why that label decides whether it absorbs.',
   },
 ];
 

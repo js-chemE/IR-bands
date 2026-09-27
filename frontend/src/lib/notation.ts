@@ -45,10 +45,14 @@ export function htmlToUnicode(text: string): string {
  * real subscript show them as one. This splits a string into the parts to
  * set as plain text and the parts to set lowered. Only the symbols listed
  * here are converted, so an ordinary bracket in prose is left alone: μ(ind),
- * Mulliken labels (Σ(g)⁺, Π(u), B(1u), A(1g)) and point groups (C(2v),
- * D(∞h), D(2h), T(d)). ν(CO) or E(J) stay as written.
+ * Mulliken labels (Σ(g)⁺, Π(u), B(1u), A(1g)), point groups (C(2v),
+ * D(∞h), D(2h), T(d), C(s), C(i), O(h), I(h), and the general C(nv), D(nh))
+ * and the mirror planes σ(d), σ(h), σ(v). ν(CO) or E(J) stay as written, and
+ * so do O(g) and A(i): the extra letters are allowed only after the symbol
+ * they belong to.
  */
-const SUBSCRIPTED = /(μ|[ΣΠΔ]|[AB]|[CDT])\((ind|[1-3]?[gu]|∞[hv]|[2-6][vhd]|d)\)/g;
+const SUBSCRIPTED =
+  /(μ|[ΣΠΔ]|[AB]|[CDT])\((ind|[1-3]?[gu]|∞[hv]|[2-6n][vhd]|d)\)|([OI])\((h)\)|(C)\(([si])\)|(σ)\(([dhv])\)/g;
 
 export interface SubPart {
   text: string;
@@ -61,8 +65,10 @@ export function splitSubscripts(text: string): SubPart[] {
   for (const m of text.matchAll(SUBSCRIPTED)) {
     const at = m.index ?? 0;
     if (at > last) out.push({ text: text.slice(last, at) });
-    out.push({ text: m[1] });
-    out.push({ text: m[2], sub: true });
+    // One pair of groups per alternative; the one that matched is defined.
+    const i = [1, 3, 5, 7].find(k => m[k] !== undefined) ?? 1;
+    out.push({ text: m[i] });
+    out.push({ text: m[i + 1], sub: true });
     last = at + m[0].length;
   }
   if (last < text.length) out.push({ text: text.slice(last) });

@@ -141,6 +141,8 @@
   import BranchesDiagram from './knowledge/BranchesDiagram.svelte';
   import NotationDiagram from './knowledge/NotationDiagram.svelte';
   import MathNotationDiagram from './knowledge/MathNotationDiagram.svelte';
+  import PointGroupDiagram from './knowledge/PointGroupDiagram.svelte';
+  import MullikenDiagram from './knowledge/MullikenDiagram.svelte';
   import LadderDiagram from './knowledge/LadderDiagram.svelte';
   import FermiDiagram from './knowledge/FermiDiagram.svelte';
   import DegeneracyDiagram from './knowledge/DegeneracyDiagram.svelte';
@@ -148,6 +150,7 @@
   import LightPathDiagram from './knowledge/LightPathDiagram.svelte';
   import LambertBeerDiagram from './knowledge/LambertBeerDiagram.svelte';
   import ModeCensus from './knowledge/ModeCensus.svelte';
+  import PointGroupFinder from './knowledge/PointGroupFinder.svelte';
   import AtlasExamples from './knowledge/AtlasExamples.svelte';
   import CiteText from './knowledge/CiteText.svelte';
   import Subbed from './knowledge/Subbed.svelte';
@@ -228,6 +231,8 @@
     | typeof BranchesDiagram
     | typeof NotationDiagram
     | typeof MathNotationDiagram
+    | typeof PointGroupDiagram
+    | typeof MullikenDiagram
     | typeof LadderDiagram
     | typeof FermiDiagram
     | typeof DegeneracyDiagram
@@ -245,6 +250,8 @@
     labels: NotationDiagram,
     numbering: NotationDiagram,
     mathnotation: MathNotationDiagram,
+    pointgroups: PointGroupDiagram,
+    mulliken: MullikenDiagram,
     overtone: LadderDiagram,
     combination: LadderDiagram,
     fermi: FermiDiagram,
@@ -980,6 +987,13 @@
             {#if f.key === 'vibmodes'}
               <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
                 <ModeCensus {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
+              </div>
+            {/if}
+
+            <!-- The decision chart, and every binding geometry by its point group. -->
+            {#if f.key === 'pointgroups'}
+              <div class="kn-sec kn-list" transition:fade={{ duration: FADE }}>
+                <PointGroupFinder {vibrations} on:mode={e => dispatch('navigateMode', e.detail)} />
               </div>
             {/if}
 

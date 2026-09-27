@@ -564,8 +564,8 @@
           "subtype": "rocking",
           "atoms": "C-M-C",
           "topology": "geminal",
-          "herzberg_notation": "ν₄",
-          "symmetry": "B₁",
+          "herzberg_notation": "ν₅",
+          "symmetry": "B₂",
           "wn_start": 400,
           "wn_end": 600,
           "note": "The two rigid C-O ligands swing the same way together, like a pair of windshield wipers — the C-M-C angle stays constant, only its orientation changes. Same rotation mechanism as the scissoring mode above, just same-sign instead of opposite-sign.",
@@ -578,7 +578,7 @@
           "id": "co_geminal_stretch_asymmetric",
           "label": "νₐₛ(CO)",
           "topology": "geminal",
-          "herzberg_notation": "ν₅",
+          "herzberg_notation": "ν₄",
           "symmetry": "B₂",
           "wn_start": 1980,
           "wn_end": 2150,
@@ -1671,7 +1671,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_bend",
@@ -1683,7 +1683,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
         },
         {
           "id": "h2o_stretch_asymmetric",
@@ -1695,7 +1695,7 @@
           "ir_active": true,
           "raman_active": true,
           "tags": [],
-          "reference": ["Herzberg.InfraredRamanSpectra.1946", "Shimanouchi.TablesMolecularVibrational.1977"]
+          "reference": ["Herzberg.InfraredRamanSpectra.1945", "Shimanouchi.TablesMolecularVibrational.1977"]
         }
       ]
     },

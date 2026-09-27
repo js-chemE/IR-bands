@@ -77,7 +77,12 @@ frontend/src/
                               model, for the group-frequency motions), view3d.ts +
                               Axes3D (the x, y, z axes and turn arrows of the
                               Translation and Rotation Modes cards), AtlasExamples (the "in the atlas" box), ModeCensus
-                              (Normal modes → the Vibration modes view), CiteText, Subbed
+                              (Normal modes → the Vibration modes view), PointGroupDiagram and
+                              MullikenDiagram (the two symmetry cards; the operations they
+                              carry out live in view3d.ts), PointGroupFinder (the decision
+                              chart beside every binding geometry by its point group, read
+                              live from vibrations.json), CiteText, Subbed, SvgSubbed (the
+                              same lowering inside an SVG <text>)
     ReferencesPage.svelte    ← cited bands, grouped by any two of
                               reference / group / site / sample / element
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
@@ -125,8 +130,12 @@ frontend/src/
                               the reference list under each card; SOURCES maps aliases to
                               citekeys and chapters
     notation.ts           ← sub/superscript character maps + htmlToUnicode(); splitSubscripts()
-                              lowers the bracketed letter subscripts (μ(ind), Σ(g)⁺, C(2v))
-                              on the Knowledge page
+                              lowers the bracketed letter subscripts (μ(ind), Σ(g)⁺, C(2v),
+                              C(s), O(h), σ(d)) on the Knowledge page. Each extra letter is
+                              allowed only after its own symbol, so O(g) and A(i) stay as written
+    pointGroups.ts        ← the point groups the atlas uses (operations, order, Hermann–Mauguin)
+                              and the Point Group card's decision chart; a group the data names
+                              but this file lacks is listed as missing on the card
     chart.ts              ← buildChart() and lane metric helpers
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
@@ -513,6 +522,16 @@ for readers by the **Mathematical Notation** card:
 
 `\unit` and `\qty` are defined in `FormulaLine` under siunitx's names, since
 KaTeX has no siunitx; they take the unit written out, not `\per\centi\metre`.
+
+**Symmetry species follow the 1955 report's axes, with one exception.** A
+planar C₂ᵥ species lies in the yz plane, x perpendicular to it (Mulliken 1955,
+REC. 5a), so its in-plane antisymmetric modes are B₂ and its out-of-plane ones
+B₁ (water, carbonate, geminal CO), as in Nakamoto. Herzberg and Cotton put the
+molecule in xz and swap the two. Formate keeps Ito and Bernstein's labels,
+which follow Herzberg (in-plane B₁), because the formate literature numbers
+its modes their way. The Mulliken Symmetry card says so;
+change both together. Herzberg numbers follow the species order, then falling
+wavenumber, so a corrected species can renumber its neighbours.
 
 **Naming a mode**: a band's `short` names the motion, never a rank or a
 database code. `ν` stretch, `δ` bend, `ρ` rock, `γ` out of plane, `τ` torsion,

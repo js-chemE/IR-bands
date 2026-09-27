@@ -482,23 +482,15 @@
     "keywords": "reproduced/used-some-number/results",
     "file": "Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Baltrusaitis et al._2006_FTIR Spectroscopy Combined with Isotope Labeling and Quantum Chemical Calculations to Investigate Ad.pdf:application/pdf"
   },
-  "Herzberg.InfraredRamanSpectra.1946": {
+  "Herzberg.InfraredRamanSpectra.1945": {
     "_type": "article",
     "title": "Infrared and Raman Spectra of Polyatomic Molecules.",
-    "volume": "50",
-    "issn": "0092-7325",
-    "url": "https://doi.org/10.1021/j150447a021",
-    "doi": "10.1021/j150447a021",
-    "pages": "288–288",
-    "number": "3",
-    "journaltitle": "The Journal of Physical Chemistry",
-    "shortjournal": "J. Phys. Chem.",
-    "publisher": "American Chemical Society",
-    "author": "Herzberg, Gerhard and Crawford, Bryce L. Jr.",
+    "publisher": "Van Nostrand",
+    "author": "Herzberg, Gerhard",
     "urldate": "2026-06-23",
-    "date": "1946-03-01",
+    "date": "1945",
     "keywords": "reproduced/used-some-number/results",
-    "file": "Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules..pdf:application/pdf"
+    "file": "Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules. 1.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Herzberg and Crawford_1946_Infrared and Raman Spectra of Polyatomic Molecules. 1.pdf:application/pdf"
   },
   "Shimanouchi.TablesMolecularVibrational.1978": {
     "_type": "article",
@@ -694,6 +686,23 @@
     "keywords": "reproduced/used-some-number/results",
     "file": "Feng et al._2024_Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Feng et al._2024_Generation of Surface Ga‑H Hydride and Reactivity toward CO2.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\KZKWWWUZ\\\\acs.jpclett.html:text/html"
   },
+  "Hoffmann.InfraredReflectionabsorptionSpectroscopy.1983": {
+    "_type": "article",
+    "title": "Infrared reflection-absorption spectroscopy of adsorbed molecules",
+    "volume": "3",
+    "issn": "0167-5729",
+    "url": "https://www.sciencedirect.com/science/article/pii/0167572983900018",
+    "doi": "10.1016/0167-5729(83)90001-8",
+    "abstract": "Infrared Reflection-Absorption Spectroscopy (IRAS) is used to perform vibrational spectroscopy of absorbed molecules in submonolayer quantities on well-defined, single crystal metal surfaces. Theoretical and experimental aspects of this method in a single reflection mode are discussed. Apart from its potential to identify adsorbed species through their vibrational spectra, the high sensitivity (\\textless 5/1000 of a CO monolayer) and resolution (1–3 cm-1) make this method particularly suitable to study the interaction between metal substrate and adsorbed molecule as well as intermolecular interactions within an adsorbed layer of molecules. This is illustrated with examples of CO adsorption on metals, where vibrational frequencies of the C-O stretch allow determination of adsorption sites. Intermolecular interactions within the adsorbed layer, which lead to the formation of ordered islands and incommensurate compression structures, can be monitored by characteristic frequency shifts. Further insight into these interactions can be gained by observing the linewidth and intensity as a function of surface coverage and order. Finally examples of other adsorption systems are given to demonstrate the wide range of molecules which have been studied in the past and the potential of IRAS as a method to bridge studies of adsorption of molecules on metal single crystals at UHV pressures to supported catalysts at high, catalytically relevant pressures.",
+    "pages": "107–192",
+    "number": "2",
+    "journaltitle": "Surface Science Reports",
+    "shortjournal": "Surface Science Reports",
+    "author": "Hoffmann, Friedrich M.",
+    "urldate": "2026-09-11",
+    "date": "1983-01-01",
+    "file": "Hoffmann_1983_Infrared reflection-absorption spectroscopy of adsorbed molecules.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Hoffmann_1983_Infrared reflection-absorption spectroscopy of adsorbed molecules.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\TLVCNXCC\\\\0167572983900018.html:text/html"
+  },
   "Jourdanneau.MethaneRamanSpectrum.2005": {
     "_type": "article",
     "title": "The methane Raman spectrum from 1200 to 5500   cm−1: A first step toward temperature diagnostic using methane as a probe molecule in combustion systems",
@@ -840,5 +849,47 @@
     "author": "Davydov, A. A. and Sheppard, N.",
     "date": "2003",
     "file": "Davydov and Sheppard - 2003 - Molecular spectroscopy of oxide catalyst surfaces.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Davydov and Sheppard - 2003 - Molecular spectroscopy of oxide catalyst surfaces.pdf:application/pdf"
+  },
+  "Nakamoto.InfraredRamanSpectra.2009": {
+    "_type": "incollection",
+    "location": "Hoboken, NJ",
+    "edition": "6. ed",
+    "title": "Infrared and Raman spectra of inorganic and coordination compounds. Part A: Theory and applications in inorganic chemistry",
+    "isbn": "978-0-470-40584-0",
+    "doi": "10.1002/9780470405840",
+    "shorttitle": "Infrared and Raman spectra of inorganic and coordination compounds. Part A",
+    "publisher": "Wiley",
+    "author": "Nakamoto, Kazuo",
+    "date": "2009",
+    "note": "Num Pages: 419",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Nakamoto_2009_Infrared and Raman spectra of inorganic and coordination compounds. Part A Theory and applications.pdf:application/pdf"
+  },
+  "Mulliken.ReportNotationSpectra.1955": {
+    "_type": "article",
+    "title": "Report on Notation for the Spectra of Polyatomic Molecules",
+    "volume": "23",
+    "issn": "0021-9606",
+    "url": "https://doi.org/10.1063/1.1740655",
+    "doi": "10.1063/1.1740655",
+    "pages": "1997–2011",
+    "number": "11",
+    "journaltitle": "The Journal of Chemical Physics",
+    "shortjournal": "J. Chem. Phys.",
+    "author": "Mulliken, Robert S.",
+    "urldate": "2026-09-27",
+    "date": "1955-11-01",
+    "file": "Mulliken_1955_Report on Notation for the Spectra of Polyatomic Molecules.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Mulliken_1955_Report on Notation for the Spectra of Polyatomic Molecules.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\9MEYVB45\\\\1.html:text/html"
+  },
+  "Cotton.ChemicalApplicationsGroup.1990": {
+    "_type": "book",
+    "location": "New York",
+    "edition": "3rd ed",
+    "title": "Chemical applications of group theory",
+    "isbn": "978-0-471-51094-9",
+    "pagetotal": "461",
+    "publisher": "Wiley",
+    "author": "Cotton, F. Albert",
+    "date": "1990",
+    "file": "Cotton_1990_Chemical applications of group theory.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Cotton_1990_Chemical applications of group theory.pdf:application/pdf"
   }
 }
