@@ -7,6 +7,7 @@ import { C, FONTS, CHART_LAYOUT } from './tokens';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
+import { refHref } from './citations';
 import { branchSuffix, branchLabel, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
 import {
   TAG_ROLE_LABEL,
@@ -274,6 +275,8 @@ export function getLegendCategories(
 export interface TipRef {
   key: string;
   short: string;       // "Fehr & Krossing, 2020"
+  /** The paper itself, DOI first and `url` otherwise; null when it has neither. */
+  href: string | null;
   wn: number | number[] | null;
   // Already resolved to label plus level: the tooltip renders them straight,
   // and the level is what decides whether a badge is filled or hollow.
@@ -985,6 +988,7 @@ export function buildChart(
           const off = refOff(ref.technique, spectroscopy, looks.calculated);
           return {
             key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
+            href: (r && refHref(r as Record<string, string>)) || null,
             surfaces: sortedMeasuredOnBadges(ref),
             off,
           };

@@ -20,6 +20,7 @@
   import { tagStyle } from '../lib/colors';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
+  import Icon from './Icon.svelte';
   import type { TipData } from '../lib/chart';
   import type { Spectroscopy } from '../lib/types';
   import type { LinkedMode } from '../lib/vibrationLinks';
@@ -175,11 +176,29 @@
                       ? `A calculation, not a measurement. Dimmed because the Color by computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
                       : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
-                <button
-                  class="tip-ref-goto-btn"
-                  on:click|stopPropagation={() => dispatch('navigateRef', { key: ref.key })}
-                  title="Open in References page"
-                >↗</button>
+                <!-- Two ways out, in one row: the atlas's own entry on the left,
+                     the paper itself on the right. The arrow is the external
+                     one, as on the References page; the book is that page's
+                     own symbol. -->
+                <div class="tip-ref-goto">
+                  <button
+                    class="tip-ref-goto-btn"
+                    on:click|stopPropagation={() => dispatch('navigateRef', { key: ref.key })}
+                    title="Open in References page"
+                    aria-label="Open in References page"
+                  ><Icon name="references" size={12} width={2} /></button>
+                  {#if ref.href}
+                    <a
+                      class="tip-ref-goto-btn"
+                      href={ref.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      on:click|stopPropagation
+                      title="Open the paper ({ref.href})"
+                      aria-label="Open the paper"
+                    >↗</a>
+                  {/if}
+                </div>
                 <div class="tip-ref-title">
                   {ref.short}
                   {#if foldable}
@@ -218,7 +237,7 @@
       {/if}
 
       {#if full}
-        <div class="tip-lock-hint">click ref to expand · ↗ for ref page · click band to switch · click empty to clear</div>
+        <div class="tip-lock-hint">click ref to expand · ↗ for the paper · click band to switch · click empty to clear</div>
       {/if}
 </div>
 
@@ -323,7 +342,7 @@
     border: 1px solid var(--ref-border);
     border-left: 3px solid var(--ref-accent);
     border-radius: var(--radius);
-    padding: 5px 26px 5px 7px; /* right padding clears .tip-ref-goto-btn */
+    padding: 5px 7px;
     margin-top: 4px;
   }
 
@@ -362,14 +381,23 @@
     font-size: var(--t-tip-ref-title-size);
     font-weight: var(--t-tip-ref-title-weight);
     color: var(--t-tip-ref-title-color);
+    /* Clears .tip-ref-goto: two 18px buttons and the gap between them. Only
+       the title line needs it, so the badges and the note keep the full width. */
+    padding-right: 40px;
   }
 
-  /* Per-reference corner button — jumps straight to this one citation on
-     the References page; separate from the box's own expand/collapse click. */
-  .tip-ref-goto-btn {
+  /* Per-reference corner buttons: this one citation on the References page,
+     then the paper itself. Separate from the box's own expand/collapse click. */
+  .tip-ref-goto {
     position: absolute;
     top: 4px;
     right: 4px;
+    display: flex;
+    gap: 3px;
+  }
+  .tip-ref-goto-btn {
+    box-sizing: border-box;
+    text-decoration: none;
     width: 18px;
     height: 18px;
     display: flex;
