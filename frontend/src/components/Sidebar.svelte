@@ -81,7 +81,7 @@
       aria-pressed={showIsotopes}
       on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
     >isotope</button>
-    <!-- The same two pills as under Color by, but here a filter: off, the
+    <!-- The same two pills as under Appearance, but here a filter: off, the
        bands leave the chart and the lanes re-lay out without them. -->
     <LookPill
       look="hollow"

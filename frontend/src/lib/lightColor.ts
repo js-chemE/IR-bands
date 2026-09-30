@@ -62,6 +62,15 @@ function rgbOf(nm: number): RGB {
   return visible(nm);
 }
 
+/**
+ * The colour of the light itself, for drawing a spectrum rather than a pill:
+ * the visible stretch of the Electromagnetic Spectrum card. Taken down a
+ * little from full saturation so the strip sits with the diagram around it.
+ */
+export function lightColor(nm: number): string {
+  return hex(desaturate(rgbOf(nm), 0.15));
+}
+
 export interface Tint {
   background: string;
   border: string;

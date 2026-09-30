@@ -196,6 +196,27 @@ export const COLOR_GROUPS: ColorGroup[] = [
       'data-uncited': { value: '#bfbfbf', usage: 'Band with no reference yet' },
     },
   },
+  {
+    key: 'em',
+    title: 'Electromagnetic regions',
+    note: 'One hue per region of the spectrum (lib/emSpectrum.ts), running the way the light does: grey for the waves with no colour at the long end, warm through the infrared, green for the visible, violet and blue above it. Never drawn at full strength: the band chart fills the cell that names a region at EM_REGION_LOOK.cell and lets the same tint fade away from each border, starting at EM_REGION_LOOK.edge, and the Knowledge diagram tints its cells the same way. A part (mid-infrared) and its whole (infrared) are different tokens because the chart shows one level or the other, never both.',
+    tokens: {
+      'em-radio':     { value: '#8a93a3', usage: 'Radio waves: no colour of their own, so the slate of a micro label' },
+      'em-microwave': { value: '#6f86a6', usage: 'Microwaves: the same slate, a step bluer' },
+      'em-ir':        { value: '#c0572f', usage: 'The infrared as a whole, while the chart is zoomed all the way out. The Knowledge diagrams\' infrared photon' },
+      'em-far-ir':    { value: '#8c3b2e', usage: 'Far-infrared, below 400 cm⁻¹: the darkest of the three reds, furthest from the visible' },
+      'em-mid-ir':    { value: '#c0572f', usage: 'Mid-infrared, 400 to 4000 cm⁻¹: where the atlas lives' },
+      'em-near-ir':   { value: '#d98a2b', usage: 'Near-infrared, above 4000 cm⁻¹: amber, on the way to the visible' },
+      'em-visible':   { value: '#4a9d5b', usage: 'The visible, 800 to 380 nm: the green in the middle of it' },
+      'em-uv':        { value: '#6b5b95', usage: 'The ultraviolet as a whole' },
+      'em-near-uv':   { value: '#7a63b0', usage: 'Near-ultraviolet, 380 to 200 nm' },
+      'em-vacuum-uv': { value: '#4f3f85', usage: 'Vacuum-ultraviolet, below 200 nm' },
+      'em-xray':      { value: '#3d6a9a', usage: 'X-rays as a whole' },
+      'em-soft-xray': { value: '#4f7fb0', usage: 'Soft X-rays, below 5 keV' },
+      'em-hard-xray': { value: '#2c4a6e', usage: 'Hard X-rays, above 5 keV' },
+      'em-gamma':     { value: '#555555', usage: 'Gamma rays' },
+    },
+  },
 ];
 
 /** Flat token-name to value map. Use in TypeScript; use `cvar()` in markup. */
@@ -504,6 +525,14 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'tip-hint',      label: 'Interaction hint', usage: 'Bottom row, only while a band is pinned open',  size: '10.5px', weight: 400, color: 'ink-050' },
     ],
   },
+  {
+    key: 'chart',
+    title: 'Band chart',
+    note: 'Text the chart draws on itself, outside the tooltip.',
+    roles: [
+      { key: 'chart-region', label: 'Spectral region', usage: 'The name of an electromagnetic region in the strip above the plot, centred between the borders the window shows. The longest spelling that fits: Mid-Infrared, Mid-IR, MIR', size: '11px', weight: 600, color: 'ink-slate-500' },
+    ],
+  },
 ];
 
 export const TYPE_ROLES: TypeRole[] = TYPE_GROUPS.flatMap(g => g.roles);
@@ -711,7 +740,38 @@ export const CHART_LAYOUT = {
   refsPreviewCount: 3,
 };
 
+/**
+ * How the electromagnetic regions are drawn on the band chart. They are the
+ * quietest thing on it: a strip of names above the plot, tinted, and under it
+ * a dashed construction line at each border with each region's tint fading
+ * away from it. The plot itself stays white: a wash over the whole height
+ * tinted every hollow band and said nothing where there was no border.
+ */
+export const EM_REGION_LOOK = {
+  /** Opacity of a region's tint in the cell that names it. */
+  cell: 0.16,
+  /** Opacity of the tint where it meets a border; it fades to nothing from there. */
+  edge: 0.18,
+  /** How far from a border the tint reaches, px, or half the region if that is less. */
+  fade: 56,
+  /** The border between two regions: a construction line. */
+  borderDash: '5,4',
+  borderWidth: 1,
+  /** Height of the strip of names above the plot, px. */
+  stripHeight: 20,
+  /** Room a name needs on each side before it is shortened, px. */
+  labelPad: 8,
+  /**
+   * A region is split into its parts (far, mid, near) unless one of them
+   * shows as a sliver narrower than this, px: too narrow to name, and a
+   * border that close to the edge only cuts the edge off. Then the region is
+   * drawn whole.
+   */
+  minPart: 36,
+} as const;
+
 export const CHART_LAYOUT_DOCS: { name: string; value: string; usage: string }[] = [
+  { name: 'spectral regions', value: '20px strip, dashed borders, 56px fade', usage: 'The electromagnetic regions (lib/emSpectrum.ts): a tinted strip of names above the plot, and in the plot a dashed line at each border with the tint of the region on either side fading away from it, so the plot stays white and a border still says which two regions it parts. Placed from the axis, so they pan and zoom with everything else, and switched off as a whole under Appearance. A region is split into its parts (Far-, Mid-, Near-Infrared) with the borders between them, unless one of those parts shows only as a sliver narrower than minPart; then it is drawn whole (Infrared). What decides is what the window shows, not how far it is zoomed: at the full range the near-infrared is a 50 cm⁻¹ sliver at the edge, so the chart reads Infrared, and panning the sliver out brings the parts back. A name sits halfway between the borders the window shows, or between the one border and the edge of the plot, in the longest spelling that fits. A border panned out of the plot leaves its fade behind until that has gone too. The regions are those of what the axis reads: a shift axis in wavenumber or energy keeps the infrared ones, mirrored on the anti-Stokes side, and only a shift axis in wavelength, which reads the scattered light itself, shows the regions of that light and moves them with the laser' },
   { name: 'laneHeight',      value: '1.2 y-units',      usage: 'One lane of the stack; lanes are packed by wavenumber range in layout.py' },
   { name: 'barFraction',     value: '0.25',             usage: 'Band rectangle fills a quarter of its lane, the rest is breathing room' },
   { name: 'subLaneOffsetFrac', value: '0.52',           usage: 'Overlapping bands stagger into sub-lanes 0, +1, -1, +2. A branch family moves as one unit, so its members share a sub-lane unless its ΔJ = ±1 and ±2 branches actually run over each other. A fifth overlapping band falls back to the centre line and is logged, which is the signal that the data has been split too finely' },

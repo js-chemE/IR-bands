@@ -3,10 +3,11 @@
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
   import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
   import { cssZoom } from '../lib/zoom';
-  import type { TipData, PlotBandHit } from '../lib/chart';
+  import type { TipData, PlotBandHit, PlotRegion } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
   import { getCat, TAG_STYLES, tagStyle } from '../lib/colors';
-  import { C, CHART_LAYOUT, ISOTOPE_STYLE, PRESENTATION } from '../lib/tokens';
+  import { C, CHART_LAYOUT, EM_REGION_LOOK, FONTS, ISOTOPE_STYLE, PRESENTATION, TYPE_ROLES } from '../lib/tokens';
+  import { emLabel } from '../lib/emSpectrum';
   import { SURFACE_LEVEL_TITLE } from '../lib/labels';
 
   // Connector strokes drawn as SVG presentation attributes, which cannot read
@@ -55,6 +56,8 @@
   export let spectroscopy: Spectroscopy = 'ir';
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
   export let looks: BandLooks = { inactive: true, unreferenced: true, calculated: true };
+  /** Whether the electromagnetic regions are marked: the strip of names, the borders and their fades. */
+  export let showRegions = true;
   export let hoveredCat: string | null = null;
   export let hoveredTag: string | null = null;
   // Set by a parent that wants to jump straight to one band (e.g. clicking
@@ -415,6 +418,31 @@
   let laneHeightPx = 0;
   let allPositions: Record<string, { px: number; py: number }> = {};
 
+  /* The strip of region names above the plot: the electromagnetic regions
+     the window runs through, as buildChart placed them. The chart draws the
+     borders and the tint fading from them itself; this only names them,
+     and is pinned to the top of the scroller the way the axis is pinned to
+     the bottom, so a name is still there fifty lanes down.
+
+     A name sits halfway between the two ends its cell shows, whether an end
+     is the region's own border or only the edge of the plot, and takes the
+     longest spelling that fits there: Mid-Infrared, Mid-IR, MIR, or none. */
+  let regions: PlotRegion[] = [];
+  const REGION_ROLE = TYPE_ROLES.find(r => r.key === 'chart-region')!;
+  const REGION_FONT = `${REGION_ROLE.weight} ${REGION_ROLE.size} ${FONTS.sans}`;
+  let measureCtx: CanvasRenderingContext2D | null = null;
+  function textWidth(s: string): number {
+    if (typeof document !== 'undefined') measureCtx ??= document.createElement('canvas').getContext('2d');
+    // No canvas to ask (a test, a prerender): a generous width per character.
+    if (!measureCtx) return s.length * 7;
+    measureCtx.font = REGION_FONT;
+    return measureCtx.measureText(s).width;
+  }
+  $: regionCells = regions.map(r => ({
+    ...r,
+    label: emLabel(r.region, name => textWidth(name) + 2 * EM_REGION_LOOK.labelPad <= r.px2 - r.px1),
+  }));
+
   // Sticky axis strip — mirrors the main chart's own x-axis so it stays
   // visible while the (potentially much taller than the viewport) lane
   // stack scrolls underneath it. See buildAxisStrip's own docstring.
@@ -435,12 +463,14 @@
       reversed,
       spectroscopy,
       looks,
+      showRegions,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
     chartSvgHeight = result.chartHeight;
     laneHeightPx = result.laneHeightPx;
     allPositions = result.allPositions;
+    regions = result.regions;
     // Re-anchor selected band to the freshly-built hit rects (survives zoom/pan)
     if (selectedId) {
       selected = hitBands.find(h => h.tipData.id === selectedId) ?? null;
@@ -901,6 +931,41 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrap">
+  <!-- The electromagnetic regions, named. Its bottom edge is the top line of
+       the plot; the dashed borders carry on down through the chart below. -->
+  {#if showRegions}
+  <div class="region-strip">
+    <svg width={containerWidth} height={EM_REGION_LOOK.stripHeight}>
+      <!-- Keyed by place as well as region: on a shift axis the anti-Stokes
+           side repeats the regions of the Stokes side, and a repeated key
+           throws. -->
+      {#each regionCells as c, i (`${c.region.key}:${i}`)}
+        <g>
+          <title>{c.region.names[0]}: {c.region.range}. Excites {c.region.excites}.</title>
+          <rect
+            x={c.px1} y="0" width={Math.max(0, c.px2 - c.px1)} height={EM_REGION_LOOK.stripHeight}
+            fill={C[`em-${c.region.key}`]} fill-opacity={EM_REGION_LOOK.cell}
+          />
+          {#if c.borderLeft}
+            <line
+              x1={c.px1} x2={c.px1} y1="0" y2={EM_REGION_LOOK.stripHeight}
+              stroke={C['ink-050']} stroke-width={EM_REGION_LOOK.borderWidth}
+              stroke-dasharray={EM_REGION_LOOK.borderDash}
+            />
+          {/if}
+          {#if c.label}
+            <text
+              class="region-name"
+              x={(c.px1 + c.px2) / 2} y={EM_REGION_LOOK.stripHeight / 2}
+              text-anchor="middle" dominant-baseline="central"
+            >{c.label}</text>
+          {/if}
+        </g>
+      {/each}
+    </svg>
+  </div>
+  {/if}
+
   <div class="chart-area">
     {#if wnOverride}
       <button class="reset-btn" on:click={resetZoom} title="Reset zoom (or double-click empty area)">
@@ -1090,6 +1155,24 @@
     border-top: 1px solid var(--line-panel);
   }
   .axis-strip :global(svg) { display: block; max-width: 100%; overflow: visible; }
+
+  /* The axis strip's counterpart at the other end: pinned to the top of the
+     same scroller, and its bottom rule is the top line of the plot. */
+  .region-strip {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-panel);
+  }
+  .region-strip svg { display: block; max-width: 100%; }
+  .region-name {
+    font-family: var(--t-chart-region-ff);
+    font-size: var(--t-chart-region-size);
+    font-weight: var(--t-chart-region-weight);
+    fill: var(--t-chart-region-color);
+    user-select: none;
+  }
 
   .chart-area { position: relative; }
 

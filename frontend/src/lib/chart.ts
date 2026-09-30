@@ -2,8 +2,9 @@ import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
 import { TECHNIQUES, TAG_ROLES } from './dataModel';
 import { getCat, getCatLabel, getCatColor, getColor, fadeColor, tagStyle, EVIDENCE_ORDER } from './colors';
-import { wnToValue, axisRange, axisLabel } from './units';
-import { C, FONTS, CHART_LAYOUT } from './tokens';
+import { wnToValue, valueToWn, axisRange, axisLabel, shiftNeedsZero } from './units';
+import { C, FONTS, CHART_LAYOUT, EM_REGION_LOOK } from './tokens';
+import { emSpans, emRegionsSplit, emMainOf, type EmRegion } from './emSpectrum';
 // Notation lives in its own module: the same maps back the Style guide's
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
@@ -287,7 +288,7 @@ export interface TipRef {
    * Greyed out and folded: 'other' when measured by the other spectroscopy
    * than the chart shows, 'unknown' when the claim records no technique at
    * all (in either view), 'calculated' when it is a calculation and the
-   * Color by computational pill is asking for measured evidence only; null
+   * Appearance computational pill is asking for measured evidence only; null
    * when it stands as usual.
    */
   off: 'other' | 'unknown' | 'calculated' | null;
@@ -313,7 +314,7 @@ const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscop
  *
  * A calculation has no sampling geometry, so it is a measurement in neither
  * view. Whether that greys it is not decided here though: it follows the
- * Color by computational pill, the same way the faded band look does, so
+ * Appearance computational pill, the same way the faded band look does, so
  * asking for hard measured proof dims the calculated claims in the tooltip
  * and letting the pill go draws them like any other. `isReferenced` leaves
  * the flag off deliberately, so a calculation still counts as a reference
@@ -337,7 +338,7 @@ export function refOff(
  *
  * `greyCalculated` must match what the tooltip is doing, or a band whose only
  * standing claim is a calculation draws solid while every claim inside it
- * shows grey. The chart passes the Color by computational pill; the sidebar
+ * shows grey. The chart passes the Appearance computational pill; the sidebar
  * filter leaves it off, so removing the unreferenced bands and removing the
  * calculated ones stay two separate acts.
  */
@@ -699,6 +700,129 @@ export interface ChartResult {
   // panned/zoomed out of the visible domain — lets connectors still reach
   // a partner that isn't actually drawn right now.
   allPositions: Record<string, { px: number; py: number }>;
+  // The electromagnetic regions the window runs through, left to right, for
+  // the strip of names BandChart.svelte draws above the plot.
+  regions: PlotRegion[];
+}
+
+/** One electromagnetic region as far as the chart's window shows it, in px. */
+export interface PlotRegion {
+  region: EmRegion;
+  px1: number;
+  px2: number;
+  /** Whether each end is the region's own border, or only the edge of the plot. */
+  borderLeft: boolean;
+  borderRight: boolean;
+}
+
+/**
+ * A border between two regions as the chart draws it: where it is, and the
+ * region fading away from it on each side with how far its tint reaches.
+ */
+interface PlotBorder {
+  px: number;
+  left: { key: string; reach: number };
+  right: { key: string; reach: number };
+}
+
+/**
+ * The electromagnetic regions on the axis as drawn: the cells the strip above
+ * the plot names, and the borders the plot marks.
+ *
+ * The regions are those of whatever the axis reads. A plain axis reads the
+ * band's own position, so its regions are the infrared ones. A shift axis in
+ * wavenumber or energy still reads a vibrational energy, the distance from
+ * the zero, so it keeps the same regions, mirrored on the anti-Stokes side
+ * where the shift is negative. Only a shift axis in wavelength reads the
+ * scattered light itself (see lib/units.ts), and there the regions are those
+ * of that light: visible under a 532 nm laser, crossing into the
+ * near-infrared under a 785 nm one. Naming the light on an axis that does not
+ * show it put "Visible" over numbers that ran from 400 to 4000 cm⁻¹.
+ *
+ * A region is split into its parts (Far-, Mid-, Near-Infrared) unless one of
+ * those parts shows only as a sliver narrower than EM_REGION_LOOK.minPart,
+ * and then it is drawn whole (Infrared). It is decided by what the window
+ * shows, not by how far it is zoomed: at the chart's full range the
+ * near-infrared is 50 cm⁻¹ at the edge, no name fits in it and a border there
+ * would cut the chart's own edge off, so the infrared is whole; pan that
+ * sliver out, or zoom until it is wide enough to name, and the parts are
+ * back. Each region decides on its own, and each side of a shift axis too.
+ *
+ * The cells are cut to the window, because a name is centred in what shows.
+ * The borders are not: one that has just left the plot is still returned, as
+ * far out as its tint reaches, so the fade slides out of view after the line
+ * instead of vanishing with it.
+ */
+function layoutRegions(
+  xDomain: [number, number],
+  axisProperty: AxisProperty,
+  axisUnit: string,
+  shiftZero: number | null,
+  tX: (value: number) => number,
+  frame: [number, number],
+): { cells: PlotRegion[]; borders: PlotBorder[] } {
+  const a = valueToWn(xDomain[0], axisProperty, axisUnit, shiftZero);
+  const b = valueToWn(xDomain[1], axisProperty, axisUnit, shiftZero);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return { cells: [], borders: [] };
+  const bandLo = Math.min(a, b), bandHi = Math.max(a, b);
+
+  // A side is one run of the axis along which the classified wavenumber
+  // rises or falls steadily: `band` takes that wavenumber to the band
+  // wavenumber the axis places.
+  interface Side { lo: number; hi: number; band: (wn: number) => number }
+  const sides: Side[] = [];
+  if (shiftZero !== null && shiftNeedsZero(axisProperty)) {
+    sides.push({ lo: shiftZero - bandHi, hi: shiftZero - bandLo, band: wn => shiftZero - wn });
+  } else {
+    if (bandHi > 0) sides.push({ lo: Math.max(bandLo, 0), hi: bandHi, band: wn => wn });
+    // Anti-Stokes: a negative shift is the same energy, given up rather than taken.
+    if (bandLo < 0) sides.push({ lo: Math.max(-bandHi, 0), hi: -bandLo, band: wn => -wn });
+  }
+  const px = (s: Side, wn: number) => tX(wnToValue(s.band(wn), axisProperty, axisUnit, shiftZero));
+
+  const cells: PlotRegion[] = [];
+  const borders: PlotBorder[] = [];
+  const width = (s: Side, lo: number, hi: number) => {
+    const w = Math.abs(px(s, hi) - px(s, lo));
+    return Number.isFinite(w) ? w : Infinity;
+  };
+  for (const s of sides) {
+    // The regions to draw whole on this side: any with a part in view that
+    // is too narrow to be worth a border of its own.
+    const whole = new Set<string>();
+    for (const span of emSpans(s.lo, s.hi, 'sub')) {
+      const main = emMainOf(span.region);
+      if (main.parts.length && width(s, span.wnLo, span.wnHi) < EM_REGION_LOOK.minPart) whole.add(main.key);
+    }
+    const all = emRegionsSplit(whole);
+    for (const span of emSpans(s.lo, s.hi, all)) {
+      const p1 = px(s, span.wnLo), p2 = px(s, span.wnHi);
+      if (!Number.isFinite(p1) || !Number.isFinite(p2)) continue;
+      cells.push(p1 <= p2
+        ? { region: span.region, px1: p1, px2: p2, borderLeft: span.borderLo, borderRight: span.borderHi }
+        : { region: span.region, px1: p2, px2: p1, borderLeft: span.borderHi, borderRight: span.borderLo });
+    }
+    for (let i = 1; i < all.length; i++) {
+      const above = all[i], below = all[i - 1];
+      const at = above.wnMin;
+      const x = px(s, at);
+      if (!Number.isFinite(x)) continue;
+      if (x < frame[0] - EM_REGION_LOOK.fade || x > frame[1] + EM_REGION_LOOK.fade) continue;
+      // How far a region's tint runs from this border: never past the middle
+      // of the region, or the fade from its other border would run over it.
+      const reach = (other: number) => {
+        const xo = px(s, other);
+        return Number.isFinite(xo) ? Math.min(EM_REGION_LOOK.fade, Math.abs(xo - x) / 2) : EM_REGION_LOOK.fade;
+      };
+      const hi = { key: above.key, reach: reach(above.wnMax) };
+      const lo = { key: below.key, reach: reach(below.wnMin) };
+      // Which of the two is on the right depends on the way the axis runs.
+      const rising = px(s, at * 1.0005) > px(s, at * 0.9995);
+      borders.push(rising ? { px: x, left: lo, right: hi } : { px: x, left: hi, right: lo });
+    }
+  }
+  cells.sort((c, d) => c.px1 - d.px1);
+  return { cells, borders };
 }
 
 
@@ -818,6 +942,100 @@ function appendHatchPattern(
 }
 
 
+/**
+ * The borders between electromagnetic regions: a dashed line at each, and the
+ * tint of the region on either side fading away from it.
+ *
+ * A border is where two regions meet, so it is drawn as both: the region on
+ * the left rises from nothing to its tint at the line, and the region on the
+ * right falls from its tint back to nothing. Away from a border the plot is
+ * white. A wash over the whole height was tried first; it tinted the inside
+ * of every hollow band and carried no information wherever the window held a
+ * single region, which at the chart's full range is everywhere.
+ *
+ * Clipped to the plot rather than cut to it: a border panned past the edge
+ * leaves its fade behind for as long as any of it is inside.
+ *
+ * Put in by hand because Plot has no gradient fill, and before the first
+ * mark, so the grid and the bands paint over it.
+ */
+function appendRegionBorders(
+  svg: SVGElement,
+  borders: PlotBorder[],
+  frame: [number, number],
+  top: number,
+  height: number,
+): void {
+  if (borders.length === 0) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  let defs = svg.querySelector('defs');
+  if (!defs) {
+    defs = document.createElementNS(ns, 'defs');
+    svg.insertBefore(defs, svg.firstChild);
+  }
+  const clip = document.createElementNS(ns, 'clipPath');
+  clip.setAttribute('id', 'em-clip');
+  const box = document.createElementNS(ns, 'rect');
+  box.setAttribute('x', String(frame[0]));
+  box.setAttribute('y', String(top));
+  box.setAttribute('width', String(Math.max(0, frame[1] - frame[0])));
+  box.setAttribute('height', String(height));
+  clip.appendChild(box);
+  defs.appendChild(clip);
+
+  const layer = document.createElementNS(ns, 'g');
+  layer.setAttribute('aria-hidden', 'true');
+  layer.setAttribute('clip-path', 'url(#em-clip)');
+  // One gradient per region and direction: it spans its rect, so every
+  // border of that region can share it.
+  const gradient = (key: string, darkAt: 'start' | 'end'): string => {
+    const id = `em-fade-${key}-${darkAt}`;
+    if (!defs!.querySelector(`#${id}`)) {
+      const g = document.createElementNS(ns, 'linearGradient');
+      g.setAttribute('id', id);
+      const colour = C[`em-${key}`] ?? C['ink-050'];
+      for (const [offset, opacity] of darkAt === 'start'
+        ? [[0, EM_REGION_LOOK.edge], [1, 0]]
+        : [[0, 0], [1, EM_REGION_LOOK.edge]]) {
+        const stop = document.createElementNS(ns, 'stop');
+        stop.setAttribute('offset', String(offset));
+        stop.setAttribute('stop-color', colour);
+        stop.setAttribute('stop-opacity', String(opacity));
+        g.appendChild(stop);
+      }
+      defs!.appendChild(g);
+    }
+    return id;
+  };
+  const fade = (x: number, w: number, key: string, darkAt: 'start' | 'end') => {
+    if (w <= 0) return;
+    const rect = document.createElementNS(ns, 'rect');
+    rect.setAttribute('x', String(x));
+    rect.setAttribute('y', String(top));
+    rect.setAttribute('width', String(w));
+    rect.setAttribute('height', String(height));
+    rect.setAttribute('fill', `url(#${gradient(key, darkAt)})`);
+    layer.appendChild(rect);
+  };
+  for (const b of borders) {
+    fade(b.px - b.left.reach, b.left.reach, b.left.key, 'end');
+    fade(b.px, b.right.reach, b.right.key, 'start');
+  }
+  // The lines last, over both fades.
+  for (const b of borders) {
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', String(b.px));
+    line.setAttribute('x2', String(b.px));
+    line.setAttribute('y1', String(top));
+    line.setAttribute('y2', String(top + height));
+    line.setAttribute('stroke', C['ink-050']);
+    line.setAttribute('stroke-width', String(EM_REGION_LOOK.borderWidth));
+    line.setAttribute('stroke-dasharray', EM_REGION_LOOK.borderDash);
+    layer.appendChild(line);
+  }
+  svg.insertBefore(layer, svg.querySelector(':scope > g'));
+}
+
 // A small, mark-free plot containing only the x-axis — kept visually pinned
 // (via sticky CSS in BandChart.svelte) above the scrolling lane stack, since
 // the main chart's own axis sits at the bottom of a potentially very tall
@@ -882,8 +1100,10 @@ export function buildChart(
   reversed = false,
   // Which technique's selection rule to draw: its inactive bands are hollow.
   spectroscopy: Spectroscopy = 'ir',
-  // Whether those looks are drawn at all (the Color by pills).
+  // Whether those looks are drawn at all (the Appearance pills).
   looks: BandLooks = { inactive: true, unreferenced: true, calculated: true },
+  // Whether the electromagnetic regions are marked at all (an Appearance pill).
+  showRegions = true,
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
   const dynamicSubLane = computeSubLanes(bands, enabledGroups);
@@ -1287,5 +1507,14 @@ export function buildChart(
     allPositions[id] = { px: tX(pos.x), py: tY(pos.y) };
   }
 
-  return { svg, hitBands, chartHeight: height, laneHeightPx, allPositions };
+  // The electromagnetic regions: the cells the strip above the plot names,
+  // and the borders. Over the full height of the SVG, margins included, so a
+  // border runs unbroken from that strip to the axis below the plot.
+  const frame: [number, number] = [MARGIN_LEFT, MARGIN_LEFT + innerW];
+  const { cells: regions, borders } = showRegions
+    ? layoutRegions(xDomain, axisProperty, axisUnit, shiftZero, tX, frame)
+    : { cells: [], borders: [] };
+  appendRegionBorders(svg, borders, frame, 0, height);
+
+  return { svg, hitBands, chartHeight: height, laneHeightPx, allPositions, regions };
 }

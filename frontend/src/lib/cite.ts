@@ -39,6 +39,12 @@ export const SOURCES: Record<string, Source> = {
   moon: { key: WACHS, chapter: 'Ch. 4, J. Moon, M. Li, A. J. Ramirez-Cuesta and Z. Wu, “Raman Spectroscopy”' },
   stair: { key: WACHS, chapter: 'Ch. 6, P. C. Stair, “Ultraviolet (UV) Raman Spectroscopy”' },
   vogt: { key: WACHS, chapter: 'Ch. 11, C. Vogt, C. S. Wondergem and B. M. Weckhuysen, “Ultraviolet-Visible (UV-Vis) Spectroscopy”' },
+  // The Electromagnetic Spectrum card: one chapter per region beyond the
+  // infrared, each for the border it states or the transition it names.
+  yang: { key: WACHS, chapter: 'Ch. 12, Z. Yang and M. Zhu, “Case Studies: Ultraviolet-Visible (UV-Vis) Spectroscopy”' },
+  weckhuysen: { key: WACHS, chapter: 'Ch. 28, B. M. Weckhuysen, C. S. Wondergem and C. Vogt, “Time-Resolved X-Ray Absorption Spectroscopy (XAS)”' },
+  jaegers: { key: WACHS, chapter: 'Ch. 34, N. Jaegers, N. M. Washton, Y. Wang and J. Z. Hu, “High-Field Nuclear Magnetic Resonance (NMR) Spectroscopy”' },
+  walter: { key: WACHS, chapter: 'Ch. 38, E. Walter, “Electron Paramagnetic Resonance (EPR)”' },
   long: { key: 'Long.RamanEffectUnified.2002' },
   // The 2003 volume, which is the rewritten and expanded successor to the
   // 1990 Infrared Spectroscopy of Adsorbed Species on the Surface of

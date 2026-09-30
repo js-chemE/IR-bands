@@ -3,13 +3,15 @@
    * A small on/off pill that looks like the bands it is about: hollow for the
    * inactive bands, faded for the unreferenced ones. Off, it is greyed and
    * struck through, the same idiom as a switched-off group row. Used twice in
-   * the sidebar: under Color by, where it only decides the look, and under
-   * Enable & Disable, where it takes the bands out of the chart.
+   * the sidebar: under Appearance, where it only decides the look, and under
+   * Enable & Disable, where it takes the bands out of the chart. A third
+   * look, `region`, is the Appearance switch for the electromagnetic regions
+   * marked on the chart.
    */
   import { createEventDispatcher } from 'svelte';
 
   export let on: boolean;
-  export let look: 'hollow' | 'faded';
+  export let look: 'hollow' | 'faded' | 'region';
   export let title = '';
 
   const dispatch = createEventDispatcher<{ toggle: { on: boolean } }>();
@@ -44,6 +46,14 @@
     background: var(--surface-hover);
     border-color: var(--line);
     color: var(--ink-200);
+  }
+  /* The spectral regions: the pill is a cell of the strip above the plot,
+     its tint fading from a dashed border on the left. */
+  .region {
+    background: linear-gradient(to right, color-mix(in srgb, var(--em-mid-ir) 22%, transparent), transparent 70%) var(--surface);
+    border-color: var(--line);
+    border-left: 1px dashed var(--ink-050);
+    color: var(--ink-slate-500);
   }
   .off {
     background: var(--pill-muted-bg);

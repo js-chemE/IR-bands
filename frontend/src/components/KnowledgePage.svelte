@@ -135,6 +135,7 @@
   import VibModesDiagram from './knowledge/VibModesDiagram.svelte';
   import TranslationDiagram from './knowledge/TranslationDiagram.svelte';
   import UnitsDiagram from './knowledge/UnitsDiagram.svelte';
+  import EmSpectrumDiagram from './knowledge/EmSpectrumDiagram.svelte';
   import RepresentationsDiagram from './knowledge/RepresentationsDiagram.svelte';
   import RotationDiagram from './knowledge/RotationDiagram.svelte';
   import FrustratedDiagram from './knowledge/FrustratedDiagram.svelte';
@@ -225,6 +226,7 @@
     | typeof VibModesDiagram
     | typeof TranslationDiagram
     | typeof UnitsDiagram
+    | typeof EmSpectrumDiagram
     | typeof RepresentationsDiagram
     | typeof RotationDiagram
     | typeof FrustratedDiagram
@@ -243,6 +245,7 @@
     vibmodes: VibModesDiagram,
     translation: TranslationDiagram,
     units: UnitsDiagram,
+    emspectrum: EmSpectrumDiagram,
     representations: RepresentationsDiagram,
     rotation: RotationDiagram,
     frustrated: FrustratedDiagram,
