@@ -25,6 +25,16 @@ export function authorsIEEE(raw: string): string {
   return fmt.slice(0, -1).join(', ') + ', and ' + fmt[fmt.length - 1];
 }
 
+/**
+ * Where a reference lives on the web: its DOI as a resolver link, or the
+ * entry's own `url` where it has no DOI. Empty when it carries neither.
+ */
+export function refHref(ref: Record<string, string | undefined>): string {
+  const doi = strip(ref['doi']);
+  if (doi) return doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
+  return strip(ref['url']);
+}
+
 export function ieeeHtml(ref: Record<string, string | undefined>, key: string): string {
   const author  = strip(ref['author']);
   const title   = strip(ref['title']);
@@ -33,8 +43,6 @@ export function ieeeHtml(ref: Record<string, string | undefined>, key: string): 
   const number  = strip(ref['number']);
   const pages   = strip(ref['pages']).replace(/--/g, '–');
   const year    = strip(ref['date'] ?? ref['year']).slice(0, 4);
-  const doi     = strip(ref['doi']);
-  const url     = strip(ref['url']);
 
   const parts: string[] = [];
   if (author)  parts.push(esc(authorsIEEE(author)));
@@ -49,7 +57,7 @@ export function ieeeHtml(ref: Record<string, string | undefined>, key: string): 
   if (year) parts.push(esc(year));
 
   let s = parts.join(', ') + (parts.length ? '.' : esc(key));
-  const href = doi ? (doi.startsWith('http') ? doi : `https://doi.org/${doi}`) : url;
+  const href = refHref(ref);
   if (href) s += ` <a class="ext" href="${href}" target="_blank" rel="noopener noreferrer">↗</a>`;
   return s;
 }
