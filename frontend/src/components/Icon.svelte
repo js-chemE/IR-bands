@@ -13,7 +13,8 @@
   export let name:
     | 'home' | 'knowledge' | 'chart' | 'references' | 'dataset' | 'impressum'
     | 'styleguide' | 'sourceguide'
-    | 'color' | 'filter' | 'toggles' = 'home';
+    | 'color' | 'filter' | 'toggles'
+    | 'link' = 'home';
   export let size = 24;
   /** Thinner at card size, a touch heavier where the glyph is 16px. */
   export let width = 1.8;
@@ -74,6 +75,10 @@
     <line x1="3.5" y1="16" x2="20.5" y2="16" />
     <circle cx="9" cy="8" r="2.4" />
     <circle cx="15" cy="16" r="2.4" />
+  {:else if name === 'link'}
+    <!-- Two chain links: a URL, the way out of the atlas to the paper. -->
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
   {/if}
 </svg>
 

@@ -177,9 +177,8 @@
                       : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,
-                     the paper itself on the right. The arrow is the external
-                     one, as on the References page; the book is that page's
-                     own symbol. -->
+                     the paper itself on the right. The book is the References
+                     page's own symbol, the chain the usual one for a URL. -->
                 <div class="tip-ref-goto">
                   <button
                     class="tip-ref-goto-btn"
@@ -196,7 +195,7 @@
                       on:click|stopPropagation
                       title="Open the paper ({ref.href})"
                       aria-label="Open the paper"
-                    >↗</a>
+                    ><Icon name="link" size={12} width={2} /></a>
                   {/if}
                 </div>
                 <div class="tip-ref-title">
@@ -237,7 +236,7 @@
       {/if}
 
       {#if full}
-        <div class="tip-lock-hint">click ref to expand · ↗ for the paper · click band to switch · click empty to clear</div>
+        <div class="tip-lock-hint">click ref to expand · click band to switch · click empty to clear</div>
       {/if}
 </div>
 

@@ -53,7 +53,8 @@ frontend/src/
     Sidebar.svelte           ← the chart's filter: a set, then the groups
     Icon.svelte              ← the atlas's symbols by name, one source: the four
                               destinations as the home page draws them, the two
-                              guides, and the rail's three control glyphs
+                              guides, the rail's three control glyphs, and the
+                              chain that marks a link out to a paper
     ColorLegend.svelte       ← legend swatches for the active color dimension
     AxisSelect.svelte        ← x-axis property and unit selectors, reverse and shift switches
     SpectroscopySwitch.svelte← IR | Raman: which selection rule the chart draws. Bands tagged
