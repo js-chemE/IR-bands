@@ -209,6 +209,43 @@ export function unitToLaser(value: number, unit: string): number {
   return energyToWn(value, unit);
 }
 
+/*
+ * Any spectral quantity as a wavenumber in cm⁻¹.
+ *
+ * The axes above know the handful of units a band chart is drawn in. This
+ * knows every unit the electromagnetic spectrum is quoted in, from the radio
+ * (MHz, m) to the gamma rays (MeV, pm), because lib/emSpectrum.ts has to place
+ * any of them in a region. Three kinds of unit, three conversions:
+ *   a wavenumber scales,  ν̃ = k · value
+ *   a wavelength inverts, ν̃ = 1 / λ
+ *   a frequency or an energy scales through c and h.
+ */
+const WN_PER: Record<string, number> = { 'cm⁻¹': 1, 'mm⁻¹': 10, 'dm⁻¹': 0.1, 'm⁻¹': 0.01 };
+/** One of each wavelength unit, in cm. */
+const CM_PER: Record<string, number> = {
+  pm: 1e-10, 'Å': 1e-8, nm: 1e-7, 'μm': 1e-4, 'µm': 1e-4, mm: 0.1, cm: 1, m: 100, km: 1e5,
+};
+const HZ_PER: Record<string, number> = { Hz: 1, kHz: 1e3, MHz: 1e6, GHz: 1e9, THz: 1e12 };
+const EV_PER: Record<string, number> = { meV: 1e-3, eV: 1, keV: 1e3, MeV: 1e6 };
+
+/** Every unit `toWavenumber` takes. */
+export const SPECTRAL_UNITS: readonly string[] = [
+  ...Object.keys(WN_PER), ...Object.keys(CM_PER), ...Object.keys(HZ_PER), ...Object.keys(EV_PER),
+  'J/mol', 'kJ/mol', 'cal/mol', 'kcal/mol',
+];
+
+/**
+ * A wavenumber, wavelength, frequency or photon energy as a wavenumber in
+ * cm⁻¹. Throws on a unit it does not know, rather than guessing a quantity.
+ */
+export function toWavenumber(value: number, unit: string = 'cm⁻¹'): number {
+  if (unit in WN_PER) return value * WN_PER[unit];
+  if (unit in CM_PER) return 1 / (value * CM_PER[unit]);
+  if (unit in HZ_PER) return (value * HZ_PER[unit]) / (C * 100);
+  if (unit in EV_PER) return (value * EV_PER[unit] * EV) / (H * C * 100);
+  return energyToWn(value, unit);
+}
+
 /** A laser for display in a unit, rounded to what that unit is quoted to. */
 export function formatLaser(laserWn: number, unit: string): string {
   const v = laserToUnit(laserWn, unit);

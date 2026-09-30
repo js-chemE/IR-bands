@@ -173,7 +173,7 @@
                   : ref.off === 'unknown'
                     ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
                     : ref.off === 'calculated'
-                      ? `A calculation, not a measurement. Dimmed because the Color by computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
+                      ? `A calculation, not a measurement. Dimmed because the Appearance computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
                       : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,

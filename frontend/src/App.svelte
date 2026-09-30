@@ -382,7 +382,7 @@
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
-  /* The Color by looks, collapsed like the group list below. */
+  /* The Appearance looks, collapsed like the group list below. */
   let showLooks = false;
   let hiddenCats: ReadonlySet<string> = new Set();
   let hiddenTags: ReadonlySet<string> = new Set();
@@ -625,7 +625,7 @@
   // references only): in the chart, faded, by default; off, they leave it.
   let showUnreferenced = true;
   // Whether those two kinds are drawn in their own look (hollow, faded) or
-  // like any other band: the Color by pills. A look, not a filter.
+  // like any other band: the Appearance pills. A look, not a filter.
   let lookInactive = true;
   let lookUnreferenced = true;
   // Bands resting on a calculation alone, and calculated claims inside a
@@ -638,6 +638,10 @@
   // the chemistry rather than an answer to a question about method.
   let lookCalculated = false;
   let showCalculated = true;
+  // The electromagnetic regions marked on the chart: the strip of names above
+  // the plot, the dashed borders and the tint fading from them. One switch for
+  // all three, since a border with no name says nothing.
+  let showRegions = true;
   $: techniqueLabel = spectroscopy === 'raman' ? 'Raman' : 'IR';
   $: inactiveTag = spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive';
   // The other technique's tag is not shown, so an isolate on it would leave
@@ -799,16 +803,20 @@
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div class="mini-btn-wrap"
               on:mouseenter={() => openFly('colour')} on:mouseleave={closeFly}>
-              <button class="page-mini-btn ctl-btn" aria-label="Color by"
+              <button class="page-mini-btn ctl-btn" aria-label="Appearance"
               ><Icon name="color" size={15} width={1.8} /></button>
               {#if flyOpen === 'colour'}
                 <div class="fly">
-                  <div class="fly-title">Color by</div>
+                  <div class="fly-title">Appearance</div>
                   {#each COLOR_DIM_OPTIONS as o}
                     <button class="fly-item" class:fly-on={colorDim === o.dim}
                       on:click={() => { setColorDim(o.dim); flyOpen = null; }}
-                    >{o.label}</button>
+                    >Color by {o.label.toLowerCase()}</button>
                   {/each}
+                  <div class="fly-rule"></div>
+                  <button class="fly-item" class:fly-on={showRegions}
+                    on:click={() => (showRegions = !showRegions)}
+                  ><span class="fly-box" class:on={showRegions}></span>spectral regions</button>
                 </div>
               {/if}
             </div>
@@ -913,10 +921,15 @@
           <hr class="divider" />
 
           <section>
-            <h3>Color by</h3>
+            <!-- Appearance, not Color by: the section holds the colour
+                 dimension, the looks a band takes and the marking of the
+                 spectral regions, and only the first of those is a colour.
+                 The dropdown says "Color by" itself now that the heading
+                 no longer does. -->
+            <h3>Appearance</h3>
             <Dropdown
               value={colorDim}
-              options={COLOR_DIM_OPTIONS.map(o => ({ value: o.dim, label: o.label }))}
+              options={COLOR_DIM_OPTIONS.map(o => ({ value: o.dim, label: `Color by ${o.label.toLowerCase()}` }))}
               label="Color by"
               on:change={e => pickColorDim(e.detail.value)}
             />
@@ -960,6 +973,14 @@
                   : 'Draw the bands with nothing but a calculation behind them faded, and dim the calculated claims'}
                 on:toggle={e => (lookCalculated = e.detail.on)}
               >computational</LookPill>
+              <LookPill
+                look="region"
+                on={showRegions}
+                title={showRegions
+                  ? 'The electromagnetic regions are marked: named above the plot, with a dashed line at each border. Click to take them off'
+                  : 'Mark the electromagnetic regions: name them above the plot and draw a dashed line at each border'}
+                on:toggle={e => (showRegions = e.detail.on)}
+              >spectral regions</LookPill>
             </div>
             {/if}
           </section>
@@ -1245,6 +1266,7 @@
             reversed={axisReversed}
             {spectroscopy}
             looks={{ inactive: lookInactive, unreferenced: lookUnreferenced, calculated: lookCalculated }}
+            {showRegions}
             hoveredCat={legendHoveredCat}
             hoveredTag={legendHoveredTag}
             {focusBand}

@@ -1070,7 +1070,7 @@
         </table>
         <p>
           The two pills in the sidebar do double duty, and which one they do
-          depends on the heading they are under. Under <em>Color by</em> they
+          depends on the heading they are under. Under <em>Appearance</em> they
           switch the look on and off; under <em>Enable &amp; Disable</em> they
           take those bands out of the chart altogether
           (<code>LookPill.svelte</code>).

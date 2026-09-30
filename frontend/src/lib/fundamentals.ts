@@ -318,6 +318,58 @@ export const FUNDAMENTALS: Fundamental[] = [
     ],
   },
   {
+    key: 'emspectrum',
+    section: 'basics',
+    label: 'Electromagnetic Spectrum',
+    teaser:
+      'One axis from gamma rays to radio waves. Each region’s photons fit one kind of motion: core electrons, valence electrons, vibrations, rotations, spins.',
+    body: [
+      'Light is one thing at every energy: an electric and a magnetic field swinging together and travelling at c. What differs from radio waves to gamma rays is only how fast the field swings, and with it the energy one photon carries. The electromagnetic spectrum is that single quantity laid along an axis, and the names on it are stretches of the axis, not kinds of light [@weckhuysen, Fig. 28.1]. The top row of the diagram draws all of it, fourteen decades on a logarithmic scale, with high energy on the left the way an infrared spectrum is drawn.',
+      {
+        label: 'One Quantity, Three Ways to Say It',
+        lines: ['E = h\\nu = \\frac{hc}{\\lambda} = hc\\,\\tilde{\\nu}'],
+        note: 'E: photon energy, ν: frequency, λ: wavelength, ν̃: wavenumber [@busca, Eq. (1.4)]. A shorter wave swings faster and carries more. To find one’s way: 1 eV is 8066 cm⁻¹ and 1240 nm; 1 cm⁻¹ is 30 GHz. Which unit a region is quoted in is habit: GHz for microwaves, cm⁻¹ in the infrared, nm in the visible and ultraviolet, keV for X-rays.',
+      },
+      'A photon is absorbed only where its energy matches a gap between two levels of the thing it meets, and the kinds of level a molecule has lie decades apart. Turning the whole molecule costs least, a few cm⁻¹: 3.9 cm⁻¹ for the first step of CO, on the Rotation Modes card. Moving its atoms against each other costs hundreds to thousands. Rearranging its valence electrons costs tens of thousands, and lifting an electron out of a core shell costs millions. So each region of the spectrum is the home of one kind of motion, and of the family of techniques that watches it.',
+      'The spacing follows from the masses. The same electrical forces hold everything together, but an electron is thousands of times lighter than a nucleus, so its levels lie widest apart. The nuclei vibrate in the well the electrons make, and their levels are closer by roughly the square root of the mass ratio; the molecule turning as a whole comes last, closer by the ratio itself. With a ratio near 10⁻⁴ that is two decades at each step, and it is why each ladder fits inside one rung of the ladder before it: the bottom row of the diagram.',
+      'The infrared is where vibrations live. The gap between neighbouring vibrational levels almost always falls in the mid- and far-infrared, which the handbook bounds at 4000 to 400 cm⁻¹ (0.496 to 0.0496 eV) and 400 to 10 cm⁻¹ (0.0496 to 0.00124 eV) [@busca, p. 4]. The mid-infrared holds the fundamentals of nearly every bond and is where the atlas lives. The far-infrared holds the soft motions: lattice and metal–oxygen modes, the frustrated motions of an adsorbed molecule, and the pure rotation of a molecule as light as H₂.',
+      'The near-infrared, from 4000 cm⁻¹ up to the red edge of the visible at 800 nm, holds what anharmonicity adds: the overtones and combinations of the vibrations below it. It is usually reached from the other side, as the extension of a UV-Vis spectrometer [@vogt, p. 238].',
+      'Visible light runs from 800 nm [@vogt, p. 238] to 380 nm, and the ultraviolet from 380 nm down [@yang, p. 265]. Both move valence electrons from one orbital to another, which is why UV-Vis is called electronic spectroscopy: the d–d and charge-transfer transitions of a metal ion, n → π* and π → π* in a molecule, the band gap of an oxide support. The visible is also where eyes work, so the colour of a catalyst already says roughly what its spectrum will show. Below about 200 nm the σ → σ* transitions of ordinary bonds begin, and the O₂ of the air in the beam path absorbs with them, so that stretch, the vacuum ultraviolet, is reached only in vacuum or at a synchrotron [@vogt, p. 238].',
+      'A Raman spectrum is recorded up here too. Its laser is visible, near-infrared or ultraviolet light [@moon, p. 76] [@stair, p. 132], and so is the light it scatters; only the shift between the two is of infrared size. The middle row of the diagram marks the usual lasers. The band chart shows both readings: a shift axis in cm⁻¹ keeps the infrared regions, because the number it reads is the vibration’s own, while the same axis switched to wavelength reads the scattered light itself, and the regions named above it become those of that light and move with the laser.',
+      'X-rays are photons of 0.1 to 200 keV, about 12 nm down to 6 pm, and they reach the core electrons, which take no part in bonding [@weckhuysen, p. 602]. Each shell of each element has an edge of its own, the K edges of the transition metals above 1 keV, so an X-ray absorption spectrum is specific to an element [@weckhuysen, p. 602]. At about 5 keV they divide into soft X-rays, which matter absorbs strongly, and hard ones, which pass through more of it [@weckhuysen, p. 606].',
+      'Below the infrared a photon is too small for any vibration. Microwaves turn free molecules, and they flip the spin of an unpaired electron held in a magnetic field, which is EPR [@walter, p. 870]. Radio waves do the same to the spin of a nucleus, which is NMR [@jaegers, p. 758]. In both of those the gap is not the molecule’s own. The magnet sets it, in proportion to the field [@jaegers, p. 758], and an EPR spectrometer sweeps the field at a fixed frequency until the two match [@walter, p. 870].',
+      'The axis is also a scale for heat. At room temperature kT is about 207 cm⁻¹, in the far-infrared. Whatever lies below that is excited by warmth alone, which is why a gas is spread over many rotational levels; whatever lies far above it is not, which is why a vibration sits in v = 0 until a photon arrives, the Vibrational Excitation card.',
+      {
+        label: 'The Borders the Atlas Draws',
+        wide: true,
+        lines: [
+          '\\begin{array}{lll}' +
+            '\\text{radio waves} \\mid \\text{microwaves} & \\qty{1}{GHz} & \\qty{30}{cm} \\\\' +
+            '\\text{microwaves} \\mid \\text{far-infrared} & \\qty{10}{cm^{-1}} & \\qty{1}{mm} \\\\' +
+            '\\text{far-} \\mid \\text{mid-infrared} & \\qty{400}{cm^{-1}} & \\qty{25}{\\mu m} \\\\' +
+            '\\text{mid-} \\mid \\text{near-infrared} & \\qty{4000}{cm^{-1}} & \\qty{2.5}{\\mu m} \\\\' +
+            '\\text{near-infrared} \\mid \\text{visible} & \\qty{800}{nm} & \\qty{12500}{cm^{-1}} \\\\' +
+            '\\text{visible} \\mid \\text{ultraviolet} & \\qty{380}{nm} & \\qty{26300}{cm^{-1}} \\\\' +
+            '\\text{near} \\mid \\text{vacuum ultraviolet} & \\qty{200}{nm} & \\qty{50000}{cm^{-1}} \\\\' +
+            '\\text{ultraviolet} \\mid \\text{X-rays} & \\qty{0.1}{keV} & \\qty{12}{nm} \\\\' +
+            '\\text{soft} \\mid \\text{hard X-rays} & \\qty{5}{keV} & \\qty{0.25}{nm} \\\\' +
+            '\\text{X-rays} \\mid \\text{gamma rays} & \\qty{200}{keV} & \\qty{6}{pm}' +
+            '\\end{array}',
+        ],
+        note: 'Each border in the unit it is quoted in, then in another. The handbook’s own numbers: the infrared limits [@busca, p. 4], the near-infrared and the vacuum ultraviolet [@vogt, p. 238], the visible against the ultraviolet [@yang, p. 265], the X-rays [@weckhuysen, p. 602] [@weckhuysen, p. 606]. It gives none between microwaves and radio waves; 1 GHz is the author’s choice, the one that leaves EPR in the microwaves and NMR in the radio waves, where the handbook puts them.',
+      },
+      'None of these borders is sharp. Nothing happens to a photon at 4000 cm⁻¹, and sources draw the lines differently: one chapter of the handbook ends the visible at 400 nm and the next at 380 [@vogt, p. 238] [@yang, p. 265]; the box takes 380. The band chart draws the ones in the box as dashed lines behind the bands and names the regions above the plot: the far, mid and near parts of the infrared wherever each shows wide enough to name, and the infrared as a whole where one of them is only a sliver at the edge.',
+    ],
+    related: [
+      { key: 'units', why: 'The same axis, in the units a spectrum is drawn in' },
+      { key: 'vibration', why: 'The gap an infrared photon fits' },
+      { key: 'rotation', why: 'The gaps the microwaves fit' },
+      { key: 'overtone', why: 'What the near-infrared holds' },
+      { key: 'raman', why: 'Visible light in, a shift of infrared size out' },
+      { key: 'lightpath', why: 'What happens once the radiation reaches a sample' },
+    ],
+  },
+  {
     key: 'lightpath',
     section: 'basics',
     label: 'Where the Radiation Goes',
@@ -652,6 +704,7 @@ export const FUNDAMENTALS: Fundamental[] = [
       'The atlas stores every position in cm⁻¹, as a range, and the band chart can redraw its axis in other units.',
     ],
     related: [
+      { key: 'emspectrum', why: 'Where this axis sits among the other regions of light' },
       { key: 'representations', why: 'The other axis: how strong a band is' },
       { key: 'spectrum', why: 'What a position on this axis means' },
       { key: 'raman', why: 'Where the shift comes from' },
@@ -1052,11 +1105,6 @@ export const PLANNED: { label: string; part: string; what: string }[] = [
     label: 'Techniques',
     part: 'Spectroscopy',
     what: 'Transmission, DRIFTS, ATR and RAIRS: how the light reaches the sample, and what each geometry changes in the spectrum.',
-  },
-  {
-    label: 'Electromagnetic Spectrum',
-    part: 'Light–Matter Interaction',
-    what: 'Where the infrared sits among the other regions, what each one excites, and why rotations, vibrations and electronic transitions land decades apart in energy.',
   },
 ];
 
