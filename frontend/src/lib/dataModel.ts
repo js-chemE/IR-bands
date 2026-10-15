@@ -114,10 +114,11 @@ export const ENTITIES: EntitySpec[] = [
     label: 'Assignment',
     status: 'inline',
     source: 'data/bands.jsonc → band.references[]',
-    id: 'uid, computed as "<band id>::<citekey>"',
+    id: 'id, an authored integer, unique and never reused',
     blurb:
       'One paper’s claim about one band: the wavenumber it reports, the surface it saw it on, how it was measured, the caveat it attaches. The join between Band and Reference, and the home of everything observation-dependent.',
     fields: [
+      { name: 'id', type: 'int', req: 'req', note: 'The assignment’s own number, unique across bands.jsonc. A new claim takes metadata.next_assignment_id and the mark goes up by one; it never goes down, so a deleted claim’s number is never handed out again, and an edited claim keeps its own. One band can hold several claims from one paper (a second site, a second position), each with its own number. build.py fails on a missing, repeated or out-of-range id. Shown small beside the claim’s links in the band card.' },
       { name: 'key', type: 'citekey', req: 'req', note: 'Into references.bib.' },
       { name: 'wn', type: 'int | int[]', req: 'opt', note: 'This source’s reported position. An array means several resolved components.' },
       { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
@@ -126,7 +127,7 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'state', type: 'gas | liquid | matrix | solid | adsorbed', req: 'opt', note: 'What was in the beam for this claim, and every claim should carry one. Not band.phase, which says what the band is wherever it appears: this says how the sample was held here, and it moves the number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those read as a disagreement instead of three experiments. Derives a tag of the same name.' },
       { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
-      { name: 'uid', type: 'string', req: 'calc', note: 'Computed by build.py, with an ordinal when one paper makes several claims about the same band.' },
+      { name: 'uid', type: 'string', req: 'calc', note: 'Computed by build.py, with an ordinal when one paper makes several claims about the same band. A readable handle for the References page; the authored id is the stable one.' },
     ],
     open:
       'Reaction conditions (temperature, pressure, feed, pretreatment) are still prose inside note. Structuring them only pays off with several times the current number of claims.',

@@ -274,6 +274,8 @@ export function getLegendCategories(
 // ---------------------------------------------------------------------------
 
 export interface TipRef {
+  /** The assignment's number, shown beside the claim's links. */
+  id: number | null;
   key: string;
   short: string;       // "Fehr & Krossing, 2020"
   /** The paper itself, DOI first and `url` otherwise; null when it has neither. */
@@ -1209,7 +1211,7 @@ export function buildChart(
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
           const off = refOff(ref.technique, excluded);
           return {
-            key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
+            id: ref.id ?? null, key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             href: (r && refHref(r as Record<string, string>)) || null,
             surfaces: sortedMeasuredOnBadges(ref),
             off,

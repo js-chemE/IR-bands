@@ -3,7 +3,8 @@
     "title": "IR band map for CO₂ hydrogenation",
     "wavenumber_unit": "cm^-1",
     "description": "Approximate band positions for surface and gas-phase species in CO₂ hydrogenation. Exact positions depend on support, coverage, and reaction conditions. The asterisk (*) denotes a surface-bound species.",
-    "schema_version": 3
+    "schema_version": 3,
+    "next_assignment_id": 392
   },
   "regions": {
     "very_high": {
@@ -1884,6 +1885,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 1,
           "wn": 2360,
           "measured_on": null,
           "technique": "drifts",
@@ -1899,6 +1901,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 2,
           "wn": 2373,
           "measured_on": null,
           "technique": "drifts",
@@ -1996,6 +1999,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 3,
           "wn": 2335,
           "measured_on": null,
           "technique": "drifts",
@@ -2052,6 +2056,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 4,
           "wn": 700,
           "measured_on": null,
           "technique": "drifts",
@@ -2110,6 +2115,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 5,
           "wn": 667,
           "measured_on": null,
           "technique": "drifts",
@@ -2168,6 +2174,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 6,
           "wn": 660,
           "measured_on": null,
           "technique": "drifts",
@@ -2294,6 +2301,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 7,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -2363,6 +2371,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 8,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -2490,6 +2499,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 9,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -2562,6 +2572,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 10,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -2635,6 +2646,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 11,
           "wn": 2130,
           "measured_on": null,
           "technique": "drifts",
@@ -2710,6 +2722,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 12,
           "wn": 2094,
           "measured_on": null,
           "technique": "drifts",
@@ -2782,6 +2795,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 13,
           "wn": 2077,
           "measured_on": null,
           "technique": "drifts",
@@ -2797,6 +2811,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 14,
           "wn": 2077,
           "measured_on": null,
           "technique": "drifts",
@@ -2868,6 +2883,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 15,
           "wn": 2056,
           "measured_on": null,
           "technique": "drifts",
@@ -2940,6 +2956,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 16,
           "wn": 1079,
           "measured_on": null,
           "technique": "drifts",
@@ -3062,6 +3079,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 17,
           "wn": 1050,
           "measured_on": null,
           "technique": "drifts",
@@ -3131,6 +3149,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 18,
           "wn": 973,
           "measured_on": null,
           "technique": "drifts",
@@ -3253,6 +3272,7 @@
       "references": [
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 19,
           "wn": 948,
           "measured_on": null,
           "technique": "drifts",
@@ -3309,6 +3329,7 @@
       "references": [
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 20,
           "wn": 1370,
           "measured_on": "zno",
           "technique": "drifts",
@@ -3362,6 +3383,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 21,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -3377,6 +3399,7 @@
         },
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 22,
           "wn": 1388,
           "measured_on": null,
           "technique": "drifts",
@@ -3391,6 +3414,7 @@
         },
         {
           "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "id": 23,
           "wn": 1387,
           "measured_on": null,
           "technique": "raman",
@@ -3454,6 +3478,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 24,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -3469,6 +3494,7 @@
         },
         {
           "key": "Fehr.SpectroscopicSignaturesPressurized.2020",
+          "id": 25,
           "wn": 1285,
           "measured_on": null,
           "technique": "drifts",
@@ -3483,6 +3509,7 @@
         },
         {
           "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "id": 26,
           "wn": 1284,
           "measured_on": null,
           "technique": "raman",
@@ -3541,6 +3568,7 @@
       "references": [
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 27,
           "wn": 2176,
           "measured_on": null,
           "technique": "drifts",
@@ -3555,6 +3583,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 28,
           "wn": 2177,
           "measured_on": null,
           "technique": "drifts",
@@ -3610,6 +3639,7 @@
       "references": [
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 29,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -3624,6 +3654,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 30,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -3679,6 +3710,7 @@
       "references": [
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 31,
           "wn": 2114,
           "measured_on": null,
           "technique": "drifts",
@@ -3693,6 +3725,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 32,
           "wn": 2112,
           "measured_on": null,
           "technique": "drifts",
@@ -3748,6 +3781,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 33,
           "wn": 3020,
           "measured_on": null,
           "technique": "drifts",
@@ -3762,6 +3796,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 34,
           "wn": 3016,
           "measured_on": null,
           "technique": "drifts",
@@ -3776,6 +3811,7 @@
         },
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 35,
           "wn": 3019,
           "measured_on": null,
           "technique": "transmission",
@@ -3790,6 +3826,7 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 36,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -3846,6 +3883,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 37,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -3902,6 +3940,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 38,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -3958,6 +3997,7 @@
       "references": [
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 39,
           "wn": 1306,
           "measured_on": null,
           "technique": "drifts",
@@ -3972,6 +4012,7 @@
         },
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 40,
           "wn": 1306,
           "measured_on": null,
           "technique": "transmission",
@@ -4026,6 +4067,7 @@
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 41,
           "wn": 1534,
           "measured_on": null,
           "technique": "transmission",
@@ -4040,6 +4082,7 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 42,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4097,6 +4140,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 43,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4154,6 +4198,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 44,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4211,6 +4256,7 @@
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 45,
           "wn": 2917,
           "measured_on": null,
           "technique": "raman",
@@ -4225,6 +4271,7 @@
         },
         {
           "key": "Nishimura.VibrationalExcitationsCH4.2002",
+          "id": 46,
           "wn": 2920,
           "measured_on": null,
           "technique": "computational",
@@ -4238,6 +4285,7 @@
         },
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 47,
           "wn": 2916,
           "measured_on": null,
           "technique": "raman",
@@ -4306,6 +4354,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 48,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4375,6 +4424,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 49,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4444,6 +4494,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 50,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -4500,6 +4551,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 51,
           "wn": 2020,
           "measured_on": [
             "ru_0",
@@ -4517,6 +4569,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 52,
           "wn": [
             2098,
             2065,
@@ -4540,6 +4593,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 53,
           "wn": 2120,
           "measured_on": [
             "cu_0",
@@ -4559,6 +4613,7 @@
         },
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 54,
           "wn": 2041,
           "measured_on": [
             "co_0",
@@ -4576,6 +4631,7 @@
         },
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 55,
           "wn": 2059,
           "measured_on": "co_siralox",
           "technique": "drifts",
@@ -4590,6 +4646,7 @@
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 56,
           "wn": 2053,
           "measured_on": "pt0_ceo2_interface",
           "technique": "drifts",
@@ -4605,6 +4662,7 @@
         },
         {
           "key": "Yudanov.COAdsorptionPd.2026",
+          "id": 57,
           "wn": 2085,
           "measured_on": "pd_0",
           "technique": "computational",
@@ -4619,6 +4677,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 58,
           "wn": [
             2113,
             2115,
@@ -4637,6 +4696,7 @@
         },
         {
           "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "id": 59,
           "wn": [
             2113,
             2076
@@ -4658,6 +4718,7 @@
         },
         {
           "key": "Monai.NewLookCatalyst.2024",
+          "id": 60,
           "wn": [
             2077,
             2088,
@@ -4680,6 +4741,7 @@
         },
         {
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "id": 61,
           "wn": null,
           "measured_on": null,
           "technique": null,
@@ -4734,6 +4796,7 @@
       "references": [
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 62,
           "wn": 2005,
           "measured_on": "pt0_ceo2_interface",
           "technique": "drifts",
@@ -4748,6 +4811,7 @@
         },
         {
           "key": "Monai.NewLookCatalyst.2024",
+          "id": 63,
           "wn": null,
           "measured_on": [
             "pt_0"
@@ -4805,6 +4869,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 64,
           "wn": 1940,
           "measured_on": [
             "ru_0",
@@ -4822,6 +4887,7 @@
         },
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 65,
           "wn": null,
           "measured_on": "co_al2o3",
           "technique": "drifts",
@@ -4836,6 +4902,7 @@
         },
         {
           "key": "Yudanov.COAdsorptionPd.2026",
+          "id": 66,
           "wn": 1989,
           "measured_on": "pd_0",
           "technique": "computational",
@@ -4850,6 +4917,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 67,
           "wn": 1890,
           "measured_on": [
             "cu_0",
@@ -4869,6 +4937,7 @@
         },
         {
           "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "id": 68,
           "wn": [
             1987,
             1954
@@ -4890,6 +4959,7 @@
         },
         {
           "key": "Monai.NewLookCatalyst.2024",
+          "id": 69,
           "wn": [
             1895,
             1997
@@ -4910,6 +4980,7 @@
         },
         {
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "id": 70,
           "wn": null,
           "measured_on": null,
           "technique": null,
@@ -4963,6 +5034,7 @@
       "references": [
         {
           "key": "Yudanov.COAdsorptionPd.2026",
+          "id": 71,
           "wn": 1810,
           "measured_on": "pd_0",
           "technique": "computational",
@@ -4977,6 +5049,7 @@
         },
         {
           "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "id": 72,
           "wn": 1850,
           "measured_on": [
             "co_0",
@@ -4994,6 +5067,7 @@
         },
         {
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "id": 73,
           "wn": null,
           "measured_on": null,
           "technique": null,
@@ -5086,6 +5160,7 @@
       "references": [
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 74,
           "wn": 2188,
           "measured_on": [
             "li_1p",
@@ -5103,6 +5178,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 75,
           "wn": 2178,
           "measured_on": [
             "na_1p",
@@ -5120,6 +5196,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 76,
           "wn": 2166,
           "measured_on": [
             "k_1p",
@@ -5137,6 +5214,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 77,
           "wn": 2162,
           "measured_on": [
             "rb_1p",
@@ -5154,6 +5232,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 78,
           "wn": 2157,
           "measured_on": [
             "cs_1p",
@@ -5171,6 +5250,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 79,
           "wn": 2172,
           "measured_on": [
             "h_bronsted",
@@ -5188,6 +5268,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 80,
           "wn": 2317,
           "measured_on": [
             "li_1p",
@@ -5204,6 +5285,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 81,
           "wn": 2296,
           "measured_on": [
             "na_1p",
@@ -5220,6 +5302,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 82,
           "wn": 2275,
           "measured_on": [
             "k_1p",
@@ -5236,6 +5319,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 83,
           "wn": 2268,
           "measured_on": [
             "rb_1p",
@@ -5252,6 +5336,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 84,
           "wn": 2261,
           "measured_on": [
             "cs_1p",
@@ -5268,6 +5353,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 85,
           "wn": 2125,
           "measured_on": [
             "cu_1p",
@@ -5286,6 +5372,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 86,
           "wn": 2147,
           "measured_on": [
             "cu_1p",
@@ -5304,6 +5391,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 87,
           "wn": 2196,
           "measured_on": [
             "cu_1p",
@@ -5322,6 +5410,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 88,
           "wn": 2165,
           "measured_on": [
             "cu_1p",
@@ -5339,6 +5428,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 89,
           "wn": 2190,
           "measured_on": [
             "cu_2p",
@@ -5357,6 +5447,7 @@
         },
         {
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "id": 90,
           "wn": 2158,
           "measured_on": "cu_1p",
           "technique": "transmission",
@@ -5372,6 +5463,7 @@
         },
         {
           "key": "Elgayyar.ContributionsLimitationsIR.2021",
+          "id": 91,
           "wn": [
             2189,
             2172,
@@ -5395,6 +5487,7 @@
         },
         {
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "id": 92,
           "wn": 2190,
           "measured_on": [
             "zn_2p",
@@ -5451,6 +5544,7 @@
       "references": [
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 93,
           "wn": 2108,
           "measured_on": [
             "li_1p",
@@ -5468,6 +5562,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 94,
           "wn": 2113,
           "measured_on": [
             "na_1p",
@@ -5485,6 +5580,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 95,
           "wn": 2117,
           "measured_on": [
             "k_1p",
@@ -5502,6 +5598,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 96,
           "wn": 2119,
           "measured_on": [
             "rb_1p",
@@ -5519,6 +5616,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 97,
           "wn": 2122,
           "measured_on": [
             "cs_1p",
@@ -5536,6 +5634,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 98,
           "wn": 2115,
           "measured_on": [
             "h_bronsted",
@@ -5553,6 +5652,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 99,
           "wn": 2126,
           "measured_on": [
             "li_1p",
@@ -5569,6 +5669,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 100,
           "wn": 2148,
           "measured_on": [
             "na_1p",
@@ -5585,6 +5686,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 101,
           "wn": 2166,
           "measured_on": [
             "k_1p",
@@ -5601,6 +5703,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 102,
           "wn": 2172,
           "measured_on": [
             "rb_1p",
@@ -5617,6 +5720,7 @@
         },
         {
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "id": 103,
           "wn": 2178,
           "measured_on": [
             "cs_1p",
@@ -5633,6 +5737,7 @@
         },
         {
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "id": 104,
           "wn": null,
           "measured_on": null,
           "technique": null,
@@ -5686,6 +5791,7 @@
       "references": [
         {
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "id": 105,
           "wn": 2151,
           "measured_on": "cu_1p",
           "technique": "transmission",
@@ -5743,6 +5849,7 @@
       "references": [
         {
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
+          "id": 106,
           "wn": 2180,
           "measured_on": "cu_1p",
           "technique": "transmission",
@@ -5800,6 +5907,7 @@
       "references": [
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 107,
           "wn": 1759,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -6067,6 +6175,7 @@
       "references": [
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 108,
           "wn": 1730,
           "measured_on": "fe3o4_111",
           "technique": "irras",
@@ -6228,6 +6337,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 109,
           "wn": 2908,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -6280,6 +6390,7 @@
       "references": [
         {
           "key": "Toyao.HeterogeneousPtMoOx.2019",
+          "id": 110,
           "wn": 1430,
           "measured_on": "pt_moox_tio2",
           "technique": "transmission",
@@ -6294,6 +6405,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 111,
           "wn": 1530,
           "measured_on": "la_al2o3",
           "technique": "drifts",
@@ -6308,6 +6420,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 112,
           "wn": 1464,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -6322,6 +6435,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 113,
           "wn": 1496,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -6337,6 +6451,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 114,
           "wn": 1446,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6352,6 +6467,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 115,
           "wn": [
             1468,
             1465
@@ -6411,6 +6527,7 @@
       "references": [
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 116,
           "wn": 1340,
           "measured_on": "la_al2o3",
           "technique": "drifts",
@@ -6425,6 +6542,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 117,
           "wn": [
             1400,
             1398
@@ -6442,6 +6560,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 118,
           "wn": 1423,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -6457,6 +6576,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 119,
           "wn": 1383,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6511,6 +6631,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 120,
           "wn": 1600,
           "measured_on": "ru_na2o_al2o3",
           "technique": "drifts",
@@ -6525,6 +6646,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 121,
           "wn": 1670,
           "measured_on": "ni_ce_fe_la_al2o3",
           "technique": "drifts",
@@ -6539,6 +6661,7 @@
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 122,
           "wn": 1605,
           "measured_on": "ceo2",
           "technique": "drifts",
@@ -6554,6 +6677,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 123,
           "wn": [
             1543,
             1511
@@ -6571,6 +6695,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 124,
           "wn": 1553,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6586,6 +6711,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 125,
           "wn": [
             1532,
             1523,
@@ -6605,6 +6731,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 126,
           "wn": 1595,
           "measured_on": "zno",
           "technique": "drifts",
@@ -6659,6 +6786,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 127,
           "wn": 1370,
           "measured_on": "ru_na2o_al2o3",
           "technique": "drifts",
@@ -6673,6 +6801,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 128,
           "wn": 1310,
           "measured_on": "ni_ce_fe_la_al2o3",
           "technique": "drifts",
@@ -6687,6 +6816,7 @@
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 129,
           "wn": 1251,
           "measured_on": "ceo2",
           "technique": "drifts",
@@ -6702,6 +6832,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 130,
           "wn": 1319,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -6716,6 +6847,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 131,
           "wn": 1316,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6731,6 +6863,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 132,
           "wn": [
             1358,
             1373,
@@ -6789,6 +6922,7 @@
       "references": [
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 133,
           "wn": 1511,
           "measured_on": "zno",
           "technique": "drifts",
@@ -6842,6 +6976,7 @@
       "references": [
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 134,
           "wn": 1324,
           "measured_on": "zno",
           "technique": "drifts",
@@ -6895,6 +7030,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 135,
           "wn": 1020,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6910,6 +7046,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 136,
           "wn": 1083,
           "measured_on": "znhfox",
           "technique": "drifts",
@@ -6964,6 +7101,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 137,
           "wn": 1040,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -6979,6 +7117,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 138,
           "wn": [
             1081,
             1052
@@ -7036,6 +7175,7 @@
       "references": [
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 139,
           "wn": 834,
           "measured_on": [
             "cu_zno"
@@ -7131,6 +7271,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 140,
           "wn": 1650,
           "measured_on": [
             "al2o3",
@@ -7148,6 +7289,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 141,
           "wn": 1650,
           "measured_on": "al2o3",
           "technique": "drifts",
@@ -7162,6 +7304,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 142,
           "wn": 1622,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7178,6 +7321,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 143,
           "wn": [
             1650,
             1648
@@ -7197,6 +7341,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 144,
           "wn": 1633,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -7212,6 +7357,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 145,
           "wn": [
             1622,
             1603,
@@ -7270,6 +7416,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 146,
           "wn": 1440,
           "measured_on": [
             "al2o3",
@@ -7287,6 +7434,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 147,
           "wn": 1434,
           "measured_on": "al2o3",
           "technique": "drifts",
@@ -7301,6 +7449,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 148,
           "wn": 1410,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7316,6 +7465,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 149,
           "wn": [
             1433,
             1438
@@ -7373,6 +7523,7 @@
       "references": [
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 150,
           "wn": 1220,
           "measured_on": "al2o3",
           "technique": "drifts",
@@ -7387,6 +7538,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 151,
           "wn": 1220,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7403,6 +7555,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 152,
           "wn": [
             1230,
             1231
@@ -7460,6 +7613,7 @@
       "references": [
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 153,
           "wn": 3640,
           "measured_on": [
             "al2o3",
@@ -7477,6 +7631,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 154,
           "wn": 3619,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7493,6 +7648,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 155,
           "wn": 3623,
           "measured_on": "al2o3",
           "technique": "transmission",
@@ -7545,6 +7701,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 156,
           "wn": 1010,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7597,6 +7754,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 157,
           "wn": 820,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7649,6 +7807,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 158,
           "wn": 2671,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7703,6 +7862,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 159,
           "wn": 969,
           "measured_on": "fe2o3",
           "technique": "transmission",
@@ -7759,6 +7919,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 160,
           "wn": [
             3609,
             3610,
@@ -7778,6 +7939,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 161,
           "wn": 3614,
           "measured_on": "al2o3",
           "technique": "transmission",
@@ -7832,6 +7994,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 162,
           "wn": [
             1599,
             1613,
@@ -7851,6 +8014,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 163,
           "wn": 1634,
           "measured_on": "al2o3",
           "technique": "transmission",
@@ -7907,6 +8071,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 164,
           "wn": [
             1388,
             1401,
@@ -7926,6 +8091,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 165,
           "wn": 1416,
           "measured_on": "al2o3",
           "technique": "transmission",
@@ -7982,6 +8148,7 @@
       "references": [
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 166,
           "wn": [
             1205,
             1216,
@@ -8001,6 +8168,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 167,
           "wn": 1215,
           "measured_on": "al2o3",
           "technique": "transmission",
@@ -8057,6 +8225,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 168,
           "wn": 2817,
           "measured_on": [
             "ag_0",
@@ -8074,6 +8243,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 169,
           "wn": 2890,
           "measured_on": [
             "cu_0",
@@ -8092,6 +8262,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 170,
           "wn": 2884,
           "measured_on": [
             "cu_0",
@@ -8110,6 +8281,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 171,
           "wn": 2876,
           "measured_on": [
             "cu_gazrox",
@@ -8127,6 +8299,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 172,
           "wn": 2859,
           "measured_on": "zro2",
           "technique": "drifts",
@@ -8142,6 +8315,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 173,
           "wn": 2887,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -8157,6 +8331,7 @@
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 174,
           "wn": 2910,
           "measured_on": "ceo2",
           "technique": "drifts",
@@ -8171,6 +8346,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 175,
           "wn": [
             2856,
             2850,
@@ -8201,6 +8377,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 176,
           "wn": 2897,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -8215,6 +8392,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 177,
           "wn": [
             2848,
             2868,
@@ -8234,6 +8412,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 178,
           "wn": [
             2848,
             2917
@@ -8252,6 +8431,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 179,
           "wn": [
             2887,
             2892,
@@ -8273,6 +8453,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 180,
           "wn": 2873,
           "measured_on": "zno",
           "technique": "drifts",
@@ -8287,6 +8468,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 181,
           "wn": null,
           "measured_on": "hfo2",
           "technique": "drifts",
@@ -8301,6 +8483,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 182,
           "wn": 2873,
           "measured_on": [
             "zro2",
@@ -8318,6 +8501,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 183,
           "wn": 2840,
           "measured_on": [
             "cu_0",
@@ -8377,6 +8561,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 184,
           "wn": 1580,
           "measured_on": [
             "cu_0",
@@ -8395,6 +8580,7 @@
         },
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 185,
           "wn": 1600,
           "measured_on": [
             "ag_0",
@@ -8412,6 +8598,7 @@
         },
         {
           "key": "Toyao.HeterogeneousPtMoOx.2019",
+          "id": 186,
           "wn": 1555,
           "measured_on": "pt_moox_tio2",
           "technique": "transmission",
@@ -8426,6 +8613,7 @@
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 187,
           "wn": 1560,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -8440,6 +8628,7 @@
         },
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 188,
           "wn": 1520,
           "measured_on": [
             "ru_al2o3",
@@ -8457,6 +8646,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 189,
           "wn": 1600,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -8471,6 +8661,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 190,
           "wn": 1582,
           "measured_on": "zro2",
           "technique": "drifts",
@@ -8486,6 +8677,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 191,
           "wn": 1585,
           "measured_on": "al2o3",
           "technique": "drifts",
@@ -8500,6 +8692,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 192,
           "wn": [
             1587,
             1603
@@ -8517,6 +8710,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 193,
           "wn": [
             1590,
             1544
@@ -8534,6 +8728,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 194,
           "wn": 1581,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -8548,6 +8743,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 195,
           "wn": [
             1555,
             1548,
@@ -8567,6 +8763,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 196,
           "wn": [
             1588,
             1548
@@ -8585,6 +8782,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 197,
           "wn": 1578,
           "measured_on": [
             "zn_ovac_hf",
@@ -8602,6 +8800,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 198,
           "wn": [
             1575,
             1577
@@ -8622,6 +8821,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 199,
           "wn": 1644,
           "measured_on": [
             "cu_0",
@@ -8679,6 +8879,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 200,
           "wn": 1330,
           "measured_on": [
             "cu_0",
@@ -8697,6 +8898,7 @@
         },
         {
           "key": "Toyao.HeterogeneousPtMoOx.2019",
+          "id": 201,
           "wn": 1370,
           "measured_on": "pt_moox_tio2",
           "technique": "transmission",
@@ -8711,6 +8913,7 @@
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 202,
           "wn": 1362,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -8725,6 +8928,7 @@
         },
         {
           "key": "Proano.InsituDRIFTSStudy.2019",
+          "id": 203,
           "wn": 1320,
           "measured_on": [
             "ru_al2o3",
@@ -8742,6 +8946,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 204,
           "wn": [
             1369,
             1377
@@ -8760,6 +8965,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 205,
           "wn": [
             1335,
             1380
@@ -8778,6 +8984,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 206,
           "wn": 1350,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -8792,6 +8999,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 207,
           "wn": 1381,
           "measured_on": "zro2",
           "technique": "drifts",
@@ -8807,6 +9015,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 208,
           "wn": 1380,
           "measured_on": "al2o3",
           "technique": "drifts",
@@ -8821,6 +9030,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 209,
           "wn": [
             1360,
             1314
@@ -8838,6 +9048,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 210,
           "wn": 1370,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -8852,6 +9063,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 211,
           "wn": 1371,
           "measured_on": [
             "zn_ovac_hf",
@@ -8869,6 +9081,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 212,
           "wn": [
             1380,
             1374
@@ -8889,6 +9102,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 213,
           "wn": 1307,
           "measured_on": [
             "cu_0",
@@ -8946,6 +9160,7 @@
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 214,
           "wn": null,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -8960,6 +9175,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 215,
           "wn": 1371,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -8974,6 +9190,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 216,
           "wn": 1386,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -8988,6 +9205,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 217,
           "wn": [
             1373,
             1385
@@ -9006,6 +9224,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 218,
           "wn": [
             1385,
             1280
@@ -9076,6 +9295,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 219,
           "wn": 2952,
           "measured_on": [
             "ag_0",
@@ -9093,6 +9313,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 220,
           "wn": 2956,
           "measured_on": [
             "cu_0",
@@ -9111,6 +9332,7 @@
         },
         {
           "key": "VicovanBerkel.ExploitingContinuityEquation.2024",
+          "id": 221,
           "wn": 2945,
           "measured_on": "ceo2",
           "technique": "drifts",
@@ -9125,6 +9347,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 222,
           "wn": [
             2931,
             2929,
@@ -9145,6 +9368,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 223,
           "wn": 2979,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9159,6 +9383,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 224,
           "wn": 2957,
           "measured_on": "fe3o4_001",
           "technique": "irras",
@@ -9174,6 +9399,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 225,
           "wn": 2979,
           "measured_on": [
             "zn_ovac_hf",
@@ -9244,6 +9470,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 226,
           "wn": 2711,
           "measured_on": [
             "ag_0",
@@ -9261,6 +9488,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 227,
           "wn": 2757,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9275,6 +9503,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 228,
           "wn": 2731,
           "measured_on": [
             "cu_0",
@@ -9331,6 +9560,7 @@
       "references": [
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 229,
           "wn": [
             2167,
             2173,
@@ -9351,6 +9581,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 230,
           "wn": 2184,
           "measured_on": "zn_2p",
           "technique": "drifts",
@@ -9408,6 +9639,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 231,
           "wn": 1592,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9463,6 +9695,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 232,
           "wn": 1341,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9518,6 +9751,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 233,
           "wn": 2929,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -9533,6 +9767,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 234,
           "wn": 2919,
           "measured_on": [
             "cu_1p",
@@ -9550,6 +9785,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 235,
           "wn": 2926,
           "measured_on": [
             "cu_0",
@@ -9567,6 +9803,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 236,
           "wn": 2954,
           "measured_on": [
             "cu_0",
@@ -9585,6 +9822,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 237,
           "wn": 2970,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -9599,6 +9837,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 238,
           "wn": [
             2958,
             2956,
@@ -9617,6 +9856,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 239,
           "wn": 2940,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9631,6 +9871,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 240,
           "wn": 2933,
           "measured_on": [
             "zn_ovac_hf",
@@ -9648,6 +9889,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 241,
           "wn": 2927,
           "measured_on": [
             "zro2",
@@ -9705,6 +9947,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 242,
           "wn": 2828,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -9720,6 +9963,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 243,
           "wn": 2836,
           "measured_on": [
             "cu_1p",
@@ -9737,6 +9981,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 244,
           "wn": 2842,
           "measured_on": [
             "cu_0",
@@ -9754,6 +9999,7 @@
         },
         {
           "key": "Gomez.InterdependenceExtentGa.2024",
+          "id": 245,
           "wn": 2856,
           "measured_on": [
             "cu_0",
@@ -9772,6 +10018,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 246,
           "wn": 2819,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -9786,6 +10033,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 247,
           "wn": [
             2858,
             2854,
@@ -9805,6 +10053,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 248,
           "wn": 2837,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -9819,6 +10068,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 249,
           "wn": [
             2827,
             2832,
@@ -9840,6 +10090,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 250,
           "wn": 2825,
           "measured_on": "zno",
           "technique": "drifts",
@@ -9854,6 +10105,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 251,
           "wn": null,
           "measured_on": "hfo2",
           "technique": "drifts",
@@ -9868,6 +10120,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 252,
           "wn": 2822,
           "measured_on": [
             "zro2",
@@ -9925,6 +10178,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 253,
           "wn": 1441,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -9940,6 +10194,7 @@
         },
         {
           "key": "Rajput.InsituDRIFTSKineticthermodynamic.2025",
+          "id": 254,
           "wn": 1480,
           "measured_on": [
             "al2o3",
@@ -9957,6 +10212,7 @@
         },
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 255,
           "wn": 1457,
           "measured_on": "cu_zno",
           "technique": "drifts",
@@ -10048,6 +10304,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 256,
           "wn": 1126,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -10063,6 +10320,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 257,
           "wn": 1152,
           "measured_on": "cu_gazrox",
           "technique": "drifts",
@@ -10077,6 +10335,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 258,
           "wn": [
             1154,
             1111
@@ -10095,6 +10354,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 259,
           "wn": 1153,
           "measured_on": [
             "zn_ovac_hf",
@@ -10112,6 +10372,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 260,
           "wn": [
             1150,
             1159
@@ -10171,6 +10432,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 261,
           "wn": 1045,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -10186,6 +10448,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 262,
           "wn": 1071,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -10201,6 +10464,7 @@
         },
         {
           "key": "Oing.RoleZnHf.2026",
+          "id": 263,
           "wn": 1052,
           "measured_on": [
             "zn_ovac_hf",
@@ -10218,6 +10482,7 @@
         },
         {
           "key": "Meunier.CuBoundFormatesAre.2023",
+          "id": 264,
           "wn": 1049,
           "measured_on": [
             "zro2",
@@ -10274,6 +10539,7 @@
       "references": [
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 265,
           "wn": 2080,
           "measured_on": "sio2",
           "technique": "drifts",
@@ -10329,6 +10595,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 266,
           "wn": 2194,
           "measured_on": "ga2o3",
           "technique": "drifts",
@@ -10384,6 +10651,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 267,
           "wn": 3686,
           "measured_on": null,
           "technique": "raman",
@@ -10399,6 +10667,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 268,
           "wn": 3687,
           "measured_on": null,
           "technique": "transmission",
@@ -10413,6 +10682,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 269,
           "wn": 3690.1,
           "measured_on": null,
           "technique": "transmission",
@@ -10468,6 +10738,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 270,
           "wn": [
             2720,
             2745,
@@ -10486,6 +10757,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 271,
           "wn": 2721.7,
           "measured_on": null,
           "technique": "transmission",
@@ -10500,6 +10772,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 272,
           "wn": 2723.0,
           "measured_on": null,
           "technique": "transmission",
@@ -10514,6 +10787,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 273,
           "wn": 2724,
           "measured_on": null,
           "technique": "transmission",
@@ -10569,6 +10843,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 274,
           "wn": 2247.3,
           "measured_on": null,
           "technique": "transmission",
@@ -10624,6 +10899,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 275,
           "wn": 2209.4,
           "measured_on": null,
           "technique": "transmission",
@@ -10638,6 +10914,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 276,
           "wn": [
             2242,
             2228,
@@ -10697,6 +10974,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 277,
           "wn": 2072.7,
           "measured_on": null,
           "technique": "transmission",
@@ -10711,6 +10989,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 278,
           "wn": 2080,
           "measured_on": null,
           "technique": "transmission",
@@ -10766,6 +11045,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 279,
           "wn": 1129.0,
           "measured_on": null,
           "technique": "transmission",
@@ -10780,6 +11060,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 280,
           "wn": 1135,
           "measured_on": null,
           "technique": "transmission",
@@ -10835,6 +11116,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 281,
           "wn": 1069.0,
           "measured_on": null,
           "technique": "transmission",
@@ -10890,6 +11172,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 282,
           "wn": 1062.1,
           "measured_on": null,
           "technique": "transmission",
@@ -10945,6 +11228,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 283,
           "wn": 1028.7,
           "measured_on": null,
           "technique": "transmission",
@@ -11000,6 +11284,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 284,
           "wn": 979.9,
           "measured_on": null,
           "technique": "transmission",
@@ -11014,6 +11299,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 285,
           "wn": 983,
           "measured_on": null,
           "technique": "transmission",
@@ -11069,6 +11355,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 286,
           "wn": 890.3,
           "measured_on": null,
           "technique": "transmission",
@@ -11124,6 +11411,7 @@
       "references": [
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 287,
           "wn": 774.4,
           "measured_on": null,
           "technique": "transmission",
@@ -11138,6 +11426,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 288,
           "wn": 776,
           "measured_on": null,
           "technique": "transmission",
@@ -11193,6 +11482,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 289,
           "wn": 3713,
           "measured_on": null,
           "technique": "transmission",
@@ -11247,6 +11537,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 290,
           "wn": 3673,
           "measured_on": null,
           "technique": "transmission",
@@ -11301,6 +11592,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 291,
           "wn": 2996,
           "measured_on": null,
           "technique": "raman",
@@ -11317,6 +11609,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 292,
           "wn": 2996.3,
           "measured_on": null,
           "technique": "transmission",
@@ -11331,6 +11624,7 @@
         },
         {
           "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "id": 293,
           "wn": [
             2985,
             2994,
@@ -11388,6 +11682,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 294,
           "wn": 2948,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -11403,6 +11698,7 @@
         },
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 295,
           "wn": 2978,
           "measured_on": null,
           "technique": "raman",
@@ -11418,6 +11714,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 296,
           "wn": 2973,
           "measured_on": null,
           "technique": "transmission",
@@ -11432,6 +11729,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 297,
           "wn": [
             2966.9,
             2928.2,
@@ -11492,6 +11790,7 @@
       "references": [
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 298,
           "wn": 2844,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -11507,6 +11806,7 @@
         },
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 299,
           "wn": 2846,
           "measured_on": null,
           "technique": "raman",
@@ -11522,6 +11822,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 300,
           "wn": 2845,
           "measured_on": null,
           "technique": "transmission",
@@ -11536,6 +11837,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 301,
           "wn": 2841.5,
           "measured_on": null,
           "technique": "transmission",
@@ -11592,6 +11894,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 302,
           "wn": 2869,
           "measured_on": null,
           "technique": "transmission",
@@ -11646,6 +11949,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 303,
           "wn": 2826,
           "measured_on": null,
           "technique": "transmission",
@@ -11700,6 +12004,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 304,
           "wn": 1478,
           "measured_on": null,
           "technique": "raman",
@@ -11715,6 +12020,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 305,
           "wn": 1477,
           "measured_on": null,
           "technique": "transmission",
@@ -11729,6 +12035,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 306,
           "wn": 1477.0,
           "measured_on": null,
           "technique": "transmission",
@@ -11790,6 +12097,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 307,
           "wn": 2956,
           "measured_on": null,
           "technique": "raman",
@@ -11805,6 +12113,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 308,
           "wn": 2954.0,
           "measured_on": null,
           "technique": "transmission",
@@ -11859,6 +12168,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 309,
           "wn": 1463,
           "measured_on": null,
           "technique": "raman",
@@ -11874,6 +12184,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 310,
           "wn": 1469.0,
           "measured_on": null,
           "technique": "transmission",
@@ -11888,6 +12199,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 311,
           "wn": null,
           "measured_on": null,
           "technique": "transmission",
@@ -11942,6 +12254,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 312,
           "wn": 1452,
           "measured_on": null,
           "technique": "raman",
@@ -11957,6 +12270,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 313,
           "wn": 1455,
           "measured_on": null,
           "technique": "transmission",
@@ -11971,6 +12285,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 314,
           "wn": 1450.5,
           "measured_on": null,
           "technique": "transmission",
@@ -12024,6 +12339,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 315,
           "wn": 1335,
           "measured_on": null,
           "technique": "raman",
@@ -12039,6 +12355,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 316,
           "wn": 1346,
           "measured_on": null,
           "technique": "transmission",
@@ -12053,6 +12370,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 317,
           "wn": 1331.4,
           "measured_on": null,
           "technique": "transmission",
@@ -12106,6 +12424,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 318,
           "wn": 1160,
           "measured_on": null,
           "technique": "raman",
@@ -12121,6 +12440,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 319,
           "wn": 1156.5,
           "measured_on": null,
           "technique": "transmission",
@@ -12174,6 +12494,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 320,
           "wn": 1071,
           "measured_on": null,
           "technique": "raman",
@@ -12189,6 +12510,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 321,
           "wn": 1071.4,
           "measured_on": null,
           "technique": "transmission",
@@ -12242,6 +12564,7 @@
       "references": [
         {
           "key": "Furic.MethanolIsolatedMatrix.1993",
+          "id": 322,
           "wn": 1034,
           "measured_on": null,
           "technique": "raman",
@@ -12257,6 +12580,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 323,
           "wn": null,
           "measured_on": null,
           "technique": "drifts",
@@ -12271,6 +12595,7 @@
         },
         {
           "key": "Wu.BondingGeometryReactivity.2000",
+          "id": 324,
           "wn": null,
           "measured_on": "tio2",
           "technique": "transmission",
@@ -12286,6 +12611,7 @@
         },
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 325,
           "wn": 1034,
           "measured_on": null,
           "technique": "transmission",
@@ -12300,6 +12626,7 @@
         },
         {
           "key": "Dinu.HowVibrationalNotations.2024",
+          "id": 326,
           "wn": 1032.6,
           "measured_on": null,
           "technique": "transmission",
@@ -12361,6 +12688,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 327,
           "wn": 2056,
           "measured_on": null,
           "technique": "transmission",
@@ -12415,6 +12743,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 328,
           "wn": 1060,
           "measured_on": null,
           "technique": "transmission",
@@ -12469,6 +12798,7 @@
       "references": [
         {
           "key": "Falk.InfraredSpectraMethanol.1961",
+          "id": 329,
           "wn": 1012,
           "measured_on": null,
           "technique": "transmission",
@@ -12523,6 +12853,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 330,
           "wn": 3685,
           "measured_on": [
             "ga_tet",
@@ -12540,6 +12871,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 331,
           "wn": 3532,
           "measured_on": [
             "ga_oct",
@@ -12557,6 +12889,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 332,
           "wn": 3450,
           "measured_on": "ga2o3",
           "technique": "transmission",
@@ -12571,6 +12904,7 @@
         },
         {
           "key": "Baltrusaitis.FTIRSpectroscopyCombined.2006",
+          "id": 333,
           "wn": [
             3686,
             3664
@@ -12589,6 +12923,7 @@
         },
         {
           "key": "Noei.RevealingFormicAcid.2026",
+          "id": 334,
           "wn": 3640,
           "measured_on": "fe3o4_001",
           "technique": "irras",
@@ -12604,6 +12939,7 @@
         },
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 335,
           "wn": 3735,
           "measured_on": "sio2",
           "technique": "drifts",
@@ -12618,6 +12954,7 @@
         },
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 336,
           "wn": [
             3743,
             3445
@@ -12672,6 +13009,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 337,
           "wn": [
             2694,
             2606
@@ -12728,6 +13066,7 @@
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 338,
           "wn": 3657,
           "measured_on": null,
           "technique": "transmission",
@@ -12742,6 +13081,7 @@
         },
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 339,
           "wn": 3657,
           "measured_on": null,
           "technique": "srs",
@@ -12757,6 +13097,7 @@
         },
         {
           "key": "Herzberg.InfraredRamanSpectra.1945",
+          "id": 340,
           "wn": 3657,
           "measured_on": null,
           "technique": null,
@@ -12809,6 +13150,7 @@
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 341,
           "wn": 1595,
           "measured_on": null,
           "technique": "transmission",
@@ -12823,6 +13165,7 @@
         },
         {
           "key": "Herzberg.InfraredRamanSpectra.1945",
+          "id": 342,
           "wn": 1595,
           "measured_on": null,
           "technique": null,
@@ -12875,6 +13218,7 @@
       "references": [
         {
           "key": "Shimanouchi.TablesMolecularVibrational.1972",
+          "id": 343,
           "wn": 3756,
           "measured_on": null,
           "technique": "transmission",
@@ -12889,6 +13233,7 @@
         },
         {
           "key": "Herzberg.InfraredRamanSpectra.1945",
+          "id": 344,
           "wn": 3756,
           "measured_on": null,
           "technique": null,
@@ -12941,6 +13286,7 @@
       "references": [
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 345,
           "wn": 1976,
           "measured_on": [
             "ga",
@@ -12959,6 +13305,7 @@
         },
         {
           "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
+          "id": 346,
           "wn": 1980,
           "measured_on": [
             "ga",
@@ -12976,6 +13323,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 347,
           "wn": 2011,
           "measured_on": [
             "ga_tet",
@@ -12994,6 +13342,7 @@
         },
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 348,
           "wn": 1988,
           "measured_on": [
             "ga_oct",
@@ -13049,6 +13398,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 349,
           "wn": [
             1442,
             1430
@@ -13108,6 +13458,7 @@
       "references": [
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 350,
           "wn": 1691,
           "measured_on": [
             "cu_zno"
@@ -13162,6 +13513,7 @@
       "references": [
         {
           "key": "Fehr.RealisticOperandoDRIFTSStudies.2022",
+          "id": 351,
           "wn": 1500,
           "measured_on": [
             "o_vac_1p",
@@ -13218,6 +13570,7 @@
       "references": [
         {
           "key": "Paredes-Nunez.SpectrumBaselineArtefacts.2015",
+          "id": 352,
           "wn": [
             1985,
             1873
@@ -13273,6 +13626,7 @@
       "references": [
         {
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "id": 353,
           "wn": [
             213,
             283,
@@ -13332,6 +13686,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 354,
           "wn": 2331,
           "measured_on": null,
           "technique": "srs",
@@ -13388,6 +13743,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 355,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13444,6 +13800,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 356,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13500,6 +13857,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 357,
           "wn": 4160,
           "measured_on": null,
           "technique": "srs",
@@ -13556,6 +13914,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 358,
           "wn": 3576,
           "measured_on": null,
           "technique": "srs",
@@ -13612,6 +13971,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 359,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13668,6 +14028,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 360,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13724,6 +14085,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 361,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13780,6 +14142,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 362,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -13956,6 +14319,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 363,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14009,6 +14373,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 364,
           "wn": 1035,
           "measured_on": null,
           "technique": "srs",
@@ -14062,6 +14427,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 365,
           "wn": 1248,
           "measured_on": null,
           "technique": "raman",
@@ -14077,6 +14443,7 @@
         },
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 366,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14130,6 +14497,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 367,
           "wn": 1447,
           "measured_on": null,
           "technique": "raman",
@@ -14145,6 +14513,7 @@
         },
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 368,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14198,6 +14567,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 369,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14213,6 +14583,7 @@
         },
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 370,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14266,6 +14637,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 371,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14319,6 +14691,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 372,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14372,6 +14745,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 373,
           "wn": null,
           "measured_on": null,
           "technique": "srs",
@@ -14425,6 +14799,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 374,
           "wn": null,
           "measured_on": null,
           "technique": "computational",
@@ -14477,6 +14852,7 @@
       "references": [
         {
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "id": 375,
           "wn": null,
           "measured_on": null,
           "technique": "computational",
@@ -14529,6 +14905,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 376,
           "wn": 1688,
           "measured_on": [
             "sio2",
@@ -14547,6 +14924,7 @@
         },
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 377,
           "wn": 1669,
           "measured_on": null,
           "technique": "computational",
@@ -14598,6 +14976,7 @@
       "references": [
         {
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "id": 378,
           "wn": 2341,
           "measured_on": [
             "sio2",
@@ -14654,6 +15033,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 379,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14711,6 +15091,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 380,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14768,6 +15149,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 381,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14825,6 +15207,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 382,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14895,6 +15278,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 383,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -14965,6 +15349,7 @@
       "references": [
         {
           "key": "Jourdanneau.MethaneRamanSpectrum.2005",
+          "id": 384,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -15022,6 +15407,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 385,
           "wn": 2108,
           "measured_on": null,
           "technique": "raman",
@@ -15078,6 +15464,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 386,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -15136,6 +15523,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 387,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -15194,6 +15582,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 388,
           "wn": 1092,
           "measured_on": null,
           "technique": "raman",
@@ -15252,6 +15641,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 389,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -15310,6 +15700,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 390,
           "wn": null,
           "measured_on": null,
           "technique": "raman",
@@ -15368,6 +15759,7 @@
       "references": [
         {
           "key": "Shepherd.RamanSpectrumMethaned4.1957",
+          "id": 391,
           "wn": 2258,
           "measured_on": null,
           "technique": "raman",

@@ -509,7 +509,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
   {
     key: 'tip',
     title: 'Band tooltip',
-    note: 'The densest surface in the atlas: eleven roles inside a 300px box. Sizes step in half-pixels on purpose, do not round them.',
+    note: 'The densest surface in the atlas: twelve roles inside a 300px box. Sizes step in half-pixels on purpose, do not round them.',
     roles: [
       { key: 'tip-name',      label: 'Band name',        usage: 'Species plus mode, line 1',                     size: '14px',   weight: 700, color: 'ink-900',    lh: '1.2' },
       { key: 'tip-vib',       label: 'Vibration meta',   usage: 'category (subtype) | atoms',                    size: '11.5px', weight: 400, color: 'ink-300' },
@@ -522,6 +522,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'tip-badge',     label: 'Badge',            usage: 'Wavenumber (mono) and site (sans) badges',      size: '11.5px', weight: 400, color: 'badge-wn-fg' },
       { key: 'tip-ref-note',  label: 'Reference note',   usage: 'Per-citation note, italic, at most 150 words',  size: '11.5px', weight: 400, color: 'ink-400',    lh: '1.35', fs: 'italic' },
       { key: 'tip-hint',      label: 'Interaction hint', usage: 'Bottom row, only while a band is pinned open',  size: '10.5px', weight: 400, color: 'ink-050' },
+      { key: 'tip-id',        label: 'Identifier',       usage: 'The band id under a card, and an assignment number beside a claim’s links. There to be quoted, not read', size: '10px', weight: 400, color: 'ink-025', family: 'mono' },
     ],
   },
   {
