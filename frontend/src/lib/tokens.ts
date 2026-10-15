@@ -407,7 +407,6 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   drifts:            TECHNIQUE_STYLE,
   transmission:      TECHNIQUE_STYLE,
   atr:               TECHNIQUE_STYLE,
-  ftir:              TECHNIQUE_STYLE,
   irras:             TECHNIQUE_STYLE,
   pm_irras:          TECHNIQUE_STYLE,
   emission:          TECHNIQUE_STYLE,

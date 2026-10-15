@@ -41,10 +41,10 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 
 # How the spectrum was taken, per citation. DRIFTS, ATR and the rest are
 # sampling geometries; "computational" is not a geometry at all, it marks a
-# calculated frequency. Every value names a real way of taking the spectrum:
-# "ftir" is the one placeholder: it says the source named the interferometer
-# and not the geometry, which is worth recording as an open question rather
-# than guessing. Reflection geometries are separate values because the surface
+# calculated frequency. Every value names a real way of taking the spectrum,
+# except the two placeholders: "infrared" says the source named an infrared
+# measurement and not its geometry, "raman" the same for Raman. That is worth
+# recording as an open question rather than guessing. Reflection geometries are separate values because the surface
 # selection rule makes them a different experiment: on a flat conducting
 # sample IRRAS sees only dipoles with a component along the surface normal.
 #
@@ -56,7 +56,7 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # enough to be worth its own value; Monai proposed it in 2024.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "ftir", "raman", "srs", "computational",
+    "mioirs", "infrared", "raman", "srs", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -70,7 +70,7 @@ VALID_ISOTOPES = set(ISOTOPE_TAGS)
 # rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "ftir", "raman", "srs", "computational",
+    "mioirs", "infrared", "raman", "srs", "computational",
 }
 
 # What was actually in the beam for one claim. Distinct from Band.phase above,

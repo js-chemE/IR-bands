@@ -1106,6 +1106,11 @@ export const PLANNED: { label: string; part: string; what: string }[] = [
     part: 'Spectroscopy',
     what: 'Transmission, DRIFTS, ATR and RAIRS: how the light reaches the sample, and what each geometry changes in the spectrum.',
   },
+  {
+    label: 'Emissivity and Black-Body Radiation',
+    part: 'Spectroscopy',
+    what: 'Next to Spectral Representations: emission as the other side of absorption. Planck’s black-body curve as the reference, emissivity as the fraction of it a real surface gives off, Kirchhoff’s law tying emissivity to absorptivity, and why a hot sample or cell adds a thermal background to an infrared spectrum.',
+  },
 ];
 
 /** One Knowledge card citing one reference, for the References page. */

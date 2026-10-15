@@ -950,13 +950,14 @@ RAMAN_TECHNIQUES = {"raman", "srs"}
 
 #: Technique -> the umbrella tag derived alongside it. Mirrors
 #: TECHNIQUE_FAMILY in frontend/src/lib/dataModel.ts; keep the two in step.
-#: "raman" maps to itself: a paper that says only "Raman" has named the
-#: family and nothing finer, so the family tag and the value are one chip.
+#: "infrared" and "raman" map to themselves: a paper that says only "IR" or
+#: "Raman" has named the family and nothing finer, so the family tag and the
+#: value are one chip.
 TECHNIQUE_FAMILY = {
     "drifts": "infrared",
     "transmission": "infrared",
     "atr": "infrared",
-    "ftir": "infrared",
+    "infrared": "infrared",
     "irras": "infrared",
     "pm_irras": "infrared",
     "emission": "infrared",
@@ -1029,14 +1030,14 @@ def tag_techniques(dataset: Dataset) -> list[str]:
     "infrared" beside "transmission", so the legend could ask "seen in the
     infrared at all" with one chip. In practice it doubled the technique
     chips on every claim and every band for a question the chart already
-    answers better: the IR | Raman switch greys out and folds the claims of
-    the other spectroscopy, which is that question asked of the whole chart
-    at once rather than of one band.
+    answers better: its Techniques filter switches a whole family off at
+    once, which is that question asked of the whole chart rather than of one
+    band.
 
     The family itself is not gone, only the tag: TECHNIQUE_FAMILY still
-    orders the legend and still decides which claims the spectroscopy switch
-    folds. "raman" and "computational" still appear as chips because they are
-    technique values in their own right, not because they are families.
+    orders the legend and still groups the filter. "infrared", "raman" and
+    "computational" still appear as chips because they are technique values
+    in their own right, not because they are families.
     """
     for b in dataset.bands:
         for ref in b.references:

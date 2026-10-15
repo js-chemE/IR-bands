@@ -545,7 +545,6 @@ export const TECHNIQUE_FAMILY: Record<string, 'infrared' | 'raman' | 'computatio
   drifts: 'infrared',
   transmission: 'infrared',
   atr: 'infrared',
-  ftir: 'infrared',
   irras: 'infrared',
   pm_irras: 'infrared',
   emission: 'infrared',
@@ -625,7 +624,6 @@ export const TAG_ROLES: Record<string, TagRole> = {
   drifts: 'technique',
   transmission: 'technique',
   atr: 'technique',
-  ftir: 'technique',
   irras: 'technique',
   pm_irras: 'technique',
   emission: 'technique',
@@ -649,7 +647,6 @@ export const DERIVED_TAGS: Record<string, string> = {
   drifts: 'assignment.technique',
   transmission: 'assignment.technique',
   atr: 'assignment.technique',
-  ftir: 'assignment.technique',
   irras: 'assignment.technique',
   pm_irras: 'assignment.technique',
   emission: 'assignment.technique',
@@ -771,8 +768,9 @@ export function generatedTagTip(tag: string): string | undefined {
 
    DRIFTS and ATR are sampling geometries; FTIR is the interferometer, which
    nearly every one of these measurements uses whatever the geometry, so it is
-   not a value here: a claim says how the sample met the beam, or that the
-   number was calculated. Mirror of VALID_TECHNIQUES in schema.py.
+   not a value here: a claim says how the sample met the beam, that it was an
+   infrared or Raman measurement of unstated kind, or that the number was
+   calculated. Mirror of VALID_TECHNIQUES in schema.py.
    --------------------------------------------------------------------------- */
 
 export interface TechniqueSpec {
@@ -789,12 +787,12 @@ export const TECHNIQUES: TechniqueSpec[] = [
   { key: 'drifts', label: 'DRIFTS', tag: 'drifts', spectroscopy: 'ir', note: 'Diffuse reflectance off a powder bed. The workhorse for supported catalysts.' },
   { key: 'transmission', label: 'Transmission', tag: 'transmission', spectroscopy: 'ir', note: 'Self-supporting wafer, beam straight through.' },
   { key: 'atr', label: 'ATR', tag: 'atr', spectroscopy: 'ir', note: 'Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces.' },
-  { key: 'ftir', label: 'FTIR', tag: 'ftir', spectroscopy: 'ir', note: 'The placeholder of the infrared family: the source says only that it used FTIR, which names the interferometer rather than the sampling geometry. Distinct from the "infrared" umbrella tag, which every infrared claim carries whatever its geometry: this one says the geometry was never stated. Use it when the paper genuinely does not say, and replace it once it does.' },
   { key: 'irras', label: 'IRRAS', tag: 'irras', spectroscopy: 'ir', note: 'Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent.' },
   { key: 'pm_irras', label: 'PM-IRRAS', tag: 'pm_irras', spectroscopy: 'ir', note: 'IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum.' },
   { key: 'emission', label: 'Emission', tag: 'emission', spectroscopy: 'ir', note: 'The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries.' },
   { key: 'mioirs', label: 'MIOIRS', tag: 'mioirs', spectroscopy: 'ir', note: 'Mixed Isotope Operando Infrared Spectroscopy: the sample is fed a deliberately mixed isotopic stream, a little ¹³CO in ¹²CO, so that neighbouring adsorbates no longer vibrate at the same frequency and the dipole coupling between them is detuned. The odd value of the infrared family, since it names what is fed to the cell rather than how the beam reaches the sample — but a decoupled adlayer is a different measurement whatever geometry recorded it, which is why it is a value and not a tag. Proposed by Monai in 2024; nothing in the atlas carries it yet.' },
-  { key: 'raman', label: 'Raman (unspecified)', tag: 'raman', spectroscopy: 'raman', note: 'Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. Greyed out in the chart while it is set to IR, as the infrared claims are while it is set to Raman. The placeholder of its family, the way ftir is for the infrared: it says the source named Raman and nothing finer. Use srs where the paper says spontaneous.' },
+  { key: 'infrared', label: 'IR (unspecified)', tag: 'infrared', spectroscopy: 'ir', note: 'The placeholder of the infrared family: the source says only IR or FTIR, and FTIR names the interferometer rather than the sampling geometry. The value and the family umbrella are one chip, as for raman. Use it when the paper genuinely does not say, and replace it once it does.' },
+  { key: 'raman', label: 'Raman (unspecified)', tag: 'raman', spectroscopy: 'raman', note: 'Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. The placeholder of its family, the way infrared is for the infrared: it says the source named Raman and nothing finer. Use srs where the paper says spontaneous.' },
   { key: 'srs', label: 'Spontaneous Raman', tag: 'srs', spectroscopy: 'raman', note: 'Spontaneous Raman scattering, named explicitly. The specific value under raman, the way DRIFTS and transmission sit under the infrared: the scattering happens by itself from one laser, rather than being driven by a second beam as in the coherent techniques (CARS, stimulated Raman). Use it only where the source says spontaneous; plain raman stays the value for a paper that does not.' },
   { key: 'computational', label: 'Computational', tag: 'computational', spectroscopy: null, note: 'Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis.' },
 ];

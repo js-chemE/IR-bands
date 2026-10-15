@@ -1049,11 +1049,12 @@
               <th>Faded</th>
               <td class="spec-val">nothing stands</td>
               <td>
-                No claim on the band survives the current view: every one of
-                them is greyed out or has no technique at all
-                (<code>isReferenced</code> in <code>chart.ts</code>). A
-                calculation never fades, because it was never a measurement
-                that could fail to apply.
+                No claim on the band counts: every one of them was made with a
+                technique switched off under the sidebar's
+                <em>Techniques</em>, or records no technique at all
+                (<code>isReferenced</code> in <code>chart.ts</code>). Every
+                technique counts to begin with, in either view, so a band
+                fades only once the reader has asked for less evidence.
               </td>
             </tr>
             <tr>
@@ -1069,11 +1070,11 @@
           </tbody>
         </table>
         <p>
-          The two pills in the sidebar do double duty, and which one they do
-          depends on the heading they are under. Under <em>Appearance</em> they
-          switch the look on and off; under <em>Enable &amp; Disable</em> they
-          take those bands out of the chart altogether
-          (<code>LookPill.svelte</code>).
+          Each of the two looks is one three-way choice under <em>Band
+          States</em>: the look, drawn plain, or out of the chart with the
+          lanes re-laid. It used to be a pill under Appearance and a second
+          pill further down, which said one thing twice and could say it two
+          ways at once.
         </p>
       </section>
     </div>
@@ -1472,7 +1473,7 @@
             <tr><th>phase</th><td class="spec-val">gas / adsorbed / surface</td><td>Omit when the band covers both the free molecule and its adsorbed form. Derives no tag: the phase chips come from the claims' own state.</td></tr>
             <tr><th>topology</th><td class="spec-val">a topology id</td><td>Binding geometry, from the species' molecule in data/vibrations.jsonc.</td></tr>
             <tr><th>references[].measured_on</th><td class="spec-val">a surface key or list</td><td>Where this source measured it, from data/surfaces.jsonc, at whatever scale the paper stated: a site ("cu_1p"), a phase ("tio2"), a sample ("cu_zno"), or several at once. No conditions.</td></tr>
-            <tr><th>references[].technique</th><td class="spec-val">an enum value</td><td>How the spectrum was taken. Derives the technique tag chip, so never write drifts/ftir by hand.</td></tr>
+            <tr><th>references[].technique</th><td class="spec-val">an enum value</td><td>How the spectrum was taken. Derives the technique tag chip, so never write drifts/infrared by hand.</td></tr>
             <tr><th>references[].note</th><td class="spec-val">under 150 words</td><td>Conditions, caveats, what that paper actually showed.</td></tr>
             <tr><th>references[].tags</th><td class="spec-val">per-citation</td><td>Claims about the citation, e.g. isotope-labeling as evidence. Band-level truths go in the band's own tags.</td></tr>
           </tbody>

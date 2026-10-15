@@ -334,8 +334,8 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
     lead: [
       'One value per claim, from a closed list, and `build.py` derives the tag chip from it. The field ' +
       'is the sampling geometry, not the instrument: nearly every measurement here is an interferometer ' +
-      'measurement, so "FTIR" on its own says nothing and is only the placeholder for a paper that '
-      + 'states no geometry.',
+      'measurement, so "FTIR" on its own says nothing: such a paper gets `infrared`, the placeholder '
+      + 'for one that states no geometry, as `raman` is for one that says only Raman.',
       'The reflection geometries are values of their own rather than one lumped entry, because on a '
       + 'flat conducting sample the surface selection rule makes IRRAS a different experiment: only '
       + 'dipole components along the surface normal absorb, so a band missing from the spectrum can '
@@ -352,7 +352,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background'],
         ['emission', 'The hot sample is the source; no beam passes through it'],
         ['mioirs', 'Mixed Isotope Operando IR: the cell is fed a mixed isotopic stream (a little ¹³CO in ¹²CO) so neighbouring adsorbates stop sharing a frequency and the dipole coupling between them is detuned. It names what went into the cell rather than how the beam arrived, and it is a value of its own because a decoupled adlayer is a different measurement whatever geometry recorded it'],
-        ['ftir', 'Placeholder: the paper names the interferometer, not the geometry'],
+        ['infrared', 'Placeholder: the paper says IR or FTIR and names no geometry'],
         ['raman', 'A Raman shift, whatever the geometry: scattering, not absorption'],
         ['srs', 'Spontaneous Raman scattering, where the source says so. One laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) that drive it with a second beam. Leave it at `raman` where the paper does not specify'],
         ['computational', 'Not a measurement: a calculated frequency'],
@@ -383,7 +383,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'out and say what the paper said in the note.',
     ],
     never: [
-      'Never guess the geometry from the catalyst. Write `ftir` when the paper names only the ' +
+      'Never guess the geometry from the catalyst. Write `infrared` when the paper names only the ' +
       'instrument, and leave the field out when it says nothing at all: the Dataset page counts ' +
       'both, and either is honest where a guess is not.',
       'Never author the matching tag by hand. The build writes it, both the technique chip and ' +

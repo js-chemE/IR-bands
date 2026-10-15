@@ -1,12 +1,10 @@
 <script lang="ts">
   /**
-   * A small on/off pill that looks like the bands it is about: hollow for the
-   * inactive bands, faded for the unreferenced ones. Off, it is greyed and
-   * struck through, the same idiom as a switched-off group row. Used twice in
-   * the sidebar: under Appearance, where it only decides the look, and under
-   * Enable & Disable, where it takes the bands out of the chart. A third
-   * look, `region`, is the Appearance switch for the electromagnetic regions
-   * marked on the chart.
+   * A small on/off pill that looks like what it switches. Off, it is greyed
+   * and struck through, the same idiom as a switched-off group row. Today
+   * only `region` is in use, the Appearance switch for the electromagnetic
+   * regions; `hollow` and `faded` are kept for the inactive and unreferenced
+   * looks, which the sidebar's Band States now draws as three-way choices.
    */
   import { createEventDispatcher } from 'svelte';
 

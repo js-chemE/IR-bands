@@ -63,10 +63,10 @@ frontend/src/
     Dropdown.svelte / ZeroField.svelte ← the sidebar's selects and the shift's zero input
     ChartTooNarrow.svelte    ← the band chart's stand-in on a shell too narrow to draw
                               it, with a "Show it anyway" escape hatch
-    LookPill.svelte          ← the hollow (inactive) and faded (unreferenced) pills: under
-                              Appearance they switch the look, under Enable & Disable they
-                              filter the bands out. A third look, `region`, is the
-                              Appearance switch for the spectral regions
+    LookPill.svelte          ← an on/off pill drawn in the look it switches; today only
+                              `region`, the Appearance switch for the spectral regions.
+                              The inactive and unreferenced looks are three-way choices
+                              under Band States in Sidebar.svelte
     KnowledgePage.svelte     ← cards in rows: Molecular motion, Light–matter interaction,
                               Spectroscopy (fundamentals.ts), then Band patterns
                               (phenomena.ts) in three rows (more bands than modes, fewer,
@@ -450,9 +450,11 @@ so both draw `Icon.svelte` and neither keeps a copy of the paths.
   the title and its options under it.
 - **The rail carries the chart's controls in miniature**, in the order the open
   sidebar puts them: which selection rule is drawn (`IR` / `R`, a toggle, not a
-  menu), Appearance, X axis, Enable & Disable, and Group filter. Each is the
+  menu), Appearance, X axis, Techniques and Band States (one flyout), and
+  Group filter. Each is the
   minimal form of the full control: the group filter offers the sets and not
-  the per-group toggles, and the axis offers the quantity and the two switches
+  the per-group toggles, Techniques offers the family and the calculations
+  but not each geometry, and the axis offers the quantity and the two switches
   but neither the unit (every quantity opens in the unit it is usually drawn
   in) nor the shift zero (a number to type).
 - **The boundary rule is grey (`--line-boundary`), never blue.** Blue in the
@@ -800,22 +802,44 @@ list, which is the one part that scrolls: the identity, the tags and the
 description stay put, and the hint line sits directly after the last
 reference rather than pinned to the floor.
 
-**The three looks are not three defaults.** Hollow (inactive) and faded
-(unreferenced) are on: both say the chosen spectroscopy cannot see the band,
-which is about the chart the reader is looking at. The computational grey-out
-is **off**: a calculation is evidence, and greying a band before anybody asked
-reads as a caveat about the chemistry rather than an answer to a question about
-method. It stays one click away, under Appearance → Options.
+**The sidebar takes three steps, in order: which claims count, what a band
+with none left does, which chemistry is on screen.**
+
+- **Techniques** decides which claims count. It is a set of *excluded*
+  techniques (`excludedTechniques` in `App.svelte`, a set of the excluded so a
+  value the filter does not list is never dropped), read by `refOff` in
+  `chart.ts`, the one place that decides whether a claim stands. A claim made
+  with an excluded technique greys and folds in the card (`off: 'excluded'`).
+  **Nothing is excluded by default, in either view**, and both families are
+  offered in both, each under a family switch, then `computational`. The
+  IR | Raman switch picks the selection rule (the hollow bands), not the
+  evidence: a Raman claim counts for a band in the infrared view until the
+  reader switches the Raman family off. Calculations count by default too: a
+  calculation is evidence, and greying a band before anybody asked reads as a
+  caveat about the chemistry rather than an answer to a question about method.
+- **Band States** decides what an inactive band and an unreferenced band do,
+  each as one three-way choice (`BandStateMode`: `look`, `plain`, `hidden`).
+  It replaced a look pill under Appearance plus a filter pill under Enable &
+  Disable for each condition, which said one thing twice and could contradict
+  itself. Unreferenced is `isReferenced` against the same excluded set the
+  card greys with, so switching off the only technique a band was measured
+  with moves it into that state. Both default to their look.
+- **The legend's technique chips are the Techniques section by another way
+  in**, not a band filter: a click stops those claims counting, an umbrella
+  switches its family, a double-click counts only that one. This is the one
+  exception to
+  "anything that matches a tag uses the full list": the hover highlight still
+  matches the tag, but hiding no longer does.
 
 **The sidebar section is Appearance, not Color by.** It holds the colour
-dimension, the looks a band takes and the marking of the spectral regions, and
-only the first of those is a colour. The dropdown says "Color by group" itself,
+dimension and the marking of the spectral regions, and only the first of
+those is a colour. The dropdown says "Color by group" itself,
 since the heading no longer does.
 
 **Spectral regions** (`lib/emSpectrum.ts`, drawn by `layoutRegions` and
 `appendRegionBorders` in `chart.ts`, named by the strip in `BandChart.svelte`).
 The electromagnetic regions the window runs through, switched on and off as a
-whole by the `spectral regions` pill under Appearance → Options.
+whole by the `spectral regions` pill under Appearance.
 
 - **Three parts, one switch.** A tinted strip of names pinned above the plot
   (its bottom rule is the top line of the plot), a dashed line at each border,
@@ -965,7 +989,7 @@ Valid enum values:
 - `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
 - `phase`: `gas | adsorbed | surface` (omit when the band covers both the free molecule and its adsorbed form). Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
-- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | mioirs | ftir | raman | srs | computational`. `mioirs` is Mixed Isotope Operando Infrared Spectroscopy, the odd value of the infrared family: it names what was fed to the cell rather than how the beam reached the sample. A deliberately mixed isotopic stream (a little ¹³CO in ¹²CO) stops neighbouring adsorbates sharing a frequency and detunes the dipole coupling between them, so the spectrum is of a decoupled adlayer whichever geometry recorded it, which is why it is a value and not a tag. Monai proposed it in 2024 and nothing in the atlas carries it yet. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation). The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand `raman` is a Raman shift whatever the geometry; while the chart is set to Raman, the infrared claims in a tooltip are greyed out and folded (and `raman` ones while it is set to IR), from `TECHNIQUES[].spectroscopy` in `dataModel.ts`. A claim with no technique is greyed out and folded in both views; `computational` never is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is drawn faded, and the sidebar's unreferenced pill takes such bands out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `ftir` is the placeholder for a source that names the interferometer but not the sampling geometry; leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
+- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | emission | mioirs | infrared | raman | srs | computational`. `mioirs` is Mixed Isotope Operando Infrared Spectroscopy, the odd value of the infrared family: it names what was fed to the cell rather than how the beam reached the sample. A deliberately mixed isotopic stream (a little ¹³CO in ¹²CO) stops neighbouring adsorbates sharing a frequency and detunes the dipole coupling between them, so the spectrum is of a decoupled adlayer whichever geometry recorded it, which is why it is a value and not a tag. Monai proposed it in 2024 and nothing in the atlas carries it yet. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation); for the placeholders the two are the same tag. The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand. `raman` is a Raman shift whatever the geometry. Which claims count is the chart's Techniques filter, not the IR | Raman switch: a claim is greyed out and folded in the tooltip when its technique is switched off there, and a claim with no technique always is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is unreferenced, and Band States decides whether it is drawn faded, plain or taken out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `infrared` is the placeholder for a source that says IR or FTIR but names no sampling geometry (FTIR names the interferometer, which nearly every one of these uses), the way `raman` is for one that says only Raman; the value and the family umbrella are then one chip. Leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
 - `state` in a reference object: what was in the beam for that one claim, one of `gas | liquid | matrix | solid | adsorbed`. **Every claim should carry one**; `build.py` prints a single count of the ones that do not. It is not the band's own `phase`: that says what the band *is* wherever it appears, while this says how the sample was held for this measurement, and it moves the number. Methanol's O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those three rows read as a disagreement instead of three different experiments. `matrix` is a solid, but the molecule in it is isolated and not rotating, so it stays separate from `solid`, which means the bulk substance. Derives a tag of the same name, so never write one by hand
 - `laser_nm` in a reference object: the Raman excitation wavelength in nm, as a plain number (`"laser_nm": 515`). Only meaningful where `technique` is `raman`; `build.py` warns otherwise, since an infrared measurement has no excitation line. It derives a per-claim tag chip of its own (`515 nm`) which is coloured from the colour of that light (`frontend/src/lib/lightColor.ts`) rather than from `TAG_STYLES`, because a wavelength is a number and no fixed tag vocabulary can hold one. That is why anything rendering a tag from the data must go through `tagStyle()` in `lib/colors.ts` rather than indexing `TAG_STYLES` directly. Record it only where the paper names the line: "argon ion laser" with no wavelength is not a wavelength
 - `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`

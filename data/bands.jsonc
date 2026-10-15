@@ -215,7 +215,7 @@
 //                          here: those belong in note.
 //                   technique: how the spectrum was taken. One of drifts |
 //                          transmission | atr | irras | pm_irras | emission |
-//                          mioirs | ftir | raman | srs | computational. The
+//                          mioirs | infrared | raman | srs | computational. The
 //                          infrared values
 //                          name a sampling geometry, with one exception:
 //                          mioirs (Mixed Isotope Operando IR) names what was
@@ -223,14 +223,13 @@
 //                          detunes the dipole coupling between neighbouring
 //                          adsorbates, because a decoupled adlayer is a
 //                          different measurement whichever geometry recorded
-//                          it. ftir is the placeholder
-//                          for a source that names the interferometer and not
-//                          the geometry, since nearly all of these use one and
-//                          saying so distinguishes nothing. raman is a Raman
-//                          shift, whatever the geometry: the chart greys out
-//                          and folds a claim whose technique is not the one
-//                          chosen in its IR/Raman switch, and one with no
-//                          technique in both. Leave the field out only when
+//                          it. infrared is the placeholder
+//                          for a source that says IR (or FTIR) and names no
+//                          geometry, the way raman is for a source that says
+//                          only Raman. raman is a Raman shift, whatever the
+//                          geometry. The chart's Techniques filter decides
+//                          which claims count; a claim with no technique
+//                          never does. Leave the field out only when
 //                          the paper says nothing at all.
 //                          build.py derives a tag of the same name, so never
 //                          write one by hand.
@@ -2381,7 +2380,7 @@
             "pd_0",
             "pd_al2o3"
           ],
-          "technique": "ftir",
+          "technique": "infrared",
           "state": "adsorbed",
           "tags": [
             "direct-dosing"
