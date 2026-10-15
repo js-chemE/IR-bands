@@ -4877,13 +4877,13 @@
             "pd_0",
             "pd_al2o3"
           ],
-          "technique": "ftir",
+          "technique": "infrared",
           "laser_nm": null,
           "state": "adsorbed",
           "note": "Fig. 6A, p. 63 (2 % Pd/Al₂O₃, 1 % CO in He at 300 K, adapted from Jbir et al.; the review says IR and not which sampling geometry): two bridged carbonyls at 1987 and 1954 cm⁻¹ beside atop CO at about 2090. On a Pd-Sn sample of equal Pd and Sn loading only the atop species survives, at about 2075, and Zn does the same (Fig. 7A). That disappearance is the review's evidence for an intermetallic compound: bridged CO needs two adjacent palladium atoms, so its absence says the pairs are gone. Adsorption heats separate the two cleanly, about 90 kJ mol⁻¹ for the atop CO against more than 165 for the bridged.",
           "tags": [
             "direct-dosing",
-            "ftir",
+            "infrared",
             "adsorbed"
           ],
           "uid": "co_bridge_mu2::Elgayyar.ContributionsLimitationsIR.2021"

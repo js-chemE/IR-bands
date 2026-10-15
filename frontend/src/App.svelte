@@ -2,8 +2,9 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
-  import { getLegendCategories, getLegendTags, isCalculatedOnly, isReferenced } from './lib/chart';
+  import { getLegendCategories, getLegendTags, isReferenced, type BandStateMode } from './lib/chart';
   import { installLookups } from './lib/labels';
+  import { tagRole } from './lib/dataModel';
   import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
   import {
     GROUP_DIMS,
@@ -382,8 +383,6 @@
 
   let enabledGroups: ReadonlySet<string> = new Set();
   let colorDim: ColorDim = 'group';
-  /* The Appearance looks, collapsed like the group list below. */
-  let showLooks = false;
   let hiddenCats: ReadonlySet<string> = new Set();
   let hiddenTags: ReadonlySet<string> = new Set();
   let tagIsolate: string | null = null;
@@ -481,7 +480,27 @@
     legendHoveredCat = e.detail.cat;
   }
 
+  /* The legend's technique chips are the Techniques section by another way
+     in, not a band filter. Hiding "transmission" used to take out every band
+     with any transmission claim, which answered a different question from
+     the sidebar's and contradicted it; now a click stops those claims
+     counting, exactly as the sidebar row does. An umbrella chip switches its
+     family. The one exception to "matching uses the full tag list": a hover
+     still asks whether the band carries the tag, which is still true. */
+  function techniqueMembers(tag: string): string[] | null {
+    if (tagRole(tag) !== 'technique') return null;
+    if (tag === 'infrared') return [...IR_TECHNIQUES];
+    if (tag === 'raman') return [...RAMAN_TECHNIQUES];
+    return [tag];
+  }
   function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
+    const members = techniqueMembers(e.detail.tag);
+    if (members) {
+      const next = new Set(excludedTechniques);
+      for (const t of members) if (e.detail.visible) next.delete(t); else next.add(t);
+      excludedTechniques = next;
+      return;
+    }
     // A single click always exits isolate mode first and applies the
     // toggle from a clean (all-visible) slate, rather than against
     // whatever hiddenTags isolate left behind — guarantees the individual
@@ -504,9 +523,29 @@
   // all of them). tagIsolate is a separate filter the chart applies
   // instead of hiddenTags entirely while it's set — see chart.ts.
   function handleTagDblClick(e: CustomEvent<{ tag: string }>) {
+    const members = techniqueMembers(e.detail.tag);
+    if (members) {
+      // Count only this one; a second double-click counts everything again.
+      const others = ALL_TECHNIQUES.filter(t => !members.includes(t));
+      const isolated = others.every(t => excludedTechniques.has(t))
+        && members.every(t => !excludedTechniques.has(t));
+      excludedTechniques = isolated ? new Set() : new Set(others);
+      return;
+    }
     tagIsolate = tagIsolate === e.detail.tag ? null : e.detail.tag;
     hiddenTags = new Set();
   }
+
+  /* What the legend draws as off: the band filter's own hidden tags, plus
+     every technique chip whose techniques are all switched off. */
+  $: legendHiddenTags = (() => {
+    const off = new Set(hiddenTags);
+    for (const t of legendTags) {
+      const members = techniqueMembers(t.key);
+      if (members?.every(m => excludedTechniques.has(m))) off.add(t.key);
+    }
+    return off;
+  })();
 
   function handleTagHover(e: CustomEvent<{ tag: string | null }>) {
     legendHoveredTag = e.detail.tag;
@@ -618,26 +657,55 @@
   // crowding in whichever region a deuteration study covered.
   let showIsotopes = false;
 
-  // The bands the chosen spectroscopy cannot see: in the chart, hollow, by
-  // default; switched off they leave it the way the isotopologues do.
-  let showInactive = true;
-  // Bands none of whose claims stands in the chosen spectroscopy (greyed-out
-  // references only): in the chart, faded, by default; off, they leave it.
-  let showUnreferenced = true;
-  // Whether those two kinds are drawn in their own look (hollow, faded) or
-  // like any other band: the Appearance pills. A look, not a filter.
-  let lookInactive = true;
-  let lookUnreferenced = true;
-  // Bands resting on a calculation alone, and calculated claims inside a
-  // tooltip: drawn like any other until asked for, from a switch of their own,
-  // so "only hard measured proof" stays askable.
+  // Which claims count, and what happens to a band once none of its own do.
   //
-  // Off by default, unlike the other two looks. A calculation is evidence, and
-  // a band whose only evidence is one is a band the atlas is reporting, not a
-  // band it doubts; greying it before anybody asked reads as a caveat about
-  // the chemistry rather than an answer to a question about method.
-  let lookCalculated = false;
-  let showCalculated = true;
+  // The first is a set of techniques switched off (the sidebar's
+  // Techniques): a claim made with one greys and folds in the card, and stops
+  // counting as a reference. A set of the excluded rather than of the
+  // accepted, so a technique the filter does not list (mioirs) is never
+  // silently dropped. Empty by default, in either view: the IR | Raman switch
+  // picks the selection rule, not the evidence, so a Raman claim counts for a
+  // band in the infrared view until the Raman family is switched off here.
+  //
+  // Computational is one of them, and counted by default too. A calculation is
+  // evidence, and a band whose only evidence is one is a band the atlas is
+  // reporting, not a band it doubts; greying it before anybody asked reads as
+  // a caveat about the chemistry rather than an answer to a question about
+  // method.
+  let excludedTechniques: ReadonlySet<string> = new Set();
+  // The second is one three-way choice per condition (the sidebar's Band
+  // States): the band's own look (hollow, faded), drawn plain, or out of the
+  // chart with the lanes re-laid without it.
+  let inactiveMode: BandStateMode = 'look';
+  let unreferencedMode: BandStateMode = 'look';
+  /* The three answers, for the rail; the open sidebar names the look itself. */
+  const BAND_STATE_OPTIONS: { mode: BandStateMode; label: string }[] = [
+    { mode: 'look', label: 'own look' },
+    { mode: 'plain', label: 'plain' },
+    { mode: 'hidden', label: 'hidden' },
+  ];
+  /* Both families are offered in either view, each under a switch of its
+     own, and the calculations after them, in the References page's order. */
+  const CHART_FAMILIES: { key: string; label: string; title: string; members: readonly string[] }[] = [
+    { key: 'infrared', label: 'IR', title: 'Infrared, every sampling geometry at once', members: IR_TECHNIQUES },
+    { key: 'raman', label: 'Raman', title: 'Raman, every kind at once', members: RAMAN_TECHNIQUES },
+  ];
+  const familyOn = (members: readonly string[], excluded: ReadonlySet<string>) =>
+    members.filter(t => !excluded.has(t)).length;
+  $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
+  let showTechniques = false;
+  function toggleChartTechnique(key: string) {
+    const next = new Set(excludedTechniques);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    excludedTechniques = next;
+  }
+  /** A family switch: all of it off if any is on, else all of it on. */
+  function toggleChartFamily(members: readonly string[]) {
+    const next = new Set(excludedTechniques);
+    if (familyOn(members, excludedTechniques) > 0) for (const t of members) next.add(t);
+    else for (const t of members) next.delete(t);
+    excludedTechniques = next;
+  }
   // The electromagnetic regions marked on the chart: the strip of names above
   // the plot, the dashed borders and the tint fading from them. One switch for
   // all three, since a border with no name says nothing.
@@ -659,19 +727,29 @@
     }
     return null;
   })();
-  $: chartBands = dataset
+  $: baseBands = dataset
     ? (showIsotopes ? dataset.bands : dataset.bands.filter(b => !b.isotopologue_of))
         .filter(b => !activePhases || !b.phase || activePhases.includes(b.phase))
-        .filter(b => showInactive || !b.tags.includes(inactiveTag))
-        // The two switches compose. Switching computational off stops a
-        // calculation counting as evidence, so a band whose only standing
-        // claim was one becomes unreferenced and the switch below takes it
-        // out. Without that a band could sit there with every claim greyed:
-        // its infrared claims silent in the Raman view, its calculation
-        // dimmed, and nothing left to justify drawing it.
-        .filter(b => showUnreferenced || isReferenced(b, spectroscopy, !showCalculated))
-        .filter(b => showCalculated || !isCalculatedOnly(b))
     : [];
+  // The bands the chart is handed: the two Band States that say "hidden" take
+  // theirs out here. Unreferenced is read against the same excluded
+  // techniques the card greys its claims with, so switching off the only
+  // technique a band was measured with moves it into this state like any
+  // band without a claim in the chosen spectroscopy.
+  $: chartBands = baseBands
+    .filter(b => inactiveMode !== 'hidden' || !b.tags.includes(inactiveTag))
+    .filter(b => unreferencedMode !== 'hidden' || isReferenced(b, excludedTechniques));
+  /** How many bands in the enabled groups each technique has a claim in. */
+  $: techniqueCounts = (() => {
+    const counts: Record<string, number> = {};
+    for (const b of baseBands) {
+      if (!enabledGroups.has(b.group)) continue;
+      for (const t of new Set(b.references.map(r => r.technique).filter(Boolean) as string[])) {
+        counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    return counts;
+  })();
 
   // Passed the live filters so a tag whose bands are all hidden by another
   // filter greys out too, rather than looking available when it is not.
@@ -853,23 +931,42 @@
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div class="mini-btn-wrap"
               on:mouseenter={() => openFly('endis')} on:mouseleave={closeFly}>
-              <button class="page-mini-btn ctl-btn" aria-label="Enable and disable"
+              <button class="page-mini-btn ctl-btn" aria-label="Techniques and band states"
               ><Icon name="toggles" size={15} width={1.8} /></button>
               {#if flyOpen === 'endis'}
+                <!-- Techniques and Band States in one flyout, in the open
+                     sidebar's order: which claims count, then what a band
+                     with none left does. The techniques at their smallest,
+                     the two families and the calculations, not every
+                     geometry. -->
                 <div class="fly">
-                  <div class="fly-title">Enable &amp; Disable</div>
+                  <div class="fly-title">Techniques</div>
+                  {#each CHART_FAMILIES as fam (fam.key)}
+                    {@const on = familyOn(fam.members, excludedTechniques)}
+                    <button class="fly-item" class:fly-on={on > 0}
+                      on:click={() => toggleChartFamily(fam.members)}
+                    ><span class="fly-box" class:on={on > 0}></span>{fam.label} ({on} / {fam.members.length})</button>
+                  {/each}
+                  <button class="fly-item" class:fly-on={!excludedTechniques.has('computational')}
+                    on:click={() => toggleChartTechnique('computational')}
+                  ><span class="fly-box" class:on={!excludedTechniques.has('computational')}></span>computational</button>
+                  <div class="fly-rule"></div>
+                  <div class="fly-title">Band States</div>
                   <button class="fly-item" class:fly-on={showIsotopes}
                     on:click={() => (showIsotopes = !showIsotopes)}
                   ><span class="fly-box" class:on={showIsotopes}></span>isotope</button>
-                  <button class="fly-item" class:fly-on={showInactive}
-                    on:click={() => (showInactive = !showInactive)}
-                  ><span class="fly-box" class:on={showInactive}></span>{techniqueLabel}-inactive</button>
-                  <button class="fly-item" class:fly-on={showUnreferenced}
-                    on:click={() => (showUnreferenced = !showUnreferenced)}
-                  ><span class="fly-box" class:on={showUnreferenced}></span>unreferenced</button>
-                  <button class="fly-item" class:fly-on={showCalculated}
-                    on:click={() => (showCalculated = !showCalculated)}
-                  ><span class="fly-box" class:on={showCalculated}></span>computational</button>
+                  <div class="fly-note">{techniqueLabel}-inactive</div>
+                  {#each BAND_STATE_OPTIONS as o (o.mode)}
+                    <button class="fly-item" class:fly-on={inactiveMode === o.mode}
+                      on:click={() => (inactiveMode = o.mode)}
+                    >{o.mode === 'look' ? 'hollow' : o.label}</button>
+                  {/each}
+                  <div class="fly-note">unreferenced</div>
+                  {#each BAND_STATE_OPTIONS as o (o.mode)}
+                    <button class="fly-item" class:fly-on={unreferencedMode === o.mode}
+                      on:click={() => (unreferencedMode = o.mode)}
+                    >{o.mode === 'look' ? 'faded' : o.label}</button>
+                  {/each}
                 </div>
               {/if}
             </div>
@@ -933,46 +1030,11 @@
               label="Color by"
               on:change={e => pickColorDim(e.detail.value)}
             />
-            <!-- The look of three kinds of band, whatever the colour: off,
-                 they are drawn like any other. Enable & Disable below filters
-                 them instead. Collapsed, and one to a line once opened: side
-                 by side they read as part of the colour choice above rather
-                 than as three separate looks. -->
-            <button
-              class="disclosure"
-              on:click={() => (showLooks = !showLooks)}
-              aria-expanded={showLooks}
-            >
-              <span class="caret">{showLooks ? '▾' : '▸'}</span>
-              Options
-            </button>
-
-            {#if showLooks}
+            <!-- The one look left here is the regions'. The looks of the
+                 inactive and unreferenced bands moved to Band States, where
+                 each is one three-way choice with its filter rather than a
+                 pill here and a second pill there. -->
             <div class="look-pills">
-              <LookPill
-                look="hollow"
-                on={lookInactive}
-                title={lookInactive
-                  ? `${techniqueLabel}-inactive bands are drawn hollow. Click to draw them like any other band`
-                  : `Draw the ${techniqueLabel}-inactive bands hollow`}
-                on:toggle={e => (lookInactive = e.detail.on)}
-              >{techniqueLabel}-inactive</LookPill>
-              <LookPill
-                look="faded"
-                on={lookUnreferenced}
-                title={lookUnreferenced
-                  ? `Bands with no ${techniqueLabel} reference are drawn faded. Click to draw them like any other band`
-                  : `Draw the bands with no ${techniqueLabel} reference faded`}
-                on:toggle={e => (lookUnreferenced = e.detail.on)}
-              >unreferenced</LookPill>
-              <LookPill
-                look="faded"
-                on={lookCalculated}
-                title={lookCalculated
-                  ? 'Bands with nothing but a calculation behind them are drawn faded, and calculated claims are dimmed in the tooltip. Click to draw them like any other band'
-                  : 'Draw the bands with nothing but a calculation behind them faded, and dim the calculated claims'}
-                on:toggle={e => (lookCalculated = e.detail.on)}
-              >computational</LookPill>
               <LookPill
                 look="region"
                 on={showRegions}
@@ -982,7 +1044,6 @@
                 on:toggle={e => (showRegions = e.detail.on)}
               >spectral regions</LookPill>
             </div>
-            {/if}
           </section>
 
           <hr class="divider" />
@@ -1001,22 +1062,83 @@
 
           <hr class="divider" />
 
+          <section>
+            <!-- Which claims count. The first of three steps the rest of the
+                 sidebar takes in order: which claims count (here), what a
+                 band with none left looks like (Band States), which chemistry
+                 is on screen (Group Filter). Both families are offered in
+                 either view and all of it is on to begin with. Collapsed
+                 like the group list: it is a narrowing tool, not an everyday
+                 control. -->
+            <h3>Techniques</h3>
+            <button
+              class="disclosure"
+              on:click={() => (showTechniques = !showTechniques)}
+              aria-expanded={showTechniques}
+            >
+              <span class="caret">{showTechniques ? '▾' : '▸'}</span>
+              Counted
+              <span class="count">{countedTechniques} / {ALL_TECHNIQUES.length}</span>
+            </button>
+            {#if showTechniques}
+              <div class="tech-filter">
+                {#each CHART_FAMILIES as fam (fam.key)}
+                {@const on = familyOn(fam.members, excludedTechniques)}
+                <button
+                  class="include-row tech-row"
+                  class:off={on === 0}
+                  aria-pressed={on > 0}
+                  title={fam.title}
+                  on:click={() => toggleChartFamily(fam.members)}
+                >
+                  <span class="inc-label">{fam.label}</span>
+                  <span class="count">{on} / {fam.members.length}</span>
+                </button>
+                {#each fam.members as t (t)}
+                  <button
+                    class="include-row tech-row tech-child"
+                    class:off={excludedTechniques.has(t)}
+                    aria-pressed={!excludedTechniques.has(t)}
+                    title={excludedTechniques.has(t)
+                      ? `Count the ${TECHNIQUE_LABEL[t]} claims again`
+                      : `Stop counting the ${TECHNIQUE_LABEL[t]} claims: they grey out in the card, and a band left with no other claim is unreferenced`}
+                    on:click={() => toggleChartTechnique(t)}
+                  ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
+                    <span class="count">{techniqueCounts[t] ?? 0}</span>
+                  </button>
+                {/each}
+                {/each}
+                <button
+                  class="include-row tech-row"
+                  class:off={excludedTechniques.has('computational')}
+                  aria-pressed={!excludedTechniques.has('computational')}
+                  title={excludedTechniques.has('computational')
+                    ? 'Count calculations as evidence again'
+                    : 'Stop counting calculations: only what came off an instrument stands, and a band resting on a calculation alone is unreferenced'}
+                  on:click={() => toggleChartTechnique('computational')}
+                ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
+                  <span class="count">{techniqueCounts.computational ?? 0}</span>
+                </button>
+              </div>
+            {/if}
+          </section>
+
+          <hr class="divider" />
+
           <Sidebar
             groups={dataset.groups}
             sets={dataset.sets}
             sortedKeys={sortedGroupKeys}
             {enabledGroups}
             {showIsotopes}
-            {showInactive}
-            {showUnreferenced}
-            {showCalculated}
+            {inactiveMode}
+            {unreferencedMode}
             {spectroscopy}
             on:groupToggle={handleGroupToggle}
             on:setSelect={handleSetSelect}
             on:isotopeToggle={e => showIsotopes = e.detail.enabled}
-            on:inactiveToggle={e => showInactive = e.detail.enabled}
-            on:unreferencedToggle={e => showUnreferenced = e.detail.enabled}
-            on:calculatedToggle={e => showCalculated = e.detail.enabled}
+            on:inactiveMode={e => (inactiveMode = e.detail.mode)}
+            on:unreferencedMode={e => (unreferencedMode = e.detail.mode)}
           />
 
         {:else if page === 'styleguide'}
@@ -1265,7 +1387,8 @@
             {shiftZero}
             reversed={axisReversed}
             {spectroscopy}
-            looks={{ inactive: lookInactive, unreferenced: lookUnreferenced, calculated: lookCalculated }}
+            looks={{ inactive: inactiveMode === 'look', unreferenced: unreferencedMode === 'look' }}
+            {excludedTechniques}
             {showRegions}
             hoveredCat={legendHoveredCat}
             hoveredTag={legendHoveredTag}
@@ -1286,7 +1409,7 @@
             <hr class="legend-divider" />
             <TagLegend
               tags={legendTags}
-              {hiddenTags}
+              hiddenTags={legendHiddenTags}
               {tagIsolate}
               {tagTips}
               on:tagToggle={handleTagToggle}
@@ -1305,7 +1428,6 @@
                 color={selectedHit.color}
                 full
                 fill
-                {spectroscopy}
                 linkedModes={sideModes}
                 playNonce={bandPlayNonce}
                 on:navigateRef={handleNavigateRef}

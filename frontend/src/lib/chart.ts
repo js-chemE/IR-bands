@@ -285,69 +285,69 @@ export interface TipRef {
   note: string | null;
   tags: string[];
   /**
-   * Greyed out and folded: 'other' when measured by the other spectroscopy
-   * than the chart shows, 'unknown' when the claim records no technique at
-   * all (in either view), 'calculated' when it is a calculation and the
-   * Appearance computational pill is asking for measured evidence only; null
-   * when it stands as usual.
+   * Greyed out and folded: 'unknown' when the claim records no technique at
+   * all, 'excluded' when its technique is one the sidebar's Techniques
+   * section has switched off; null when it stands as usual.
    */
-  off: 'other' | 'unknown' | 'calculated' | null;
+  off: 'unknown' | 'excluded' | null;
 }
 
 /** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
 export interface BandLooks {
   inactive: boolean;
   unreferenced: boolean;
-  /** Fades the bands resting on a calculation alone. Its own switch, but the
-      same faded look: the chart would need twice the marks to give it a
-      treatment of its own, and the message is the same either way. */
-  calculated: boolean;
 }
+
+/**
+ * What the sidebar does with a band in one of the two conditions (silent in
+ * the chosen spectroscopy, or with no claim standing): draw it in its own look
+ * (hollow, faded), draw it like any other band, or take it out of the chart.
+ * One three-way choice per condition, so the look and the filter cannot
+ * contradict each other the way two separate pills could.
+ */
+export type BandStateMode = 'look' | 'plain' | 'hidden';
+
+const NO_TECHNIQUES: ReadonlySet<string> = new Set();
 
 /** Technique → IR or Raman, from the Technique spec. */
 const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscopy]));
 
 /**
- * Whether a claim stands in the chosen spectroscopy, or is greyed out and
- * folded: 'other' when its technique is the other spectroscopy, 'unknown'
- * when it records none.
+ * Whether a claim stands, or is greyed out and folded: 'unknown' when it
+ * records no technique, 'excluded' when its technique is in `excluded` (the
+ * sidebar's Techniques section).
  *
- * A calculation has no sampling geometry, so it is a measurement in neither
- * view. Whether that greys it is not decided here though: it follows the
- * Appearance computational pill, the same way the faded band look does, so
- * asking for hard measured proof dims the calculated claims in the tooltip
- * and letting the pill go draws them like any other. `isReferenced` leaves
- * the flag off deliberately, so a calculation still counts as a reference
- * and the two sidebar switches keep saying different things.
+ * This is the one place that decides which claims count. Everything that
+ * follows from it (a band being unreferenced, drawn faded, taken out of the
+ * chart) reads `isReferenced`, which asks this per claim.
+ *
+ * The IR | Raman switch does not enter into it. It decides which selection
+ * rule is drawn (the hollow bands), not which evidence counts: a Raman claim
+ * is evidence for a band in the infrared view too, and a reader who wants
+ * only infrared evidence switches the Raman family off under Techniques. Every
+ * technique counts until somebody says otherwise, the calculations included.
  */
 export function refOff(
   technique: Technique | null | undefined,
-  spectroscopy: Spectroscopy,
-  greyCalculated = false,
+  excluded: ReadonlySet<string> = NO_TECHNIQUES,
 ): TipRef['off'] {
   if (!technique) return 'unknown';
-  if (technique === 'computational') return greyCalculated ? 'calculated' : null;
-  const via = TECHNIQUE_SPECTROSCOPY.get(technique);
-  return via != null && via !== spectroscopy ? 'other' : null;
+  return excluded.has(technique) ? 'excluded' : null;
 }
 
 /**
- * Unreferenced: not one of the band's claims stands in the chosen
- * spectroscopy. Drawn faded, and the sidebar's unreferenced pill takes
- * these bands out of the chart.
+ * Unreferenced: not one of the band's claims stands (see `refOff`). Drawn
+ * faded, drawn plain or taken out, as the sidebar's Band States section says.
  *
- * `greyCalculated` must match what the tooltip is doing, or a band whose only
- * standing claim is a calculation draws solid while every claim inside it
- * shows grey. The chart passes the Appearance computational pill; the sidebar
- * filter leaves it off, so removing the unreferenced bands and removing the
- * calculated ones stay two separate acts.
+ * `excluded` must be the same set the tooltip greys its claims with, or a band
+ * whose only claim is switched off draws solid while every claim inside it
+ * shows grey.
  */
 export function isReferenced(
   b: Band,
-  spectroscopy: Spectroscopy,
-  greyCalculated = false,
+  excluded: ReadonlySet<string> = NO_TECHNIQUES,
 ): boolean {
-  return b.references.some(r => !refOff(r.technique, spectroscopy, greyCalculated));
+  return b.references.some(r => !refOff(r.technique, excluded));
 }
 
 /**
@@ -485,7 +485,7 @@ export const UNTAGGED_KEY = '__untagged__';
  * and fall through to the count as before.
  */
 const TECHNIQUE_SEQUENCE = [
-  'infrared', 'drifts', 'transmission', 'atr', 'ftir', 'irras', 'pm_irras', 'emission',
+  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'emission', 'mioirs',
   'raman', 'srs',
 ];
 
@@ -1100,10 +1100,12 @@ export function buildChart(
   reversed = false,
   // Which technique's selection rule to draw: its inactive bands are hollow.
   spectroscopy: Spectroscopy = 'ir',
-  // Whether those looks are drawn at all (the Appearance pills).
-  looks: BandLooks = { inactive: true, unreferenced: true, calculated: true },
+  // Whether those looks are drawn at all (the sidebar's Band States).
+  looks: BandLooks = { inactive: true, unreferenced: true },
   // Whether the electromagnetic regions are marked at all (an Appearance pill).
   showRegions = true,
+  // The techniques whose claims do not count (the sidebar's Techniques).
+  excluded: ReadonlySet<string> = NO_TECHNIQUES,
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
   const dynamicSubLane = computeSubLanes(bands, enabledGroups);
@@ -1205,7 +1207,7 @@ export function buildChart(
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
-          const off = refOff(ref.technique, spectroscopy, looks.calculated);
+          const off = refOff(ref.technique, excluded);
           return {
             key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             href: (r && refHref(r as Record<string, string>)) || null,
@@ -1213,7 +1215,7 @@ export function buildChart(
             off,
           };
         })
-        // The claims of the chosen spectroscopy first, the others after.
+        // The claims that count first, the greyed ones after.
         .sort((a, b) => Number(!!a.off) - Number(!!b.off))
       : [];
 
@@ -1228,11 +1230,7 @@ export function buildChart(
       cy: (y0 + y1) / 2,
       color,
       inactive: looks.inactive && bandTags.includes(spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive'),
-      // Two reasons for the same faded look, from two switches: nothing
-      // stands in this view, or nothing but a calculation stands anywhere.
-      unreferenced:
-        (looks.unreferenced && !isReferenced(b, spectroscopy, looks.calculated)) ||
-        (looks.calculated && isCalculatedOnly(b)),
+      unreferenced: looks.unreferenced && !isReferenced(b, excluded),
       isotopologue: !!b.isotopologue_of,
       tipData: {
         id:        b.id,
@@ -1242,7 +1240,9 @@ export function buildChart(
         group:     groups[b.group]?.label ?? b.group,
         color,
         noteLines: [
-          !isReferenced(b, spectroscopy) && `unreferenced in ${spectroscopy === 'raman' ? 'Raman' : 'IR'}`,
+          !isReferenced(b)
+            ? 'unreferenced: no claim records a technique'
+            : !isReferenced(b, excluded) && 'unreferenced: its techniques are switched off',
           isCalculatedOnly(b) && 'calculated only: no measurement behind it',
           b.intensity  && `intensity: ${b.intensity}`,
           b.confidence && `confidence: ${b.confidence}`,

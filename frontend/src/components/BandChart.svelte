@@ -55,7 +55,9 @@
   /** IR or Raman: whose inactive bands are drawn hollow. */
   export let spectroscopy: Spectroscopy = 'ir';
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
-  export let looks: BandLooks = { inactive: true, unreferenced: true, calculated: true };
+  export let looks: BandLooks = { inactive: true, unreferenced: true };
+  /** The techniques whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
+  export let excludedTechniques: ReadonlySet<string> = new Set();
   /** Whether the electromagnetic regions are marked: the strip of names, the borders and their fades. */
   export let showRegions = true;
   export let hoveredCat: string | null = null;
@@ -464,6 +466,7 @@
       spectroscopy,
       looks,
       showRegions,
+      excludedTechniques,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;
@@ -1110,7 +1113,6 @@
         td={shown.tipData}
         color={shown.color}
         full={false}
-        {spectroscopy}
         refsPreview={refsPreview}
         linkedModes={[]}
         {playNonce}

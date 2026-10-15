@@ -22,7 +22,6 @@
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
   import Icon from './Icon.svelte';
   import type { TipData } from '../lib/chart';
-  import type { Spectroscopy } from '../lib/types';
   import type { LinkedMode } from '../lib/vibrationLinks';
 
   export let td: TipData;
@@ -30,8 +29,6 @@
   export let color = '';
   /** Docked: show the diagrams, the description and every reference note. */
   export let full = false;
-  /** Which selection rule the chart draws, for the "off" claim wording. */
-  export let spectroscopy: Spectroscopy = 'ir';
   /** How many references a folded (hover) card lists before it says "+N more". */
   export let refsPreview = 3;
   /** The band's vibration modes, already resolved by the host. */
@@ -157,7 +154,7 @@
 
           <div class:tip-refs-scroll={useScroll}>
             {#each refsToShow as ref, i}
-              <!-- A claim from the other spectroscopy, or one with no
+              <!-- A claim whose technique is switched off, or one with no
                    technique recorded, folds even when it is the only one,
                    and is greyed out. -->
               {@const foldable = isCollapsible || ref.off}
@@ -168,13 +165,11 @@
                 class:tip-ref-btn={foldable}
                 class:tip-ref-off={ref.off}
                 on:click={foldable ? () => toggleRefExpand(i) : null}
-                title={ref.off === 'other'
-                  ? `Measured by ${spectroscopy === 'raman' ? 'infrared' : 'Raman'}, not the spectroscopy the chart shows. Click to ${expanded ? 'collapse' : 'expand'}`
-                  : ref.off === 'unknown'
-                    ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
-                    : ref.off === 'calculated'
-                      ? `A calculation, not a measurement. Dimmed because the Appearance computational pill is asking for measured evidence; click that pill to draw it like any other claim. Click here to ${expanded ? 'collapse' : 'expand'}`
-                      : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
+                title={ref.off === 'unknown'
+                  ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
+                  : ref.off === 'excluded'
+                    ? `Its technique is switched off under Techniques in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,
                      the paper itself on the right. The book is the References

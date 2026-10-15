@@ -69,7 +69,7 @@ export function fadeColor(hex: string, strength = 1): string {
 
 /** The infrared sampling geometries. Raman and computational are not among them. */
 const IR_GEOMETRIES = new Set([
-  'drifts', 'transmission', 'atr', 'ftir', 'irras', 'pm_irras', 'emission',
+  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'emission', 'mioirs',
 ]);
 
 /**
@@ -90,10 +90,10 @@ const RAMAN_METHODS = new Set(['raman', 'srs']);
  * They count as evidence, but never towards "two methods agreeing". `raman`
  * beside `srs` is not two Raman techniques, because `raman` may well BE that
  * spontaneous measurement, only described more loosely; the same goes for
- * `ftir` beside `drifts`. Corroboration is the whole point of the upper
+ * `infrared` beside `drifts`. Corroboration is the whole point of the upper
  * rungs, so it has to mean two methods known to differ.
  */
-const UNSPECIFIED = new Set(['ftir', 'raman']);
+const UNSPECIFIED = new Set(['infrared', 'raman']);
 
 /**
  * Which rung of the evidence ladder a band stands on.

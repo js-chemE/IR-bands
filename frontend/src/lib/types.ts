@@ -22,7 +22,7 @@ export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative
 export type Phase = 'gas' | 'adsorbed' | 'surface';
 export type Technique =
   | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'emission'
-  | 'ftir' | 'raman' | 'computational';
+  | 'mioirs' | 'infrared' | 'raman' | 'srs' | 'computational';
 export type SurfaceLevel = 'site' | 'phase' | 'sample';
 export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
 export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references' | 'technique';

@@ -1,6 +1,5 @@
 <script lang="ts">
   import Dropdown from './Dropdown.svelte';
-  import LookPill from './LookPill.svelte';
   import { ISOTOPE_STYLE } from '../lib/tokens';
   /**
    * The band chart's filter: a set on top, the individual groups underneath.
@@ -14,6 +13,7 @@
    */
   import { createEventDispatcher } from 'svelte';
   import type { GroupMap, GroupSet, Spectroscopy } from '../lib/types';
+  import type { BandStateMode } from '../lib/chart';
 
   export let groups: GroupMap;
   export let sortedKeys: string[];
@@ -21,12 +21,10 @@
   export let sets: Record<string, GroupSet> = {};
   /** Whether the isotopologue bands are part of the chart at all. */
   export let showIsotopes = false;
-  /** Whether the bands the chosen spectroscopy cannot see are in the chart. */
-  export let showInactive = true;
-  /** Whether the bands with no claim standing in the chosen spectroscopy are in the chart. */
-  export let showUnreferenced = true;
-  /** Whether the bands resting on a calculation alone are in the chart. */
-  export let showCalculated = true;
+  /** The bands the chosen spectroscopy cannot see: hollow, plain or out. */
+  export let inactiveMode: BandStateMode = 'look';
+  /** The bands none of whose claims counts: faded, plain or out. */
+  export let unreferencedMode: BandStateMode = 'look';
   /** IR or Raman: whose inactive bands the inactive pill means. */
   export let spectroscopy: Spectroscopy = 'ir';
 
@@ -38,12 +36,37 @@
     groupToggle: { key: string; enabled: boolean };
     setSelect: { key: string };
     isotopeToggle: { enabled: boolean };
-    inactiveToggle: { enabled: boolean };
-    unreferencedToggle: { enabled: boolean };
-    calculatedToggle: { enabled: boolean };
+    inactiveMode: { mode: BandStateMode };
+    unreferencedMode: { mode: BandStateMode };
   }>();
 
   $: technique = spectroscopy === 'raman' ? 'Raman' : 'IR';
+
+  /* The two conditions a band can be in, each with one three-way answer.
+     The first answer is named after the look itself, and drawn in it, so the
+     row says what the chart will do rather than naming an abstraction. */
+  $: stateRows = [
+    {
+      event: 'inactiveMode' as const,
+      label: `${technique}-inactive`,
+      look: 'hollow',
+      mode: inactiveMode,
+      about: `bands ${technique} cannot see by its selection rule`,
+    },
+    {
+      event: 'unreferencedMode' as const,
+      label: 'unreferenced',
+      look: 'faded',
+      mode: unreferencedMode,
+      about: 'bands none of whose claims counts (from the other spectroscopy, with no technique recorded, or made with a technique switched off under Techniques)',
+    },
+  ];
+  const MODES: BandStateMode[] = ['look', 'plain', 'hidden'];
+  function modeTitle(mode: BandStateMode, look: string, about: string): string {
+    if (mode === 'look') return `Draw the ${about} ${look}`;
+    if (mode === 'plain') return `Draw the ${about} like any other band`;
+    return `Take the ${about} out of the chart and re-lay out the lanes without them`;
+  }
 
   let showGroups = false;
 
@@ -65,11 +88,13 @@
 </script>
 
 <section>
-  <h3>Enable &amp; Disable</h3>
-  <!-- Its own section, ahead of the group filter, because it is a different
-       kind of cut: the groups choose which chemistry is on screen, this chooses
-       whether the labelled twins of those bands exist at all. Off, they leave
-       the layout entirely rather than being hidden where they stand. -->
+  <h3>Band States</h3>
+  <!-- What a band in each condition does, as one choice: its own look, drawn
+       like any other, or out of the chart. This replaced a look pill under
+       Appearance and a filter pill here for each condition, which said one
+       thing twice and could contradict itself (hidden here, faded there).
+       Whether a band is unreferenced is decided above it, under Techniques,
+       which says which claims count. -->
   <div class="iso-filter">
     <button
       class="iso-pill"
@@ -81,33 +106,25 @@
       aria-pressed={showIsotopes}
       on:click={() => dispatch('isotopeToggle', { enabled: !showIsotopes })}
     >isotope</button>
-    <!-- The same two pills as under Appearance, but here a filter: off, the
-       bands leave the chart and the lanes re-lay out without them. -->
-    <LookPill
-      look="hollow"
-      on={showInactive}
-      title={showInactive
-        ? `Hide the ${technique}-inactive bands and re-lay out the lanes without them`
-        : `Bring the ${technique}-inactive bands back`}
-      on:toggle={e => dispatch('inactiveToggle', { enabled: e.detail.on })}
-    >{technique}-inactive</LookPill>
-    <LookPill
-      look="faded"
-      on={showUnreferenced}
-      title={showUnreferenced
-        ? `Hide the bands with no ${technique} reference (none of their claims stands in ${technique}), and re-lay out the lanes without them`
-        : `Bring the bands with no ${technique} reference back`}
-      on:toggle={e => dispatch('unreferencedToggle', { enabled: e.detail.on })}
-    >unreferenced</LookPill>
-    <LookPill
-      look="faded"
-      on={showCalculated}
-      title={showCalculated
-        ? 'Hide the bands resting on a calculation alone, with no measurement behind them, and re-lay out the lanes without them'
-        : 'Bring the bands resting on a calculation alone back'}
-      on:toggle={e => dispatch('calculatedToggle', { enabled: e.detail.on })}
-    >computational</LookPill>
   </div>
+  {#each stateRows as row (row.event)}
+    <div class="state-row">
+      <span class="state-name">{row.label}</span>
+      <div class="seg" role="radiogroup" aria-label={row.label}>
+        {#each MODES as m (m)}
+          <button
+            role="radio"
+            aria-checked={row.mode === m}
+            class:on={row.mode === m}
+            class:look-hollow={m === 'look' && row.look === 'hollow'}
+            class:look-faded={m === 'look' && row.look === 'faded'}
+            title={modeTitle(m, row.look, row.about)}
+            on:click={() => row.mode !== m && dispatch(row.event, { mode: m })}
+          >{m === 'look' ? row.look : m}</button>
+        {/each}
+      </div>
+    </div>
+  {/each}
 </section>
 
 <section>
@@ -156,7 +173,7 @@
 </section>
 
 <style>
-  /* Two sections now: the isotope and inactive switches, then the group filter. They are
+  /* Two sections: the band states, then the group filter. They are
      different kinds of cut, so they get real air between them rather than a
      rule. */
   section + section { margin-top: 22px; }
@@ -257,6 +274,54 @@
     color: var(--ink-025) !important;
     text-decoration: line-through;
   }
+
+  /* A band state: the condition, then its three answers under it as a
+     small segmented control the width of the sidebar. The chosen answer is raised in white
+     rather than blue, since blue in the sidebar means "you are here". */
+  .state-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 10px;
+  }
+  .state-name {
+    font-size: var(--t-tip-tag-size);
+    color: var(--ink-500);
+  }
+  .seg {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface-sunken);
+  }
+  .seg button {
+    min-height: 24px;
+    padding: 0 7px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    font: inherit;
+    font-size: var(--t-tip-tag-size);
+    color: var(--ink-300);
+    cursor: pointer;
+  }
+  .seg button:hover:not(.on) { color: var(--ink-900); }
+  .seg button.on {
+    background: var(--surface);
+    border-color: var(--line-strong);
+    color: var(--ink-900);
+  }
+  /* The look option drawn in its look, as LookPill draws it. */
+  .seg button.look-hollow.on { border-width: 1.5px; border-color: var(--ink-400); }
+  .seg button.look-faded.on {
+    background: var(--surface-hover);
+    border-color: var(--line);
+    color: var(--ink-200);
+  }
+  .seg button:focus-visible { outline: 2px solid var(--brand-tint-line); outline-offset: -2px; }
 
   /* Switched off: greyed and struck through, swatch included, so the whole
      row reads as off at a glance. */

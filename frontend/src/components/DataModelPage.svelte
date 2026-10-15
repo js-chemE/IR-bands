@@ -807,19 +807,17 @@
         </p>
         <p>
           It is a field on the assignment now, with a closed vocabulary, and the tag chips
-          the chart legend filters on are derived from it. <code>ftir</code> is the honest
-          placeholder for a source that says only "FTIR": resolve each one to transmission
-          or ATR as the paper is checked.
+          the chart legend filters on are derived from it. <code>infrared</code> is the honest
+          placeholder for a source that says only "IR" or "FTIR": resolve each one to
+          transmission or ATR as the paper is checked.
         </p>
         <p>
           One field, two chips. Alongside its own name a claim gets the family it belongs
           to, <code>infrared</code>, <code>raman</code> or <code>computational</code>, so
           the legend can ask "seen in the infrared at all" without ticking seven boxes,
           and it puts a gap at each change of family. The umbrella and the placeholder are
-          different statements: <code>infrared</code> says the claim was an infrared
-          measurement whatever its geometry, <code>ftir</code> says the geometry was never
-          stated. Raman is both at once, being the family and the value a paper that says
-          only "Raman" earns; <code>srs</code> is the one named kind under it, spontaneous
+          the same chip for infrared as for Raman: each is both the family and the value a
+          paper that says only "IR" or "Raman" earns; <code>srs</code> is the one named kind under it, spontaneous
           Raman scattering, which is not the stimulated sort the initials usually mean.
         </p>
       </div>

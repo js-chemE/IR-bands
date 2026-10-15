@@ -691,7 +691,7 @@ def main() -> int:
     for w in isotopologue_warnings:
         print(f"  ⚠ {w}", file=sys.stderr)
 
-    # Fields first, tags derived from them: technique -> "drifts"/"ftir"/
+    # Fields first, tags derived from them: technique -> "drifts"/"infrared"/
     # "computational". The phase is deliberately not one of them: a band has
     # no sample of its own, so its phase chips come from its claims (below)
     # and bubble up in the frontend. Band.phase is only checked against them.
