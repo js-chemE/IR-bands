@@ -88,6 +88,7 @@ def _parse_reference(raw) -> Reference | None:
             return None
         return Reference(
             key=key,
+            id=raw.get("id"),
             wn=raw.get("wn"),
             measured_on=raw.get("measured_on"),
             technique=raw.get("technique"),
@@ -249,6 +250,44 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
             seen[b.id] = i
 
     id_set = set(seen)
+
+    # 1b. Every assignment carries its own number, unique and never reused.
+    #     The numbers are handed out from metadata.next_assignment_id, which
+    #     only ever goes up: a deleted claim takes its number with it, and an
+    #     edited one keeps it. Anything at or above the mark was either typed
+    #     by hand or the mark was not raised after handing it out, and either
+    #     way the next claim added would collide with it.
+    next_id = dataset.metadata.get("next_assignment_id")
+    if not isinstance(next_id, int) or isinstance(next_id, bool):
+        errors.append("metadata.next_assignment_id must be an integer: the next free assignment id")
+        next_id = None
+    seen_aid: dict[int, str] = {}
+    unnumbered: list[str] = []
+    for b in dataset.bands:
+        for ref in b.references:
+            where = f"Band {b.id}, reference {ref.key}"
+            if ref.id is None:
+                unnumbered.append(where)
+                continue
+            if not isinstance(ref.id, int) or isinstance(ref.id, bool) or ref.id < 1:
+                errors.append(f"{where}: id {ref.id!r} must be a positive integer")
+                continue
+            if ref.id in seen_aid:
+                errors.append(f"{where}: id {ref.id} is already used by {seen_aid[ref.id]}")
+            else:
+                seen_aid[ref.id] = where
+            if next_id is not None and ref.id >= next_id:
+                errors.append(
+                    f"{where}: id {ref.id} is not below metadata.next_assignment_id "
+                    f"({next_id}); raise the mark past every id handed out"
+                )
+    if unnumbered:
+        start = next_id if next_id is not None else max(seen_aid, default=0) + 1
+        hint = ", ".join(f"{w} -> {start + i}" for i, w in enumerate(unnumbered))
+        errors.append(
+            f"{len(unnumbered)} assignment(s) without an id. Give them the next free "
+            f"numbers and set metadata.next_assignment_id to {start + len(unnumbered)}: {hint}"
+        )
 
     # 2. Group keys exist
     for b in dataset.bands:

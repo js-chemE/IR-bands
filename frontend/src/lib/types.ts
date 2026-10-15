@@ -52,6 +52,8 @@ export interface BasedOn {
 
 export interface BandReference {
   key: string;
+  /** The assignment's own number: unique, never reused, kept through edits. */
+  id?: number | null;
   wn: number | number[] | null;
   // Keys into Dataset.surfaces, not display text: where this source measured
   // the band, at whatever scale it stated. A paper naming both the site and

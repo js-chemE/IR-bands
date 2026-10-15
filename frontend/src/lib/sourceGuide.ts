@@ -89,9 +89,16 @@ export const GUIDE: GuideSection[] = [
         ['Evidence the assignment rests on', 'references[].tags'],
       ],
     },
+    rules: [
+      'Every row gets an `id`: the number in `metadata.next_assignment_id`, after which that mark goes ' +
+      'up by one. Correcting a row keeps its number; deleting a row retires it. `build.py` refuses a ' +
+      'row without one and names the next free numbers.',
+    ],
     never: [
       'Never average two papers into one number, and never replace one paper’s value with a newer one. ' +
       'Two rows that disagree are the point.',
+      'Never reuse an assignment id, and never renumber. A number that once named one claim and now ' +
+      'names another breaks every note, message or issue that quoted it.',
       'Never write a fact into prose when it has a field. A wavenumber in a note is invisible to the chart.',
     ],
   },

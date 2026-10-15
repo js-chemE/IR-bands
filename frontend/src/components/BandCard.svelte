@@ -107,6 +107,13 @@
         <div class="tip-desc">{td.description}</div>
       {/if}
 
+      <!-- The band id, quietly: something to quote when writing about the
+           band or editing bands.jsonc, not something to read. Docked, it sits
+           above the molecule and the references; floating, at the foot. -->
+      {#if full}
+        <div class="card-id band-id">{td.id}</div>
+      {/if}
+
       <!-- The molecule, folded away. The diagrams are the best thing on the
            card and the most expensive: at the size they need to read they
            push the references off the bottom of the column, so they open
@@ -175,6 +182,9 @@
                      the paper itself on the right. The book is the References
                      page's own symbol, the chain the usual one for a URL. -->
                 <div class="tip-ref-goto">
+                  {#if ref.id != null}
+                    <span class="card-id" title="Assignment {ref.id}: this claim's own number, never reused">#{ref.id}</span>
+                  {/if}
                   <button
                     class="tip-ref-goto-btn"
                     on:click|stopPropagation={() => dispatch('navigateRef', { key: ref.key })}
@@ -228,6 +238,10 @@
             {/each}
           </div>
         </div>
+      {/if}
+
+      {#if !full}
+        <div class="card-id band-id band-id-foot">{td.id}</div>
       {/if}
 
       {#if full}
@@ -375,9 +389,10 @@
     font-size: var(--t-tip-ref-title-size);
     font-weight: var(--t-tip-ref-title-weight);
     color: var(--t-tip-ref-title-color);
-    /* Clears .tip-ref-goto: two 18px buttons and the gap between them. Only
-       the title line needs it, so the badges and the note keep the full width. */
-    padding-right: 40px;
+    /* Clears .tip-ref-goto: the assignment number, two 18px buttons and the
+       gaps between them. Only the title line needs it, so the badges and the
+       note keep the full width. */
+    padding-right: 72px;
   }
 
   /* Per-reference corner buttons: this one citation on the References page,
@@ -387,8 +402,22 @@
     top: 4px;
     right: 4px;
     display: flex;
+    align-items: center;
     gap: 3px;
   }
+
+  /* An identifier: the band id, an assignment number. Small, mono and faint,
+     there to be copied rather than read. */
+  .card-id {
+    font-family: var(--t-tip-id-ff);
+    font-size: var(--t-tip-id-size);
+    font-weight: var(--t-tip-id-weight);
+    color: var(--t-tip-id-color);
+    user-select: all;
+  }
+  .tip-ref-goto .card-id { margin-right: 2px; }
+  .band-id { margin: 0 0 5px; }
+  .band-id-foot { margin: 5px 0 0; text-align: right; }
   .tip-ref-goto-btn {
     box-sizing: border-box;
     text-decoration: none;

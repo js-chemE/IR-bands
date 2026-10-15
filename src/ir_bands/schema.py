@@ -302,6 +302,10 @@ class Reference:
     source's isn't) — styled the same as band-level tags in the frontend.
     """
     key: str
+    # The assignment's own number: unique across the whole file, never reused
+    # once deleted, kept when the claim is edited. Handed out from
+    # metadata.next_assignment_id in bands.jsonc, which only ever goes up.
+    id: Optional[int] = None
     wn: Optional[Union[int, list[int]]] = None
     # One or more keys into surfaces.jsonc, at whatever level the paper stated.
     measured_on: Optional[Union[str, list[str]]] = None
