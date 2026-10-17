@@ -733,6 +733,15 @@
     members.filter(t => !excluded.has(t)).length;
   $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
   let showTechniques = false;
+  /* Which families (IR, Raman) and phase parts (Form, Medium) are open.
+     Closed to begin with: opening a section shows its groups, and a group
+     shows its rows only when asked. */
+  let openGroups: ReadonlySet<string> = new Set();
+  function toggleOpenGroup(key: string) {
+    const next = new Set(openGroups);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    openGroups = next;
+  }
 
   // The second half of "which claims count": how the sample was held for
   // each claim (the Phases section), in two parts that combine. The form is
@@ -1196,31 +1205,37 @@
                  either view and all of it is on to begin with. Collapsed
                  like the group list: it is a narrowing tool, not an everyday
                  control. -->
-            <h3>Techniques</h3>
-            <button
-              class="disclosure"
-              on:click={() => (showTechniques = !showTechniques)}
-              aria-expanded={showTechniques}
-            >
-              <span class="caret">{showTechniques ? '▾' : '▸'}</span>
-              Counted
-              <span class="count">{countedTechniques} / {ALL_TECHNIQUES.length}</span>
-            </button>
+            <!-- The header is the disclosure, with how much is counted beside
+                 it; opening it goes straight to the families, and each family
+                 opens on its own. -->
+            <h3>
+              <button class="h3-toggle" on:click={() => (showTechniques = !showTechniques)} aria-expanded={showTechniques}>
+                <span class="caret">{showTechniques ? '▾' : '▸'}</span>
+                Techniques
+                <span class="h3-count">{countedTechniques} / {ALL_TECHNIQUES.length}</span>
+              </button>
+            </h3>
             {#if showTechniques}
-              <div class="tech-filter">
+              <div class="filter-list">
                 {#each CHART_FAMILIES as fam (fam.key)}
                 {@const on = familyOn(fam.members, excludedTechniques)}
-                <button
-                  class="include-row tech-row"
-                  class:off={on === 0}
-                  aria-pressed={on > 0}
-                  title={fam.title}
-                  on:click={() => rowClick(() => toggleChartFamily(fam.members))}
-                      on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
-                >
-                  <span class="inc-label">{fam.label}</span>
-                  <span class="count">{on} / {fam.members.length}</span>
-                </button>
+                <div class="fam-row">
+                  <button class="fam-caret" aria-label="Show the {fam.label} techniques" aria-expanded={openGroups.has(fam.key)}
+                    on:click={() => toggleOpenGroup(fam.key)}>{openGroups.has(fam.key) ? '▾' : '▸'}</button>
+                  <button
+                    class="include-row tech-row"
+                    class:off={on === 0}
+                    aria-pressed={on > 0}
+                    title={fam.title}
+                    on:click={() => rowClick(() => toggleChartFamily(fam.members))}
+                    on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
+                  >
+                    <span class="inc-label">{fam.label}</span>
+                    <span class="count">{on} / {fam.members.length}</span>
+                  </button>
+                </div>
+                {#if openGroups.has(fam.key)}
+                <div class="tech-filter">
                 {#each fam.members as t (t)}
                   <button
                     class="include-row tech-row tech-child"
@@ -1233,7 +1248,11 @@
                     <span class="count">{techniqueCounts[t] ?? 0}</span>
                   </button>
                 {/each}
+                </div>
+                {/if}
                 {/each}
+                <div class="fam-row">
+                <span class="fam-caret" aria-hidden="true"></span>
                 <button
                   class="include-row tech-row"
                   class:off={excludedTechniques.has('computational')}
@@ -1244,6 +1263,7 @@
                 ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
                   <span class="count">{techniqueCounts.computational ?? 0}</span>
                 </button>
+                </div>
               </div>
             {/if}
           </section>
@@ -1257,20 +1277,30 @@
                  fields the legend's phase chips come from. Switched off, a
                  claim greys out in the card like an excluded technique's, and
                  a band left with none counts as unreferenced. -->
-            <h3>Phases</h3>
-            <button
-              class="disclosure"
-              on:click={() => (showPhases = !showPhases)}
-              aria-expanded={showPhases}
-            >
-              <span class="caret">{showPhases ? '▾' : '▸'}</span>
-              Counted
-              <span class="count">{countedPhases} / {PHASE_ROW_COUNT}</span>
-            </button>
+            <h3>
+              <button class="h3-toggle" on:click={() => (showPhases = !showPhases)} aria-expanded={showPhases}>
+                <span class="caret">{showPhases ? '▾' : '▸'}</span>
+                Phases
+                <span class="h3-count">{countedPhases} / {PHASE_ROW_COUNT}</span>
+              </button>
+            </h3>
             {#if showPhases}
-              <div class="tech-filter">
+              <div class="filter-list">
                 {#each PHASE_PARTS as part (part.key)}
-                  <div class="phase-part">{part.label}</div>
+                  {@const on = part.rows.filter(r => !excludedPhase[part.key].has(r.key)).length}
+                  <!-- Form and Medium combine rather than nest, so the part
+                       row only opens and closes; it is not a switch. -->
+                  <div class="fam-row">
+                    <button class="fam-caret" aria-label="Show the {part.label.toLowerCase()} rows" aria-expanded={openGroups.has(part.key)}
+                      on:click={() => toggleOpenGroup(part.key)}>{openGroups.has(part.key) ? '▾' : '▸'}</button>
+                    <button class="include-row tech-row part-row" aria-expanded={openGroups.has(part.key)}
+                      on:click={() => toggleOpenGroup(part.key)}>
+                      <span class="inc-label">{part.label}</span>
+                      <span class="count">{on} / {part.rows.length}</span>
+                    </button>
+                  </div>
+                  {#if openGroups.has(part.key)}
+                  <div class="tech-filter">
                   {#each part.rows as ph (ph.key)}
                     <button
                       class="include-row tech-row tech-child"
@@ -1283,6 +1313,8 @@
                       <span class="count">{phaseCounts[part.key][ph.key] ?? 0}</span>
                     </button>
                   {/each}
+                  </div>
+                  {/if}
                 {/each}
               </div>
             {/if}
@@ -2197,13 +2229,55 @@
      against a hairline so it reads as belonging to the row above rather than
      as a fourth Include option, and collapsed by default: it is an escape
      hatch, the same idiom as the chart sidebar's per-group list. */
-  /* The two halves of the Phases list, Form and Medium: a label, not a
-     switch, since the two combine rather than nest. */
-  .phase-part {
-    padding: 4px 0 1px;
-    font-size: var(--t-nav-size);
-    color: var(--ink-300);
+  /* A section header that is also its disclosure (Techniques, Phases): the
+     heading's own type, with the counted fraction small beside it. */
+  .h3-toggle {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
   }
+  .h3-toggle:hover { color: var(--ink-700); }
+  .h3-toggle .caret { font-size: 11px; color: var(--ink-200); }
+  .h3-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-200);
+  }
+
+  /* A group row (IR, Raman, Form, Medium): its own caret opens the rows
+     under it, the rest of the row is the switch as before. */
+  .fam-row {
+    display: flex;
+    align-items: center;
+  }
+  .fam-caret {
+    flex: 0 0 14px;
+    width: 14px;
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 11px;
+    color: var(--ink-200);
+    cursor: pointer;
+    text-align: left;
+  }
+  .fam-caret:hover { color: var(--ink-700); }
+  .fam-row .include-row { flex: 1; min-width: 0; }
+  .part-row .inc-label { color: var(--ink-500); }
 
   .tech-filter {
     margin: 2px 0 2px 7px;
