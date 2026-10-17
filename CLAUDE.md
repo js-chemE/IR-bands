@@ -31,8 +31,11 @@ There are no tests and no linter configured.
 ```
 data/bands.jsonc          ← source of truth for all band data (JSONC with comments)
 data/species.jsonc        ← chemical identities; band.species points here
-data/surfaces.jsonc       ← sites, phases and samples in one table;
-                            references[].measured_on points here
+data/surfaces.jsonc       ← materials and sites in one table;
+                            references[].measured_on and .diluent point here
+data/elements.jsonc       ← the elements as an entity; surfaces validate against it
+data/techniques.jsonc     ← the techniques as records: label, family, spectroscopy,
+                            parent, tip, note; references[].technique points here
 data/vibrations.jsonc     ← source of truth for the vibration-modes page (JSONC with comments)
 data/references.bib       ← BibTeX references
 build.py                  ← data build: validates, assigns lanes, emits JSON
@@ -51,6 +54,8 @@ frontend/src/
     BandCard.svelte          ← what a band is, in the one rendering both hosts use:
                               the chart's floating card and the sidebar's column
     Sidebar.svelte           ← the chart's filter: a set, then the groups
+    ClaimFilterPanel.svelte  ← Techniques, Phases, Elements: which claims count,
+                              one panel for the band chart and the References page
     Icon.svelte              ← the atlas's symbols by name, one source: the four
                               destinations as the home page draws them, the two
                               guides, the rail's three control glyphs, and the
@@ -88,7 +93,7 @@ frontend/src/
                               live from vibrations.json), CiteText, Subbed, SvgSubbed (the
                               same lowering inside an SVG <text>)
     ReferencesPage.svelte    ← cited bands, grouped by any two of
-                              reference / group / site / sample / element
+                              reference / group / site / specimen / element
     StyleGuidePage.svelte    ← style guide, rendered live from lib/tokens.ts (linked from Impressum)
     DrawingExample.svelte    ← the style guide's specimen plate: a diagram about nothing,
                               drawn and animated the way the Knowledge cards are, with
@@ -106,7 +111,7 @@ frontend/src/
                               chart dimension, shell width step, presentation
                               scale and editorial limit, in one place
     zoom.ts               ← viewport pixels ↔ shell pixels while presentation
-                              mode's zoom is on (the band chart is the only caller)
+                              mode's zoom is on (the band chart and floating.ts)
     vibrationLinks.ts     ← a band's vibration_modes ids → the modes and the
                               geometry each is drawn with (chart and card both ask)
     dataModel.ts          ← DATA MODEL: entities, relations, band-to-band links, tag
@@ -144,6 +149,10 @@ frontend/src/
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
     moleculeGeometry.ts    ← pixel atom geometry/displacement vectors for the vibration diagrams
+    claimFilter.ts        ← CLAIM FILTER: the technique vocabulary (with
+                              TECHNIQUE_PARENT refinements), the phase rows,
+                              the element scopes, claimExcluded/refOff and
+                              the immutable edits both pages' panels make
     units.ts              ← wavenumber ↔ wavelength ↔ energy conversions, and the
                               band chart's shift switch: any axis read from a zero (a
                               laser), negative below it, the zero typed in a unit of its own.
@@ -170,51 +179,175 @@ through `frontend/src/lib/labels.ts`, which App.svelte installs once from the
 dataset. Both tables ride along in `bands.json`, so the frontend still fetches
 one file.
 
-**Surfaces: one table, three levels.** "Where was this measured" has a scale,
-not a single answer, so every entry carries a `level`:
+**Surfaces: one table, two levels, two links.** "Where was this measured"
+has a scale, not a single answer, so every entry carries a `level`:
 
-- `site` — the atom-scale spot the molecule is bonded to (`cu_1p`, `zn_ovac_hf`)
-- `phase` — a compound named by its formula, whether it is a constituent of a
-  sample or the only thing in the cell (`tio2`, `zno`, `fe3o4_001`)
-- `sample` — a made thing that was in the cell (`cu_zno`, `cuga_sio2`)
+- `material`: a piece of solid that exists physically, from one compound (a
+  phase in XRD, a support: `tio2`, `zno`, `al2o3_gamma`, `sapphire`, `kbr`,
+  `zsm5`) to a whole catalyst, electrode or model (`cu_zno`, `cuga_sio2`,
+  `cu_au` "Cu/Au on Si"). Not the gas or liquid around it. One built on
+  silicon says so in its name. **A metal is never a material**: Ru, Cu, Au and
+  the rest are only their atom, so a catalyst names Ru⁰ directly, or an
+  oxidised site where a paper says so. An oxide written only to express a
+  composition is not one either
+- `site`: the atom-scale spot a molecule binds to, or an ion or atom a
+  material is made of (`cu_1p`, `al_3p`, `o_2m`, `zn_ovac_hf`, `sioh`)
 
-The same entry plays several roles without changing: TiO₂ is the sample when a
-paper measures bare titania and a phase when that titania supports Pt. That
-ambiguity is in the chemistry, so the schema records the entry once and lets
-the claim say which keys it names. `"measured_on": ["zr_4p", "cugazrox"]` is
-how "Zr⁴⁺ on CuGaZrOx" is recorded; a paper that named only the catalyst gets
-one key, and that is a complete record of what it said. A facet is a **phase**,
-never a site or a sample: `Fe₃O₄(001)` is magnetite, named by `formula` like
-any other bare oxide, with `(001)` in `facet`. The cut is not part of the
-chemistry, so `Fe₃O₄(001)` and `Fe₃O₄(111)` are the same compound and differ
-only in the plane they expose.
+There used to be three levels, specimen and component above the site. They
+were merged because the role is not the record's: GaZrOₓ was a specimen and a
+part of Cu-GaZrOₓ, sapphire a component and the whole specimen.
 
-`parts` is the single containment link and points **down** the scale: a sample
-lists its phases and sites, a phase the sites within it, a composite site the
-simpler sites it is built from. `build.py` rejects a part at a coarser level,
-with one exception: an interface site (`kind: interface`) may name a phase,
-because the Pt⁰-CeO₂ perimeter is the metal against the oxide rather than the
-metal against one cation.
+**One compound or a composite, read off the parts.** The build derives
+`compound` on every material: true where it is made only of ionic sites
+(`IONIC_SITE_KINDS`: cation, anion, defect, hydroxyl, bronsted), through its
+parts and the record it refines; false where a metal atom, a zero-valent
+non-metal, an interface or another material is among them. TiO₂, ZSM-5 and
+GaZrOₓ are compounds, Cu/ZnO, Cu-ZSM-5 and Ag/Au on Si composites.
 
-Two things widen a query. `parts` reaches the claims whose paper named only the
-catalyst, and `elements` lists what an entry contains, which answers "every
-band measured on a Cu-containing sample" even when the band itself was assigned
-to Zr. `elements` is authored, not parsed: the composition strings are written
-the way the literature writes them (`Ru/"Na₂O"/Al₂O₃`), and parsing them back is
-the fragile step surfaces.jsonc exists to remove. `build.py` emits a computed
-`all_elements` alongside it, the union over the whole `parts` tree, which is
-what the frontend's Element view runs against.
+**The claim decides the role, by the hierarchy of what it names.** The build
+writes two things onto every claim. `specimens`: the materials it names that
+no other material it names contains, so `["tio2", "pt_moox_tio2"]` has the
+catalyst as specimen and `["tio2"]` alone has titania. `placement`: how far
+the claim places the species, `site` (it names a site), `material` (it names
+a material inside the specimen, or the specimen is one compound) or
+`specimen` (it names only a composite: seen on that catalyst, location not
+stated). A row naming two materials neither of which contains the other is
+warned about: one row is one measurement on one solid, so two catalysts
+compared are two claims. The References page groups by both (Specimen, and
+Placed on with a "Location not stated" bucket) and the Dataset page counts
+"as specimen" and "not located" from them.
 
-**The level is visible, not just stored.** Every badge that renders a surface
-(the chart tooltip, the References page, the Dataset page) draws a site
-**filled** and a phase or sample **hollow**, so a claim about Cu⁺ never reads
-like a claim about Cu/ZnO. Keep that distinction in any new place a surface is
-drawn.
+**The placement is drawn by the fill, not by words.** In a claim's badges
+(`claimSurfaces` in `labels.ts`) a **filled** badge is where the paper put the
+species and a **hollow** one is the specimen as context, placed first and
+specimen last: `Cu⁺ ZnO` filled then `Cu/ZnO` hollow reads "on Cu⁺ and ZnO of
+Cu/ZnO"; a hollow catalyst on its own is "seen there, location not stated"; a
+compound named alone (bare TiO₂) is filled, being the placement itself. The
+title of each badge says its role and its level. Words between the badges
+were tried ("of", "location not stated") and dropped: they changed the length
+and height of every row, so the positions beside them no longer lined up.
+
+Two links, and only two:
+
+- `parts`, "is made of", points to records on the **same level or lower,
+  never up**. A composite lists the materials it contains, and a site
+  directly only where that site belongs to no material it lists: an isolated cation made by
+  surface organometallic chemistry (the Zn²⁺, Ga³⁺ and In³⁺ of the
+  Phongprueksathat CuM/SiO₂ catalysts, which have no ZnO, Ga₂O₃ or In₂O₃
+  phase), an exchanged cation, a dopant (La³⁺ in La-Al₂O₃), an interface, and
+  every zero-valent metal atom. A compound lists its ions: Al₂O₃ is Al³⁺ +
+  O²⁻, KBr is K⁺ + Br⁻. Pd/Al₂O₃ is Pd⁰ + Al₂O₃. A composite site lists the
+  simpler sites it is built from. A material may be a part of another (GaZrOₓ
+  inside Cu-GaZrOₓ, H-ZSM-5 inside Cu-ZSM-5). **Elements flow up** it. A
+  zeolite is the framework (ZSM-5: Al³⁺, Si⁴⁺, O²⁻) refined by its
+  counter-cation (H-ZSM-5 adds H⁺, Na-ZSM-5 Na⁺), never Al₂O₃ + SiO₂.
+- `refines`, "is a more specific version of", points to exactly one record on
+  the **same level** and must set at least one refinement attribute:
+  `oxidation_state`, `charge`, `coordination`, `polymorph`, `facet`, `form`,
+  `stoichiometry`. γ-Al₂O₃ refines Al₂O₃, Fe₃O₄(001) refines Fe₃O₄, Ag⁰(111)
+  refines Ag⁰, Ga³⁺(t) refines Ga³⁺, Vₒ⁺ refines Vₒ, ZnO₁₋ₓ refines ZnO, the film electrode refines
+  Ag/Au on Si. **Searches flow down** it: asking for Al₂O₃ finds γ-Al₂O₃,
+  asking for γ finds only γ (`refinementsOf` in `labels.ts`). A refinement
+  inherits its parent's parts, elements, `element` and `oxidation_state`, and
+  may add parts of its own.
+
+**A polymorph only where the paper names it, and in the parts, not the
+label.** A catalyst built on γ-alumina names `al2o3_gamma` in its parts only
+where the paper states γ, and its note says where (Proaño: SBA-150;
+Paredes-Nunez: 85 m² g⁻¹; Rajput: SASOL). Its label stays the composition as
+written (`Ru/Al₂O₃`, not `Ru/γ-Al₂O₃`): the γ is in *made of*, and only the
+γ-Al₂O₃ record itself carries it in its name. A paper that says only alumina
+gets plain `al2o3`, even though a catalyst support usually is γ (Elgayyar's
+Pd/Al₂O₃, Co/Siralox). A search for Al₂O₃ finds both.
+
+**Kinds subdivide a level.** A compound is an `oxide`, a `mixed oxide` (the
+NiAl₂O₄ spinel) or a `halide` (KBr); a site is a `metal` (a zero-valent metal
+atom), an `atom` (a zero-valent non-metal: Si⁰), a `cation`, an `anion`, a
+`bronsted` proton, a `hydroxyl`, a `defect` or an `interface`. A composite has
+none, and the Dataset page marks it "Composite" instead. A refinement authors no kind and inherits its parent's, so γ-Al₂O₃
+is an oxide. `KINDS_BY_LEVEL` in `schema.py` says which kinds each level may
+carry, and the Dataset page draws one row of kind chips per level that has
+them.
+
+**No bare-element sites.** A site starts at its charge (Ga³⁺, Ce⁴⁺, O²⁻);
+"any gallium" is the Element entity's job, through each site's `element` and
+the Elements filter, so there is no element → oxidation-state layer to repeat
+for every element. Refinements go below the charged site only for something
+extra, such as a coordination, and carry the charge in their label
+(`Ga³⁺(t)`). The one cation without an integer charge is Moᵟ⁺, because δ+ is
+itself what the MoOₓ literature states (partly reduced, below Mo⁴⁺). MoOₓ
+refines MoO₃ (Mo⁶⁺ and O²⁻) by stoichiometry, as ZnO₁₋ₓ refines ZnO, and adds
+Mo⁵⁺, Mo⁴⁺, Moᵟ⁺ and Vₒ: a reduced oxide, not a mixture of MoO₃ and MoO₂ phases. Where a paper states no charge (the Ga-H papers), the record's
+note says whose reading the charge is.
+
+`build.py` rejects a part at a coarser level, a refinement on another level or
+without an attribute, and a loop in either link. Name the most specific record
+the paper supports.
+
+**Elements are an entity** (`data/elements.jsonc`: symbol, name, z, group,
+period, block, category), and every symbol in surfaces.jsonc is validated
+against it. Elements come from the sites' `element` and flow up; `elements` is
+authored only for an element a record does not model as a part (the Si, O and
+H of a silanol, which is a group rather than a set of ions), and
+`surface_warnings` flags a redundant one. `all_elements` is the build's closure
+over both links, and `lineage` the refinement chain up. Each claim then gets
+two derived sets: `site_elements` from its placement (its sites, the
+materials inside its specimen, and the specimen itself only where it is one
+compound: what the molecule could be bonded to) and `specimen_elements` from
+everything it names.
+
+**A diluent is not part of the specimen.** `references[].diluent` names what
+the specimen was mixed with (`kbr`, an `al2o3_alpha` bed), validated like
+`measured_on` but kept out of it and out of both element sets. It is drawn as a
+dashed badge reading "in KBr".
+
+**The scale is visible, not just stored.** Where a surface is drawn as a
+record (the Dataset page, the claim filter) a site is **filled** and a
+material **hollow**. Where it is drawn inside a claim (the band card, the
+References page) the fill says the role instead, as above: filled is where
+the paper put the species, hollow the specimen around it. Either way a claim
+about Cu⁺ never reads like a claim about Cu/ZnO. Keep the distinction in any
+new place a surface is drawn.
+
+`composition` is written only where the label and *made of* cannot say it, as
+ZSM-5's MₙAlₙSi₉₆₋ₙO₁₉₂; the Dataset page shows it under the name rather than
+in a column of its own, and no formula that restates the label at all.
+
+**The Dataset page's Surfaces** lists the table as two blocks, Materials and
+Sites, each a tree with refinements under their parent; a composite carries a
+"Composite" tag in the Kind column, and the Claims column says how often a
+material was the specimen and how many of those claims did not locate the
+species in it. *Made of*
+shows the parts a record names, solid, and after them the parts it has only
+through another part or through the record it refines, pale and dashed, with
+that record on hover (Au-Ag/silicalite-1 names SiO₂, so Si⁴⁺ and O²⁻ follow). Every
+claim reaches a record by exactly one route, direct, via refinement (it names
+a more specific record) or via parts (it names something the record is part
+of, or the parent of such a part), in that order of precedence, so **Claims +
+Via parts + Via refinement = Total** and nothing is counted twice. The element
+picker above the blocks is a periodic table laid out from elements.jsonc:
+several elements at once, a whole period or group from the faint handles left
+of a row and above a column, an "in site" or "anywhere in specimen" scope that
+keeps the selection when switched ("in site" leaves the composites out),
+and elements no surface contains drawn barely visible and not clickable. It
+filters the two blocks two ways. Built
+up from nothing it keeps the records containing **any** picked element;
+started from **Select all** it keeps the records made **only** of picked
+elements, so taking a few away hides exactly what contains them. Clear, or an
+empty selection, shows everything again.
 
 What the old free-text `species` label used to carry alongside the identity now
-has its own field: `phase` (gas | adsorbed | surface | solution, omitted when the band
+has its own field: `phase` (gas | adsorbed | surface | solution | solid, omitted when the band
 covers both), `topology` (a Topology id from the species' molecule), and the
 `isotope` / `isotopologue_of` pair that already existed.
+
+**Claim, never assignment.** A reference's statement about a band is a
+**claim**, everywhere: in the interface, the docs, the data model
+(`Claim` entity, `metadata.next_claim_id`) and code. It says what the record
+is, a paper claiming something. Where prose needs the spectroscopic act of
+saying which mode a band belongs to, write **attribution**. `misassignment-warning`
+is the one survivor, a tag name and a different idea (a band probably
+attributed wrongly).
 
 **Fields first, tags derived.** `build.py` writes the phase chips (`free`,
 `adsorbed`, `in gas`, `in liquid`, …) from `references[].form` and `.medium` and
@@ -450,8 +583,10 @@ so both draw `Icon.svelte` and neither keeps a copy of the paths.
   the title and its options under it.
 - **The rail carries the chart's controls in miniature**, in the order the open
   sidebar puts them: which selection rule is drawn (`IR` / `R`, a toggle, not a
-  menu), Appearance, X axis, Techniques, Phases and Band States (one flyout), and
-  Group filter. Each is the
+  menu), Appearance, X axis, Techniques, State, Elements (the compact periodic
+  table), Band States (a
+  button each, with a symbol of its own in `Icon.svelte`: a reflected beam, a
+  drop on a surface, a periodic-table cell), and Group filter. Each is the
   minimal form of the full control: the group filter offers the sets and not
   the per-group toggles, Techniques offers the family and the calculations
   but not each geometry, and the axis offers the quantity and the two switches
@@ -491,10 +626,14 @@ button that fades in when the header is hovered. `+` / `−` step the scale,
   otherwise have the chart taken away at the moment they meant to show it. The
   block was always about a phone-sized touch screen, not about the number.
 - **Viewport pixels and shell pixels differ by the scale while the mode is on.**
-  `lib/zoom.ts` converts between them. The band chart is the only thing doing
-  pixel arithmetic, so it is the only caller: anything arriving from the
-  browser (`clientX`, a bounding rect, `window.innerHeight`) is taken into the
-  chart's own space before it is compared with or written back as a length.
+  `lib/zoom.ts` converts between them. Two things do pixel arithmetic against
+  the viewport, the band chart and `lib/floating.ts` (which places every
+  sidebar dropdown and the laser menu in a fixed layer from the field's rect),
+  and both take anything arriving from the browser (`clientX`, a bounding
+  rect, `window.innerHeight`) into shell space before comparing it with or
+  writing it back as a length. A new `position: fixed` element placed from a
+  rect must do the same, or it opens off screen while presenting: that is how
+  the laser list came to be unreachable, leaving only typing.
 
 ### Editorial limits
 
@@ -522,8 +661,21 @@ two places; Unicode survives both.
 **The exception in the data**: `topologies[].point_group` and
 `modes[].symmetry` in `data/vibrations.jsonc` carry literal `<sub>`/`<sup>`
 tags, because point-group and Mulliken labels need letter subscripts (g, u, v,
-d) that Unicode has no characters for. Those two fields, and nothing else in
-the data. They are listed in `MARKUP_EXEMPT_VIBRATION_FIELDS` in `schema.py`.
+d) that Unicode has no characters for. So does a band's own `symmetry` in
+`bands.jsonc`, the same label, derived from those modes or authored where no
+mode carries it (a lattice phonon). Those three fields, and nothing else in the
+data. The two in vibrations.jsonc are listed in `MARKUP_EXEMPT_VIBRATION_FIELDS`
+in `schema.py`; the band field is simply not among the fields the markup
+check reads.
+
+**Symmetry is a band property, derived where it can be.** `derive_band_symmetry`
+in `loader.py` fills `band.symmetry` from the band's own `vibration_modes`
+(only those valid for its topology) where they agree on one label, and runs
+before the modes are back-filled onto overtones, combinations and
+isotopologues, none of which inherits it: an overtone transforms as a product,
+and a substitution can lower the point group. An authored value wins and a
+disagreement is warned about. The band card shows it after the mode line,
+with `{@html}`.
 
 **The exception in the frontend**: the `lines` of a Knowledge formula box
 (`Formula` in `lib/fundamentals.ts`, also used by `lib/phenomena.ts`) are
@@ -738,7 +890,7 @@ guide, source guide):
 ## Data model page
 
 `frontend/src/lib/dataModel.ts` is to the data what `tokens.ts` is to the
-design: a written-down specification of every entity (Band, Assignment,
+design: a written-down specification of every entity (Band, Claim,
 Reference, Site, Species, Tag, Molecule, VibrationMode, …), how they link and
 with what cardinality, which links are enforced and which only hold because
 two strings match. `DataModelPage.svelte` renders itself out of it, plus an
@@ -761,7 +913,7 @@ Rules:
   guide, and shows its own table of contents in the sidebar from the `SECTIONS`
   array it exports.
 - The inventories read the real tables rather than guessing: a site's kind
-  comes from its record, and the "via sample" column counts the claims that
+  comes from its record, and the "via parts" column counts the claims that
   reach a surface only through a coarser one's `parts` list.
 
 ## Key design decisions
@@ -813,32 +965,39 @@ reference rather than pinned to the floor.
 **The sidebar takes three steps, in order: which claims count, what a band
 with none left does, which chemistry is on screen.**
 
-- **Techniques** decides which claims count. It is a set of *excluded*
-  techniques (`excludedTechniques` in `App.svelte`, a set of the excluded so a
-  value the filter does not list is never dropped), read by `refOff` in
-  `chart.ts`, the one place that decides whether a claim stands. A claim made
-  with an excluded technique greys and folds in the card (`off: 'excluded'`).
-  **Nothing is excluded by default, in either view**, and both families are
-  offered in both, each under a family switch, then `computational`. The
-  IR | Raman switch picks the selection rule (the hollow bands), not the
-  evidence: a Raman claim counts for a band in the infrared view until the
-  reader switches the Raman family off. Calculations count by default too: a
-  calculation is evidence, and greying a band before anybody asked reads as a
-  caveat about the chemistry rather than an answer to a question about method.
-- **Phases** is the other half of which claims count: how each claim's sample
-  was held, as two lists that combine. **Form** is where the species was (free,
-  dissolved, adsorbed, surface group, lattice) and **Medium** what surrounded
-  it (vacuum, gas, liquid, supercritical, matrix); each has a "not recorded"
-  row. A calculation records what its model contains, so it is filtered like
-  any other claim. Leaving only Adsorbed and Liquid on is the
-  electrochemistry. It is `excludedPhase` beside `excludedTechniques`, and
-  they travel together as one `ClaimFilter` into `refOff`, so a claim greyed
-  for its phase (`off: 'excluded-phase'`) moves a band into the unreferenced
-  state exactly as an excluded technique does.
-  Nothing is excluded by default. In both sections a click switches one row
-  and a double-click counts only that row (or family), a second double-click
-  counting everything again, the same gesture as isolating a legend tag; the
-  row tooltips say what each technique or phase is, in one sentence.
+- **Techniques, Phases and Elements** decide which claims count, as one
+  `ClaimFilter` (`lib/claimFilter.ts`) drawn by one component,
+  `ClaimFilterPanel.svelte`. The band chart and the References page each keep
+  their own filter and bind it to the same panel, so the two look and behave
+  alike without narrowing each other. Every part is a set of the *excluded*,
+  so a value the filter does not list is never dropped and nothing is
+  excluded by default. `claimExcluded` is the one place that decides whether
+  a claim passes; the chart's `refOff` adds `'unknown'` for a claim with no
+  technique, and the References page drops what `claimExcluded` rejects
+  (keeping untyped claims, a gap rather than a measurement switched off).
+  - **Techniques**: both families in both views, each under a family switch,
+    then `computational`. A technique that refines another (`TECHNIQUE_PARENT`:
+    ATR-SEIRAS under ATR, PM-IRRAS under IRRAS) sits indented under it, and
+    switching or isolating the parent takes the refinement along, in the
+    sidebar and from the legend chip alike. The claim keeps its own value. The
+    IR | Raman switch picks the selection rule (the hollow bands), not the
+    evidence, and calculations count by default.
+  - **Phases**: **Form** (free, dissolved, adsorbed, surface group, lattice)
+    and **Medium** (vacuum, gas, liquid, supercritical, matrix), each with a
+    "not recorded" row. Leaving only Adsorbed and Liquid on is the
+    electrochemistry. Greyed claims show `off: 'excluded-phase'`.
+  - **Elements**: element rows grouped by category, read in one of two scopes,
+    **in site** (`site_elements`) or **in specimen** (`specimen_elements`). A
+    claim names several elements, so the part has two sets: a click excludes
+    every claim containing that element, and a double-click fills
+    `onlyElements`, keeping only claims that contain it; with an only-set
+    standing a click edits that set instead. A claim naming no surface is the
+    "No surface named" row. Greyed claims show `off: 'excluded-element'`.
+  A click switches one row (or group), a double-click counts only that, a
+  second double-click counts everything again, the same gesture as isolating a
+  legend tag; the row tooltips say what each item is, in one sentence. A claim
+  greyed by any part moves a band into the unreferenced state exactly as an
+  excluded technique does.
 - **Band States** decides what an inactive band and an unreferenced band do,
   each as one three-way choice (`BandStateMode`: `look`, `plain`, `hidden`).
   It replaced a look pill under Appearance plus a filter pill under Enable &
@@ -854,6 +1013,80 @@ with none left does, which chemistry is on screen.**
   exception to
   "anything that matches a tag uses the full list": the hover highlight still
   matches the tag, but hiding no longer does.
+
+**Two kinds of object, two blocks of sidebar.** A **band** is what vibrates
+(its species, its species family, its mode); a **claim** is one paper's
+evidence for it (its specimen, technique, species state). The chart sidebar
+keeps them in two blocks between heavy rules, with no block headings (small
+headings read as noise): Techniques, **Species State** and **Specimen** decide
+which claims count and grey single claims; Band States and **Species Families**
+decide which bands are drawn. They meet only in the unreferenced state. Every
+section header carries a hover text (`hint` on `SectionHead`) saying what it
+describes and what it changes, and Species State and Specimen say outright
+that one is about the molecule and the other about the solid. The old names
+are gone on purpose: "Phases" (phase also means an XRD phase), "Surfaces",
+"Group filter".
+
+**Filter counts follow the selection.** Every filter row reads
+**shown / total**: how many of the bands drawn now (on References, claims
+listed now) have a counted claim with that value, against how many have one at
+all. An excluded technique reads 0 / n; narrowing anything else lowers the
+first number. The IR and Raman family rows count the same way (`family` in
+`FilterCounts`). The
+Dataset page opens its Structure view with a **Terms** card setting the words
+side by side.
+
+**Species lanes above, specimen lanes below.** A group carries `of: species`
+(the default, a hydride included) or `of: specimen` (the solid itself:
+Support OH, Oxide). `build.py` fails on a lanes table that puts a specimen lane
+above a species lane or mixes the two in one lane, and the chart draws a dashed
+rule with SPECIES / SPECIMEN between the blocks (`buildChart` in `chart.ts`).
+Oxide Raman bands, when they arrive, go below that rule.
+
+**The selection, and handing it to the other page.** Each page (band chart,
+References) keeps its own selection: its `ClaimFilter`, the bands switched off
+by hand, the chart's wavenumber range and a band scope. Single claims switched
+off by hand live in the filter (`filter.claims`, off reason `hidden`) because
+they decide whether a claim counts exactly as a technique does.
+`SelectionPanel.svelte` sits first under the heavy rule on both pages, with a
+heavy rule after it: a **Selection** header whose summary is a live count of
+what the page shows ("106 bands · 368 claims"), the transfer button under it
+(**Collect references** on the chart, **Show bands** on References: two sides
+of one coin, in the same place), and, open, the scope, the range and every
+hidden band and claim with a restore each.
+
+- Collect references hands over the chart's filter, hidden lists and range,
+  and as the band scope the bands the chart draws now (groups, Band States,
+  hidden bands, range). Show bands hands back the bands that still have a
+  counted claim in the list. Copies, so the pages never narrow each other.
+- Hiding: the docked band card has an eye on the band and on each claim, plus
+  one per paper where a paper makes several claims on the band
+  (`toggleClaims`). The References rows have a claim eye and a band switch;
+  switched-off rows stay listed, faint, so they can be switched back.
+- There is no IR | Raman switch on References: it would only change a look,
+  and whether an inactive band is drawn at all is the chart's Band States,
+  which the band scope already carries.
+
+**The chart's range selection** (`BandChart.svelte`): right-click (or **R**)
+sets the first limit, the second follows the pointer, left-click places it, a
+second right-click cancels, a double right-click clears a placed range, and
+Escape cancels or clears. Each limit has a handle in the middle of its dashed
+line; the dragged limit is fixed when the drag starts, so it can pass the other
+and the two swap on release. Outside the range the plot is greyed. Dragging the
+background still pans and double-click still resets the zoom. The range is
+kept in cm⁻¹, so it survives a pan, a zoom or a change of unit.
+
+**Surfaces: elements and materials.** The claim filter's third section has two
+tabs. **Elements** is `PeriodicPicker.svelte`, the one periodic table of the
+atlas (also the Dataset page's and, `compact`, the rail flyout's): click an
+element, double-click for only that, the faint numbers left of a row and above
+a column for a whole period or group; elements no surface contains are barely
+visible. **Materials** lists the composites, single compounds and sites some
+claim reaches, in that order, refinements under their parent, searchable. A claim counts against a
+material if it reaches it (`claimReach` in `claimFilter.ts`: the records it
+names, their parts, and every parent along `refines`), the same routes as the
+Dataset page's Total column, so picking Al₂O₃ keeps the claims on γ-Al₂O₃ and
+on Ru/Al₂O₃.
 
 **The sidebar section is Appearance, not Color by.** It holds the colour
 dimension and the marking of the spectral regions, and only the first of
@@ -896,7 +1129,7 @@ whole by the `spectral regions` pill under Appearance.
   in the microwaves and NMR in the radio waves. Change a border in
   `emSpectrum.ts` and the box on the Electromagnetic Spectrum card with it.
 
-**The mode line is `category (subtype) | branch X | atoms`.** The bracket holds
+**The mode line is `category (subtype) | branch X | atoms | symmetry`.** The bracket holds
 only the subtype, which for a stretch can only be symmetric or asymmetric, so
 the branch gets a named slot of its own: appended bare it read as a subtype and
 N₂'s Raman stretch announced itself as "stretch S". The letter is on the title
@@ -981,7 +1214,7 @@ Impressum.
 
 The parts it settles, which are the ones that go wrong otherwise: one row per
 (band, paper) claim and never an average; which field each fact belongs in;
-choosing the surface level from the sentence that makes the assignment; what a
+choosing the surface level from the sentence that makes the claim; what a
 `note` carries and in what order (source, sample state, conditions, argument,
 caveat); the fork between an isotopologue band and the `isotope-labeling` tag;
 and the second-pass list. Change a rule there in the same commit as the code or
@@ -1011,13 +1244,15 @@ Valid enum values:
 - `intensity`: `vs | s | m | w | vw` (very strong → very weak; omit if unknown)
 - `width`: `sharp | medium | broad | very_broad` (omit if unknown)
 - `confidence`: `confirmed | likely | tentative | speculative` (omit if unknown)
-- `phase`: `gas | adsorbed | surface | solution` (omit when the band covers both the free molecule and its adsorbed form). `solution` is a species in a liquid, dissolved in it or the liquid itself: CO₂(aq) consumed at an electrode, the interfacial water an electrochemical measurement sees. `check_phase` in `loader.py` compares each band phase with its claims' form and medium (`PHASE_FORMS`): gas wants free in a gas, vacuum or matrix; solution free or dissolved in a liquid; adsorbed wants adsorbed; surface wants surface or lattice. Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
+- `phase`: `gas | adsorbed | surface | solution | solid` (omit when the band covers both the free molecule and its adsorbed form). `solution` is a species in a liquid, dissolved in it or the liquid itself: CO₂(aq) consumed at an electrode, the interfacial water an electrochemical measurement sees. `check_phase` in `loader.py` compares each band phase with its claims' form and medium (`PHASE_FORMS`): gas wants free in a gas, vacuum or matrix; solution free or dissolved in a liquid; adsorbed wants adsorbed; surface wants surface; solid wants lattice. `solid` is the solid itself rather than anything on it: a lattice phonon, a framework overtone, a bulk defect's electronic transition. Matrix isolation counts as `gas`: a molecule in solid neon is the free molecule with its rotation quenched, not an adsorbed one
 - `topology`: a Topology id from the species' molecule in `vibrations.jsonc` (`monodentate | bidentate`, or CO's `linear | bridged | hollow | geminal | isocarbonyl`)
-- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | seiras | emission | mioirs | infrared | raman | srs | computational`. `seiras` is surface-enhanced IR on a metal-film electrode, nearly always through an ATR prism (Kretschmann geometry). It is not plain `atr`: as for IRRAS the surface selection rule applies, and the spectra are differences against a reference potential, so a band pointing down is a species consumed (interfacial CO₂). The film is the electrode, so it is recorded as a sample (`ag_au_film`, `cu_au_film`: the metal facing the electrolyte as the one site, the Au underlayer in `elements`, the Si prism left out as optics). `mioirs` is Mixed Isotope Operando Infrared Spectroscopy, the odd value of the infrared family: it names what was fed to the cell rather than how the beam reached the sample. A deliberately mixed isotopic stream (a little ¹³CO in ¹²CO) stops neighbouring adsorbates sharing a frequency and detunes the dipole coupling between them, so the spectrum is of a decoupled adlayer whichever geometry recorded it, which is why it is a value and not a tag. Monai proposed it in 2024 and nothing in the atlas carries it yet. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation); for the placeholders the two are the same tag. The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand. `raman` is a Raman shift whatever the geometry. Which claims count is the chart's Techniques filter, not the IR | Raman switch: a claim is greyed out and folded in the tooltip when its technique is switched off there, and a claim with no technique always is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is unreferenced, and Band States decides whether it is drawn faded, plain or taken out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `infrared` is the placeholder for a source that says IR or FTIR but names no sampling geometry (FTIR names the interferometer, which nearly every one of these uses), the way `raman` is for one that says only Raman; the value and the family umbrella are then one chip. Leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. The list lives twice, in `Technique` and `VALID_TECHNIQUES` in `schema.py`; the two drifted apart once, so change both. build.py derives a tag of the same name, so never write one by hand
-- `medium` and `form` in a reference object: how the sample was held for that one claim, on two axes, because one word cannot say both. `medium` is what surrounded it: `vacuum` (evacuated or UHV, no gas let in) | `gas` (any gas atmosphere, a fraction of a mbar of dosed CO included) | `liquid` (a liquid or an electrolyte) | `supercritical` (a dense fluid above its critical point, as a CO₂/H₂ feed at hundreds of bar and 230 °C is) | `matrix` (a frozen noble gas). A calculation records what its model contains: a slab or cluster in vacuum, unless the model adds a solvent, and a free molecule as free. `form` is where the species was: `free` (on its own: a gas, the liquid itself, matrix-isolated) | `dissolved` (a solute) | `adsorbed` | `surface` (a group of the solid: a hydroxyl, a hydride) | `lattice` (a mode or a defect of the solid itself). CO adsorbed in UHV, under a gas and at an electrode are then three different rows, as they are three different numbers, and methanol's O-H stretch at 3687 (vapour), ~3300 (liquid) and 3690 cm⁻¹ (neon) reads as three experiments rather than a disagreement. Not the band's own `phase`, which says what the band *is* wherever it appears. Leave `medium` out where the paper does not say; `build.py` prints a count of the claims missing either field. Each derives a tag, the medium as "in gas" / "in liquid" / … (spelled so an adsorbed band measured under a gas does not wear a chip reading "gas") and the form under its own name, so never write one by hand
+- `technique` in a reference object: `drifts | transmission | atr | irras | pm_irras | seiras | emission | mioirs | infrared | raman | srs | computational`. `seiras` is surface-enhanced IR on a metal-film electrode, nearly always through an ATR prism (Kretschmann geometry). It is not plain `atr`: as for IRRAS the surface selection rule applies, and the spectra are differences against a reference potential, so a band pointing down is a species consumed (interfacial CO₂). The film is the electrode, so it is recorded as a specimen: the layers as the specimen (`ag_au`, "Ag/Au on Si": Ag⁰, Au⁰ and Si⁰) and the film electrode as its refinement by form (`ag_au_film`), which is the key the claims name. `mioirs` is Mixed Isotope Operando Infrared Spectroscopy, the odd value of the infrared family: it names what was fed to the cell rather than how the beam reached the sample. A deliberately mixed isotopic stream (a little ¹³CO in ¹²CO) stops neighbouring adsorbates sharing a frequency and detunes the dipole coupling between them, so the spectrum is of a decoupled adlayer whichever geometry recorded it, which is why it is a value and not a tag. Monai proposed it in 2024 and nothing in the atlas carries it yet. `srs` is spontaneous Raman scattering named as such by the source, the specific value under `raman` the way the geometries sit under the infrared: one laser in, scattering out by itself, as against the coherent techniques (CARS, stimulated Raman) where a second beam drives it. Use it only where the paper says spontaneous; `raman` stays the value for one that does not. The build derives **two** tags from this one field, the way the isotope role works: the value itself, and its family (`infrared` for any of the sampling geometries, `raman` for the scattering ones, `computational` for a calculation); for the placeholders the two are the same tag. The family is what lets the legend ask "seen in the infrared at all" without ticking seven chips, and the legend puts a gap at each change of family. Never author either tag by hand. `raman` is a Raman shift whatever the geometry. Which claims count is the chart's Techniques filter, not the IR | Raman switch: a claim is greyed out and folded in the tooltip when its technique is switched off there, and a claim with no technique always is. A band none of whose claims stands (`isReferenced` in `chart.ts`) is unreferenced, and Band States decides whether it is drawn faded, plain or taken out. An isotopologue that is hollow or faded gets its hatch in the band's own colour, since the usual white lines vanish there. `infrared` is the placeholder for a source that says IR or FTIR but names no sampling geometry (FTIR names the interferometer, which nearly every one of these uses), the way `raman` is for one that says only Raman; the value and the family umbrella are then one chip. Leave the field out only when the paper says nothing at all. The reflection geometries are separate values because on a flat conducting sample the surface selection rule makes IRRAS a different experiment: only dipole components along the surface normal absorb, so a missing band can mean a mode lying flat rather than an absent species. **Techniques are records** in `data/techniques.jsonc`, not an enum: each carries a label, a family, a spectroscopy, an optional `parent` (ATR-SEIRAS under ATR), a one-sentence `tip` and a `note`. They used to live in four places (`schema.py`, `loader.py`, `claimFilter.ts`, `dataModel.ts`), which drifted: `mioirs` was valid in the build and missing from the chart's filter. Now `install_techniques` in `loader.py` fills the build's sets from the file before any claim is read, the table ships in `bands.json`, and `installTechniques` / `installTechniqueSpecs` fill the frontend's lists in place when it loads. A new technique is one record in that file and nothing else. build.py derives a tag of the same name, so never write one by hand
+- `medium` and `form` in a reference object: how the sample was held for that one claim, on two axes, because one word cannot say both. `medium` is what surrounded it: `vacuum` (evacuated or UHV, no gas let in) | `gas` (any gas atmosphere, a fraction of a mbar of dosed CO included) | `liquid` (a liquid or an electrolyte) | `supercritical` (a dense fluid above its critical point, as a CO₂/H₂ feed at hundreds of bar and 230 °C is) | `matrix` (a frozen noble gas). A calculation records what its model contains: a slab or cluster in vacuum, unless the model adds a solvent, and a free molecule as free. `form` is where the species was: `free` (on its own: a gas, the liquid itself, matrix-isolated) | `dissolved` (a solute) | `adsorbed` | `surface` (a group of the solid: a hydroxyl, a hydride) | `lattice` (a mode or a defect of the solid itself). CO adsorbed in UHV, under a gas and at an electrode are then three different rows, as they are three different numbers, and methanol's O-H stretch at 3687 (vapour), ~3300 (liquid) and 3690 cm⁻¹ (neon) reads as three experiments rather than a disagreement. Not the band's own `phase`, which says what the band *is* wherever it appears. Leave `medium` out where the paper does not say; `build.py` prints a count of the claims missing either field. A `lattice` claim is not counted as missing a medium: the band belongs to the solid itself, what surrounded it rarely moves it, and an ex-situ spectrum of a bare oxide seldom says; it still records one wherever the paper states it. Each derives a tag, the medium as "in gas" / "in liquid" / … (spelled so an adsorbed band measured under a gas does not wear a chip reading "gas") and the form under its own name, so never write one by hand
 - `laser_nm` in a reference object: the Raman excitation wavelength in nm, as a plain number (`"laser_nm": 515`). Only meaningful where `technique` is `raman`; `build.py` warns otherwise, since an infrared measurement has no excitation line. It derives a per-claim tag chip of its own (`515 nm`) which is coloured from the colour of that light (`frontend/src/lib/lightColor.ts`) rather than from `TAG_STYLES`, because a wavelength is a number and no fixed tag vocabulary can hold one. That is why anything rendering a tag from the data must go through `tagStyle()` in `lib/colors.ts` rather than indexing `TAG_STYLES` directly. Record it only where the paper names the line: "argon ion laser" with no wavelength is not a wavelength
-- `id` in a reference object: the assignment's own number, a positive integer unique across `bands.jsonc`. A new claim takes `metadata.next_assignment_id` and that mark goes up by one. It never goes down: a deleted claim's number is retired, never handed out again, and an edited claim keeps its own. Band + paper does not identify a claim (one paper can make several on one band, at a second site or position), so every row has its own number. `build.py` fails on a missing, repeated or out-of-range id and names the next free ones. The band card shows it small beside the claim's two links, and the band id the same way: at the foot of the hover card, above the molecule and references in the docked one
-- `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Write both keys when the paper names both the site and the catalyst, one when it names one. No reaction conditions — put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`
+- `scattering` in a reference object: `stokes | anti-stokes`, which side of the laser line a Raman claim was read on. Both sides are the same mode at the same distance from the line, so an anti-Stokes line is a claim on the same band with `wn` as the magnitude (a paper's −418 cm⁻¹ is `"wn": 418, "scattering": "anti-stokes"`), never a band of its own and never a negative `wn`. An anti-Stokes claim only where the source prints an anti-Stokes position (Thapa's Table 1 prints one, −418); a source that merely saw the anti-Stokes lines says so in the Stokes claim's note. Leave the field out on a plain positive shift: `tag_scattering` fills in `stokes` on every Raman claim that names no side, so every Raman claim carries exactly one of the two tags, uniformly. Both are legend tags in the Raman view (cosmetic, like every legend tag), and a band with a counted anti-Stokes claim is also drawn mirrored at the negative shift. Raman only (`tag_scattering` warns otherwise); derives a tag of the same name, in the `laser` role beside the wavelength
+- `id` in a reference object: the claim's own number, a positive integer unique across `bands.jsonc`. A new claim takes `metadata.next_claim_id` and that mark goes up by one. It never goes down: a deleted claim's number is retired, never handed out again, and an edited claim keeps its own. Band + paper does not identify a claim (one paper can make several on one band, at a second site or position), so every row has its own number. `build.py` fails on a missing, repeated or out-of-range id and names the next free ones. The band card shows it small beside the claim's two links, and the band id the same way: at the foot of the hover card, above the molecule and references in the docked one
+- `measured_on` in a reference object: one or more keys from `data/surfaces.jsonc`, naming where that source measured the band at whatever scale it stated (`"cu_1p"`, `"tio2"`, `"cu_zno"`). Name the catalyst measured and whatever the paper placed the species on (a site, a support, or both), one catalyst per row, and the most specific record it supports (`al2o3_gamma`, not `al2o3`). The build reads the specimen and the placement off the hierarchy of the keys. No reaction conditions: put those in `note`. Use a JSON array for several surfaces: `["zr_4p", "cugazrox"]`
+- `diluent` in a reference object: keys from `data/surfaces.jsonc` for what the sample was mixed with but is not made of (`["kbr"]`). Never in `measured_on`, never in the element sets. `site_elements`, `specimen_elements`, `specimens` and `placement` are derived by build.py; never author them
 - Combinations may not have a `subtype`
 - Overtone bands are **not** a separate category — use the parent's category (e.g. `stretch`) and add `"overtone"` to `tags`; keep `based_on` pointing to the parent mode
 - Isotopologues (ν(C–D) of DCOO*, ν(¹³CO), ν(OD) of CH₃OD, …) get their **own band entry** with `isotopologue_of` pointing at the natural-abundance band plus an `isotope` label (`"D"`, `"¹³C"`). Never bury an isotopologue's wavenumber in the parent band's `references[].wn`. The link is one-directional (child → parent, no chains); `build.py` auto-adds the substitution tag to the child only (`deuterium`, `carbon-13` or `oxygen-18`, named after `isotope`, whose vocabulary is closed in `VALID_ISOTOPES`), and the frontend draws those bands hatched. A source that merely *used* isotope substitution as evidence for an ordinary band gets the per-citation `isotope-labeling` tag instead — the two are different claims

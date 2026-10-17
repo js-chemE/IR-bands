@@ -479,7 +479,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'label',        label: 'Field label',      usage: 'Left column of a key/value grid',           size: '14px',   weight: 600, color: 'ink-500',     lh: '1.5' },
       { key: 'micro-label',  label: 'Micro label',      usage: 'Tiny uppercase label above a row of cards', size: '11px',   weight: 700, color: 'ink-slate-400', tt: 'uppercase', ls: '0.06em' },
       { key: 'code',         label: 'Code / file name', usage: 'File names, JSON keys, enum values',        size: '12px',   weight: 400, color: 'ref-code-fg', family: 'mono' },
-      { key: 'stat',         label: 'Statistic',        usage: 'A count the reader should see before clicking anything: bands, assignments and sources on the home page. Big enough to be the second thing read after the title', size: '38px', weight: 800, color: 'brand-900', ls: '-0.02em', lh: '1.05' },
+      { key: 'stat',         label: 'Statistic',        usage: 'A count the reader should see before clicking anything: bands, claims and sources on the home page. Big enough to be the second thing read after the title', size: '38px', weight: 800, color: 'brand-900', ls: '-0.02em', lh: '1.05' },
       { key: 'stat-label',   label: 'Statistic label',  usage: 'The word under a statistic, saying what was counted', size: '12px', weight: 600, color: 'ink-slate-300', tt: 'uppercase', ls: '0.07em' },
     ],
   },
@@ -523,7 +523,7 @@ export const TYPE_GROUPS: TypeGroup[] = [
       { key: 'tip-badge',     label: 'Badge',            usage: 'Wavenumber (mono) and site (sans) badges',      size: '11.5px', weight: 400, color: 'badge-wn-fg' },
       { key: 'tip-ref-note',  label: 'Reference note',   usage: 'Per-citation note, italic, at most 150 words',  size: '11.5px', weight: 400, color: 'ink-400',    lh: '1.35', fs: 'italic' },
       { key: 'tip-hint',      label: 'Interaction hint', usage: 'Bottom row, only while a band is pinned open',  size: '10.5px', weight: 400, color: 'ink-050' },
-      { key: 'tip-id',        label: 'Identifier',       usage: 'The band id under a card, and an assignment number beside a claim’s links. There to be quoted, not read', size: '10px', weight: 400, color: 'ink-025', family: 'mono' },
+      { key: 'tip-id',        label: 'Identifier',       usage: 'The band id under a card, and a claim number beside a claim’s links. There to be quoted, not read', size: '10px', weight: 400, color: 'ink-025', family: 'mono' },
     ],
   },
   {

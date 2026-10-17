@@ -12,7 +12,7 @@
    * disagree about counts four times. It is the honest measure of how much
    * reading is actually in here, and it is always the largest of the three.
    */
-  export let assignmentCount = 0;
+  export let claimCount = 0;
 
   const dispatch = createEventDispatcher<{ navigate: { page: string } }>();
 </script>
@@ -38,8 +38,8 @@
         <span class="stat-l">bands</span>
       </div>
       <div class="stat">
-        <span class="stat-n">{assignmentCount}</span>
-        <span class="stat-l">assignments</span>
+        <span class="stat-n">{claimCount}</span>
+        <span class="stat-l">claims</span>
       </div>
       <div class="stat">
         <span class="stat-n">{referenceCount}</span>
@@ -82,7 +82,7 @@
       </div>
       <h2 class="card-title">References</h2>
       <p class="card-desc">
-        Every source behind the assignments. Group by source, group, site, sample,
+        Every source behind the claims. Group by source, group, site, sample,
         element or technique, narrow to one kind of measurement, and read what each
         one actually reported.
       </p>

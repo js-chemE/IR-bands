@@ -4,79 +4,103 @@
 // This file is JSONC (JSON with Comments). The build step strips // and /* */
 // comments before shipping clean JSON to the browser.
 //
-// ONE TABLE, THREE LEVELS
-// "Where was this measured" does not have one answer, it has a scale. A paper
-// might say Cu⁺, or TiO₂, or Pt/TiO₂, and all three are true at once. Rather
-// than forcing each into a separate table and then arguing about which one
-// TiO₂ belongs in, every entry here is a surface with a `level` saying how
-// specific it is:
+// TWO LEVELS
+// "Where was this measured" does not have one answer, it has a scale. Every
+// entry carries a `level`:
 //
-//   site    the atom-scale spot the molecule is bonded to: a cation, a
-//           reduced metal atom, a vacancy, a proton, or a named ensemble of
-//           those. This is what "site" means strictly.
-//   phase   a constituent of a sample, named by composition: TiO₂, Al₂O₃,
-//           ZnO. Strictly the molecule sits on some site *within* the phase
-//           (on TiO₂ it is a Ti⁴⁺ or a surface O), but papers very often
-//           report only the phase, and recording that honestly beats guessing.
-//   sample  what was actually in the cell as a made thing: Cu/ZnO,
-//           Ru/Al₂O₃, Cu-GaZrOₓ. A bare oxide is a phase even when it is
-//           the only thing in the cell, facet and all: Fe₃O₄(001) is a phase.
+//   material   a piece of solid that exists physically: one compound (ZnO,
+//              γ-Al₂O₃, sapphire, KBr, ZSM-5) or a whole catalyst, electrode
+//              or model (Cu/ZnO, CuZn/SiO₂, Ag/Au on Si). Never a bare metal:
+//              a metal is only its atom, so a catalyst names Cu⁰ directly.
+//   site       the atom-scale spot an adsorbate binds to, or an ion a
+//              material is made of: Cu⁺, Al³⁺, O²⁻, Vₒ, a silanol, the
+//              Pt⁰-Ce³⁺ perimeter.
 //
-// The same entry can play more than one role without changing: TiO₂ is the
-// sample when a paper measures bare titania, and the phase when the same
-// titania is the support in Pt/TiO₂. That ambiguity is in the chemistry, not
-// in the schema, so the schema does not try to resolve it.
+// An oxide written only to express a composition is not a material of its
+// own: ZSM-5 is made of Si⁴⁺, Al³⁺ and O²⁻, not Al₂O₃ + Na₂O + SiO₂, its
+// counter-cation is a refinement (H-ZSM-5 adds H⁺), and the Na in
+// Ru/"Na₂O"/Al₂O₃ is an Na⁺ site.
 //
-// `parts` is the one containment link, and it points down the scale: a sample
-// lists its phases and the sites it presents, a phase lists the sites within
-// it, a composite site lists the simpler sites it is built from. It is what
-// lets a query for Cu⁺ reach the bands whose paper only named Cu/ZnO, and
-// what would let a query for Ti⁴⁺ reach the ones that only named TiO₂ (add
-// the cation as a site entry and list it under the phase to say so).
+// ONE COMPOUND OR A COMPOSITE
+// build.py derives `compound` on every material: true where it is made only
+// of ions (cation, anion, defect, hydroxyl, bronsted sites), through its parts
+// and the record it refines; false where a metal atom, a zero-valent
+// non-metal, an interface or another material is among them. It is not
+// authored, so it cannot disagree with the parts.
 //
-// The one exception is an interface site (kind: interface), which may name a
-// phase among its parts: the Pt⁰-CeO₂ perimeter is not a Pt atom plus a Ce
-// cation, it is the metal against the oxide, so the phase is what it is made
-// of. build.py rejects a coarser part anywhere else.
+// THE CLAIM DECIDES THE ROLE
+// TiO₂ is one record whether a paper measured bare titania or Pt on titania.
+// Which it was, the claim says by what else it names. build.py derives
+// `specimens` on every claim, the materials it names that no other material
+// it names contains: ["tio2", "pt_moox_tio2"] has the catalyst as specimen and
+// titania as the part the species was placed on; ["tio2"] alone has titania
+// as specimen. It also derives `placement`: site (a site is named), material
+// (a part is named, or the specimen is one compound) or specimen (only a
+// composite is named: seen there, not located in it). See bands.jsonc.
 //
-// A band reference names surfaces in ONE field:
-//   measured_on — one or more keys from this table, at any level. A paper
-//                 that named both the site and the sample gets both, a paper
-//                 that named only the catalyst gets one, and neither is a
-//                 lesser record than the other.
+// TWO LINKS, AND ONLY TWO
+//   parts    "is made of". Points to records on the same level or lower,
+//            never up. A material lists the materials it contains, and a
+//            site directly only where that site belongs to no material it
+//            lists (an isolated SOMC cation, an exchanged cation, a
+//            zero-valent metal atom, an interface). A compound lists its
+//            ions: Al₂O₃ is Al³⁺ + O²⁻, KBr is K⁺ + Br⁻. A composite site
+//            lists the simpler sites it is built from. Elements flow UP
+//            along it.
+//   refines  "is a more specific version of". Points to exactly one record on
+//            the same level. Searches flow DOWN along it: asking for Al₂O₃
+//            also finds γ-Al₂O₃, asking for γ-Al₂O₃ finds only γ. A refinement
+//            inherits its parent's parts and elements, may add parts of its
+//            own (ZnO₁₋ₓ adds the vacancies), and must say what it adds with
+//            at least one of the refinement attributes below.
+//
+// ELEMENTS ARE TYPED ONCE
+// Elements come from the sites' `element` and flow up. `elements` is authored
+// only where a record contains an element it does not model as a part (the
+// Si, O and H of a silanol, a group). build.py derives `all_elements` and
+// warns where an authored element is already supplied. Symbols are validated
+// against data/elements.jsonc.
+//
+// The claim then gets two derived sets (see bands.jsonc, references[]):
+// `site_elements` from where it placed the species (its sites, the materials
+// inside its specimen, and the specimen itself only where it is one
+// compound), `specimen_elements` from everything it names.
 //
 // IDS ARE ASCII, LABELS CARRY THE UNICODE
-// Same convention as band ids, group keys and species keys: the key is a
-// machine identifier (`cu_1p`), the label is what a reader sees (`Cu⁺`).
-// Charge is spelled out as `_0`, `_1p`, `_2p` and so on. Element-symbol ids in
-// this file always mean the element (`co_0` is cobalt metal, never carbon
-// monoxide).
+// The key is a machine identifier (`cu_1p`), the label what a reader sees
+// (`Cu⁺`). Charge is spelled out as `_0`, `_1p`, `_2m`. Element-symbol ids
+// always mean the element (`co_0` is cobalt metal, never carbon monoxide).
 //
 // -----------------------------------------------------------------------------
 // SCHEMA
 //   <key>:             ASCII identifier, referenced by
-//                        band.references[].measured_on
+//                        band.references[].measured_on and .diluent
 //     label:           display text, Unicode (required)
-//     level:           site | phase | sample (required). It decides how the
-//                        badge is drawn: a site is filled, a phase or sample
-//                        is hollow, so the scale is visible at a glance.
-//     kind:            for a site only: metal | cation | defect | interface |
-//                        bronsted (optional)
-//     element:         element symbol, for an atom-scale site (optional)
-//     oxidation_state: integer, for metal/cation sites (optional)
-//     formula:         Unicode formula, for a phase (optional)
-//     composition:     the sample as the literature writes it, for a sample
-//                        (optional). A phase uses `formula` instead, facet or
-//                        no facet: a cut crystal is the same compound.
-//     elements:        every element this surface contains, as symbols. What
-//                        answers "anything on a Cu-containing sample",
-//                        whichever level the claim named (optional for a
-//                        site, where `element` already says it)
-//     facet:           crystallographic termination, for a single crystal.
-//                        It narrows a phase; it never sits on a site (optional)
-//     parts:           keys of the surfaces one scale down (optional). See
-//                        above: this is the only containment link.
-//     note:            one sentence, shown on the Dataset page (optional)
+//     level:           site | material (required). A site is drawn filled,
+//                        a material hollow.
+//     refines:         the key of the record this one specialises, on the
+//                        same level (optional, see above)
+//     kind:            what the record is, by level (a refinement inherits it).
+//                        Material: oxide | mixed oxide | halide, for a
+//                        compound; a composite has none.
+//                        Site: metal (a zero-valent metal atom) |
+//                        atom (a zero-valent non-metal, Si⁰) | cation |
+//                        anion | bronsted | hydroxyl | defect | interface
+//     element:         the element of an atom-scale site
+//     formula:         Unicode formula, for a compound (optional)
+//     composition:     a formula for a material, only where neither the label
+//                        nor the parts can say it (ZSM-5: MₙAlₙSi₉₆₋ₙO₁₉₂)
+//     elements:        element symbols not supplied by parts or parent
+//     parts:           keys this record is made of, same level or lower
+//     note:            one or two sentences, shown on the Dataset page
+//   Refinement attributes, at least one on any record that `refines`:
+//     oxidation_state: integer (on a site root it is simply its charge)
+//     charge:          integer, for a charged defect (Vₒ → Vₒ⁺)
+//     coordination:    tetrahedral, octahedral, … (Ga³⁺ → Ga³⁺(t))
+//     polymorph:       γ, α, anatase, … (Al₂O₃ → γ-Al₂O₃)
+//     facet:           crystallographic termination (Fe₃O₄ → Fe₃O₄(001))
+//     form:            nanoparticle, film electrode, … (Ag/Au on Si → film electrode)
+//     stoichiometry:   O-deficient, … (ZnO → ZnO₁₋ₓ)
 //
 // KEEP IN SYNC: adding, renaming or removing a key here means updating
 // data/bands.jsonc in the same change. build.py fails on an unresolved key.
@@ -84,15 +108,7 @@
 {
   "surfaces": {
 
-    // ── Sites: the atom-scale spot a molecule is bonded to ──
-    "cu_0": {
-      "label": "Cu⁰",
-      "level": "site",
-      "kind": "metal",
-      "element": "Cu",
-      "oxidation_state": 0,
-      "note": "Metallic copper. Carries ν(CO) roughly 40–80 cm⁻¹ below the Cu⁺ carbonyl."
-    },
+    // ── Sites: the atom-scale spot a molecule binds to, and the ions and atoms of everything else ──
     "ag_0": {
       "label": "Ag⁰",
       "level": "site",
@@ -100,6 +116,13 @@
       "element": "Ag",
       "oxidation_state": 0,
       "note": "Metallic silver. Binds atomic hydrogen weakly and formate strongly enough, which is the combination that gives it the lowest barrier to formate of the three coinage metals."
+    },
+    "ag_111": {
+      "label": "Ag⁰(111)",
+      "level": "site",
+      "refines": "ag_0",
+      "facet": "(111)",
+      "note": "Metallic silver exposing its (111) plane, the close-packed face of an fcc metal: a hexagonal layer in which each surface atom keeps nine of its twelve neighbours, the smoothest and lowest-energy face. It offers atop, bridge and two kinds of threefold hollow, fcc and hcp, which differ only in whether an atom of the second layer lies beneath. It is the slab a calculation reaches for when it models a silver electrode. A refinement of Ag⁰ by its facet: a search for Ag⁰ finds it."
     },
     "au_0": {
       "label": "Au⁰",
@@ -109,12 +132,27 @@
       "oxidation_state": 0,
       "note": "Metallic gold. Binds formate too weakly to accumulate it, the opposite failure to copper, which binds hydrogen too strongly."
     },
-    "ag_sio2_interface": {
-      "label": "Ag⁰-SiO₂ perimeter",
+    "co_0": {
+      "label": "Co⁰",
       "level": "site",
-      "kind": "interface",
-      "parts": ["ag_0", "sio2"],
-      "note": "The rim where a silver nanoparticle meets the silica, named as the active site for methyl formate: the formate sits on the metal and the carbonic acid and adsorbed methanol on the silica beside it, so the esterification happens where the two meet rather than on either alone."
+      "kind": "metal",
+      "element": "Co",
+      "oxidation_state": 0
+    },
+    "cu_0": {
+      "label": "Cu⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Cu",
+      "oxidation_state": 0,
+      "note": "Metallic copper. Carries ν(CO) roughly 40–80 cm⁻¹ below the Cu⁺ carbonyl."
+    },
+    "cu_110": {
+      "label": "Cu⁰(110)",
+      "level": "site",
+      "refines": "cu_0",
+      "facet": "(110)",
+      "note": "Metallic copper exposing its (110) plane, the most open of the three low-index faces of an fcc metal: close-packed rows of atoms separated by troughs, each surface atom keeping seven of its twelve neighbours. CO sits atop the rows. A refinement of Cu⁰ by its facet, so a search for Cu⁰ finds it."
     },
     "pd_0": {
       "label": "Pd⁰",
@@ -123,12 +161,12 @@
       "element": "Pd",
       "oxidation_state": 0
     },
-    "co_0": {
-      "label": "Co⁰",
+    "pd_100": {
+      "label": "Pd⁰(100)",
       "level": "site",
-      "kind": "metal",
-      "element": "Co",
-      "oxidation_state": 0
+      "refines": "pd_0",
+      "facet": "(100)",
+      "note": "Metallic palladium exposing its (100) plane: a square net of surface atoms, each keeping eight of its twelve neighbours, with atop, twofold bridge and fourfold hollow sites. CO prefers the bridge on this face, which is why its band lies in the bridged range across most of the coverage. A refinement of Pd⁰ by its facet, so a search for Pd⁰ finds it."
     },
     "pt_0": {
       "label": "Pt⁰",
@@ -137,6 +175,13 @@
       "element": "Pt",
       "oxidation_state": 0
     },
+    "pt_100": {
+      "label": "Pt⁰(100)",
+      "level": "site",
+      "refines": "pt_0",
+      "facet": "(100)",
+      "note": "Metallic platinum exposing its (100) plane: a square net of surface atoms, each keeping eight of its twelve neighbours, with atop, bridge and fourfold hollow sites. Clean, the top layer reconstructs into a denser quasi-hexagonal one; adsorbed CO lifts that back to the square (1×1) net, on which CO sits atop and bridged. A refinement of Pt⁰ by its facet, so a search for Pt⁰ finds it."
+    },
     "ru_0": {
       "label": "Ru⁰",
       "level": "site",
@@ -144,24 +189,60 @@
       "element": "Ru",
       "oxidation_state": 0
     },
-    "ga": {
-      "label": "Ga",
+    "si_0": {
+      "label": "Si⁰",
       "level": "site",
-      "element": "Ga",
-      "parts": ["ga_tet", "ga_oct"],
-      "note": "A Ga centre carrying a hydride, written as Ga-H with no charge in the sources that report it. Neither Ga⁰ nor Ga³⁺ is asserted, which is why this entry has no kind and no oxidation state; use ga_3p only where the paper states the cation. The two coordinations below are the resolved forms of it: a claim that says only Ga is a claim that did not separate them."
+      "kind": "atom",
+      "element": "Si",
+      "oxidation_state": 0,
+      "note": "Elemental silicon, the internal-reflection prism a film electrode is deposited on."
     },
-    "ga_tet": {
-      "label": "Ga(t)",
+    "ag_1p": {
+      "label": "Ag⁺",
       "level": "site",
-      "element": "Ga",
-      "note": "Tetrahedrally coordinated gallium, the Ga(t) of β-Ga₂O₃. Its hydride and hydroxyl sit about 25 and 150 cm⁻¹ above those of the octahedral site, which is how the two are told apart."
+      "kind": "cation",
+      "element": "Ag",
+      "oxidation_state": 1,
+      "note": "Oxidised silver, carrying a carbonyl well above the gas-phase CO value because there is little back-donation to lower it. Its position moves when the silver is alloyed, which is what makes it a probe of alloying rather than only of oxidation state."
     },
-    "ga_oct": {
-      "label": "Ga(o)",
+    "al_3p": {
+      "label": "Al³⁺",
       "level": "site",
-      "element": "Ga",
-      "note": "Octahedrally coordinated gallium, the Ga(o) of β-Ga₂O₃. Coordinatively unsaturated at the surface, which is why it, and not the saturated tetrahedral site, is where H₂ dissociates in the calculations."
+      "kind": "cation",
+      "element": "Al",
+      "oxidation_state": 3,
+      "note": "An aluminium cation of alumina or of a zeolite framework. Coordinatively unsaturated, it is the Lewis acid site of γ-Al₂O₃."
+    },
+    "au_1p": {
+      "label": "Au⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Au",
+      "oxidation_state": 1,
+      "note": "Oxidised gold. Distinguished from metallic Au⁰ by a carbonyl above 2120 cm⁻¹; the attribution is contested, since restructured metallic gold gives bands low enough to confuse the picture from the other side."
+    },
+    "ce_3p": {
+      "label": "Ce³⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ce",
+      "oxidation_state": 3,
+      "note": "A reduced cerium cation, left beside an oxygen vacancy when ceria gives up lattice oxygen; the cerium side of a reduced metal-ceria perimeter."
+    },
+    "ce_4p": {
+      "label": "Ce⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ce",
+      "oxidation_state": 4,
+      "note": "The cerium cation of stoichiometric CeO₂."
+    },
+    "cs_1p": {
+      "label": "Cs⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Cs",
+      "oxidation_state": 1
     },
     "cu_1p": {
       "label": "Cu⁺",
@@ -177,37 +258,31 @@
       "kind": "cation",
       "element": "Cu",
       "oxidation_state": 2,
-      "note": "Fully oxidised copper, carrying a carbonyl some 25 cm⁻¹ above the Cu⁺ one. Rare in this dataset, because a working methanol catalyst is reduced: where a source reports it on one, it is claiming a minority site that survived the reduction, and the claim is worth reading against the Cu⁺ assignment it sits next to."
+      "note": "Fully oxidised copper, carrying a carbonyl some 25 cm⁻¹ above the Cu⁺ one. Rare in this dataset, because a working methanol catalyst is reduced: where a source reports it on one, it is claiming a minority site that survived the reduction, and the claim is worth reading against the Cu⁺ attribution it sits next to."
     },
-    "ag_1p": {
-      "label": "Ag\u207a",
+    "fe_2p": {
+      "label": "Fe²⁺",
       "level": "site",
       "kind": "cation",
-      "element": "Ag",
-      "oxidation_state": 1,
-      "note": "Oxidised silver, carrying a carbonyl well above the gas-phase CO value because there is little back-donation to lower it. Its position moves when the silver is alloyed, which is what makes it a probe of alloying rather than only of oxidation state."
+      "element": "Fe",
+      "oxidation_state": 2,
+      "note": "The ferrous cation of magnetite, Fe₃O₄."
     },
-    "au_1p": {
-      "label": "Au\u207a",
+    "fe_3p": {
+      "label": "Fe³⁺",
       "level": "site",
       "kind": "cation",
-      "element": "Au",
-      "oxidation_state": 1,
-      "note": "Oxidised gold. Distinguished from metallic Au\u2070 by a carbonyl above 2120 cm\u207b\u00b9; the assignment is contested, since restructured metallic gold gives bands low enough to confuse the picture from the other side."
+      "element": "Fe",
+      "oxidation_state": 3,
+      "note": "The ferric cation of haematite and of magnetite."
     },
-    "zn_2p": {
-      "label": "Zn²⁺",
+    "ga_3p": {
+      "label": "Ga³⁺",
       "level": "site",
       "kind": "cation",
-      "element": "Zn",
-      "oxidation_state": 2
-    },
-    "zr_4p": {
-      "label": "Zr⁴⁺",
-      "level": "site",
-      "kind": "cation",
-      "element": "Zr",
-      "oxidation_state": 4
+      "element": "Ga",
+      "oxidation_state": 3,
+      "note": "A gallium cation of Ga₂O₃ or of a Ga-doped oxide. The Ga-H papers write Ga-H and state no charge; they are filed here because the hydride forms by heterolytic H₂ splitting on a Ga³⁺-O²⁻ pair, which is the author’s reading rather than the papers’."
     },
     "hf_4p": {
       "label": "Hf⁴⁺",
@@ -216,19 +291,58 @@
       "element": "Hf",
       "oxidation_state": 4
     },
-    "ga_3p": {
-      "label": "Ga³⁺",
-      "level": "site",
-      "kind": "cation",
-      "element": "Ga",
-      "oxidation_state": 3
-    },
     "in_3p": {
       "label": "In³⁺",
       "level": "site",
       "kind": "cation",
       "element": "In",
       "oxidation_state": 3
+    },
+    "mo_4p": {
+      "label": "Mo⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Mo",
+      "oxidation_state": 4,
+      "note": "A reduced molybdenum cation of MoOₓ, as in MoO₂."
+    },
+    "mo_5p": {
+      "label": "Mo⁵⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Mo",
+      "oxidation_state": 5,
+      "note": "A partly reduced molybdenum cation of MoOₓ, beside an oxygen vacancy."
+    },
+    "mo_6p": {
+      "label": "Mo⁶⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Mo",
+      "oxidation_state": 6,
+      "note": "The fully oxidised molybdenum cation of MoO₃ and of the unreduced MoOₓ layer."
+    },
+    "mo_dp": {
+      "label": "Moᵟ⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Mo",
+      "note": "Molybdenum reduced below Mo⁴⁺ with no integer charge assigned, written δ+ the way the MoOₓ literature writes it. The one cation here without an oxidation state, because δ is the statement: partly reduced, not a stated charge."
+    },
+    "k_1p": {
+      "label": "K⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "K",
+      "oxidation_state": 1
+    },
+    "la_3p": {
+      "label": "La³⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "La",
+      "oxidation_state": 3,
+      "note": "A lanthanum cation dispersed in alumina as a stabiliser, not a phase of its own."
     },
     "li_1p": {
       "label": "Li⁺",
@@ -244,12 +358,13 @@
       "element": "Na",
       "oxidation_state": 1
     },
-    "k_1p": {
-      "label": "K⁺",
+    "ni_2p": {
+      "label": "Ni²⁺",
       "level": "site",
       "kind": "cation",
-      "element": "K",
-      "oxidation_state": 1
+      "element": "Ni",
+      "oxidation_state": 2,
+      "note": "The nickel cation of NiO and of the NiAl₂O₄ spinel."
     },
     "rb_1p": {
       "label": "Rb⁺",
@@ -258,19 +373,87 @@
       "element": "Rb",
       "oxidation_state": 1
     },
-    "cs_1p": {
-      "label": "Cs⁺",
+    "si_4p": {
+      "label": "Si⁴⁺",
       "level": "site",
       "kind": "cation",
-      "element": "Cs",
-      "oxidation_state": 1
+      "element": "Si",
+      "oxidation_state": 4,
+      "note": "The silicon of a silica or silicate network, written as the cation it formally is. Too shielded to bind most adsorbates itself; the silanol beside it does."
+    },
+    "sn_4p": {
+      "label": "Sn⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Sn",
+      "oxidation_state": 4,
+      "note": "The tin cation of SnO₂."
+    },
+    "ti_4p": {
+      "label": "Ti⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Ti",
+      "oxidation_state": 4,
+      "note": "The titanium cation of TiO₂."
+    },
+    "zn_2p": {
+      "label": "Zn²⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Zn",
+      "oxidation_state": 2
+    },
+    "zr_4p": {
+      "label": "Zr⁴⁺",
+      "level": "site",
+      "kind": "cation",
+      "element": "Zr",
+      "oxidation_state": 4
+    },
+    "br_1m": {
+      "label": "Br⁻",
+      "level": "site",
+      "kind": "anion",
+      "element": "Br",
+      "oxidation_state": -1,
+      "note": "The bromide of KBr."
+    },
+    "o_2m": {
+      "label": "O²⁻",
+      "level": "site",
+      "kind": "anion",
+      "element": "O",
+      "oxidation_state": -2,
+      "note": "A lattice oxide anion, the O of every oxide component. The basic half of a cation-anion pair; heterolytic H₂ splitting and carbonate formation both start on it."
     },
     "h_bronsted": {
-      "label": "H⁺ (Brønsted)",
+      "label": "H⁺",
       "level": "site",
       "kind": "bronsted",
       "element": "H",
       "note": "A proton-donating surface hydroxyl, as opposed to the Lewis-acidic cations above."
+    },
+    "sioh": {
+      "label": "Si–OH",
+      "level": "site",
+      "kind": "hydroxyl",
+      "elements": ["Si", "O", "H"],
+      "note": "A silanol, the hydroxyl that terminates a silica surface. Recorded so the Ag⁰-SiO₂ perimeter can name a site on the silica side rather than the whole oxide."
+    },
+    "ga_oct": {
+      "label": "Ga³⁺(o)",
+      "level": "site",
+      "refines": "ga_3p",
+      "coordination": "octahedral",
+      "note": "Octahedrally coordinated gallium, the Ga³⁺(o) of β-Ga₂O₃, its charge inherited from Ga³⁺. Coordinatively unsaturated at the surface, which is why it, and not the saturated tetrahedral site, is where H₂ dissociates in the calculations."
+    },
+    "ga_tet": {
+      "label": "Ga³⁺(t)",
+      "level": "site",
+      "refines": "ga_3p",
+      "coordination": "tetrahedral",
+      "note": "Tetrahedrally coordinated gallium, the Ga³⁺(t) of β-Ga₂O₃, its charge inherited from Ga³⁺. Its hydride and hydroxyl sit about 25 and 150 cm⁻¹ above those of the octahedral site, which is how the two are told apart."
     },
     "o_vac": {
       "label": "Vₒ",
@@ -281,8 +464,9 @@
     "o_vac_1p": {
       "label": "Vₒ⁺",
       "level": "site",
+      "refines": "o_vac",
       "kind": "defect",
-      "parts": ["o_vac"],
+      "charge": 1,
       "note": "An oxygen vacancy that has given up one of its two electrons, the donor centre whose photoionization to the conduction band is the broad electronic absorption under an operando Cu/ZnO spectrum. Its concentration, not just its existence, is what the band measures."
     },
     "zn_ovac_hf": {
@@ -292,335 +476,534 @@
       "parts": ["zn_2p", "o_vac", "hf_4p"],
       "note": "An oxygen vacancy flanked by Zn and Hf: the two cations and the vacancy act as one site."
     },
-    "pt0_ceo2_interface": {
-      "label": "Pt⁰-CeO₂ interface",
+    "ag_sio2_interface": {
+      "label": "Ag⁰-SiO₂ perimeter",
       "level": "site",
       "kind": "interface",
-      "parts": ["pt_0", "ceo2"],
-      "note": "The perimeter where the metal particle meets the reducible support, not either phase alone."
+      "parts": ["ag_0", "sioh"],
+      "note": "The rim where a silver nanoparticle meets the silica, named as the active site for methyl formate: the formate sits on the metal and the carbonic acid and adsorbed methanol on the silica beside it, so the esterification happens where the two meet rather than on either alone."
+    },
+    "pt0_ceo2_interface": {
+      "label": "Pt⁰-CeO₂ perimeter",
+      "level": "site",
+      "kind": "interface",
+      "parts": [
+        "pt_0",
+        "ce_4p",
+        "ce_3p",
+        "o_2m",
+        "o_vac"
+      ],
+      "note": "The perimeter where Pt particles meet ceria: Pt⁰ on one side, the ceria lattice on the other, Ce⁴⁺ and O²⁻, and under reduction Ce³⁺ beside oxygen vacancies (2 Ce⁴⁺ + O²⁻ → 2 Ce³⁺ + Vₒ + ½ O₂, eased by hydrogen spilling over from the metal). Vico van Berkel and Urakawa write of a highly reduced ceria surface and of oxygen vacancies; Ce³⁺ is the author's reading of that phrase, the standard one."
     },
 
-    // ── Phases: a constituent of a sample, named by composition ──
+    // ── Materials, one compound each: made of their ions ──
     "al2o3": {
       "label": "Al₂O₃",
-      "level": "phase",
+      "level": "material",
+      "kind": "oxide",
       "formula": "Al₂O₃",
-      "elements": ["Al", "O"]
-    },
-    "tio2": {
-      "label": "TiO₂",
-      "level": "phase",
-      "formula": "TiO₂",
-      "elements": ["Ti", "O"]
+      "parts": ["al_3p", "o_2m"]
     },
     "ceo2": {
       "label": "CeO₂",
-      "level": "phase",
+      "level": "material",
+      "kind": "oxide",
       "formula": "CeO₂",
-      "elements": ["Ce", "O"]
-    },
-    "zno": {
-      "label": "ZnO",
-      "level": "phase",
-      "formula": "ZnO",
-      "elements": ["Zn", "O"],
-      "parts": ["zn_2p"]
-    },
-    "zno_1mx": {
-      "label": "ZnO₁₋ₓ",
-      "level": "phase",
-      "formula": "ZnO₁₋ₓ",
-      "elements": ["Zn", "O"],
-      "parts": ["zn_2p", "o_vac", "o_vac_1p"],
-      "note": "Zinc oxide after reduction, carrying the oxygen vacancies that stoichiometric ZnO does not. Recorded apart from zno because the distinction is the point wherever it is named: the defects are what the strong metal-support interaction with copper creates, and what the infrared background reports on."
-    },
-    "zro2": {
-      "label": "ZrO₂",
-      "level": "phase",
-      "formula": "ZrO₂",
-      "elements": ["Zr", "O"],
-      "parts": ["zr_4p"]
-    },
-    "hfo2": {
-      "label": "HfO₂",
-      "level": "phase",
-      "formula": "HfO₂",
-      "elements": ["Hf", "O"],
-      "parts": ["hf_4p"],
-      "note": "Hafnia, ZrO₂'s chemical twin. Monoclinic when precipitated and calcined on its own; the Zn-doped solid solutions are cubic and are the znhfox sample, not this."
-    },
-    "ga2o3": {
-      "label": "Ga₂O₃",
-      "level": "phase",
-      "formula": "Ga₂O₃",
-      "elements": ["Ga", "O"],
-      "parts": ["ga_3p", "ga_tet", "ga_oct"],
-      "note": "Gallia, as a constituent of a promoted catalyst and as a sample in its own right. The β polymorph carries both gallium coordinations, which is why hydride and hydroxyl bands on it come in pairs."
-    },
-    "sio2": {
-      "label": "SiO₂",
-      "level": "phase",
-      "formula": "SiO₂",
-      "elements": ["Si", "O"]
+      "parts": ["ce_4p", "o_2m"]
     },
     "fe2o3": {
       "label": "Fe₂O₃",
-      "level": "phase",
+      "level": "material",
+      "kind": "oxide",
       "formula": "Fe₂O₃",
-      "elements": ["Fe", "O"]
+      "parts": ["fe_3p", "o_2m"]
     },
     "fe3o4": {
       "label": "Fe₃O₄",
-      "level": "phase",
+      "level": "material",
+      "kind": "oxide",
       "formula": "Fe₃O₄",
-      "elements": ["Fe", "O"],
+      "parts": ["fe_2p", "fe_3p", "o_2m"],
       "note": "Magnetite with no termination stated. The two facet variants below point at it, and all three are the same compound: only the cut differs."
-    },
-    "sno2": {
-      "label": "SnO₂",
-      "level": "phase",
-      "formula": "SnO₂",
-      "elements": ["Sn", "O"],
-      "note": "Tin dioxide, the classic oxide cathode for CO₂ reduction to formate. Under strongly cathodic potentials it is not stable: a Pourbaix analysis at pH 6.8 puts metallic Sn as the stable phase near −1.1 V vs. RHE, so the entry names what was put in the cell, not what the surface is during reduction."
-    },
-    "ag_111": {
-      "label": "Ag(111)",
-      "level": "phase",
-      "formula": "Ag",
-      "facet": "(111)",
-      "elements": ["Ag"],
-      "parts": ["ag_0"],
-      "note": "Metallic silver cut on its close-packed (111) plane, the slab a calculation reaches for when it models a silver electrode. A facet is a phase here like any other: (111) is a termination, not a composition, so the metal site it presents is plain Ag⁰."
     },
     "fe3o4_001": {
       "label": "Fe₃O₄(001)",
-      "level": "phase",
-      "formula": "Fe₃O₄",
+      "level": "material",
+      "refines": "fe3o4",
       "facet": "(001)",
-      "elements": ["Fe", "O"],
-      "parts": ["fe3o4"],
-      "note": "Magnetite cut on the (001) plane. The formula is the whole chemistry: (001) is a termination, not a composition, so this entry and fe3o4_111 are the same compound differently cut. It is a phase for that reason, named by formula like any other bare oxide; `parts` points at plain fe3o4 so a query for magnetite reaches it."
+      "note": "Magnetite cut on the (001) plane. Magnetite is an inverse spinel, Fe³⁺ on the tetrahedral sites and Fe²⁺ and Fe³⁺ on the octahedral ones, and this face is commonly described as ending in a layer of octahedral iron and oxygen, reconstructed (√2×√2)R45° by an ordered array of cation vacancies just beneath it. A refinement of Fe₃O₄ by its facet: the cut is a termination, not a composition, so a search for Fe₃O₄ finds it and a search for the (001) cut finds only it."
     },
     "fe3o4_111": {
       "label": "Fe₃O₄(111)",
-      "level": "phase",
-      "formula": "Fe₃O₄",
+      "level": "material",
+      "refines": "fe3o4",
       "facet": "(111)",
-      "elements": ["Fe", "O"],
-      "parts": ["fe3o4"],
-      "note": "The other termination measured in the same study, chemically identical to fe3o4_001. They are separate entries because the two cuts expose different Fe spacings and carry different formate geometries, which is a structural difference and not a compositional one."
+      "note": "Magnetite cut on the (111) plane, parallel to the close-packed oxygen layers of the spinel. The termination depends on preparation and is still debated; the one most often reported is a quarter monolayer of tetrahedral iron above a close-packed oxygen layer. It is kept apart from Fe₃O₄(001) because the two cuts expose different Fe spacings and carry different formate geometries: a structural difference, not a compositional one. A refinement of Fe₃O₄ by its facet, so a search for Fe₃O₄ finds it."
+    },
+    "ga2o3": {
+      "label": "Ga₂O₃",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "Ga₂O₃",
+      "parts": ["ga_3p", "o_2m"],
+      "note": "Gallia, as a component of a promoted catalyst and as a specimen in its own right. Made of Ga³⁺ and O²⁻. The β polymorph carries tetrahedral and octahedral gallium, which is why hydride and hydroxyl bands on it come in pairs; those two are refinements of Ga³⁺, named on a claim only where the paper resolves the coordination."
+    },
+    "hfo2": {
+      "label": "HfO₂",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "HfO₂",
+      "parts": ["hf_4p", "o_2m"],
+      "note": "Hafnia, ZrO₂'s chemical twin. Monoclinic when precipitated and calcined on its own; the Zn-doped solid solutions are cubic and are the znhfox specimen, not this."
+    },
+    "kbr": {
+      "label": "KBr",
+      "level": "material",
+      "kind": "halide",
+      "formula": "KBr",
+      "parts": ["k_1p", "br_1m"],
+      "note": "Potassium bromide, the infrared-transparent salt a powder is diluted in for DRIFTS or pressed into for a pellet. Named only as a diluent on a claim, never as a part of a catalyst."
+    },
+    "moo3": {
+      "label": "MoO₃",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "MoO₃",
+      "parts": [
+        "mo_6p",
+        "o_2m"
+      ],
+      "note": "Molybdenum trioxide, all Mo⁶⁺: the crystalline phase XRD shows on an unreduced MoO₃/TiO₂, and the parent of the reduced MoOₓ."
+    },
+    "moox": {
+      "label": "MoOₓ",
+      "level": "material",
+      "refines": "moo3",
+      "stoichiometry": "reduced, O-deficient",
+      "parts": [
+        "mo_5p",
+        "mo_4p",
+        "mo_dp",
+        "o_vac"
+      ],
+      "note": "Molybdenum oxide reduced below MoO₃, a refinement of MoO₃ by its stoichiometry as ZnO₁₋ₓ is of ZnO: the reduced, oxygen-deficient state is the point, and its vacancies are what CO₂ re-oxidises. Not a mixture of MoO₃ and MoO₂ phases: on Pt/MoOₓ/TiO₂ the MoO₃ reflections fade on reduction and no crystalline Mo oxide is left (Toyao). The reduced cations Mo⁵⁺, Mo⁴⁺ and Moᵟ⁺ are the general MoOₓ literature's; Toyao's XANES shows only that Mo is reduced below Mo⁶⁺."
+    },
+    "nial2o4": {
+      "label": "NiAl₂O₄",
+      "level": "material",
+      "kind": "mixed oxide",
+      "formula": "NiAl₂O₄",
+      "parts": ["ni_2p", "al_3p", "o_2m"],
+      "note": "Nickel aluminate spinel, formed where Ni reacts with an alumina support on calcination; harder to reduce than NiO."
+    },
+    "nio": {
+      "label": "NiO",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "NiO",
+      "parts": ["ni_2p", "o_2m"],
+      "note": "Nickel oxide, the phase a calcined Ni catalyst carries before it is reduced to the metal."
+    },
+    "sio2": {
+      "label": "SiO₂",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "SiO₂",
+      "parts": ["si_4p", "o_2m", "sioh"]
+    },
+    "sio2_fumed": {
+      "label": "fumed SiO₂",
+      "level": "material",
+      "refines": "sio2",
+      "form": "fumed powder (amorphous)",
+      "note": "Amorphous fumed silica (Cab-O-Sil, Aerosil), the high-area powder used as a catalyst support."
+    },
+    "sio2_glass": {
+      "label": "SiO₂ glass",
+      "level": "material",
+      "refines": "sio2",
+      "form": "vitreous (glass)",
+      "note": "Vitreous silica, v-SiO₂: a dense glass, here sintered from fumed silica or melted, rather than a high-area powder."
+    },
+    "sio2_cristobalite": {
+      "label": "β-cristobalite",
+      "level": "material",
+      "refines": "sio2",
+      "polymorph": "β-cristobalite",
+      "note": "The high-temperature cristobalite polymorph of silica, which a silica glass starts to crystallise into when sintered near 1450 °C."
+    },
+    "sio2_quartz": {
+      "label": "α-quartz",
+      "level": "material",
+      "refines": "sio2",
+      "polymorph": "α-quartz",
+      "note": "The common crystalline polymorph of silica, which turns into the closely related β-quartz above about 900 K."
+    },
+    "sno2": {
+      "label": "SnO₂",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "SnO₂",
+      "parts": ["sn_4p", "o_2m"],
+      "note": "Tin dioxide, the classic oxide cathode for CO₂ reduction to formate. Under strongly cathodic potentials it is not stable: a Pourbaix analysis at pH 6.8 puts metallic Sn as the stable phase near −1.1 V vs. RHE, so the entry names what was put in the cell, not what the surface is during reduction."
+    },
+    "tio2": {
+      "label": "TiO₂",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "TiO₂",
+      "parts": ["ti_4p", "o_2m"]
+    },
+    "tio2_anatase": {
+      "label": "anatase TiO₂",
+      "level": "material",
+      "refines": "tio2",
+      "polymorph": "anatase",
+      "note": "Anatase, the tetragonal TiO₂ polymorph (I4₁/amd) that low-temperature syntheses and most catalyst supports give. It converts irreversibly to rutile on heating, in fine powders from about 600 to 750 °C rather than the 900 °C and more of single crystals."
+    },
+    "tio2_rutile": {
+      "label": "rutile TiO₂",
+      "level": "material",
+      "refines": "tio2",
+      "polymorph": "rutile",
+      "note": "Rutile, the tetragonal TiO₂ polymorph (P4₂/mnm) that is stable at every temperature and the one anatase turns into on heating."
+    },
+    "zno": {
+      "label": "ZnO",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "ZnO",
+      "parts": ["zn_2p", "o_2m"]
+    },
+    "zno_1mx": {
+      "label": "ZnO₁₋ₓ",
+      "level": "material",
+      "refines": "zno",
+      "stoichiometry": "O-deficient",
+      "parts": ["o_vac", "o_vac_1p"],
+      "note": "Zinc oxide that has lost lattice oxygen under reduction, a refinement of ZnO by its stoichiometry: it is still ZnO, with oxygen vacancies added to its parts. A search for ZnO finds it."
+    },
+    "zro2": {
+      "label": "ZrO₂",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "ZrO₂",
+      "parts": ["zr_4p", "o_2m"]
+    },
+    "al2o3_alpha": {
+      "label": "α-Al₂O₃",
+      "level": "material",
+      "refines": "al2o3",
+      "polymorph": "α",
+      "note": "Corundum, the low-area thermodynamically stable alumina, used as a reference oxide or as an inert diluent."
+    },
+    "in2o3": {
+      "label": "In₂O₃",
+      "level": "material",
+      "kind": "oxide",
+      "formula": "In₂O₃",
+      "parts": ["in_3p", "o_2m"],
+      "note": "Indium oxide, the reducible oxide whose oxygen vacancies are the methanol-synthesis sites on In₂O₃ catalysts."
+    },
+    "in2o3_c": {
+      "label": "c-In₂O₃",
+      "level": "material",
+      "refines": "in2o3",
+      "polymorph": "cubic (bixbyite)",
+      "note": "Cubic bixbyite In₂O₃ (PDF 06-0416), the stable polymorph and the one precipitation and calcination give."
+    },
+    "sapphire": {
+      "label": "Sapphire",
+      "level": "material",
+      "refines": "al2o3_alpha",
+      "form": "single crystal",
+      "note": "α-Al₂O₃ grown as one crystal: a window, a rod or a substrate rather than a powder. A refinement of α-Al₂O₃ by form, because a single crystal's Raman lines are sharp and their relative intensities depend on how the crystal is turned to the laser, which a powder averages away. Which axis faced the laser, where a paper gives it, goes in the claim's note: it moves no line."
+    },
+    "al2o3_gamma": {
+      "label": "γ-Al₂O₃",
+      "level": "material",
+      "refines": "al2o3",
+      "polymorph": "γ",
+      "note": "Gamma alumina, the high-area transition alumina used as a support; its strongest Lewis sites are coordinatively unsaturated Al³⁺."
     },
 
-    // ── Samples: what was actually in the cell ──
-    "cu_sio2": {
-      "label": "Cu/SiO₂",
-      "level": "sample",
-      "composition": "Cu/SiO₂",
-      "elements": ["Cu", "Si", "O"],
-      "parts": ["cu_0", "sio2"],
-      "note": "Copper on silica with no promoter. Silica is close to inert here, so this is the reference against which a promoter's effect is read, and it is listed with Cu⁰ alone: the sources that pair it with a promoted counterpart find no Cu⁺ carbonyl on it at all."
+    // ── Materials, composite: catalysts, electrodes and models, made of other materials and sites ──
+
+    "ag_au": {
+      "label": "Ag/Au on Si",
+      "level": "material",
+      "parts": ["ag_0", "au_0", "si_0"],
+      "note": "Ag/Au deposited on a silicon prism: the layers, whatever shape they were made in. The film electrode is its refinement by form."
+    },
+    "ag_au_film": {
+      "label": "Ag/Au on Si, film electrode",
+      "level": "material",
+      "refines": "ag_au",
+      "form": "film electrode",
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Ag electrodeposited over it. The silver is what faces the electrolyte, so it is the only site listed; the gold is an underlayer that carries the surface enhancement, and the silicon is the prism the beam comes through, which is optics rather than catalyst and is left out of the elements."
     },
     "ag_sio2": {
       "label": "Ag/SiO₂",
-      "level": "sample",
-      "composition": "Ag/SiO₂",
-      "elements": ["Ag", "Si", "O"],
-      "parts": ["ag_0", "ag_sio2_interface", "sio2"],
+      "level": "material",
+      "parts": ["ag_0", "sio2", "ag_sio2_interface"],
       "note": "Silver nanoparticles under 11 nm at 1 wt % on a 155 m² g⁻¹ silica, by wetness impregnation. Silica is chosen as a neutral support so the metal is what differs; it makes no methyl formate without the metal present."
+    },
+    "au_si": {
+      "label": "Au on Si",
+      "level": "material",
+      "parts": ["au_0", "si_0"],
+      "note": "Au deposited on a silicon prism: the layers, whatever shape they were made in. The film electrode is its refinement by form."
+    },
+    "au_film": {
+      "label": "Au on Si, film electrode",
+      "level": "material",
+      "refines": "au_si",
+      "form": "film electrode",
+      "note": "A chemically deposited Au film of about 60 nm on a Si prism, the underlayer the Ag, Cu and SnO₂ SEIRAS electrodes are built on, measured bare as a control. The silicon prism is optics, not catalyst."
+    },
+    "au_ag_silicalite": {
+      "label": "Au-Ag/silicalite-1",
+      "level": "material",
+      "parts": ["au_0", "au_1p", "ag_0", "ag_1p", "sio2"],
+      "note": "Gold and silver nanoparticles embedded in silicalite-1, the all-silica MFI zeotype. Recorded with sio2 as its component rather than with zsm5: silicalite-1 has no aluminium and therefore none of the exchange sites that make ZSM-5 what it is."
     },
     "au_sio2": {
       "label": "Au/SiO₂",
-      "level": "sample",
-      "composition": "Au/SiO₂",
-      "elements": ["Au", "Si", "O"],
+      "level": "material",
       "parts": ["au_0", "sio2"],
       "note": "Gold nanoparticles under 11 nm at 1 wt % on silica, prepared alongside the Cu and Ag counterparts so the three coinage metals can be compared on one support."
     },
-    "ag_au_film": {
-      "label": "Ag/Au film electrode",
-      "level": "sample",
-      "composition": "Ag/Au film on Si",
-      "elements": ["Ag", "Au"],
-      "parts": ["ag_0"],
-      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Ag electrodeposited over it. The silver is what faces the electrolyte, so it is the only site listed; the gold is an underlayer that carries the surface enhancement, and the silicon is the prism the beam comes through, which is optics rather than catalyst and is left out of the elements."
+    "co_al2o3": {
+      "label": "Co/Al₂O₃",
+      "level": "material",
+      "parts": ["co_0", "al2o3_gamma"],
+      "note": "14% Co on γ-alumina (85 m² g⁻¹, calcined at 500 °C), prepared after Shi et al. with citric acid, as Paredes-Nunez et al. describe it."
     },
-    "au_film": {
-      "label": "Au film electrode",
-      "level": "sample",
-      "composition": "Au film on Si",
-      "elements": ["Au"],
-      "parts": ["au_0"],
-      "note": "A chemically deposited Au film of about 60 nm on a Si prism, the underlayer the Ag, Cu and SnO₂ SEIRAS electrodes are built on, measured bare as a control. The silicon prism is optics, not catalyst."
+    "co_siralox": {
+      "label": "Co/Siralox",
+      "level": "material",
+      "parts": ["co_0", "al2o3", "si_4p"],
+      "note": "Cobalt on Siralox, a commercial silica-alumina of 5% SiO₂ and 95% Al₂O₃. Kept apart from co_al2o3: the support differs, and so does the carbonyl position reported on it. SiO₂ is not listed as a component: at 5% it dopes the alumina rather than forming a phase of its own, so the part is the Si⁴⁺ site. The paper names no alumina phase, so the support is plain Al₂O₃."
     },
-    "sno2_au_film": {
-      "label": "SnO₂/Au film electrode",
-      "level": "sample",
-      "composition": "SnO₂/Au film on Si",
-      "elements": ["Sn", "O", "Au"],
-      "parts": ["sno2"],
-      "note": "A SEIRAS working electrode: commercial SnO₂ nanoparticles (50 to 70 nm) cast onto a chemically deposited Au film on a Si prism. The oxide faces the electrolyte; the gold underneath carries the enhancement. Whether the SnO₂ stays oxide or reduces to Sn under reaction is not settled by the spectra, so no site is listed."
-    },
-    "cu_au_film": {
-      "label": "Cu/Au film electrode",
-      "level": "sample",
-      "composition": "Cu/Au film on Si",
-      "elements": ["Cu", "Au"],
-      "parts": ["cu_0"],
-      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Cu electrodeposited over it, roughly 150 monolayers. The copper is what faces the electrolyte, so it is the only site listed; the gold underlayer carries the enhancement and should not be exposed, which a CO band above 2100 cm⁻¹ (CO on Au) would reveal. The silicon prism is optics, not catalyst."
+    "cu_gazrox": {
+      "label": "Cu-GaZrOₓ",
+      "level": "material",
+      "parts": ["cu_0", "cu_1p", "gazrox"],
+      "note": "Coprecipitated Cu-Ga-Zr mixed oxide, around 20 wt% Cu. Sources publish it as a series with different Ga and Zr loadings, written Cu-GaZrOₓ-Z where Z is Zr/(Zr+Cu+Ga) as a molar percentage; the family is recorded here and the individual member named in the note, since the distinction the spectra turn on is against the Cu-free GaZrOₓ rather than between members."
     },
     "cuga_sio2": {
       "label": "Cu-Ga₂O₃/SiO₂",
-      "level": "sample",
-      "composition": "Cu-Ga₂O₃/SiO₂",
-      "elements": ["Cu", "Ga", "Si", "O"],
-      "parts": ["cu_0", "cu_1p", "cu_2p", "ga_3p", "ga2o3", "sio2"],
+      "level": "material",
+      "parts": ["cu_0", "cu_1p", "cu_2p", "ga2o3", "sio2"],
       "note": "Ga₂O₃-promoted Cu on silica, published as a loading series written CuGa(x) where x is the Ga/(Cu+Ga) molar ratio. The family is recorded here and the member named in the note, because the distinction the spectra turn on is against the Ga-free cu_sio2 rather than between members: the Cu⁺ carbonyl is absent without Ga and its area grows with the loading."
     },
-    "cuzn_sio2": {
-      "label": "CuZn/SiO₂",
-      "level": "sample",
-      "composition": "CuZn/SiO₂",
-      "elements": ["Cu", "Zn", "Si", "O"],
-      "parts": ["cu_0", "zn_2p", "sio2"],
-      "note": "Cu nanoparticles on silica decorated with isolated Zn²⁺ sites, made by surface organometallic chemistry: 4.16 wt% Cu, 1.62 wt% Zn, Zn/Cu 0.40. There is no ZnO phase, which is the point of the material: the Zn is single cations at the Cu interface, partly alloyed after reduction and partly re-oxidised under reaction, so it is listed as Zn²⁺ and not as ZnO."
+    "cu_zsm5": {
+      "label": "Cu-ZSM-5",
+      "level": "material",
+      "parts": [
+        "h_zsm5",
+        "cu_1p"
+      ],
+      "note": "Copper-exchanged ZSM-5, reduced in CO before adsorption to raise the share of Cu⁺. Built on H-ZSM-5: Zdravkova et al. calcine NH₄-ZSM-5 (Si/Al 25) and exchange copper into it, and at about 1 wt% Cu most framework charges are still balanced by protons, whose bridging hydroxyls the spectra show. Their aluminol band at 3664 cm⁻¹ points to some extra-framework alumina as well, not listed as a part while no claim turns on it."
+    },
+    "cu_au": {
+      "label": "Cu/Au on Si",
+      "level": "material",
+      "parts": ["cu_0", "au_0", "si_0"],
+      "note": "Cu/Au deposited on a silicon prism: the layers, whatever shape they were made in. The film electrode is its refinement by form."
+    },
+    "cu_au_film": {
+      "label": "Cu/Au on Si, film electrode",
+      "level": "material",
+      "refines": "cu_au",
+      "form": "film electrode",
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Cu electrodeposited over it, roughly 150 monolayers. The copper is what faces the electrolyte, so it is the only site listed; the gold underlayer carries the enhancement and should not be exposed, which a CO band above 2100 cm⁻¹ (CO on Au) would reveal. The silicon prism is optics, not catalyst."
+    },
+    "cu_sio2": {
+      "label": "Cu/SiO₂",
+      "level": "material",
+      "parts": ["cu_0", "sio2"],
+      "note": "Copper on silica with no promoter. Silica is close to inert here, so this is the reference against which a promoter's effect is read, and it is listed with Cu⁰ alone: the sources that pair it with a promoted counterpart find no Cu⁺ carbonyl on it at all."
+    },
+    "cu_zno": {
+      "label": "Cu/ZnO",
+      "level": "material",
+      "parts": ["cu_0", "cu_1p", "zno", "zno_1mx"]
+    },
+    "cu_zro2": {
+      "label": "Cu/ZrO₂",
+      "level": "material",
+      "parts": ["cu_0", "zro2"],
+      "note": "Copper on monoclinic zirconia by incipient wetness, 6 wt% Cu, calcined at 450 °C and reduced in situ at 350 °C. The zirconia carries about 93 % of the surface area, which is why almost every band on it is a zirconia band and why the copper-bound formate had to be dug out of a difference spectrum."
     },
     "cuga_sio2_somc": {
       "label": "CuGa/SiO₂",
-      "level": "sample",
-      "composition": "CuGa/SiO₂",
-      "elements": ["Cu", "Ga", "Si", "O"],
+      "level": "material",
       "parts": ["cu_0", "ga_3p", "sio2"],
       "note": "Cu nanoparticles on silica decorated with isolated Ga³⁺ sites, made by surface organometallic chemistry: 3.88 wt% Cu, 1.61 wt% Ga, Ga/Cu 0.40. A different material from cuga_sio2, which carries a Ga₂O₃ phase: here the gallium is single cations, fully re-oxidised under reaction, with no oxide phase."
     },
     "cuin_sio2": {
       "label": "CuIn/SiO₂",
-      "level": "sample",
-      "composition": "CuIn/SiO₂",
-      "elements": ["Cu", "In", "Si", "O"],
+      "level": "material",
       "parts": ["cu_0", "in_3p", "sio2"],
       "note": "Cu nanoparticles on silica decorated with isolated In³⁺ sites, made by surface organometallic chemistry: 3.81 wt% Cu, 1.82 wt% In, In/Cu 0.26. About a third of the In alloys with Cu after reduction and re-oxidises to In³⁺ under reaction; no In₂O₃ phase."
     },
-    "cu_zro2": {
-      "label": "Cu/ZrO\u2082",
-      "level": "sample",
-      "composition": "Cu/ZrO\u2082",
-      "elements": ["Cu", "Zr", "O"],
-      "parts": ["cu_0", "zro2"],
-      "note": "Copper on monoclinic zirconia by incipient wetness, 6 wt% Cu, calcined at 450 \u00b0C and reduced in situ at 350 \u00b0C. The zirconia carries about 93 % of the surface area, which is why almost every band on it is a zirconia band and why the copper-bound formate had to be dug out of a difference spectrum."
-    },
-    "cu_zno": {
-      "label": "Cu/ZnO",
-      "level": "sample",
-      "composition": "Cu/ZnO",
-      "elements": ["Cu", "Zn", "O"],
-      "parts": ["cu_0", "cu_1p", "zn_2p", "zno", "zno_1mx"]
-    },
-    "cu_gazrox": {
-      "label": "Cu-GaZrOₓ",
-      "level": "sample",
-      "composition": "Cu-GaZrOₓ",
-      "elements": ["Cu", "Ga", "Zr", "O"],
-      "parts": ["cu_0", "cu_1p", "ga", "ga_3p", "zr_4p"],
-      "note": "Coprecipitated Cu-Ga-Zr mixed oxide, around 20 wt% Cu. Sources publish it as a series with different Ga and Zr loadings, written Cu-GaZrOₓ-Z where Z is Zr/(Zr+Cu+Ga) as a molar percentage; the family is recorded here and the individual member named in the note, since the distinction the spectra turn on is against the Cu-free GaZrOₓ rather than between members."
-    },
-    "znhfox": {
-      "label": "ZnHfOₓ",
-      "level": "sample",
-      "composition": "ZnHfOₓ",
-      "elements": ["Zn", "Hf", "O"],
-      "parts": ["zn_2p", "hf_4p", "zn_ovac_hf"],
-      "note": "Co-precipitated Zn–Hf mixed oxide, published as a series written xZnHfOₓ with x the Zn/(Zn+Hf) molar percentage. Up to about 35 mol% it is Zn-doped cubic HfO₂ in solid solution; above 40 mol% bulk ZnO segregates and carries HfOₓ clusters on its surface. One key for the family, with the member named in the note, because the IR bands of both regimes agree within a few wavenumbers and that agreement is the claim the spectra turn on. ZnO is not listed as a part: the low-Zn members contain none."
+    "cuzn_sio2": {
+      "label": "CuZn/SiO₂",
+      "level": "material",
+      "parts": ["cu_0", "zn_2p", "sio2"],
+      "note": "Cu nanoparticles on silica decorated with isolated Zn²⁺ sites, made by surface organometallic chemistry: 4.16 wt% Cu, 1.62 wt% Zn, Zn/Cu 0.40. There is no ZnO phase, which is the point of the material: the Zn is single cations at the Cu interface, partly alloyed after reduction and partly re-oxidised under reaction, so it is listed as Zn²⁺ and not as ZnO."
     },
     "gazrox": {
       "label": "GaZrOₓ",
-      "level": "sample",
-      "composition": "GaZrOₓ",
-      "elements": ["Ga", "Zr", "O"],
-      "parts": ["ga", "ga_3p", "zr_4p"],
+      "level": "material",
+      "kind": "mixed oxide",
+      "parts": ["ga_3p", "zr_4p", "o_2m"],
       "note": "The Cu-free counterpart of the Cu-GaZrOₓ series, 48 wt% Ga and 25 wt% Zr. Run to separate what the oxide does from what Cu does."
     },
     "la_al2o3": {
       "label": "La-Al₂O₃",
-      "level": "sample",
-      "composition": "La-Al₂O₃",
-      "elements": ["La", "Al", "O"],
-      "parts": ["al2o3"],
-      "note": "Lanthanum-doped alumina; the doping stabilises the support rather than adding an IR-visible site."
+      "level": "material",
+      "parts": ["al2o3_gamma", "la_3p"],
+      "note": "γ-alumina (SASOL) impregnated with lanthanum and calcined, 6 wt% La in the Rajput series: La³⁺ dispersed in the alumina as a stabiliser, not a phase of its own."
     },
     "ni_ce_fe_la_al2o3": {
       "label": "Ni-Ce-Fe/La-Al₂O₃",
-      "level": "sample",
-      "composition": "Ni-Ce-Fe/La-Al₂O₃",
-      "elements": ["Ni", "Ce", "Fe", "La", "Al", "O"],
-      "parts": ["al2o3", "ceo2"]
-    },
-    "ru_al2o3": {
-      "label": "Ru/Al₂O₃",
-      "level": "sample",
-      "composition": "Ru/Al₂O₃",
-      "elements": ["Ru", "Al", "O"],
-      "parts": ["ru_0", "al2o3"]
-    },
-    "ru_na2o_al2o3": {
-      "label": "Ru/\"Na₂O\"/Al₂O₃",
-      "level": "sample",
-      "composition": "Ru/\"Na₂O\"/Al₂O₃",
-      "elements": ["Ru", "Na", "Al", "O"],
-      "parts": ["ru_0", "al2o3", "na_1p"],
-      "note": "The sodium-promoted counterpart of Ru/Al₂O₃; the quotes are the authors' own."
+      "level": "material",
+      "parts": ["la_al2o3", "nio", "nial2o4", "fe2o3", "ceo2"],
+      "note": "40Ni₀.₇₅(Ce₀.₇₅Fe₀.₂₅)₀.₂₅/6La-Al₂O₃ as measured by DRIFTS: fresh, purged in N₂ at 300 °C and not reduced before the CO₂/CH₄ feed at 600 °C. Its XRD shows NiO, NiAl₂O₄ and CeO₂, and Fe₂O₃ as a dispersed, nearly amorphous oxide, so those are its components."
     },
     "pd_al2o3": {
-      "label": "Pd/Al\u2082O\u2083",
-      "level": "sample",
-      "composition": "Pd/Al\u2082O\u2083",
-      "elements": ["Pd", "Al", "O"],
+      "label": "Pd/Al₂O₃",
+      "level": "material",
       "parts": ["pd_0", "al2o3"],
-      "note": "Palladium on alumina, the monometallic reference against which the Sn- and Zn-modified counterparts are read: it is the one that still has Pd-Pd pairs, so it is the one that still shows bridged CO."
+      "note": "Palladium on alumina, the monometallic reference against which the Sn- and Zn-modified counterparts are read: it is the one that still has Pd-Pd pairs, so it is the one that still shows bridged CO. The review names no alumina phase, so the support is plain Al₂O₃."
     },
-    "au_ag_silicalite": {
-      "label": "Au-Ag/silicalite-1",
-      "level": "sample",
-      "composition": "Au-Ag/silicalite-1",
-      "elements": ["Au", "Ag", "Si", "O"],
-      "parts": ["au_0", "au_1p", "ag_0", "ag_1p", "sio2"],
-      "note": "Gold and silver nanoparticles embedded in silicalite-1, the all-silica MFI zeotype. Recorded with sio2 as its phase rather than with zsm5: silicalite-1 has no aluminium and therefore none of the exchange sites that make ZSM-5 what it is."
-    },
-    "co_al2o3": {
-      "label": "Co/Al₂O₃",
-      "level": "sample",
-      "composition": "Co/γ-Al₂O₃",
-      "elements": ["Co", "Al", "O"],
-      "parts": ["co_0", "al2o3"]
-    },
-    "co_siralox": {
-      "label": "Co/Siralox",
-      "level": "sample",
-      "composition": "Co/Siralox",
-      "elements": ["Co", "Si", "Al", "O"],
-      "parts": ["co_0", "al2o3"],
-      "note": "Cobalt on Siralox, a commercial silica-alumina of 5% SiO₂ and 95% Al₂O₃. Kept apart from co_al2o3: the support differs, and so does the carbonyl position reported on it. SiO₂ is not listed as a part: at 5% it is a dopant of the alumina, not a phase of its own."
-    },
-    "zsm5": {
-      "label": "ZSM-5",
-      "level": "phase",
-      "formula": "ZSM-5",
-      "elements": ["Si", "Al", "O"],
-      "note": "The MFI aluminosilicate framework, named as a phase because the cation it hosts is the site and the framework is what that site sits in. Deliberately no `parts`: the exchanged cation sits in the framework without being a constituent of it, and one sample carries one cation, so listing Li, Na, K, Rb, Cs, H and Cu together would describe a material that does not exist. A claim names both keys instead, as in [\"li_1p\", \"zsm5\"]. The Si/Al ratio decides how many cations there are and how far apart, so sources state it (14 for the alkali-exchanged series, 25 for the Cu-exchanged one) and the claim's note carries it."
-    },
-    "moox": {
-      "label": "MoOₓ",
-      "level": "phase",
-      "formula": "MoOₓ",
-      "elements": ["Mo", "O"],
-      "note": "Sub-stoichiometric molybdenum oxide, written with x rather than a fixed stoichiometry because the reduced, oxygen-deficient form is the point: it is the H₂-reduced state that carries the vacancies, and CO₂ re-oxidises it."
+    "pt_ceo2": {
+      "label": "Pt/CeO₂",
+      "level": "material",
+      "parts": [
+        "pt_0",
+        "ceo2",
+        "pt0_ceo2_interface"
+      ],
+      "note": "3 wt% Pt on ceria by incipient wetness impregnation with Pt(NH₃)₄(NO₃)₂, calcined at 500 °C and reduced in H₂ at 300 °C, as Vico van Berkel and Urakawa use it for the reverse water–gas shift. The Pt-ceria perimeter is a part of its own, being where that paper places its carbonyls."
     },
     "pt_moox_tio2": {
       "label": "Pt/MoOₓ/TiO₂",
-      "level": "sample",
-      "composition": "Pt/MoOₓ/TiO₂",
-      "elements": ["Pt", "Mo", "Ti", "O"],
+      "level": "material",
       "parts": ["pt_0", "moox", "tio2"],
-      "note": "Platinum on a molybdenum-oxide-covered titania, made by sequential impregnation and reduced in H₂ at 300 °C. Both metals are needed: neither Pt on bare TiO₂ nor MoOₓ/TiO₂ alone gives the methanol yield, which is what the sample entry is here to keep together."
+      "note": "Platinum on a molybdenum-oxide-covered titania, made by sequential impregnation and reduced in H₂ at 300 °C. Both metals are needed: neither Pt on bare TiO₂ nor MoOₓ/TiO₂ alone gives the methanol yield, which is what the specimen entry is here to keep together."
+    },
+    "ru_na2o_al2o3": {
+      "label": "Ru/\"Na₂O\"/Al₂O₃",
+      "level": "material",
+      "parts": ["ru_0", "al2o3_gamma", "na_1p"],
+      "note": "The sodium-promoted counterpart of Ru/Al₂O₃ on the same γ-Al₂O₃ (SBA-150); the quotes are the authors’ own, since the \"Na₂O\" is in fact Na⁺ in surface aluminate species."
+    },
+    "ru_al2o3": {
+      "label": "Ru/Al₂O₃",
+      "level": "material",
+      "parts": ["ru_0", "al2o3_gamma"],
+      "note": "5 wt% Ru on high-surface-area γ-Al₂O₃ (SBA-150, BASF), pre-reduced in H₂ at 320 °C: the conventional methanation catalyst Proaño et al. compare their dual-function material against."
+    },
+    "sno2_au": {
+      "label": "SnO₂/Au on Si",
+      "level": "material",
+      "parts": ["sno2", "au_0", "si_0"],
+      "note": "SnO₂/Au deposited on a silicon prism: the layers, whatever shape they were made in. The film electrode is its refinement by form."
+    },
+    "sno2_au_film": {
+      "label": "SnO₂/Au on Si, film electrode",
+      "level": "material",
+      "refines": "sno2_au",
+      "form": "film electrode",
+      "note": "A SEIRAS working electrode: commercial SnO₂ nanoparticles (50 to 70 nm) cast onto a chemically deposited Au film on a Si prism. The oxide faces the electrolyte; the gold underneath carries the enhancement. Whether the SnO₂ stays oxide or reduces to Sn under reaction is not settled by the spectra, so no site is listed."
+    },
+    "znhfox": {
+      "label": "ZnHfOₓ",
+      "level": "material",
+      "kind": "mixed oxide",
+      "parts": ["zn_2p", "hf_4p", "o_2m", "zn_ovac_hf"],
+      "note": "Co-precipitated Zn–Hf mixed oxide, published as a series written xZnHfOₓ with x the Zn/(Zn+Hf) molar percentage. Up to about 35 mol% it is Zn-doped cubic HfO₂ in solid solution; above 40 mol% bulk ZnO segregates and carries HfOₓ clusters on its surface. One key for the family, with the member named in the note, because the IR bands of both regimes agree within a few wavenumbers and that agreement is the claim the spectra turn on. ZnO is not listed as a part: the low-Zn members contain none."
+    },
+    "zsm5": {
+      "label": "ZSM-5",
+      "level": "material",
+      "composition": "MₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "al_3p",
+        "si_4p",
+        "o_2m"
+      ],
+      "note": "The MFI aluminosilicate framework, MₙAlₙSi₉₆₋ₙO₁₉₂ with n below 27: corner-sharing SiO₄ and AlO₄⁻ tetrahedra in one crystalline phase, not Al₂O₃ + SiO₂, which is only the way its composition is sometimes written. Each framework Al carries a negative charge balanced by an extra-framework cation M, and which cation that is is a refinement of its own (H-ZSM-5, Na-ZSM-5, …), named on the claim where the paper names it. The Si/Al ratio goes in the claim's note while no band turns on it."
+    },
+    "h_zsm5": {
+      "label": "H-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "H-form",
+      "composition": "HₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "h_bronsted"
+      ],
+      "note": "The proton form, usually made by calcining NH₄-ZSM-5: the charge of each framework Al is balanced by a proton on a bridging Si-(OH)-Al hydroxyl, near 3610 cm⁻¹, the Brønsted acid site. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
+    },
+    "li_zsm5": {
+      "label": "Li-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "Li-form",
+      "composition": "LiₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "li_1p"
+      ],
+      "note": "ZSM-5 exchanged with Li⁺, the smallest and most polarising of the alkali cations. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
+    },
+    "na_zsm5": {
+      "label": "Na-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "Na-form",
+      "composition": "NaₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "na_1p"
+      ],
+      "note": "ZSM-5 with Na⁺ as the extra-framework cation, the as-synthesised form. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
+    },
+    "k_zsm5": {
+      "label": "K-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "K-form",
+      "composition": "KₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "k_1p"
+      ],
+      "note": "ZSM-5 exchanged with K⁺. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
+    },
+    "rb_zsm5": {
+      "label": "Rb-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "Rb-form",
+      "composition": "RbₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "rb_1p"
+      ],
+      "note": "ZSM-5 exchanged with Rb⁺. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
+    },
+    "cs_zsm5": {
+      "label": "Cs-ZSM-5",
+      "level": "material",
+      "refines": "zsm5",
+      "form": "Cs-form",
+      "composition": "CsₙAlₙSi₉₆₋ₙO₁₉₂",
+      "parts": [
+        "cs_1p"
+      ],
+      "note": "ZSM-5 exchanged with Cs⁺, the largest and least polarising of the alkali cations. A refinement of ZSM-5 by its counter-cation, so a search for ZSM-5 finds it."
     }
   }
 }

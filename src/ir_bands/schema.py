@@ -39,8 +39,10 @@ VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 # it or the liquid itself: CO2(aq), or the interfacial water an electrochemical
 # measurement sees against the electrode. Neither is the free molecule nor
 # bound to the surface, and both turn up in every electrochemical spectrum.
-Phase = Literal["gas", "adsorbed", "surface", "solution"]
-VALID_PHASES = {"gas", "adsorbed", "surface", "solution"}
+# "solid" is the solid itself rather than anything on it: a lattice phonon, a
+# framework overtone, an electronic transition of a defect in the bulk.
+Phase = Literal["gas", "adsorbed", "surface", "solution", "solid"]
+VALID_PHASES = {"gas", "adsorbed", "surface", "solution", "solid"}
 
 # How the spectrum was taken, per citation. DRIFTS, ATR and the rest are
 # sampling geometries; "computational" is not a geometry at all, it marks a
@@ -61,10 +63,10 @@ VALID_PHASES = {"gas", "adsorbed", "surface", "solution"}
 # neighbouring adsorbates, so the spectrum is of a deliberately decoupled
 # adlayer whatever geometry recorded it. That changes what the numbers mean
 # enough to be worth its own value; Monai proposed it in 2024.
-Technique = Literal[
-    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "seiras", "infrared", "raman", "srs", "computational",
-]
+# A key of data/techniques.jsonc, the Technique record. Validated against
+# VALID_TECHNIQUES, which install_techniques() in loader.py fills from that
+# file before any claim is read: the table is the one list.
+Technique = str
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
 # chip in the chart legend. The key is written the way a spectroscopist writes
@@ -72,13 +74,9 @@ Technique = Literal[
 ISOTOPE_TAGS = {"D": "deuterium", "¹³C": "carbon-13", "¹⁸O": "oxygen-18"}
 VALID_ISOTOPES = set(ISOTOPE_TAGS)
 
-# Kept in step with Technique above by hand: the two drifted apart once
-# already, the Literal gaining reflection geometries the validator then
-# rejected, so a claim could not say IRRAS even though the type said it could.
-VALID_TECHNIQUES = {
-    "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "seiras", "infrared", "raman", "srs", "computational",
-}
+#: Filled from data/techniques.jsonc by loader.install_techniques(). Empty
+#: until then, in which case a claim's technique is not checked here.
+VALID_TECHNIQUES: set[str] = set()
 
 # How the sample was held for one claim, on two axes, because one word cannot
 # say both. Distinct from Band.phase above, which says what the band IS
@@ -102,33 +100,51 @@ Medium = Literal["vacuum", "gas", "liquid", "supercritical", "matrix"]
 VALID_MEDIA = {"vacuum", "gas", "liquid", "supercritical", "matrix"}
 Form = Literal["free", "dissolved", "adsorbed", "surface", "lattice"]
 VALID_FORMS = {"free", "dissolved", "adsorbed", "surface", "lattice"}
+# scattering: which side of the laser line a Raman claim was read on. A Stokes
+# line leaves the photon redder by the mode's energy, an anti-Stokes line
+# bluer by the same amount, so both are the same mode and the same band, and
+# `wn` is the magnitude either way. Recorded only where a source says which
+# side it measured; it derives a tag of the same name ("stokes",
+# "anti-stokes").
+Scattering = Literal["stokes", "anti-stokes"]
+VALID_SCATTERING = {"stokes", "anti-stokes"}
 #: The tag each medium derives. Spelled "in gas" rather than "gas" so a band
 #: measured as an adsorbate under a gas does not wear a chip that reads like a
 #: gas-phase band.
 MEDIUM_TAGS = {m: f"in {m}" for m in VALID_MEDIA}
 
-# How specific a surface is. "Where was this measured" has a scale rather than
-# a single answer: the same titania is the sample when it is measured bare and
-# the phase when it is the support in Pt/TiO2, so the level lives on the record
-# and a claim just names whichever the paper actually said.
-SurfaceLevel = Literal["site", "phase", "sample"]
-VALID_SURFACE_LEVELS = {"site", "phase", "sample"}
+# How specific a surface is: two scales. A site is the atom-scale spot a
+# molecule binds to, or an ion a material is made of; a material is any piece
+# of solid, from one compound (TiO2, sapphire) to a whole catalyst (Pd/TiO2).
+# Whether a material was the specimen or one part of it is not the record's
+# business but the claim's: Reference.specimens is the material a claim names
+# that no other material it names contains, so TiO2 is the specimen when it is
+# named alone and a part when Pd/TiO2 is named beside it.
+SurfaceLevel = Literal["site", "material"]
+VALID_SURFACE_LEVELS = {"site", "material"}
+#: Rank down the scale: `parts` may point to the same rank or lower.
+SURFACE_RANK = {"material": 1, "site": 0}
+#: The site kinds a single compound is made of. A material whose parts are all
+#: of these is one compound (Surface.compound); a metal atom, a zero-valent
+#: non-metal, an interface or a material among them makes it a composite.
+IONIC_SITE_KINDS = {"cation", "anion", "defect", "hydroxyl", "bronsted"}
+#: What a refinement may add; a record that `refines` must set at least one.
+REFINEMENT_ATTRIBUTES = (
+    "oxidation_state", "charge", "coordination", "polymorph", "facet", "form", "stoichiometry",
+)
 
-# Only a site has a kind; a phase and a sample are described by composition.
-SiteKind = Literal["metal", "cation", "defect", "interface", "bronsted"]
-VALID_SITE_KINDS = {"metal", "cation", "defect", "interface", "bronsted"}
+# A kind subdivides a level: a site by what it is chemically, a material by
+# its class of compound, where it is one. A composite has none. A refinement
+# inherits its parent's kind and authors none of its own.
+SiteKind = Literal["metal", "atom", "cation", "anion", "defect", "interface", "bronsted", "hydroxyl"]
+VALID_SITE_KINDS = {"metal", "atom", "cation", "anion", "defect", "interface", "bronsted", "hydroxyl"}
+MaterialKind = Literal["oxide", "mixed oxide", "halide"]
+VALID_MATERIAL_KINDS = {"oxide", "mixed oxide", "halide"}
+#: Which kinds each level may carry.
+KINDS_BY_LEVEL = {"site": VALID_SITE_KINDS, "material": VALID_MATERIAL_KINDS}
 
-# Element symbols, for validating Surface.element and Surface.elements. Not a
-# periodic table: just enough to catch a typo in a field that is meant to be
-# queried on ("every band on a Cu-containing sample" only works if every
-# sample spells Cu the same way).
-ELEMENT_SYMBOLS = {
-    "H", "Li", "Be", "B", "C", "N", "O", "F", "Na", "Mg", "Al", "Si", "P", "S", "Cl",
-    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge",
-    "As", "Se", "Br", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Ru", "Rh", "Pd", "Ag", "Cd",
-    "In", "Sn", "Sb", "Te", "I", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Sm", "Eu", "Gd",
-    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Th", "U",
-}
+# Element symbols are validated against data/elements.jsonc, the Element
+# entity, by load_surfaces(); there is no second list here to drift from it.
 
 # Editorial length limits, checked as warnings by validate_dataset(). The band
 # tooltip is 300px wide and read while hovering, so long prose simply does not
@@ -141,8 +157,9 @@ REFERENCE_NOTE_MAX_WORDS = 150
 # (CO₂, cm⁻¹, Cu²⁺, ν₁), never with markup. The single exception is a label whose
 # subscript is a letter Unicode has none for, which in practice means point-group
 # and Mulliken symbols; those live in vibrations.jsonc's `point_group` and
-# `symmetry` fields and are the only places <sub>/<sup> may appear. See the
-# Notation section of the Style guide page.
+# `symmetry` fields and in a band's own `symmetry` in bands.jsonc, and are the
+# only places <sub>/<sup> may appear. See the Notation section of the Style
+# guide page.
 MARKUP_EXEMPT_VIBRATION_FIELDS = ("point_group", "symmetry")
 
 # An underscore in prose is nearly always a subscript that never got typed
@@ -236,27 +253,26 @@ class BasedOn:
 class Surface:
     """Where a band was measured, at whatever scale the paper stated.
 
-    One table rather than separate sites and materials, because the same entry
-    genuinely plays both roles: TiO2 is the sample when a paper measures bare
-    titania and the phase when that titania supports Pt. Forcing it into one
-    table or the other means choosing on the reader's behalf, and choosing
-    wrong half the time. `level` records how specific the entry is instead:
+    One table at two levels. `level` records the scale:
 
-      site    the atom-scale spot a molecule is bonded to
-      phase   a constituent of a sample, named by composition
-      sample  what was in the cell
+      site       the atom-scale spot an adsorbate binds to, or an ion
+      material   a piece of solid: one compound, or a whole catalyst
 
-    `parts` is the single containment link and points down the scale: a sample
-    lists its phases and the sites it presents, a phase lists the sites within
-    it, a composite site lists the simpler sites it is built from. It is what
-    lets a query for Cu+ reach the bands whose paper named only Cu/ZnO. The
-    exception is an interface site, which may name a phase: the perimeter is
-    the metal against the oxide, not the metal against one cation.
+    The role is not recorded here. TiO2 is the specimen when a paper measures
+    bare titania and a part of it when that titania supports Pt; a claim says
+    which by what else it names (Reference.specimens, Reference.placement).
+
+    Two links and only two. `parts` ("is made of") points to the same level
+    or lower, never up, and elements flow up along it. `refines` ("is a more
+    specific version of") points to one record on the same level; searches
+    flow down along it, so asking for Al2O3 also finds gamma-Al2O3, and the
+    refinement inherits its parent's parts and elements. A refinement must
+    name what it adds with one of REFINEMENT_ATTRIBUTES.
     """
     key: str
     label: str
     level: SurfaceLevel
-    kind: Optional[SiteKind] = None
+    kind: Optional[str] = None
     element: Optional[str] = None
     oxidation_state: Optional[int] = None
     formula: Optional[str] = None
@@ -265,27 +281,40 @@ class Surface:
     # composition strings are written the way the literature writes them and
     # parsing them back is the fragile step surfaces.jsonc exists to remove.
     elements: list[str] = field(default_factory=list)
+    refines: Optional[str] = None
+    charge: Optional[int] = None
+    coordination: Optional[str] = None
+    polymorph: Optional[str] = None
     facet: Optional[str] = None
+    form: Optional[str] = None
+    stoichiometry: Optional[str] = None
     parts: list[str] = field(default_factory=list)
     note: str = ""
+
+    # Computed by load_surfaces(), not authored. `all_elements` is the closure
+    # over parts and the refined parent: what "Al anywhere in it" runs on.
+    # `lineage` is the refinement chain upward (gamma-Al2O3 -> [al2o3]), which
+    # is what lets a search for the parent find the refinement.
+    all_elements: list[str] = field(default_factory=list, init=False)
+    lineage: list[str] = field(default_factory=list, init=False)
+    # Computed by load_surfaces(): a material made only of ionic sites
+    # (IONIC_SITE_KINDS), through its parts and the record it refines. One
+    # compound, so a claim naming it alone has said where the species was; a
+    # composite named alone has not. False for a site.
+    compound: bool = field(default=False, init=False)
 
     def __post_init__(self):
         if self.level not in VALID_SURFACE_LEVELS:
             raise ValueError(
                 f"surface {self.key}: level={self.level!r} not in {VALID_SURFACE_LEVELS}"
             )
-        if self.kind is not None and self.kind not in VALID_SITE_KINDS:
-            raise ValueError(f"surface {self.key}: kind={self.kind!r} not in {VALID_SITE_KINDS}")
-        if self.kind is not None and self.level != "site":
-            raise ValueError(f"surface {self.key}: only a site has a kind")
-        for e in [self.element, *self.elements]:
-            if e is not None and e not in ELEMENT_SYMBOLS:
-                raise ValueError(f"surface {self.key}: unknown element symbol {e!r}")
+        allowed = KINDS_BY_LEVEL.get(self.level, set())
+        if self.kind is not None and self.kind not in allowed:
+            raise ValueError(
+                f"surface {self.key}: kind={self.kind!r} not allowed on a {self.level} "
+                f"(allowed: {sorted(allowed) or 'none'})"
+            )
 
-    @property
-    def all_elements(self) -> list[str]:
-        """Elements this surface contains, however they were recorded."""
-        return self.elements or ([self.element] if self.element else [])
 
 
 @dataclass
@@ -323,17 +352,25 @@ class Reference:
     source's isn't) — styled the same as band-level tags in the frontend.
     """
     key: str
-    # The assignment's own number: unique across the whole file, never reused
+    # The claim's own number: unique across the whole file, never reused
     # once deleted, kept when the claim is edited. Handed out from
-    # metadata.next_assignment_id in bands.jsonc, which only ever goes up.
+    # metadata.next_claim_id in bands.jsonc, which only ever goes up.
     id: Optional[int] = None
     wn: Optional[Union[int, list[int]]] = None
     # One or more keys into surfaces.jsonc, at whatever level the paper stated.
     measured_on: Optional[Union[str, list[str]]] = None
+    # Keys into surfaces.jsonc for what was mixed in but is not the catalyst:
+    # the KBr a powder was diluted in, an inert alpha-Al2O3 bed. Never a part
+    # of any surface, and never in either derived element set below.
+    diluent: list[str] = field(default_factory=list)
     technique: Optional[Technique] = None
     # Excitation wavelength in nm, for a Raman claim. The tag chip ("514.5 nm",
     # in the colour of that light) is derived from it by tag_lasers().
     laser_nm: Optional[float] = None
+    # Which side of the laser line a Raman claim was read on; wn stays the
+    # magnitude. The tag ("stokes", "anti-stokes") is derived by
+    # tag_scattering().
+    scattering: Optional[Scattering] = None
     # How the sample was held: what surrounded it, and where the species was.
     # Each derives a tag ("in liquid", "adsorbed"). See Medium and Form above.
     medium: Optional[Medium] = None
@@ -345,9 +382,26 @@ class Reference:
     # with an ordinal appended when a paper makes several claims about the
     # same band. Set by assign_reference_uids() in loader.py, not authored.
     uid: str = field(default="", init=False)
+    # Computed by derive_claim_elements() in loader.py. `specimens` is what
+    # was investigated: the materials the claim names that no other material
+    # it names contains (Pd/TiO2 beside TiO2; TiO2 named alone). The rest of
+    # what it names is where it placed the species. `site_elements` is the
+    # closure of that placement ("Al is part of where it binds"): the sites
+    # and the materials inside the specimen, and the specimen itself only
+    # where it is one compound. `specimen_elements` is the closure of every
+    # key ("Al is somewhere in the specimen"). A diluent counts in neither.
+    site_elements: list[str] = field(default_factory=list, init=False)
+    specimen_elements: list[str] = field(default_factory=list, init=False)
+    specimens: list[str] = field(default_factory=list, init=False)
+    # Computed by derive_claim_elements(): how far the claim places the
+    # species. "site" where it names a site; "material" where it names a
+    # material inside the specimen, or the specimen is one compound; "specimen"
+    # where it names only a composite and so says it was seen there, not where
+    # in it. None for a claim naming no surface.
+    placement: Optional[str] = field(default=None, init=False)
 
     def __post_init__(self):
-        if self.technique is not None and self.technique not in VALID_TECHNIQUES:
+        if self.technique is not None and VALID_TECHNIQUES and self.technique not in VALID_TECHNIQUES:
             raise ValueError(
                 f"reference {self.key}: technique={self.technique!r} not in {VALID_TECHNIQUES}"
             )
@@ -362,6 +416,10 @@ class Reference:
         if self.laser_nm is not None and not (0 < float(self.laser_nm) < 100000):
             raise ValueError(
                 f"reference {self.key}: laser_nm={self.laser_nm!r} is not a wavelength in nm"
+            )
+        if self.scattering is not None and self.scattering not in VALID_SCATTERING:
+            raise ValueError(
+                f"reference {self.key}: scattering={self.scattering!r} not in {VALID_SCATTERING}"
             )
 
 
@@ -552,7 +610,7 @@ class Band:
     references: list[Reference] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
-    # gas | adsorbed | surface | solution, or None when the band applies to both the free
+    # gas | adsorbed | surface | solution | solid, or None when the band applies to both the free
     # molecule and its adsorbed form. No tag is derived from it: a band has no
     # sample of its own, so the phase chips come from each claim's own state
     # (tag_phases) and the band shows the union of them. This field is the
@@ -592,7 +650,7 @@ class Band:
     # abundance parent stays unmarked. Both fields are set together or
     # neither; tag_isotopologues() then auto-assigns the "isotope"
     # tag to the child alone — that tag means "this band IS an
-    # isotopologue", never "this assignment was checked with isotopes"
+    # isotopologue", never "this claim was checked with isotopes"
     # (which is a per-citation "isotope-labeling" reference tag instead).
     # Deliberately NOT reciprocal, unlike fermi_partner: the parent's
     # position is a property of the ordinary molecule and shouldn't be
@@ -603,6 +661,14 @@ class Band:
     # is also what the derived tag is named after. Required exactly when
     # isotopologue_of is set.
     isotope: Optional[str] = None
+
+    # The Mulliken label of the mode this band is (its irreducible
+    # representation), written like VibrationMode.symmetry with literal
+    # <sub>/<sup> for a letter subscript ("A<sub>1g</sub>"). Authored where no
+    # vibration mode carries it (a lattice phonon has no molecule entry);
+    # otherwise derive_band_symmetry() fills it from the band's own
+    # vibration_modes, and warns where an authored value disagrees with them.
+    symmetry: Optional[str] = None
 
     intensity: Optional[BandIntensity] = None   # vs | s | m | w | vw
     width: Optional[BandWidth] = None           # sharp | medium | broad | very_broad
@@ -680,6 +746,10 @@ class Group:
     key: str
     label: str
     color: str
+    # What vibrates: "species" (a molecule or an adsorbate) or "specimen"
+    # (the solid itself: its hydroxyls and its lattice; a hydride is a species). Specimen lanes sit
+    # below every species lane on the chart.
+    of: str = "species"
 
 
 @dataclass

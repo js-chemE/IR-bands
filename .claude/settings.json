@@ -4,7 +4,8 @@
       "Bash(python -c ' *)",
       "Bash(awk 'NR>=544' data/references.bib)",
       "mcp__claude-in-chrome__tabs_context_mcp",
-      "ClaudeInChromeDomain(localhost:5191)"
+      "ClaudeInChromeDomain(localhost:5191)",
+      "ClaudeInChromeDomain(localhost:5179)"
     ]
   }
 }

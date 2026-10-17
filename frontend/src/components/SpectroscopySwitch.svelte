@@ -8,8 +8,11 @@
    */
   import { createEventDispatcher } from 'svelte';
   import type { Spectroscopy } from '../lib/types';
+  import SectionHead from './SectionHead.svelte';
 
   export let value: Spectroscopy = 'ir';
+  /** Collapsible like every chart section; open unless the host says otherwise. */
+  export let open = true;
 
   const dispatch = createEventDispatcher<{ change: { value: Spectroscopy } }>();
 
@@ -20,7 +23,8 @@
 </script>
 
 <section>
-  <h3>Spectroscopy</h3>
+  <SectionHead title="Spectroscopy" bind:open summary={value === 'raman' ? 'Raman' : 'IR'} />
+  {#if open}
   <div class="switch" role="radiogroup" aria-label="Spectroscopy">
     <span class="thumb" class:right={value === 'raman'} aria-hidden="true"></span>
     {#each SIDES as s (s.value)}
@@ -33,6 +37,7 @@
       >{s.label}</button>
     {/each}
   </div>
+  {/if}
 </section>
 
 <style>

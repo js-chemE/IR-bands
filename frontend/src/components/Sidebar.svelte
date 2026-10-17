@@ -38,6 +38,7 @@
 
   const dispatch = createEventDispatcher<{
     groupToggle: { key: string; enabled: boolean };
+    groupOnly: { key: string };
     setSelect: { key: string };
     isotopeToggle: { enabled: boolean };
     inactiveMode: { mode: BandStateMode };
@@ -45,6 +46,19 @@
   }>();
 
   $: technique = spectroscopy === 'raman' ? 'Raman' : 'IR';
+
+  /* The same gesture as every other list in the sidebar: a click switches one
+     family, a double-click draws only that family, a second double-click all
+     of them again. The click waits 280 ms so a double-click can cancel it. */
+  let pendingGroup: ReturnType<typeof setTimeout> | null = null;
+  function groupClick(key: string, enabled: boolean) {
+    if (pendingGroup) clearTimeout(pendingGroup);
+    pendingGroup = setTimeout(() => { pendingGroup = null; dispatch('groupToggle', { key, enabled }); }, 280);
+  }
+  function groupDbl(key: string) {
+    if (pendingGroup) { clearTimeout(pendingGroup); pendingGroup = null; }
+    dispatch('groupOnly', { key });
+  }
 
   /* The two conditions a band can be in, each with one three-way answer.
      The first answer is named after the look itself, and drawn in it, so the
@@ -103,7 +117,8 @@
 </script>
 
 <section>
-  <SectionHead title="Band States" bind:open={bandStatesOpen} summary={bandStatesSummary} />
+  <SectionHead title="Band States" bind:open={bandStatesOpen} summary={bandStatesSummary}
+    hint="About whole bands: what the chart does with a band that is silent in the chosen spectroscopy, one left with no counted claim, and the isotope bands. Drawn in its own look, drawn plain, or hidden." />
   {#if bandStatesOpen}
   <!-- What a band in each condition does, as one choice: its own look, drawn
        like any other, or out of the chart. This replaced a look pill under
@@ -145,7 +160,8 @@
 </section>
 
 <section>
-  <SectionHead title="Group Filter" bind:open={groupFilterOpen} summary={groupFilterSummary} />
+  <SectionHead title="Species Families" bind:open={groupFilterOpen} summary={groupFilterSummary}
+    hint="About whole bands: which species families (the chart’s lanes) are drawn. Pick a set, or switch single families on and off." />
   {#if groupFilterOpen}
 
   <!-- "Custom" is only offered once the selection has drifted off every set,
@@ -157,7 +173,7 @@
       ...setList.map(s => ({ value: s.key, label: s.label })),
       ...(activeSet === CUSTOM ? [{ value: CUSTOM, label: 'Custom' }] : []),
     ]}
-    label="Group filter"
+    label="Species families"
     on:change={e => dispatch('setSelect', { key: e.detail.value })}
   />
 
@@ -179,7 +195,9 @@
         <button
           class="row"
           class:off={!on}
-          on:click={() => dispatch('groupToggle', { key, enabled: !on })}
+          on:click={() => groupClick(key, !on)}
+          on:dblclick={() => groupDbl(key)}
+          title="Click to switch, double-click to draw only this family"
           aria-pressed={on}
         >
           <span class="swatch" style="background:{g.color}"></span>

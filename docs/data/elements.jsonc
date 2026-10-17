@@ -1,0 +1,90 @@
+// =============================================================================
+// Elements: the element as an entity of its own.
+// -----------------------------------------------------------------------------
+// Every element symbol the surfaces table may use, with what a filter wants to
+// group by: atomic number, group, period, block and a category (alkali metal,
+// alkaline earth metal, transition metal, post-transition metal, metalloid,
+// nonmetal, halogen, lanthanide, actinide). surfaces.jsonc validates its
+// `element` and `elements` against the keys here, and the band chart's
+// Surfaces selector groups its rows by `category`.
+//
+// Lanthanides and actinides carry `group: null`: which of them sits in group 3
+// is a convention this table does not take a side on. Properties that need a
+// cited source (electronegativity, oxophilicity) are not carried yet; add them
+// with the scale they come from, not as bare numbers.
+// =============================================================================
+{
+  "elements": {
+    "H": { "name": "Hydrogen", "z": 1, "group": 1, "period": 1, "block": "s", "category": "nonmetal" },
+    "Li": { "name": "Lithium", "z": 3, "group": 1, "period": 2, "block": "s", "category": "alkali metal" },
+    "Be": { "name": "Beryllium", "z": 4, "group": 2, "period": 2, "block": "s", "category": "alkaline earth metal" },
+    "B": { "name": "Boron", "z": 5, "group": 13, "period": 2, "block": "p", "category": "metalloid" },
+    "C": { "name": "Carbon", "z": 6, "group": 14, "period": 2, "block": "p", "category": "nonmetal" },
+    "N": { "name": "Nitrogen", "z": 7, "group": 15, "period": 2, "block": "p", "category": "nonmetal" },
+    "O": { "name": "Oxygen", "z": 8, "group": 16, "period": 2, "block": "p", "category": "nonmetal" },
+    "F": { "name": "Fluorine", "z": 9, "group": 17, "period": 2, "block": "p", "category": "halogen" },
+    "Na": { "name": "Sodium", "z": 11, "group": 1, "period": 3, "block": "s", "category": "alkali metal" },
+    "Mg": { "name": "Magnesium", "z": 12, "group": 2, "period": 3, "block": "s", "category": "alkaline earth metal" },
+    "Al": { "name": "Aluminium", "z": 13, "group": 13, "period": 3, "block": "p", "category": "post-transition metal" },
+    "Si": { "name": "Silicon", "z": 14, "group": 14, "period": 3, "block": "p", "category": "metalloid" },
+    "P": { "name": "Phosphorus", "z": 15, "group": 15, "period": 3, "block": "p", "category": "nonmetal" },
+    "S": { "name": "Sulfur", "z": 16, "group": 16, "period": 3, "block": "p", "category": "nonmetal" },
+    "Cl": { "name": "Chlorine", "z": 17, "group": 17, "period": 3, "block": "p", "category": "halogen" },
+    "K": { "name": "Potassium", "z": 19, "group": 1, "period": 4, "block": "s", "category": "alkali metal" },
+    "Ca": { "name": "Calcium", "z": 20, "group": 2, "period": 4, "block": "s", "category": "alkaline earth metal" },
+    "Sc": { "name": "Scandium", "z": 21, "group": 3, "period": 4, "block": "d", "category": "transition metal" },
+    "Ti": { "name": "Titanium", "z": 22, "group": 4, "period": 4, "block": "d", "category": "transition metal" },
+    "V": { "name": "Vanadium", "z": 23, "group": 5, "period": 4, "block": "d", "category": "transition metal" },
+    "Cr": { "name": "Chromium", "z": 24, "group": 6, "period": 4, "block": "d", "category": "transition metal" },
+    "Mn": { "name": "Manganese", "z": 25, "group": 7, "period": 4, "block": "d", "category": "transition metal" },
+    "Fe": { "name": "Iron", "z": 26, "group": 8, "period": 4, "block": "d", "category": "transition metal" },
+    "Co": { "name": "Cobalt", "z": 27, "group": 9, "period": 4, "block": "d", "category": "transition metal" },
+    "Ni": { "name": "Nickel", "z": 28, "group": 10, "period": 4, "block": "d", "category": "transition metal" },
+    "Cu": { "name": "Copper", "z": 29, "group": 11, "period": 4, "block": "d", "category": "transition metal" },
+    "Zn": { "name": "Zinc", "z": 30, "group": 12, "period": 4, "block": "d", "category": "transition metal" },
+    "Ga": { "name": "Gallium", "z": 31, "group": 13, "period": 4, "block": "p", "category": "post-transition metal" },
+    "Ge": { "name": "Germanium", "z": 32, "group": 14, "period": 4, "block": "p", "category": "metalloid" },
+    "As": { "name": "Arsenic", "z": 33, "group": 15, "period": 4, "block": "p", "category": "metalloid" },
+    "Se": { "name": "Selenium", "z": 34, "group": 16, "period": 4, "block": "p", "category": "nonmetal" },
+    "Br": { "name": "Bromine", "z": 35, "group": 17, "period": 4, "block": "p", "category": "halogen" },
+    "Rb": { "name": "Rubidium", "z": 37, "group": 1, "period": 5, "block": "s", "category": "alkali metal" },
+    "Sr": { "name": "Strontium", "z": 38, "group": 2, "period": 5, "block": "s", "category": "alkaline earth metal" },
+    "Y": { "name": "Yttrium", "z": 39, "group": 3, "period": 5, "block": "d", "category": "transition metal" },
+    "Zr": { "name": "Zirconium", "z": 40, "group": 4, "period": 5, "block": "d", "category": "transition metal" },
+    "Nb": { "name": "Niobium", "z": 41, "group": 5, "period": 5, "block": "d", "category": "transition metal" },
+    "Mo": { "name": "Molybdenum", "z": 42, "group": 6, "period": 5, "block": "d", "category": "transition metal" },
+    "Ru": { "name": "Ruthenium", "z": 44, "group": 8, "period": 5, "block": "d", "category": "transition metal" },
+    "Rh": { "name": "Rhodium", "z": 45, "group": 9, "period": 5, "block": "d", "category": "transition metal" },
+    "Pd": { "name": "Palladium", "z": 46, "group": 10, "period": 5, "block": "d", "category": "transition metal" },
+    "Ag": { "name": "Silver", "z": 47, "group": 11, "period": 5, "block": "d", "category": "transition metal" },
+    "Cd": { "name": "Cadmium", "z": 48, "group": 12, "period": 5, "block": "d", "category": "transition metal" },
+    "In": { "name": "Indium", "z": 49, "group": 13, "period": 5, "block": "p", "category": "post-transition metal" },
+    "Sn": { "name": "Tin", "z": 50, "group": 14, "period": 5, "block": "p", "category": "post-transition metal" },
+    "Sb": { "name": "Antimony", "z": 51, "group": 15, "period": 5, "block": "p", "category": "metalloid" },
+    "Te": { "name": "Tellurium", "z": 52, "group": 16, "period": 5, "block": "p", "category": "metalloid" },
+    "I": { "name": "Iodine", "z": 53, "group": 17, "period": 5, "block": "p", "category": "halogen" },
+    "Cs": { "name": "Caesium", "z": 55, "group": 1, "period": 6, "block": "s", "category": "alkali metal" },
+    "Ba": { "name": "Barium", "z": 56, "group": 2, "period": 6, "block": "s", "category": "alkaline earth metal" },
+    "La": { "name": "Lanthanum", "z": 57, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Ce": { "name": "Cerium", "z": 58, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Pr": { "name": "Praseodymium", "z": 59, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Nd": { "name": "Neodymium", "z": 60, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Sm": { "name": "Samarium", "z": 62, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Eu": { "name": "Europium", "z": 63, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Gd": { "name": "Gadolinium", "z": 64, "group": null, "period": 6, "block": "f", "category": "lanthanide" },
+    "Hf": { "name": "Hafnium", "z": 72, "group": 4, "period": 6, "block": "d", "category": "transition metal" },
+    "Ta": { "name": "Tantalum", "z": 73, "group": 5, "period": 6, "block": "d", "category": "transition metal" },
+    "W": { "name": "Tungsten", "z": 74, "group": 6, "period": 6, "block": "d", "category": "transition metal" },
+    "Re": { "name": "Rhenium", "z": 75, "group": 7, "period": 6, "block": "d", "category": "transition metal" },
+    "Os": { "name": "Osmium", "z": 76, "group": 8, "period": 6, "block": "d", "category": "transition metal" },
+    "Ir": { "name": "Iridium", "z": 77, "group": 9, "period": 6, "block": "d", "category": "transition metal" },
+    "Pt": { "name": "Platinum", "z": 78, "group": 10, "period": 6, "block": "d", "category": "transition metal" },
+    "Au": { "name": "Gold", "z": 79, "group": 11, "period": 6, "block": "d", "category": "transition metal" },
+    "Hg": { "name": "Mercury", "z": 80, "group": 12, "period": 6, "block": "d", "category": "transition metal" },
+    "Tl": { "name": "Thallium", "z": 81, "group": 13, "period": 6, "block": "p", "category": "post-transition metal" },
+    "Pb": { "name": "Lead", "z": 82, "group": 14, "period": 6, "block": "p", "category": "post-transition metal" },
+    "Bi": { "name": "Bismuth", "z": 83, "group": 15, "period": 6, "block": "p", "category": "post-transition metal" },
+    "Th": { "name": "Thorium", "z": 90, "group": null, "period": 7, "block": "f", "category": "actinide" },
+    "U": { "name": "Uranium", "z": 92, "group": null, "period": 7, "block": "f", "category": "actinide" }
+  }
+}

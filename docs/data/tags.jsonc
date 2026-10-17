@@ -47,6 +47,12 @@
     "raman": {
       "tip": "A Raman shift rather than an infrared absorption: the same vibrational energy, seen through the polarizability rather than the dipole."
     },
+    "stokes": {
+      "tip": "Read on the Stokes side of the laser line, where the photon leaves redder by the mode's energy: the usual side, and the stronger one. Tagged only where the source says which side it measured."
+    },
+    "anti-stokes": {
+      "tip": "Read on the anti-Stokes side of the laser line, where the photon leaves bluer by the mode's energy because the mode was already excited. The same band as the Stokes line, at the same distance from the laser; weaker, and stronger the hotter the sample, which is why the ratio of the two is a thermometer."
+    },
     "srs": {
       "tip": "Spontaneous Raman scattering, said in so many words by the source. The scattering happens by itself from a single laser, rather than being driven by a second beam as in the coherent techniques (CARS, stimulated Raman). It sits under \"raman\" the way DRIFTS sits under the infrared, and plain \"raman\" stays the tag for a paper that does not specify."
     },
@@ -114,7 +120,7 @@
       "tip": "Symmetry-forbidden in IR; included for context even though not directly observed. It also covers the other half of the branch rule: an O or S branch is a ΔJ = ±2 step, which one photon cannot drive, so those branches exist in Raman and not in the infrared. Drawn hollow when the chart is set to IR."
     },
     "isotope-labeling": {
-      "tip": "This source used isotope substitution as evidence for the assignment (the band itself is the ordinary, natural-abundance one)."
+      "tip": "This source used isotope substitution as evidence for the claim (the band itself is the ordinary, natural-abundance one)."
     },
     "isotope": {
       "tip": "Umbrella switch: the band is a labelled twin of another one rather than the ordinary molecule. A legend control rather than a label, so it is not drawn on the band itself, where the substitution chip (deuterium, carbon-13, oxygen-18) already says it and says which."
@@ -129,7 +135,7 @@
       "tip": "This band is the deuterated twin of another band in the atlas: same mode, heavier hydrogen. Drawn hatched."
     },
     "to-be-revised": {
-      "tip": "Something on this band does not add up and has not been resolved yet: a claim that may sit on the wrong band, or an assignment that needs the source read again. Not a caveat about the chemistry, a note that the entry itself is unfinished."
+      "tip": "Something on this band does not add up and has not been resolved yet: a claim that may sit on the wrong band, or a claim that needs the source read again. Not a caveat about the chemistry, a note that the entry itself is unfinished."
     },
     "misassignment-warning": {
       "tip": "A known trap: this position is easily assigned to the wrong species, or read as a surface signal when it is not one (gas-phase absorption in the beam path)."

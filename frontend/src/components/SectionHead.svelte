@@ -11,6 +11,8 @@
   export let title: string;
   export let open = true;
   export let summary = '';
+  /** What the section describes and what it changes, shown on hover. */
+  export let hint = '';
 
   const dispatch = createEventDispatcher<{ toggle: { open: boolean } }>();
 
@@ -25,7 +27,7 @@
     class="head"
     class:closed={!open}
     aria-expanded={open}
-    title={open ? `Hide ${title}` : `Show ${title}`}
+    title={`${hint ? hint + '\n\n' : ''}${open ? 'Click to hide' : 'Click to show'}`}
     on:click={toggle}
   >
     <span class="name">{title}</span>

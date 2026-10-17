@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
-  import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks, type ClaimFilter } from '../lib/chart';
+  import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, NO_FILTER, type BandLooks, type ClaimFilter } from '../lib/chart';
   import { cssZoom } from '../lib/zoom';
   import type { TipData, PlotBandHit, PlotRegion } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
@@ -32,6 +32,8 @@
        still owns the selection, because it owns the highlight and the arcs
        that go with it; this only reports it. */
     select: { hit: PlotBandHit | null };
+    /** The wavenumber range picked on the plot, low to high, or null when cleared. */
+    range: { range: [number, number] | null };
   }>();
 
   export let bands: Band[];
@@ -56,8 +58,8 @@
   export let spectroscopy: Spectroscopy = 'ir';
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
   export let looks: BandLooks = { inactive: true, unreferenced: true };
-  /** The techniques and phases whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
-  export let claimFilter: ClaimFilter = { techniques: new Set(), forms: new Set(), media: new Set() };
+  /** The techniques, phases and elements whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
+  export let claimFilter: ClaimFilter = NO_FILTER;
   /** Whether the electromagnetic regions are marked: the strip of names, the borders and their fades. */
   export let showRegions = true;
   export let hoveredCat: string | null = null;
@@ -117,7 +119,7 @@
       inactive: false,
       unreferenced: false,
       tipData: {
-        id: band.id, name: '', vib: '', wnRange: '', group: '', color: C['ink-100'],
+        id: band.id, name: '', vib: '', symmetry: null, wnRange: '', group: '', color: C['ink-100'],
         noteLines: [], tags: [], description: '', refs: [], partners: [],
         branchGroup: band.branch_group ?? null,
         vibrationModeIds: [],
@@ -256,7 +258,13 @@
     ? highlightedHits
     : active
       ? (() => {
-          const top = [active, ...hoverAlso].filter(h => hitBands.includes(h));
+          // Every drawing of the band: an anti-Stokes claim draws it a
+          // second time at the negative shift, and both are the band.
+          const topIds = new Set([active, ...hoverAlso].map(h => h.tipData.id));
+          const top = [
+            ...[active, ...hoverAlso].filter(h => hitBands.includes(h)),
+            ...hitBands.filter(h => topIds.has(h.tipData.id) && h !== active && !hoverAlso.includes(h)),
+          ];
           const under = [
             ...directLinks.map(l => l.hit), ...activeGroup,
             ...fermiGroups.flat(), ...basedOnGroups.flat(),
@@ -814,6 +822,7 @@
     const { svgX, svgY } = getSvgPos(e);
     zone = detectZone(svgX, svgY);
     hovered = zone === 'band' ? hitTest(svgX, svgY) : null;
+    if (pendingFirst != null) previewWn = wnAtPx(svgX);
   }
 
   function onPointerDown(e: PointerEvent) {
@@ -821,6 +830,13 @@
     const { svgX, svgY } = getSvgPos(e);
     const z = detectZone(svgX, svgY);
     if (z === 'none') return;
+    if (pendingFirst != null && e.button === 0) {
+      e.preventDefault();
+      setRange(sorted2(pendingFirst, wnAtPx(svgX)));
+      pendingFirst = null;
+      previewWn = null;
+      return;
+    }
 
     downPos = { x: e.clientX, y: e.clientY };
     e.preventDefault();
@@ -871,6 +887,7 @@
   }
 
   function onPointerLeave() {
+    pointerInside = false;
     if (!isPanning && !isScaling) {
       hovered = null;
       zone = 'none';
@@ -926,12 +943,118 @@
 
   function resetZoom() { wnOverride = null; }
 
+  // ---------------------------------------------------------------------------
+  // Range selection: a wavenumber window picked on the plot.
+  //   right-click (or R)   first limit; the second follows the pointer
+  //   left-click           places the second limit
+  //   right-click again    cancels a range being drawn
+  //   double right-click   clears the placed range
+  //   drag a handle        moves one limit
+  //   Escape               cancels, or clears a placed range
+  // Panning (drag on the background) and double-click reset are untouched.
+  // Kept in wavenumbers, so it holds through a pan, a zoom or a unit change.
+  // ---------------------------------------------------------------------------
+  export let range: [number, number] | null = null;
+  let pendingFirst: number | null = null;
+  let previewWn: number | null = null;
+  let dragLimit: 0 | 1 | null = null;
+  let pointerInside = false;
+
+  $: domainNow = (xDomainForChart ?? axisRange(WN_LO, WN_HI, axisProperty, axisUnit, shiftZero, reversed)) as [number, number];
+  function pxAt(wn: number, dom: [number, number], width: number): number {
+    const v = wnToValue(wn, axisProperty, axisUnit, shiftZero);
+    return ML + (v - dom[0]) / (dom[1] - dom[0]) * (width - ML - MR);
+  }
+  function wnAtPx(svgX: number): number {
+    const innerW = containerWidth - ML - MR;
+    const t = Math.max(0, Math.min(1, (svgX - ML) / innerW));
+    return valueToWn(domainNow[0] + t * (domainNow[1] - domainNow[0]), axisProperty, axisUnit, shiftZero);
+  }
+  const sorted2 = (a: number, b: number): [number, number] => (a <= b ? [a, b] : [b, a]);
+  $: rangePx = range ? sorted2(pxAt(range[0], domainNow, containerWidth), pxAt(range[1], domainNow, containerWidth)) : null;
+  $: previewPx = pendingFirst != null && previewWn != null
+    ? sorted2(pxAt(pendingFirst, domainNow, containerWidth), pxAt(previewWn, domainNow, containerWidth))
+    : null;
+  $: shadePx = previewPx ?? rangePx;
+  $: plotRight = containerWidth - MR;
+
+  function setRange(r: [number, number] | null) {
+    range = r;
+    dispatch('range', { range: r });
+  }
+  /** The right-click step, at a point on the plot: start a range, or cancel the one being drawn. */
+  function rangeStep(svgX: number) {
+    if (svgX < ML || svgX > containerWidth - MR) return;
+    if (pendingFirst != null) {
+      pendingFirst = null;
+      previewWn = null;
+    } else {
+      pendingFirst = wnAtPx(svgX);
+      previewWn = pendingFirst;
+    }
+  }
+  /* Two right-clicks in quick succession clear the range: the first starts a
+     new one as usual, the second, arriving within the double-click time,
+     cancels it and drops the placed range as well. */
+  let lastContext = 0;
+  const DOUBLE_RIGHT_MS = 350;
+  function onContextMenu(e: MouseEvent) {
+    const { svgX, svgY } = getSvgPos(e);
+    if (detectZone(svgX, svgY) === 'none') return;
+    e.preventDefault();
+    const now = performance.now();
+    if (now - lastContext < DOUBLE_RIGHT_MS) {
+      lastContext = 0;
+      pendingFirst = null;
+      previewWn = null;
+      if (range) setRange(null);
+      return;
+    }
+    lastContext = now;
+    rangeStep(svgX);
+  }
+  function onHandleDown(i: 0 | 1, e: PointerEvent) {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+    e.preventDefault();
+    // Which limit of `range` this handle is, fixed for the whole drag, so the
+    // dragged limit can pass the other one: the drawing sorts them, and the
+    // release sorts the range itself, so the two simply swap roles.
+    const leftIsFirst = range ? pxAt(range[0], domainNow, containerWidth) <= pxAt(range[1], domainNow, containerWidth) : true;
+    dragLimit = (i === 0) === leftIsFirst ? 0 : 1;
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  }
+  function onHandleMove(e: PointerEvent) {
+    if (dragLimit == null || !range) return;
+    const svgX = toShell(e.clientX) - shellRect(container).left;
+    const next: [number, number] = [range[0], range[1]];
+    next[dragLimit] = wnAtPx(svgX);
+    range = next;
+  }
+  function onHandleUp() {
+    if (dragLimit == null) return;
+    dragLimit = null;
+    if (range) setRange(sorted2(range[0], range[1]));
+  }
+  function onWindowKey(e: KeyboardEvent) {
+    const t = e.target as HTMLElement | null;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey && pointerInside) {
+      e.preventDefault();
+      rangeStep(mouseX - shellRect(container).left);
+    } else if (e.key === 'Escape') {
+      if (pendingFirst != null) { pendingFirst = null; previewWn = null; }
+      else if (range) setRange(null);
+    }
+  }
+
   function onDblClick(e: MouseEvent) {
     const { svgX, svgY } = getSvgPos(e);
     if (!hitTest(svgX, svgY)) resetZoom();
   }
 </script>
 
+<svelte:window on:keydown={onWindowKey} />
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrap">
   <!-- The electromagnetic regions, named. Its bottom edge is the top line of
@@ -984,8 +1107,42 @@
       on:pointermove={onPointerMove}
       on:pointerup={onPointerUp}
       on:pointerleave={onPointerLeave}
+      on:pointerenter={() => (pointerInside = true)}
+      on:contextmenu={onContextMenu}
       on:dblclick={onDblClick}
     ></div>
+
+    <!-- The range: everything outside it greyed, a dashed line at each limit,
+         and a wider handle in the middle of each line to move it. While the
+         second limit is being placed, the same drawing follows the pointer. -->
+    {#if shadePx}
+      <svg class="range-overlay" width={containerWidth} height={chartSvgHeight}>
+        {#if shadePx[0] > ML}
+          <rect x={ML} y="0" width={Math.min(shadePx[0], plotRight) - ML} height={chartSvgHeight}
+            fill={C['surface']} fill-opacity="0.72" />
+        {/if}
+        {#if shadePx[1] < plotRight}
+          <rect x={Math.max(shadePx[1], ML)} y="0" width={plotRight - Math.max(shadePx[1], ML)} height={chartSvgHeight}
+            fill={C['surface']} fill-opacity="0.72" />
+        {/if}
+        {#each [0, 1] as i}
+          {#if shadePx[i] >= ML && shadePx[i] <= plotRight}
+            <line x1={shadePx[i]} x2={shadePx[i]} y1="0" y2={chartSvgHeight}
+              stroke={C['brand-accent']} stroke-width="1.5" stroke-dasharray="6 4" />
+            {#if rangePx && !previewPx}
+              <!-- svelte-ignore a11y-no-static-element-interactions -->
+              <rect class="range-handle" x={shadePx[i] - 6} y={chartSvgHeight / 2 - 22} width="12" height="44" rx="4"
+                fill={C['surface']} stroke={C['brand-accent']} stroke-width="1.5"
+                on:pointerdown={e => onHandleDown(i === 0 ? 0 : 1, e)}
+                on:pointermove={onHandleMove}
+                on:pointerup={onHandleUp}>
+                <title>Drag to move this limit</title>
+              </rect>
+            {/if}
+          {/if}
+        {/each}
+      </svg>
+    {/if}
 
     <!-- highlight overlay: glowing rects for hovered/selected band, legend category, or partner links -->
     {#if glowHits.length > 0}
@@ -1184,6 +1341,17 @@
     left: 0;
     overflow: visible;
     z-index: 5;
+  }
+  .range-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .range-handle {
+    pointer-events: all;
+    cursor: ew-resize;
   }
 
   .reset-btn {
