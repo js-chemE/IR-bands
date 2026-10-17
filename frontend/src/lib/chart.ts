@@ -9,7 +9,7 @@ import { emSpans, emRegionsSplit, emMainOf, type EmRegion } from './emSpectrum';
 // character inventory, so the rule and the code cannot disagree.
 import { htmlToUnicode } from './notation';
 import { refHref } from './citations';
-import { branchSuffix, branchLabel, speciesLabel, sortedMeasuredOnBadges, type SurfaceBadge } from './labels';
+import { branchSuffix, branchLabel, speciesLabel, claimSurfaces, diluentBadges, type SurfaceBadge, type ClaimBadge } from './labels';
 import {
   TAG_ROLE_LABEL,
   isUmbrellaTag,
@@ -276,25 +276,28 @@ export function getLegendCategories(
 export interface TipRef {
   /** Publication year from the BibTeX date, 0 where none: the card sorts on it. */
   year: number;
-  /** The assignment's number, shown beside the claim's links. */
+  /** The claim's number, shown beside the claim's links. */
   id: number | null;
   key: string;
   short: string;       // "Fehr & Krossing, 2020"
   /** The paper itself, DOI first and `url` otherwise; null when it has neither. */
   href: string | null;
   wn: number | number[] | null;
-  // Already resolved to label plus level: the tooltip renders them straight,
-  // and the level is what decides whether a badge is filled or hollow.
-  surfaces: SurfaceBadge[];
+  // Already resolved to label, level and role in the claim: filled where the
+  // paper placed the species, hollow for the specimen (see claimSurfaces).
+  surfaces: ClaimBadge[];
   note: string | null;
   tags: string[];
   /**
    * Greyed out and folded: 'unknown' when the claim records no technique at
    * all, 'excluded' when its technique is one the sidebar's Techniques
    * section has switched off, 'excluded-phase' when its form or its medium
-   * is one the Phases section has switched off; null when it stands as usual.
+   * is one the Phases section has switched off, 'excluded-element' when the
+   * Elements section has; null when it stands as usual.
    */
-  off: 'unknown' | 'excluded' | 'excluded-phase' | null;
+  off: OffReason | null;
+  /** What the sample was diluted in, drawn apart from the surfaces. */
+  diluents: SurfaceBadge[];
 }
 
 /** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
@@ -312,47 +315,11 @@ export interface BandLooks {
  */
 export type BandStateMode = 'look' | 'plain' | 'hidden';
 
-/**
- * Which claims count: the techniques, forms and media switched off in the
- * sidebar. All are sets of the excluded, so a value the filter does not list
- * is never silently dropped. A claim that records no form or no medium is
- * keyed under UNRECORDED, so the Phases section can switch those off too.
- */
-export interface ClaimFilter {
-  techniques: ReadonlySet<string>;
-  forms: ReadonlySet<string>;
-  media: ReadonlySet<string>;
-}
-export const UNRECORDED = 'unrecorded';
-const NO_FILTER: ClaimFilter = { techniques: new Set(), forms: new Set(), media: new Set() };
+export { UNRECORDED, NO_FILTER, refOff, type ClaimFilter } from './claimFilter';
+import { NO_FILTER, refOff, type ClaimFilter, type OffReason } from './claimFilter';
 
-/** Technique → IR or Raman, from the Technique spec. */
-const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscopy]));
-
-/**
- * Whether a claim stands, or is greyed out and folded: 'unknown' when it
- * records no technique, 'excluded' when its technique is in `excluded` (the
- * sidebar's Techniques section).
- *
- * This is the one place that decides which claims count. Everything that
- * follows from it (a band being unreferenced, drawn faded, taken out of the
- * chart) reads `isReferenced`, which asks this per claim.
- *
- * The IR | Raman switch does not enter into it. It decides which selection
- * rule is drawn (the hollow bands), not which evidence counts: a Raman claim
- * is evidence for a band in the infrared view too, and a reader who wants
- * only infrared evidence switches the Raman family off under Techniques. Every
- * technique counts until somebody says otherwise, the calculations included.
- */
-export function refOff(
-  ref: { technique?: Technique | null; form?: string | null; medium?: string | null },
-  filter: ClaimFilter = NO_FILTER,
-): TipRef['off'] {
-  if (!ref.technique) return 'unknown';
-  if (filter.techniques.has(ref.technique)) return 'excluded';
-  if (filter.forms.has(ref.form || UNRECORDED)) return 'excluded-phase';
-  return filter.media.has(ref.medium || UNRECORDED) ? 'excluded-phase' : null;
-}
+/** Technique → IR or Raman, from the Technique records (filled after load). */
+const techniqueSpectroscopy = (key: string | null | undefined) => TECHNIQUES.find(t => t.key === key)?.spectroscopy;
 
 /**
  * Unreferenced: not one of the band's claims stands (see `refOff`). Drawn
@@ -398,7 +365,7 @@ export function isCalculatedOnly(b: Band): boolean {
  */
 function hasClaimIn(b: Band, spectroscopy: Spectroscopy): boolean {
   return (b.references ?? []).some(
-    r => TECHNIQUE_SPECTROSCOPY.get(r.technique as Technique) === spectroscopy,
+    r => techniqueSpectroscopy(r.technique) === spectroscopy,
   );
 }
 
@@ -445,6 +412,9 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
     // infrared one it labels a claim that is greyed out anyway. Kept for the
     // Dataset page (no spectroscopy), which inventories everything.
     if (spectroscopy === 'ir') continue;
+    // Which side of the line it was read on, beside the laser: every Raman
+    // claim has one (the build fills in "stokes" where nothing is said).
+    if (r.scattering && !auto.includes(r.scattering)) auto.push(r.scattering);
     for (const t of r.tags ?? []) {
       const nm = laserTagNm(t);
       if (nm === null) continue;
@@ -686,6 +656,8 @@ export interface TipData {
   id: string;
   name: string;
   vib: string;
+  /** Mulliken label with <sub>/<sup>, rendered with {@html} after `vib`. */
+  symmetry: string | null;
   wnRange: string;
   group: string;
   color: string;
@@ -1248,7 +1220,8 @@ export function buildChart(
             year,
             id: ref.id ?? null, key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             href: (r && refHref(r as Record<string, string>)) || null,
-            surfaces: sortedMeasuredOnBadges(ref),
+            surfaces: claimSurfaces(ref),
+            diluents: diluentBadges(ref),
             off,
           };
         })
@@ -1260,14 +1233,25 @@ export function buildChart(
           || firstSeen.get(a.key)! - firstSeen.get(b.key)!)
       : [];
 
-    if (x2 < xMin || x1 > xMax) continue; // outside visible domain
+    /* Where the band is drawn: at its shift, and on a shift axis also at the
+       negative shift where an anti-Stokes claim that counts reads it. Both
+       sides are the same mode, so the mirror is the same band, with the same
+       card, the same highlight and the same selection. */
+    const spans: [number, number][] = [[x1, x2]];
+    if (shiftZero !== null && b.references.some(r => r.scattering === 'anti-stokes' && !refOff(r, filter))) {
+      const ma = wnToValue(-b.wn_min, axisProperty, axisUnit, shiftZero);
+      const mb = wnToValue(-b.wn_max, axisProperty, axisUnit, shiftZero);
+      if (Number.isFinite(ma) && Number.isFinite(mb)) spans.push([Math.min(ma, mb), Math.max(ma, mb)]);
+    }
+    const visible = spans.filter(([s1, s2]) => !(s2 < xMin || s1 > xMax));
+    if (!visible.length) continue; // outside visible domain
 
     const bandTags = getBandChipTags(b, spectroscopy);
 
-    plotBands.push({
-      x1, x2,
+    for (const [sx1, sx2] of visible) plotBands.push({
+      x1: sx1, x2: sx2,
       y0, y1,
-      cx: (x1 + x2) / 2,
+      cx: (sx1 + sx2) / 2,
       cy: (y0 + y1) / 2,
       color,
       inactive: looks.inactive && bandTags.includes(spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive'),
@@ -1277,6 +1261,7 @@ export function buildChart(
         id:        b.id,
         name:      bandName(b),
         vib:       `${vib}${branch} | ${b.atoms}`,
+        symmetry:  b.symmetry ?? null,
         wnRange:   `${b.wn_min}–${b.wn_max} cm⁻¹`,
         group:     groups[b.group]?.label ?? b.group,
         color,
@@ -1323,6 +1308,22 @@ export function buildChart(
     });
     laneLabels.push({ yCenter, segments });
   }
+
+  /* Where the species lanes end and the specimen lanes begin. Specimen lanes
+     are the solid itself (its hydroxyls, its lattice) and sit below every
+     species lane, which build.py guarantees, so one rule separates the two. */
+  let lastSpecies = -1, firstSpecimen = Infinity;
+  for (const [origLane, groupKeys] of laneGroupMap) {
+    const compactLane = newLaneIdx.get(origLane);
+    if (compactLane === undefined || !groupKeys.some(k => enabledGroups.has(k))) continue;
+    const isSpecimen = groupKeys.every(k => groups[k]?.of === 'specimen');
+    if (isSpecimen) firstSpecimen = Math.min(firstSpecimen, compactLane);
+    else lastSpecies = Math.max(lastSpecies, compactLane);
+  }
+  const laneCenter = (k: number) => (newNLanes - 1 - k) * LANE_HEIGHT + LANE_HEIGHT * BAR_FRACTION / 2;
+  const specimenDividerY = lastSpecies >= 0 && Number.isFinite(firstSpecimen)
+    ? (laneCenter(lastSpecies) + laneCenter(firstSpecimen)) / 2
+    : null;
 
   // Vertical extent: exactly the bars, plus half a lane pitch of air at each
   // end. The domain used to run to a whole lane height above the top bar and
@@ -1516,6 +1517,37 @@ export function buildChart(
       text.appendChild(tspan);
     }
     svg.appendChild(text);
+  }
+
+  // The species / specimen divider: a dashed rule across the plot and the
+  // two words in the label margin, the one thing on the chart that says
+  // which lanes are molecules and which are the solid they sit on.
+  if (specimenDividerY !== null) {
+    const yPx = MARGIN_TOP + innerH * (1 - (specimenDividerY - yLo) / yDataSpan);
+    const rule = document.createElementNS(ns, 'line');
+    rule.setAttribute('x1', String(8));
+    rule.setAttribute('x2', String(MARGIN_LEFT + innerW));
+    rule.setAttribute('y1', String(yPx));
+    rule.setAttribute('y2', String(yPx));
+    rule.setAttribute('stroke', C['line-boundary']);
+    rule.setAttribute('stroke-width', '1.5');
+    rule.setAttribute('stroke-dasharray', '6 4');
+    svg.appendChild(rule);
+    for (const [word, dy, base] of [['SPECIES', -6, 'auto'], ['SPECIMEN', 6, 'hanging']] as const) {
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', '8');
+      // Plot sets text-anchor: end on its svg for the lane labels; without
+      // this the words end at x = 8 and run off the left edge.
+      t.setAttribute('text-anchor', 'start');
+      t.setAttribute('y', String(yPx + dy));
+      t.setAttribute('dominant-baseline', base);
+      t.setAttribute('font-size', '11');
+      t.setAttribute('letter-spacing', '0.08em');
+      t.setAttribute('font-family', 'system-ui,-apple-system,"Segoe UI",sans-serif');
+      t.setAttribute('fill', C['ink-200']);
+      t.textContent = word;
+      svg.appendChild(t);
+    }
   }
 
   // Pixel-space hit rectangles for each visible band (used by BandChart.svelte for hover/select)

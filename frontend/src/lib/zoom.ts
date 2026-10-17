@@ -15,7 +15,9 @@
  * length. Anything that stays inside one space needs no conversion, which is
  * why a rect-against-rect comparison is left alone.
  *
- * Only the band chart does its own pixel arithmetic, so it is the only caller.
+ * Two callers do pixel arithmetic against the viewport: the band chart, and
+ * lib/floating.ts, which places the sidebar's dropdown and laser menus in a
+ * fixed layer from the field's rect.
  */
 
 /** Set on the document element by App.svelte; the fallback path reads it. */

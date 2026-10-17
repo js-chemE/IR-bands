@@ -17,6 +17,7 @@
    */
   export const STRUCTURE_SECTIONS: DmSection[] = [
     { id: 'model',      label: '1 · The model', part: true },
+    { id: 'terms',      label: 'Terms' },
     { id: 'map',        label: 'Entity map' },
     { id: 'entities',   label: 'Entities' },
     { id: 'relations',  label: 'Relations' },
@@ -59,6 +60,7 @@
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import type { Dataset, RefMap, SurfaceLevel, Vibrations } from '../lib/types';
   import VibrationModesPage from './VibrationModesPage.svelte';
+  import PeriodicPicker from './PeriodicPicker.svelte';
   import { tagStyle } from '../lib/colors';
   import { generatedTagTip } from '../lib/dataModel';
   import {
@@ -70,8 +72,8 @@
     STATUS_LABEL,
     STATUS_NOTE,
     STATUS_ORDER,
-    SITE_KIND_LABEL,
-    SITE_KIND_NOTE,
+    KIND_LABEL,
+    KIND_NOTE,
     SURFACE_LEVELS,
     LEVEL_LABEL,
     LEVEL_NOTE,
@@ -82,7 +84,7 @@
     TECHNIQUES,
     analyse,
     type EntityStatus,
-    type SiteKind,
+    type SurfaceKind,
     type TagRole,
     type ValueRow,
   } from '../lib/dataModel';
@@ -107,7 +109,7 @@
   /* ── Entity map ──
      Hand-laid out, and it holds every entity in the model: nothing is
      explained in prose that the map does not draw. The spine runs along row
-     three (reference → assignment → band → mode); what each spine entity owns
+     three (reference → claim → band → mode); what each spine entity owns
      hangs below it, what classifies it sits above. */
   const W = 150;
   const H = 54;
@@ -127,7 +129,7 @@
     species:    { x: 710, y: 200 },
     // The spine.
     reference:  { x:  20, y: 260 },
-    assignment: { x: 250, y: 260 },
+    claim: { x: 250, y: 260 },
     band:       { x: 480, y: 260 },
     mode:       { x: 940, y: 260 },
     // What the spine entities own or point at.
@@ -137,6 +139,8 @@
     atoms:      { x: 710, y: 380 },
     topology:   { x: 940, y: 380 },
     region:     { x: 710, y: 500 },
+    // What a surface is made of, chemically: straight below it.
+    element:    { x: 250, y: 500 },
   };
 
   /**
@@ -186,12 +190,18 @@
     { card: '1:N',  x1: 1015, y1: 194, x2: 1015, y2: 260, lx: 1022, ly: 231, anchor: 'start' },
     { card: '0..1', x1: 1015, y1: 314, x2: 1015, y2: 380, lx: 1022, ly: 351, anchor: 'start' },
     // Where a claim was measured: straight down the same column. One edge
-    // now, because site and sample are one field at two levels.
+    // now, because site and specimen are one field at two levels.
     { card: 'N:M',  x1: 325, y1: 314, x2: 325, y2: 380, lx: 332, ly: 351, anchor: 'start' },
-    // Containment: a sample holds its phases and sites, a phase its sites, a
-    // composite site the simpler ones it is built from.
+    // Containment: a composite is made of its materials and sites, a
+    // compound of its ions, a composite site of the simpler ones it is built from.
     { card: 'N:M',  d: 'M 250,392 C 214,392 214,420 250,420', lx: 245, ly: 455, anchor: 'end',
       sub: 'parts' },
+    // Refinement: γ-Al₂O₃ is a more specific Al₂O₃. The mirror loop, on the
+    // right, so the two self-links read as two different statements.
+    { card: 'N:1',  d: 'M 400,392 C 436,392 436,420 400,420', lx: 405, ly: 455, anchor: 'start',
+      sub: 'refines' },
+    // The elements a surface contains.
+    { card: 'N:M',  x1: 325, y1: 434, x2: 325, y2: 500, lx: 332, ly: 471, anchor: 'start' },
     // What a band is.
     { card: 'N:1',  x1: 555, y1: 314, x2: 555, y2: 380, lx: 562, ly: 351, anchor: 'start' },
     { card: 'N:1',  x1: 620, y1: 314, x2: 740, y2: 380, lx: 694, ly: 342, anchor: 'start', weak: true },
@@ -211,39 +221,108 @@
   }
 
   /* ── Inventory controls ── */
-  let levelFilter: SurfaceLevel | null = null;
-  let siteKindFilter: SiteKind | null = null;
+  /* One kind chip row per level that has kinds, each filtering its own block. */
+  let kindFilter: Record<string, SurfaceKind | null> = { site: null, material: null };
   let openChecks: Record<string, boolean> = {};
 
   const HITS_PREVIEW = 8;
 
-  $: levelCounts = SURFACE_LEVELS.map(
-    lv => [lv, stats.surfaces.filter(s => s.level === lv).length] as const,
-  ).filter(([, n]) => n > 0);
-
-  $: siteKinds = (() => {
-    const counts = new Map<SiteKind, number>();
+  function kindsAt(level: SurfaceLevel): [SurfaceKind, number][] {
+    const counts = new Map<SurfaceKind, number>();
     for (const s of stats.surfaces) {
-      if (!s.kind) continue;
+      if (s.level !== level || !s.kind) continue;
       counts.set(s.kind, (counts.get(s.kind) ?? 0) + 1);
     }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }
+
+  function pickKind(level: SurfaceLevel, kind: SurfaceKind) {
+    kindFilter = { ...kindFilter, [level]: kindFilter[level] === kind ? null : kind };
+  }
+
+  /* The element picker: any number of elements, read in one of two scopes.
+     "In site" asks what the molecule could be bonded to, so it looks at sites
+     and single compounds and leaves the composites out; "anywhere in
+     specimen" asks what was in the solid at all, at every level. The selection survives a
+     change of scope: the scope is how to read it, not part of it. */
+  let picked: ReadonlySet<string> = new Set();
+  let elementScope: 'site' | 'specimen' = 'specimen';
+  /* How the selection filters. Built up from nothing it is "any of these":
+     a record shows if it contains one picked element. Started from Select
+     all it is "only these": a record shows if every element in it is still
+     picked, so taking a few away hides exactly what contains them. Clear,
+     or emptying the selection, goes back to the first. */
+  let pickMode: 'any' | 'only' = 'any';
+  $: if (!picked.size) pickMode = 'any';
+  /** Elements some surface contains: the live cells of the table. */
+  $: present = new Set(stats.surfaces.flatMap(s => s.elements ?? []));
+  function toggleEl(el: string) {
+    const next = new Set(picked);
+    if (next.has(el)) next.delete(el); else next.add(el);
+    picked = next;
+  }
+  /** A period or a group at once: all of its live cells on, or all off if they already are. */
+  function toggleMany(els: string[]) {
+    const live = els.filter(e => present.has(e));
+    if (!live.length) return;
+    const allOn = live.every(e => picked.has(e));
+    const next = new Set(picked);
+    for (const e of live) if (allOn) next.delete(e); else next.add(e);
+    picked = next;
+  }
+
+  /** Double-click: only these elements; asked again, the selection empties. */
+  function onlyEls(els: string[]) {
+    const same = picked.size === els.length && els.every(e => picked.has(e));
+    picked = same ? new Set() : new Set(els);
+    if (!same) pickMode = 'any';
+  }
+
+  $: elementClaims = (() => {
+    if (!picked.size) return null;
+    let site = 0, specimen = 0;
+    for (const b of dataset.bands) for (const r of b.references) {
+      if (r.site_elements?.length && elsMatch(r.site_elements, picked, pickMode)) site++;
+      if (r.specimen_elements?.length && elsMatch(r.specimen_elements, picked, pickMode)) specimen++;
+    }
+    return { site, specimen };
   })();
+  const elsMatch = (els: string[], sel: ReadonlySet<string>, mode: 'any' | 'only') =>
+    mode === 'only' ? els.every(e => sel.has(e)) : els.some(e => sel.has(e));
+  const rowMatches = (s: ValueRow, sel: ReadonlySet<string>, scope: 'site' | 'specimen', mode: 'any' | 'only') =>
+    !sel.size || (elsMatch(s.elements ?? [], sel, mode) && (scope === 'specimen' || s.level === 'site' || !!s.compound));
 
-  // A kind only subdivides sites, so picking one implies the site level.
-  $: shownSurfaces = stats.surfaces.filter(
-    s => (!levelFilter || s.level === levelFilter) && (!siteKindFilter || s.kind === siteKindFilter),
-  );
-
-  function pickLevel(lv: SurfaceLevel | null) {
-    levelFilter = lv;
-    if (lv !== 'site') siteKindFilter = null;
+  /** One level as a tree: every root, then the records refining it, indented. */
+  function levelTree(level: SurfaceLevel, rows: ValueRow[]): { row: ValueRow; depth: number }[] {
+    const here = rows.filter(r => r.level === level);
+    const keys = new Set(here.map(r => r.value));
+    const children = new Map<string | null, ValueRow[]>();
+    for (const r of here) {
+      const parent = r.refines && keys.has(r.refines) ? r.refines : null;
+      children.set(parent, [...(children.get(parent) ?? []), r]);
+    }
+    const order = (r: ValueRow) => level === 'site'
+      ? `${r.kind ?? 'zz'}|${r.detail ?? ''}|${r.label}`
+      : r.label.toLowerCase();
+    const out: { row: ValueRow; depth: number }[] = [];
+    const walk = (parent: string | null, depth: number) => {
+      for (const r of (children.get(parent) ?? []).sort((a, b) => order(a).localeCompare(order(b)))) {
+        out.push({ row: r, depth });
+        walk(r.value, depth + 1);
+      }
+    };
+    walk(null, 0);
+    return out;
   }
-
-  function pickKind(kind: SiteKind) {
-    siteKindFilter = siteKindFilter === kind ? null : kind;
-    if (siteKindFilter) levelFilter = 'site';
-  }
+  $: shownSurfaces = stats.surfaces.filter(s =>
+    rowMatches(s, picked, elementScope, pickMode) && (!s.level || !kindFilter[s.level] || s.kind === kindFilter[s.level]));
+  /* Coarsest first: the pieces of solid, then the spots on them. Specimen
+     and component are not two blocks any more: which a material was is the
+     claim's to say, so the table lists it once and counts the roles. */
+  const LEVEL_BLOCKS: { level: SurfaceLevel; title: string; lead: string }[] = [
+    { level: 'material', title: 'Materials', lead: 'Any piece of solid: one compound made of its ions, or a composite (a catalyst, an electrode, the model a calculation used) made of other materials and sites. Refinements (a polymorph, a facet, a film electrode) sit under the record they refine. "As specimen" counts the claims that were measured on it; "not located" those of them that place the species on none of its parts.' },
+    { level: 'site', title: 'Sites', lead: 'The atom-scale spot a molecule binds to, or an ion a material is made of. A refinement (a coordination, a charge) sits under its parent.' },
+  ];
 
   // `parts` is authored as bare keys, but a key is not what a reader recognises
   // and it hides the one thing that matters about a part: its level. Resolve
@@ -252,6 +331,36 @@
   $: surfaceByKey = new Map(stats.surfaces.map(s => [s.value, s]));
   const surfaceLabel = (key: string) => surfaceByKey.get(key)?.label ?? key;
   const surfaceLevel = (key: string) => surfaceByKey.get(key)?.level;
+  /* Made of, in one reading order: what the record names before what follows
+     from it (the two loops), and within each, composites and compounds first,
+     then the sites by charge: cations, then neutral sites (zero-valent atoms,
+     vacancies, hydroxyls, interfaces), then anions. A charge is inherited
+     along refines, so Ga³⁺(t) sorts with Ga³⁺. */
+  function siteCharge(key: string): number {
+    const tbl = dataset.surfaces ?? {};
+    const rec = tbl[key];
+    if (!rec) return 0;
+    for (const k of [key, ...(rec.lineage ?? [])]) {
+      const r = tbl[k];
+      if (r?.oxidation_state != null) return r.oxidation_state;
+      if (r?.charge != null) return r.charge;
+    }
+    if (rec.kind === 'bronsted' || rec.kind === 'cation') return 0.5;  // H⁺, Moᵟ⁺: positive, no integer
+    if (rec.kind === 'anion') return -0.5;
+    return 0;
+  }
+  function partRank(key: string): [number, number] {
+    const lv = surfaceLevel(key);
+    if (lv === 'material') return [surfaceByKey.get(key)?.compound ? 1 : 0, 0];
+    const q = siteCharge(key);
+    return [q > 0 ? 2 : q < 0 ? 4 : 3, -q];
+  }
+  function sortParts<T>(list: T[], key: (x: T) => string): T[] {
+    return [...list].sort((x, y) => {
+      const [a1, a2] = partRank(key(x)), [b1, b2] = partRank(key(y));
+      return a1 - b1 || a2 - b2 || surfaceLabel(key(x)).localeCompare(surfaceLabel(key(y)));
+    });
+  }
   function partTitle(key: string) {
     const lv = surfaceLevel(key);
     return lv ? `${key} — ${LEVEL_LABEL[lv].toLowerCase()}` : key;
@@ -330,7 +439,7 @@
   {:else}
     <p class="lead">
       What is actually in it: the molecules and their normal modes, the species, the sites
-      and samples they were measured on, how the spectra were taken, and the literature
+      and specimens they were measured on, how the spectra were taken, and the literature
       behind all of it. Every table is built from the shipped JSON at render time.
     </p>
   {/if}
@@ -338,6 +447,39 @@
   <!-- ══════════ Part 1 ══════════ -->
 {#if view === 'structure'}
   <h2 class="part" id="model" data-dm-section="model">1 &middot; The model</h2>
+
+  <!-- The words the atlas leans on, side by side, because the ones that sound
+       alike (species, specimen) answer different questions. Two columns: what
+       vibrates, and what it was measured on. -->
+  <section class="section" id="terms" data-dm-section="terms">
+    <h3>Terms</h3>
+    <div class="terms">
+      <div class="terms-col">
+        <h4 class="terms-head">What vibrates: the band</h4>
+        <dl>
+          <dt>Band</dt><dd>One transition of one thing that vibrates, with its window on the axis. What the chart draws.</dd>
+          <dt>Species</dt><dd>The chemical identity of what vibrates: CO₂, formate, a surface hydroxyl. Every band names one.</dd>
+          <dt>Species family</dt><dd>The group a band is drawn in, one lane of the chart: Formate*, CO* on M⁰. A group is <em>of</em> species (molecules, adsorbates) or of the specimen (its hydroxyls and lattice), and the chart draws the specimen lanes below a divider.</dd>
+          <dt>Mode</dt><dd>Which normal mode the band is: ν, δ, ρ, and the atoms that move.</dd>
+        </dl>
+      </div>
+      <div class="terms-col">
+        <h4 class="terms-head">What it was seen on: the claim</h4>
+        <dl>
+          <dt>Claim</dt><dd>One paper’s statement about one band: its number, the surface, the technique, the state. The evidence; the chart’s filters grey claims, not bands.</dd>
+          <dt>Specimen</dt><dd>The solid that was investigated: a catalyst, an electrode, a zeolite, a model. Not the gas around it. A free molecule has none.</dd>
+          <dt>Component · Site</dt><dd>A material inside a specimen (γ-Al₂O₃, ZnO), and the atom-scale spot a molecule binds to or an ion it is made of (Cu⁺, O²⁻).</dd>
+          <dt>Species state</dt><dd>Where the molecule sat in that experiment (free, dissolved, adsorbed, surface, lattice) and what surrounded it (vacuum, gas, liquid, supercritical, matrix).</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="terms-note">
+      In the band chart’s sidebar the two columns are two blocks between heavy rules.
+      Techniques, Species State and Specimen decide which claims count; Band States and
+      Species Families decide which bands are drawn. Each section says which on hover. They meet in one place: a band
+      left with no counted claim is unreferenced, and Band States says what happens to it.
+    </p>
+  </section>
 
   <section class="section" id="map" data-dm-section="map">
     <h3>Entity map</h3>
@@ -384,15 +526,19 @@
       <div class="map-prose">
         <p>
           The spine runs left to right: a <strong>reference</strong> makes an
-          <strong>assignment</strong> about a <strong>band</strong>, which documents a
+          <strong>claim</strong> about a <strong>band</strong>, which documents a
           <strong>mode</strong>. Everything else hangs off one of those four.
         </p>
         <p>
-          <strong>Surface</strong> is one table at three levels, not a site table and a
-          material table: an assignment names whatever the paper stated, a site, a phase,
-          a sample, or several at once. The loop on the box is <code>parts</code>, which
-          points down that scale, and it is what lets a query for Cu⁺ reach the
-          {viaContainerTotal} claims whose paper named only the catalyst.
+          <strong>Surface</strong> is one table at two levels, sites and materials: a
+          claim names whatever the paper stated, a site, a support, a whole catalyst,
+          or several at once, and the hierarchy of what it names says which was the
+          specimen. The left loop is <code>parts</code>,
+          what a record is made of, and it is what lets a query for Cu⁺ reach the
+          {viaContainerTotal} claims whose paper named only the catalyst. The right loop
+          is <code>refines</code>, a more specific version of one record: a search for
+          Al₂O₃ finds the claims on γ-Al₂O₃. Below it, <strong>Element</strong> is what
+          every surface is checked against and what the Elements filter reads.
         </p>
         <p>
           Everything in the model is drawn, including the parts that are not chemistry:
@@ -495,7 +641,7 @@
       <div class="spread-text">
         <p>
           Read the cardinality from left to right: <code>1:N</code> on
-          Reference&nbsp;→&nbsp;Assignment means one reference has many assignments.
+          Reference&nbsp;→&nbsp;Claim means one reference has many claims.
         </p>
         <p>
           One row is marked <em>weak</em>, meaning nothing enforces it. It used to be six.
@@ -541,7 +687,7 @@
         <p>
           The distinction that catches people out is the fourth: a band that
           <em>is</em> an isotopologue versus a paper that <em>used</em> isotopes to prove an
-          ordinary assignment. Different claims, different fields, similar names.
+          ordinary claim. Different claims, different fields, similar names.
         </p>
       </div>
       <div class="spread-visual">
@@ -702,96 +848,160 @@
     <div class="spread">
       <div class="spread-text">
         <p>
-          {stats.surfaces.length} entries, out of what used to be 32 strings in one
-          <code>site</code> field. They were never one kind of thing: <code>Cu⁺</code> is
-          an atom-scale spot, <code>Cu/ZnO</code> is a whole catalyst, and
-          <code>TiO₂</code> is either, depending on the paper. So there is one table with
-          a <code>level</code> rather than two tables and an argument about which one
-          titania belongs in.
+          {stats.surfaces.length} entries in one table, at two levels: the
+          <strong>materials</strong>, every piece of solid from one compound to a whole
+          catalyst, and the <strong>sites</strong>, the ions and atoms those are made of
+          and the spots a molecule binds to. Whether a material was the specimen or a
+          part of it is the claim's business: the material it names that no other
+          material it names contains is its <code>specimens</code>, so bare
+          <code>TiO₂</code> is the specimen and the <code>TiO₂</code> named beside
+          Pt/MoOₓ/TiO₂ a part. The build also writes how far the claim
+          <code>placement</code> goes: onto a site, onto a material, or only onto a
+          composite, where the paper saw the species and did not say where in it.
         </p>
         <p>
-          The badge carries the level everywhere it is drawn: a site is
-          <span class="badge-site">filled</span>, a phase or a sample is
-          <span class="badge-site badge-coarse">hollow</span>. That way a claim about
-          Cu⁺ never reads like a claim about Cu/ZnO, on this page or in the chart.
+          Two links, and only two. <code>parts</code> says what a record is made of, on
+          the same level or lower, never up; elements flow up along it.
+          <code>refines</code> says it is a more specific version of one record on the
+          same level, γ-Al₂O₃ of Al₂O₃, Ga³⁺(t) of Ga³⁺, the Ag/Au film electrode of
+          Ag/Au; searches flow down along it.
         </p>
         <p>
-          The <em>via container</em> column is the point of <code>parts</code>: those
-          claims name only the coarser surface and reach this one through it. Without
-          that link they would be invisible to any site query.
+          A site is <span class="badge-site">filled</span>, a material
+          <span class="badge-site badge-coarse">hollow</span>, a diluent
+          <span class="badge-site badge-coarse badge-diluent">in KBr</span> dashed. In
+          <em>made of</em>, a part the record names is solid, and one it has only through
+          another part, or through the record it refines, is
+          <span class="badge-site badge-via">pale and dashed</span>. Every
+          claim reaches a record by one route only, so <em>claims</em>, <em>via parts</em>
+          and <em>via refinement</em> add up to the <em>total</em>.
         </p>
-        <div class="kind-chips">
-          <button class="chip" class:on={levelFilter === null && siteKindFilter === null}
-                  on:click={() => { pickLevel(null); siteKindFilter = null; }}>
-            all <span class="chip-n">{stats.surfaces.length}</span>
-          </button>
-          {#each levelCounts as [lv, n]}
-            <button
-              class="chip"
-              class:on={levelFilter === lv}
-              title={LEVEL_NOTE[lv]}
-              on:click={() => pickLevel(levelFilter === lv ? null : lv)}
-            >{LEVEL_LABEL[lv]} <span class="chip-n">{n}</span></button>
-          {/each}
-        </div>
-        <div class="kind-chips">
-          {#each siteKinds as [kind, n]}
-            <button
-              class="chip chip-sub"
-              class:on={siteKindFilter === kind}
-              title={SITE_KIND_NOTE[kind]}
-              on:click={() => pickKind(kind)}
-            >{SITE_KIND_LABEL[kind]} <span class="chip-n">{n}</span></button>
-          {/each}
-        </div>
       </div>
 
       <div class="spread-visual">
-        <table class="inv-table">
-          <thead>
-            <tr><th>Key</th><th>Surface</th><th>Level</th><th>Kind</th><th>Formula</th><th>Parts</th><th class="num">Claims</th><th class="num">Via container</th></tr>
-          </thead>
-          <tbody>
-            {#each shownSurfaces as s}
-              <tr>
-                <td><code>{s.value}</code></td>
-                <td class="v-value">
-                  <span
-                    class="badge-site"
-                    class:badge-coarse={s.level !== 'site'}
-                    title={s.level ? LEVEL_NOTE[s.level] : ''}
-                  >{s.label}</span>
-                </td>
-                <td>
-                  {#if s.level}
-                    <span class="level-tag lv-{s.level}" title={LEVEL_NOTE[s.level]}
-                    >{LEVEL_LABEL[s.level]}</span>
-                  {/if}
-                </td>
-                <td>
-                  {#if s.kind}<span class="kind-tag">{SITE_KIND_LABEL[s.kind]}</span>{/if}
-                </td>
-                <td class="v-els">{s.detail || ''}</td>
-                <td>
-                  {#if (s.parts ?? []).length}
-                    <span class="part-list">
-                      {#each s.parts ?? [] as p}
-                        <span
-                          class="badge-site badge-part"
-                          class:badge-coarse={surfaceLevel(p) !== 'site'}
-                          title={partTitle(p)}
-                        >{surfaceLabel(p)}</span>
-                      {/each}
-                    </span>
-                  {/if}
-                </td>
-                <td class="num">{s.uses}</td>
-                <td class="num">{s.viaContainer ?? ''}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+        <div class="el-picker">
+          <div class="el-bar">
+            <div class="el-scope" role="group" aria-label="Element scope">
+              <button class="chip" class:on={elementScope === 'site'} on:click={() => (elementScope = 'site')}
+                title="What the molecule could be bonded to: sites and single compounds">in site</button>
+              <button class="chip" class:on={elementScope === 'specimen'} on:click={() => (elementScope = 'specimen')}
+                title="Anything in the specimen, at every level">anywhere in specimen</button>
+            </div>
+            <div class="el-scope">
+              <button class="chip" on:click={() => { picked = new Set(present); pickMode = 'only'; }}
+                title="Select every element, then take away the ones to hide">select all</button>
+              <button class="chip" disabled={!picked.size} on:click={() => { picked = new Set(); pickMode = 'any'; }}
+                title="Clear the selection and show every surface">clear</button>
+            </div>
+          </div>
+          <!-- The periodic table. Hover just left of a row or just above a
+               column to pick the whole period or group; an element no surface
+               contains is barely there and not clickable. -->
+          <PeriodicPicker
+            elements={dataset.elements ?? {}}
+            {present}
+            isOn={el => picked.has(el)}
+            on:toggle={e => (e.detail.els.length === 1 ? toggleEl(e.detail.els[0]) : toggleMany(e.detail.els))}
+            on:only={e => onlyEls(e.detail.els)}
+          />
+          <p class="el-summary">
+            {#if !picked.size}
+              Nothing selected: every surface shows. Pick elements to keep the surfaces that
+              contain them, or select all and take some away to hide what contains those.
+            {:else if pickMode === 'only'}
+              Showing surfaces made only of selected elements
+              ({present.size - [...present].filter(e => picked.has(e)).length} taken away).
+              {elementClaims?.site} claims stand on such a site,
+              {elementClaims?.specimen} on such a specimen.
+            {:else}
+              Showing surfaces that contain {[...picked].join(', ')}.
+              {elementClaims?.site} claims have one at the site,
+              {elementClaims?.specimen} somewhere in the specimen.
+            {/if}
+          </p>
+        </div>
       </div>
+    </div>
+
+    <div class="lv-blocks">
+      {#each LEVEL_BLOCKS as blk (blk.level)}
+        {@const tree = levelTree(blk.level, shownSurfaces)}
+          <div class="lv-block">
+            <h4 class="lv-head">
+              <span>{blk.title}</span>
+              <span class="chip-n">{tree.length}</span>
+            </h4>
+            <p class="lv-lead">{blk.lead}</p>
+            <div class="kind-chips">
+              {#each kindsAt(blk.level) as [kind, n]}
+                <button class="chip chip-sub" class:on={kindFilter[blk.level] === kind}
+                  title={KIND_NOTE[kind]} on:click={() => pickKind(blk.level, kind)}
+                >{KIND_LABEL[kind]} <span class="chip-n">{n}</span></button>
+              {/each}
+            </div>
+            {#if tree.length}
+              <table class="inv-table">
+                <thead>
+                  <tr>
+                    <th>{LEVEL_LABEL[blk.level]}</th>
+                    <th>Kind</th>
+                    <th>Made of</th>
+                    <th>Elements</th>
+                    <th class="num" title="Claims that name it">Claims</th>
+                    <th class="num" title="Claims that name something it is part of">Via parts</th>
+                    <th class="num" title="Claims that name a refinement of it, which a search for it finds">Via refinement</th>
+                    <th class="num" title="Every claim that reaches it, each once">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each tree as { row: s, depth } (s.value)}
+                    <tr class:refinement-row={depth > 0}>
+                      <td class="v-value" style="padding-left: {8 + depth * 16}px">
+                        {#if depth > 0}<span class="tree-mark" aria-hidden="true">└</span>{/if}
+                        <span class="badge-site" class:badge-coarse={s.level !== 'site'}
+                          title="{s.value}{s.level ? `: ${LEVEL_NOTE[s.level]}` : ''}">{s.label}</span>
+                        {#if s.refinement && !s.label.includes(s.refinement)}<span class="refine-note">{s.refinement}</span>{/if}
+                        <!-- A formula only where the name and the parts do not
+                             already say it: ZSM-5's NaₙAlₙSi₉₆₋ₙO₁₉₂, not Al₂O₃'s Al₂O₃. -->
+                        {#if s.level !== 'site' && s.detail}<span class="formula-note">{s.detail}</span>{/if}
+                      </td>
+                      <td class="v-els">
+                        {#if s.kind}<span class="kind-tag" title={KIND_NOTE[s.kind]}>{KIND_LABEL[s.kind]}</span>{/if}
+                        {#if s.level === 'material' && !s.compound}<span class="kind-tag" title="Made of other materials, metal atoms or an interface: a catalyst, an electrode, a model. Named alone, it says where a band was seen, not where in it the species sits.">Composite</span>{/if}
+                        {#if s.level === 'site' && s.detail}<span>{s.detail}</span>{/if}
+                      </td>
+                      <td>
+                        {#if (s.parts ?? []).length || (s.partsVia ?? []).length}
+                          <span class="part-list">
+                            {#each sortParts(s.parts ?? [], k => k) as p}
+                              <span class="badge-site badge-part" class:badge-coarse={surfaceLevel(p) !== 'site'}
+                                title={partTitle(p)}>{surfaceLabel(p)}</span>
+                            {/each}
+                            {#each sortParts(s.partsVia ?? [], v => v.key) as p (p.key)}
+                              <span class="badge-site badge-part badge-via" class:badge-coarse={surfaceLevel(p.key) !== 'site'}
+                                title="{partTitle(p.key)}, through {surfaceLabel(p.via)}">{surfaceLabel(p.key)}</span>
+                            {/each}
+                          </span>
+                        {/if}
+                      </td>
+                      <td class="v-els">{(s.elements ?? []).join(' ')}</td>
+                      <td class="num">
+                        {s.uses || ''}
+                        {#if s.asSpecimen}<span class="dil-n" title="Claims measured on it as the specimen, and of those, the ones that place the species on none of its parts"> ({s.asSpecimen} as specimen{#if s.unlocated}, {s.unlocated} not located{/if})</span>{/if}
+                        {#if s.asDiluent}<span class="dil-n" title="Named as a diluent, not counted"> +{s.asDiluent} dil.</span>{/if}
+                      </td>
+                      <td class="num">{s.viaContainer ?? ''}</td>
+                      <td class="num">{s.viaRefinement ?? ''}</td>
+                      <td class="num total">{s.total || ''}</td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            {:else}
+              <p class="lv-lead">Nothing at this level contains {[...picked].join(', ')}.</p>
+            {/if}
+          </div>
+      {/each}
     </div>
   </section>
 
@@ -806,7 +1016,7 @@
           is not a measurement at all.
         </p>
         <p>
-          It is a field on the assignment now, with a closed vocabulary, and the tag chips
+          It is a field on the claim now, with a closed vocabulary, and the tag chips
           the chart legend filters on are derived from it. <code>infrared</code> is the honest
           placeholder for a source that says only "IR" or "FTIR": resolve each one to
           transmission or ATR as the paper is checked.
@@ -904,7 +1114,7 @@
     <div class="spread">
       <div class="spread-text">
         <p>
-          {stats.counts.reference} references carry {stats.counts.assignment} assignments
+          {stats.counts.reference} references carry {stats.counts.claim} claims
           across {stats.counts.band} bands. Authors are parsed out of the BibTeX
           <code>author</code> field at render time and thrown away again; nothing stores
           them, and nothing needs to yet.
@@ -1450,8 +1660,7 @@
 
   /* The level in words, next to the badge that encodes it as filled/hollow.
      Filled against hollow separates a site from everything above it, which is
-     the distinction that must never be missed; it cannot say which of phase or
-     sample, so the word does that. */
+     the distinction that must never be missed; the word says the rest. */
   .level-tag {
     font-size: var(--t-micro-label-size);
     padding: 1px 6px;
@@ -1467,7 +1676,67 @@
     background: var(--badge-site-bg);
     color: var(--badge-site-fg);
   }
-  .level-tag.lv-phase { background: var(--badge-site-bg-soft); }
+  .level-tag.lv-material { background: var(--badge-site-bg-soft); }
+  .badge-diluent { border-style: dashed; }
+  .lv-block + .lv-block { margin-top: 22px; }
+  .lv-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 2px;
+    font-size: var(--t-nav-size);
+  }
+  .lv-lead {
+    margin: 0 0 6px;
+    font-size: var(--t-code-size);
+    color: var(--ink-050);
+  }
+  .tree-mark {
+    margin-right: 4px;
+    color: var(--ink-025);
+    font-family: var(--font-mono);
+  }
+  .refine-note {
+    margin-left: 6px;
+    font-size: var(--t-code-size);
+    color: var(--ink-200);
+  }
+  /* A part it has through another record: the same badge, dashed and paler,
+     so what the record names and what follows from it read apart. */
+  .badge-via {
+    border-style: dashed;
+    opacity: 0.6;
+  }
+  .formula-note {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--t-code-size);
+    color: var(--ink-500);
+  }
+  .inherit-note {
+    font-size: var(--t-code-size);
+    color: var(--ink-050);
+  }
+  .dil-n { color: var(--ink-050); }
+  .lv-blocks { margin-top: 18px; }
+  .num.total { color: var(--ink-900); }
+  .el-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .el-scope { display: flex; gap: 5px; }
+  .chip:disabled { opacity: 0.4; cursor: default; }
+
+
+  .el-summary {
+    margin: 8px 0 0;
+    font-size: var(--t-code-size);
+    color: var(--ink-500);
+  }
 
   .part-list { display: flex; flex-wrap: wrap; gap: 3px; }
   .badge-part { font-size: var(--t-micro-label-size); }
@@ -1548,7 +1817,7 @@
     background: var(--pill-bg);
     color: var(--pill-fg);
   }
-  .scope.sc-assignment { background: var(--badge-site-bg); color: var(--badge-site-fg); }
+  .scope.sc-claim { background: var(--badge-site-bg); color: var(--badge-site-fg); }
   .scope.sc-mode { background: var(--badge-wn-bg); color: var(--badge-wn-fg); }
   .scope.sc-derived { background: var(--brand-tint); color: var(--brand-accent); }
 
@@ -1626,4 +1895,21 @@
   @container content (max-width: 780px) {
     .spread, .map-below { grid-template-columns: 1fr; gap: var(--space-4); }
   }
+  .terms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @container content (max-width: 760px) {
+    .terms { grid-template-columns: 1fr; }
+  }
+  .terms-head {
+    margin: 0 0 6px;
+    font-size: var(--t-nav-size);
+    color: var(--ink-700);
+  }
+  .terms dl { margin: 0; }
+  .terms dt { margin-top: 8px; font-weight: var(--t-label-weight); color: var(--ink-900); }
+  .terms dd { margin: 2px 0 0; color: var(--ink-500); }
+  .terms-note { margin-top: 14px; color: var(--ink-500); }
 </style>

@@ -16,11 +16,14 @@
 
 <script lang="ts">
   import { C } from '../lib/tokens';
+  import Icon from './Icon.svelte';
+  import type { ClaimFilter } from '../lib/claimFilter';
+  import { claimExcluded } from '../lib/claimFilter';
   import type { Band, BandReference, GroupMap, RefMap, Vibrations, Molecule, VibrationMode } from '../lib/types';
   import { tagStyle } from '../lib/colors';
   import { esc, ieeeHtml, refSortKey, shortCite } from '../lib/citations';
   import { htmlToUnicode } from '../lib/notation';
-  import { branchSuffix, speciesLabel, sortedMeasuredOnBadges, SURFACE_LEVEL_TITLE } from '../lib/labels';
+  import { branchSuffix, speciesLabel, claimSurfaces, claimBadgeTitle, diluentBadges, DILUENT_TITLE } from '../lib/labels';
   import { createEventDispatcher, onMount } from 'svelte';
   import { buildSections, countShown, type BandRef, type GroupDim } from '../lib/refGrouping';
   import { knowledgeLinks } from '../lib/fundamentals';
@@ -37,10 +40,22 @@
   export let includeBands = true;
   export let includeModes = false;
   export let includeKnowledge = true;
-  /** Which techniques a claim may name to show, or null for every one. */
-  export let techniques: ReadonlySet<string> | null = null;
+  /** Which claims show: the sidebar's Techniques, Phases and Elements, the
+   *  same filter the band chart uses. */
+  export let filter: ClaimFilter | null = null;
+  /** Bands switched off by hand: listed greyed, so they can be switched back. */
+  export let hiddenBands: ReadonlySet<string> = new Set();
+  /** The band chart's wavenumber range, carried over with the selection, or null. */
+  export let range: [number, number] | null = null;
+  /** The tag of the bands that are silent in the chosen spectroscopy, marked on their rows. */
+  export let inactiveTag: string | null = null;
+  /** How a claim that does not count is listed: faint, like any other (plain), or not at all. */
+  export let offMode: 'faint' | 'plain' | 'hidden' = 'faint';
 
   const dispatch = createEventDispatcher<{
+    toggleClaim: { id: number };
+    toggleClaims: { ids: number[] };
+    toggleBand: { id: string };
     navigateKnowledge: { key: string };
     counts: RefCounts;
   }>();
@@ -59,6 +74,21 @@
     open = next;
   }
 
+  /* A claim or a band switched off by hand stays on the page, greyed, so the
+     switch that turned it off can turn it back on; it just stops counting. */
+  /* A claim that does not count: its band is switched off by hand, or a
+     filter excludes it, or it was switched off by hand itself. How it is
+     listed is the sidebar's choice (offMode); it never counts. */
+  $: isHidden = (e: BandRef) =>
+    hiddenBands.has(e.band.id) || (filter ? claimExcluded(e.ref, filter) != null : false);
+  /** The claim ids of one paper among the listed entries, for its heading switch. */
+  const paperIds = (entries: BandRef[]) =>
+    [...new Set(entries.map(e => e.ref.id).filter((id): id is number => id != null))];
+  $: paperOff = (entries: BandRef[]) => {
+    const ids = paperIds(entries);
+    return ids.length > 0 && ids.every(id => filter?.claims.has(id));
+  };
+
   // ---- Formatting helpers ----
 
   function bandNameHtml(b: Band): string {
@@ -72,7 +102,7 @@
 
   // Label plus level, resolved from the surface keys the data carries. Most
   // specific first, so a claim naming both reads "Cu⁺  Cu/ZnO".
-  const surfaceList = sortedMeasuredOnBadges;
+  const surfaceList = claimSurfaces;
 
   function wnList(ref: BandReference): number[] {
     if (ref.wn == null) return [];
@@ -105,7 +135,8 @@
   // dimensions and why mode-only citations only appear where a reference is
   // one of them.
   $: sections = buildSections(groupBy, thenBy, {
-    bands,
+    bands: (range ? bands.filter(b => b.wn_max >= range[0] && b.wn_min <= range[1]) : bands)
+      .filter(b => offMode !== 'hidden' || !hiddenBands.has(b.id)),
     refs,
     groups,
     sortedGroupKeys,
@@ -113,7 +144,8 @@
     includeBands,
     includeModes,
     knowledge: includeKnowledge ? KNOWLEDGE : null,
-    techniques,
+    // Only "hidden" drops what does not count; faint and plain keep it listed.
+    filter: offMode === 'hidden' ? filter : null,
   });
 
   /** Stable per-row key, so expanding one row survives a regroup. */
@@ -124,7 +156,7 @@
   // The totals are what exists, not what is selected, so they are counted
   // here rather than inside countShown: two of them are unreachable from a
   // context whose own switches have already emptied them.
-  $: shown = countShown(sections, groupBy, thenBy);
+  $: shown = countShown(sections, groupBy, thenBy, isHidden);
   $: counts = {
     papersShown: shown.papers,
     papersTotal: Object.keys(refs ?? {}).length,
@@ -167,6 +199,13 @@
     >
       {#if section.html}
         <div class="ref-card-citation">{@html section.html}</div>
+        {#if paperIds(section.entries).length}
+          <button class="paper-switch" class:is-off={paperOff(section.entries)}
+            on:click={() => dispatch('toggleClaims', { ids: paperIds(section.entries) })}
+            title={paperOff(section.entries) ? 'Count every claim of this paper again' : `Switch off all ${paperIds(section.entries).length} claims of this paper`}
+          ><Icon name={paperOff(section.entries) ? 'eye' : 'eye-off'} size={13} width={1.9} />
+            <span>{paperOff(section.entries) ? 'paper off' : 'whole paper'}</span></button>
+        {/if}
       {:else}
         <div
           class="group-card-header"
@@ -187,6 +226,13 @@
         >
           {#if bucket.html}
             <div class="ref-sub-citation">{@html bucket.html}</div>
+            {#if paperIds(bucket.entries).length}
+              <button class="paper-switch" class:is-off={paperOff(bucket.entries)}
+                on:click={() => dispatch('toggleClaims', { ids: paperIds(bucket.entries) })}
+                title={paperOff(bucket.entries) ? 'Count these claims of this paper again' : `Switch off these ${paperIds(bucket.entries).length} claims of this paper`}
+              ><Icon name={paperOff(bucket.entries) ? 'eye' : 'eye-off'} size={13} width={1.9} />
+                <span>{paperOff(bucket.entries) ? 'paper off' : 'whole paper'}</span></button>
+            {/if}
           {:else}
             <div
               class="group-label"
@@ -201,9 +247,14 @@
           {#each bucket.entries as e (rowId(section.key, bucket.key, e))}
             {@const id = rowId(section.key, bucket.key, e)}
             <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-            <div class="band-row" on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
+            {@const rowHidden = isHidden(e)}
+            {@const claimOff = e.ref.id != null && (filter?.claims.has(e.ref.id) ?? false)}
+            {@const bandOff = hiddenBands.has(e.band.id)}
+            <div class="band-row" class:row-hidden={rowHidden && offMode === 'faint'} on:click={() => toggleOpen(id)} aria-expanded={open.has(id)}>
               <div class="band-row-line">
-                <span class="band-name">{@html bandNameHtml(e.band)}</span>
+                <span class="band-name" class:inactive={inactiveTag && e.band.tags.includes(inactiveTag)}
+                  title={inactiveTag && e.band.tags.includes(inactiveTag) ? `${inactiveTag}: silent in this spectroscopy` : undefined}
+                >{@html bandNameHtml(e.band)}</span>
                 {#if e.ref.wn != null}
                   {#each wnList(e.ref) as w}
                     <span class="badge-wn">{w} cm⁻¹</span>
@@ -214,9 +265,12 @@
                 {#each surfaceList(e.ref) as s}
                   <span
                     class="badge-site"
-                    class:badge-coarse={s.level !== 'site'}
-                    title={SURFACE_LEVEL_TITLE[s.level]}
+                    class:badge-coarse={s.role !== 'placed'}
+                    title={claimBadgeTitle(s)}
                   >{s.label}</span>
+                {/each}
+                {#each diluentBadges(e.ref) as d}
+                  <span class="badge-site badge-coarse badge-diluent" title={DILUENT_TITLE}>in {d.label}</span>
                 {/each}
                 {#each qualityTags(e.band) as tag}
                   <span class="badge-quality">{tag}</span>
@@ -230,6 +284,18 @@
                     {shortCite(refs?.[e.ref.key] ?? {}, e.ref.key)}
                   </span>
                 {/if}
+                {#if e.ref.id != null}
+                  <button class="row-switch" class:is-off={claimOff}
+                    on:click|stopPropagation={() => dispatch('toggleClaim', { id: e.ref.id ?? -1 })}
+                    title={claimOff ? 'Count this claim again' : 'Switch this claim off'}
+                    aria-label={claimOff ? 'Count this claim again' : 'Switch this claim off'}
+                  ><Icon name={claimOff ? 'eye' : 'eye-off'} size={13} width={1.9} /></button>
+                {/if}
+                <button class="row-switch row-switch-band" class:is-off={bandOff}
+                  on:click|stopPropagation={() => dispatch('toggleBand', { id: e.band.id })}
+                  title={bandOff ? 'Show this band again' : 'Hide this band, with every claim on it'}
+                  aria-label={bandOff ? 'Show this band again' : 'Hide this band'}
+                >{bandOff ? 'band ↺' : 'band ✕'}</button>
                 <span class="expand-arrow">{open.has(id) ? '▾' : '▸'}</span>
               </div>
               {#if open.has(id)}
@@ -386,10 +452,14 @@
     flex-shrink: 0;
   }
 
-  /* Hollow variant of the site badge: a phase or a sample, coarser than the
-     atom-scale spot, so the scale of the claim reads at a glance. */
+  /* Hollow variant of the site badge: in a claim, the specimen as context rather than where the species was placed; coarser than
+     the atom-scale spot, so the scale of the claim reads at a glance. */
   .badge-coarse {
     background: var(--badge-site-bg-soft);
+  }
+  /* What the specimen was mixed with: dashed, since it is not part of it. */
+  .badge-diluent {
+    border-style: dashed;
   }
 
   .badge-quality {
@@ -456,8 +526,11 @@
     flex-shrink: 0;
     padding-left: 4px;
   }
-  /* Only one of the two claims the free space. */
-  .row-cite + .expand-arrow { margin-left: 0; }
+  /* One thing takes the free space: the citation where there is one, else
+     the first switch; the switches and the arrow then follow it. */
+  .band-row-line > .row-switch:first-of-type { margin-left: auto; }
+  .row-cite + .row-switch { margin-left: 0 !important; }
+  .row-switch ~ .expand-arrow { margin-left: 0; }
 
   .band-expand {
     padding: 2px 4px 6px 8px;
@@ -507,7 +580,6 @@
   .group-label {
     font-size: 14px;
     font-weight: 700;
-    text-transform: uppercase;
     letter-spacing: 0.07em;
     margin-bottom: 2px;
     opacity: 0.9;
@@ -535,11 +607,9 @@
   }
 
 
-  /* Only a group name is upper-cased, as it always was. A site, a sample or
-     an element is written the way chemistry writes it: upper-casing "Cu⁺"
-     gives "CU⁺", and "Co" gives carbon monoxide instead of cobalt. */
-  .group-card-header.as-typed,
-  .group-label.as-typed { text-transform: none; }
+  /* No heading is upper-cased: group names hold formulas too, and "Al₂O₃"
+     upper-cased reads "AL₂O₃", as "Cu⁺" would read "CU⁺" and "Co" carbon
+     monoxide. Formula and symbol case is never touched (CLAUDE.md). */
 
   /* Composition, kind, elements: the detail under a heading that is not a
      citation and not a coloured group. */
@@ -561,7 +631,6 @@
   .group-card-header {
     font-size: 21px;
     font-weight: 700;
-    text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 12px;
     padding-bottom: 7px;
@@ -587,4 +656,40 @@
   .ref-sub-citation :global(em) { font-style: italic; }
   .ref-sub-citation :global(a.ext) { color: var(--ref-accent-strong); text-decoration: none; font-size: 12px; }
   .ref-sub-citation :global(a.ext:hover) { color: var(--ref-link-hover); }
+  /* Switched off by hand: still here, so it can be switched back, but faint. */
+  .band-row.row-hidden { opacity: 0.45; }
+  .band-name.inactive { font-style: italic; color: var(--ink-200); }
+  .row-switch {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 4px;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--ink-200);
+    font: inherit;
+    font-size: var(--t-micro-label-size);
+    cursor: pointer;
+    opacity: 0.55;
+  }
+  .row-switch:hover { opacity: 1; color: var(--ink-700); border-color: var(--line-soft); }
+  .row-switch.is-off { opacity: 1; color: var(--brand-accent); }
+  /* The switch for a whole paper, under its citation. */
+  .paper-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0 6px;
+    padding: 1px 6px;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-sm);
+    background: none;
+    font: inherit;
+    font-size: var(--t-micro-label-size);
+    color: var(--ink-200);
+    cursor: pointer;
+  }
+  .paper-switch:hover { color: var(--ink-700); background: var(--surface-hover); }
+  .paper-switch.is-off { color: var(--brand-accent); border-color: var(--brand-tint-line); }
 </style>

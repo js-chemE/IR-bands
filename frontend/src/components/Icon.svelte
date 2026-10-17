@@ -13,7 +13,7 @@
   export let name:
     | 'home' | 'knowledge' | 'chart' | 'references' | 'dataset' | 'impressum'
     | 'styleguide' | 'sourceguide'
-    | 'color' | 'filter' | 'toggles'
+    | 'color' | 'filter' | 'toggles' | 'technique' | 'phase' | 'element' | 'eye' | 'eye-off' | 'range'
     | 'link' = 'home';
   export let size = 24;
   /** Thinner at card size, a touch heavier where the glyph is 16px. */
@@ -70,6 +70,33 @@
     <path d="M12 3.2s6 6.3 6 10.1a6 6 0 0 1-6 6z" fill="currentColor" stroke="none" opacity="0.35" />
   {:else if name === 'filter'}
     <polygon points="3.5 4.5 20.5 4.5 14 12.4 14 19.5 10 17.3 10 12.4" />
+  {:else if name === 'eye'}
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+  {:else if name === 'eye-off'}
+    <path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.6 3.4" />
+    <path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.9 0 3.6-.6 5-1.5" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+    <path d="M3 3l18 18" />
+  {:else if name === 'range'}
+    <!-- Two limits and the stretch between them: the chart's range selection. -->
+    <path d="M5 4v16" />
+    <path d="M19 4v16" />
+    <path d="M8 12h8" stroke-dasharray="2 2" />
+  {:else if name === 'technique'}
+    <!-- A beam coming in, bouncing off a sample and going out: how the spectrum was taken. -->
+    <path d="M3 4l9 11 9-11" />
+    <path d="M3 19h18" />
+    <path d="M18.5 6.5 21 4l-.6 3.4" />
+  {:else if name === 'phase'}
+    <!-- A drop resting on a surface: where the molecule sat and what surrounded it. -->
+    <path d="M12 3.5c3 3.6 4.5 6.3 4.5 8.4a4.5 4.5 0 0 1-9 0c0-2.1 1.5-4.8 4.5-8.4z" />
+    <path d="M3 20h18" />
+  {:else if name === 'element'}
+    <!-- One cell of the periodic table: the number in the corner, the symbol below. -->
+    <rect x="4" y="4" width="16" height="16" rx="1.5" />
+    <path d="M7.5 7.5h2" />
+    <path d="M15 11.5a3 3 0 1 0 0 4" />
   {:else if name === 'toggles'}
     <line x1="3.5" y1="8" x2="20.5" y2="8" />
     <line x1="3.5" y1="16" x2="20.5" y2="16" />

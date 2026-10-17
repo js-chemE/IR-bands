@@ -86,18 +86,18 @@ export const GUIDE: GuideSection[] = [
         ['Temperature, pressure, feed, pretreatment', 'references[].note'],
         ['What the mode is, and what it is confused with', 'band.description'],
         ['How strong, how broad, how certain', 'band.intensity / width / confidence'],
-        ['Evidence the assignment rests on', 'references[].tags'],
+        ['Evidence the claim rests on', 'references[].tags'],
       ],
     },
     rules: [
-      'Every row gets an `id`: the number in `metadata.next_assignment_id`, after which that mark goes ' +
+      'Every row gets an `id`: the number in `metadata.next_claim_id`, after which that mark goes ' +
       'up by one. Correcting a row keeps its number; deleting a row retires it. `build.py` refuses a ' +
       'row without one and names the next free numbers.',
     ],
     never: [
       'Never average two papers into one number, and never replace one paper’s value with a newer one. ' +
       'Two rows that disagree are the point.',
-      'Never reuse an assignment id, and never renumber. A number that once named one claim and now ' +
+      'Never reuse a claim id, and never renumber. A number that once named one claim and now ' +
       'names another breaks every note, message or issue that quoted it.',
       'Never write a fact into prose when it has a field. A wavenumber in a note is invisible to the chart.',
     ],
@@ -113,7 +113,7 @@ export const GUIDE: GuideSection[] = [
     ],
     steps: [
       'Work out what the paper is actually claiming: which species, which mode, on what. Note whether ' +
-      'the paper argues for the assignment or inherits it from a citation, because that decides the ' +
+      'the paper argues for the claim or inherits it from a citation, because that decides the ' +
       'confidence later.',
       'Look for an existing band with that species and that vibration. If one exists, you are adding a ' +
       'claim to it, not creating a band.',
@@ -121,7 +121,7 @@ export const GUIDE: GuideSection[] = [
       'differs from every existing one.',
       'If the paper’s number falls outside the band’s wn_start/wn_end, widen the window only if you ' +
       'believe the number. The window is the envelope of credible positions, not of every printed value.',
-      'If the paper contradicts the atlas’s assignment rather than extending it, still record the claim. ' +
+      'If the paper contradicts the atlas’s claim rather than extending it, still record the claim. ' +
       'Say what it argues in the note, and consider a caveat tag on the band.',
     ],
     never: [
@@ -146,9 +146,9 @@ export const GUIDE: GuideSection[] = [
       'Find the sample table first. A main text that says "the CuGaZrOₓ catalysts" usually has an ' +
       'SI table naming five or six distinct samples with different loadings, and each figure used ' +
       'one of them. Reading that table is what turns a family name into a real answer; how fine ' +
-      'the key should then be is the grain question in Site, phase or sample above.',
-      'Reference spectra on single components are their own claims, at phase level. When a ' +
-      'paper doses CO or methanol onto the bare oxide to justify an assignment, that is a ' +
+      'the key should then be is the grain question in Material or site above.',
+      'Reference spectra on single components are their own claims, on that material alone. When a ' +
+      'paper doses CO or methanol onto the bare oxide to justify a claim, that is a ' +
       'different surface, a different number and a different experiment: record it as a row of ' +
       'its own rather than folding it into the catalyst’s note.',
       'Take pretreatment and conditions from the SI methods, not from the figure caption. ' +
@@ -169,7 +169,7 @@ export const GUIDE: GuideSection[] = [
       'the main text makes a note look checked when it is not, and it is the one kind of error ' +
       'a reader cannot detect.',
       'Never take a number off an SI figure that neither text assigns, however suggestive the ' +
-      'peak looks. An axis label is not an assignment.',
+      'peak looks. An axis label is not a claim.',
     ],
     example: {
       caption: 'One family name, six samples (Table S1 of a real paper)',
@@ -233,74 +233,142 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
     },
   },
   {
+    id: 'species',
+    label: 'The species',
+    title: 'The species, and whether there was a solid at all',
+    lead: [
+      'Three fields say what was in the beam, and they answer three different questions. `band.species` ' +
+      'is what the molecule is (a key in species.jsonc). `band.phase` is what the band is wherever it ' +
+      'appears (gas, adsorbed, surface, solution, solid). The claim’s `form` is where that molecule sat in this ' +
+      'one experiment (free, dissolved, adsorbed, surface, lattice), and its `medium` what surrounded it.',
+      'The claim’s `form` also decides whether there is a specimen to name at all, which is the question ' +
+      'the next section starts from.',
+    ],
+    steps: [
+      'Find the species key the band already uses. An isotopologue keeps the ordinary key (`formate`, not ' +
+      'a deuterated species); the substitution lives in `band.isotope`.',
+      'Write the claim’s `form` from what the paper measured, not from the band: CO₂ dosed onto a catalyst ' +
+      'and seen as the free gas above it is `free`, its carbonate on the oxide is `adsorbed`.',
+      'Free or dissolved, the molecule touched no solid: leave `measured_on` out. The claim then has no ' +
+      'specimen by construction, and the References page files it as “No specimen: free molecule”.',
+      'Adsorbed, surface or lattice, there was a solid. Name it at whatever scale the paper did. If the ' +
+      'paper never says on what, leave `measured_on` out as well, and the claim is filed as “Specimen not ' +
+      'stated”: a gap in the record to fill on the next pass, not a fact about the experiment.',
+    ],
+    rules: [
+      'The two empty cases look the same in the data and mean opposite things, which is why the form has ' +
+      'to be right: a free molecule has nothing to name, an adsorbed one has something nobody named.',
+      'A calculation records what its model contains: a slab or a cluster is an adsorbed species on that ' +
+      'model surface; a molecule computed on its own is `free`, with no specimen.',
+    ],
+    never: [
+      'Never invent a species key for a label: a new chemical identity is a new record in species.jsonc.',
+      'Never name the cell, the window or the catalyst on a free-molecule claim to make it look complete.',
+    ],
+  },
+  {
     id: 'surface',
-    label: 'Site, phase or sample',
-    title: 'Where it was measured: site, phase or sample',
+    label: 'Material or site',
+    title: 'Where it was measured, and where the paper put it',
     lead: [
       '`measured_on` takes one or more keys from `data/surfaces.jsonc`, and every entry there carries a ' +
-      '`level`: a **site** is the atom-scale spot the molecule is bonded to, a **phase** is a constituent ' +
-      'named by composition, a **sample** is what was in the cell.',
-      'The level is not a judgement about the paper’s quality. It records how specific the paper chose ' +
-      'to be, and a paper that names only the catalyst has given a complete answer at its own level.',
+      '`level`: a **material** is any piece of solid, one compound (TiO₂, γ-Al₂O₃, sapphire) or a whole ' +
+      'catalyst, electrode or model (Cu/ZnO, Ag/Au on Si); a **site** is the atom-scale spot the ' +
+      'molecule binds to, or an ion a material is made of.',
+      'A claim answers two questions with those keys: what was measured, and where in it the paper ' +
+      'put the species. The build reads both off the hierarchy of what the claim names. The material ' +
+      'no other named material contains is the **specimen**; everything else is the **placement**. ' +
+      '["cu_1p", "cu_zno"] reads "on Cu⁺ of Cu/ZnO", ["tio2", "pt_moox_tio2"] "on the titania of ' +
+      'that catalyst", ["cu_zno"] alone "seen on Cu/ZnO, location not stated". The badges draw it by ' +
+      'their fill: filled where the paper put the species, hollow for the specimen around it.',
+      'How specific a claim is records how specific the paper chose to be, not its quality. A paper ' +
+      'that names only the catalyst has given a complete answer at its own level, and the atlas says ' +
+      'so rather than guessing a site for it.',
     ],
     steps: [
       'Copy the paper’s own phrase before deciding anything: "on Cu⁺ sites of the Cu/ZnO catalyst", ' +
-      '"over bare TiO₂", "at the metal-support perimeter". Use the sentence that makes the assignment, ' +
-      'not the methods section.',
-      'Ask what that sentence names: an atom-scale spot, a compound, a whole catalyst, or several of them.',
-      'Write one key per thing it names. Both, when it names both.',
-      'If it names only the catalyst, that is the whole answer. A site key asserts that the paper said ' +
-      'so, so promoting a guess to a site puts words in its mouth.',
-      'A compound is a phase when it is a constituent and a sample when it is the whole thing. The same ' +
-      'key covers both roles, so there is nothing to decide: use `tio2` alone for bare titania, and ' +
-      '["tio2", "<the sample>"] when titania is the support the band was assigned to.',
-      'A gas-phase band takes no surface at all, at any level. The molecule is in the cell rather than ' +
-      'on the catalyst, and the same gas band shows up over whatever is in the beam, so a key here ' +
-      'answers no query and credits the sample with a band it did not cause. Name the cell and the ' +
-      'catalyst in the note instead; the build warns on any `measured_on` for a gas-phase band.',
+      '"over bare TiO₂", "formate on the alumina support", "at the metal-support perimeter". Use the ' +
+      'sentence that makes the claim, not the methods section.',
+      'Name the catalyst that was measured. Then name what the sentence places the species on, if ' +
+      'anything: a site, a support or other part, or both. One key per thing it names.',
+      'Take the most specific record the paper supports, and no more specific than that. γ-Al₂O₃ when ' +
+      'the methods name gamma alumina, plain Al₂O₃ when they do not; a search for Al₂O₃ finds the γ ' +
+      'claim anyway, through `refines`.',
+      'If the paper places the species nowhere, the catalyst alone is the whole answer, and the claim ' +
+      'reads "location not stated". A site or a support key asserts that the paper said so, so ' +
+      'promoting a guess to one puts words in its mouth.',
+      'A bare material needs no second key: `tio2` alone is bare titania, and since titania is one ' +
+      'compound the species was on it. The build tells a compound from a composite by what it is made ' +
+      'of: only ions, or also a metal atom, an interface or another material.',
+      'What the specimen was only mixed with goes in `diluent`, not `measured_on`: the KBr a DRIFTS ' +
+      'powder was diluted in, an α-Al₂O₃ bed. It is not where the band was measured, and it must not ' +
+      'turn up in an element search.',
+      'A gas-phase band takes no surface at all. The molecule is in the cell rather than on the ' +
+      'catalyst, and the same gas band shows up over whatever is in the beam, so a key here answers ' +
+      'no query and credits the specimen with a band it did not cause. Name the cell and the catalyst ' +
+      'in the note instead; the build warns on any `measured_on` for a gas-phase band.',
       'Check the key exists in surfaces.jsonc. If it does not, add it rather than bending the claim to ' +
-      'a key that nearly fits.',
+      'a key that nearly fits. If in doubt about which specimen a figure used, reread the paper and its SI.',
     ],
     rules: [
-      'How fine a sample key should be is decided by what the claims turn on, not by how much ' +
-      'detail the paper prints. Two samples get two keys when a band appears on one and not the ' +
-      'other, or sits at a different position on each: a Cu-free counterpart of the same oxide, ' +
-      'a different facet of the same crystal, a support that changes the assignment. Members of a ' +
-      'loading series are one key until a claim depends on which member, and the note names the ' +
-      'member either way.',
-      'That judgement is about which distinction the spectra carry. What is never right is a ' +
-      'family key chosen because nobody opened the sample table.',
-      'Splitting later is cheap and merging later is cheap; recording a claim against a sample it ' +
-      'was not measured on is not. When in doubt, name the specific sample and let the note say ' +
+      'One measurement on one solid per row. A paper that reports the same position on three catalysts ' +
+      'has made three claims, even where the numbers agree to a wavenumber, and the build warns where a ' +
+      'row names two materials neither of which contains the other.',
+      'How fine a catalyst key should be is decided by what the claims turn on, not by how much detail ' +
+      'the paper prints. Two catalysts get two keys when a band appears on one and not the other, or ' +
+      'sits at a different position on each: a Cu-free counterpart of the same oxide, a different ' +
+      'facet of the same crystal, a support that changes the claim. Members of a loading series are ' +
+      'one key until a claim depends on which member, and the note names the member either way.',
+      'That judgement is about which distinction the spectra carry. What is never right is a family ' +
+      'key chosen because nobody opened the sample table in the SI.',
+      'A single crystal of a metal is a face of that metal, not a supported catalyst: name the facet as ' +
+      'a refinement of the metal site (Pt⁰(100), Cu⁰(110), Pd⁰(100)), and the note says it is a ' +
+      'single crystal. A single crystal of a compound is that compound refined by form (sapphire).',
+      'A number a paper uses as a model input or computes is a calculation, whatever surface it is chosen ' +
+      'to resemble: `technique: computational`, on that surface. Monai’s 2077 cm⁻¹ for Pt(100) is the ' +
+      'singleton fed to a coupled-oscillator model, not a spectrum.',
+      'A review quoting older work records the surface of the original study, and the note names that ' +
+      'study and where the review shows it.',
+      'Splitting later is cheap and merging later is cheap; recording a claim against a catalyst it ' +
+      'was not measured on is not. When in doubt, name the specific catalyst and let the note say ' +
       'what it belongs to.',
     ],
     table: {
       head: ['The paper says', 'measured_on'],
       rows: [
         ['"ν(CO) on Cu⁺ of the Cu/ZnO catalyst"', '["cu_1p", "cu_zno"]'],
-        ['"over the Cu-GaZrOₓ catalyst"', '"cu_gazrox"'],
+        ['"over the Cu-GaZrOₓ catalyst"', '"cu_gazrox" (location not stated)'],
         ['"formate on the alumina support" (of Ru/Al₂O₃)', '["al2o3", "ru_al2o3"]'],
+        ['"on γ-Al₂O₃ (Degussa)"', '"al2o3_gamma"'],
         ['"on bare TiO₂"', '"tio2"'],
-        ['"at the Pt-ceria interface"', '["pt0_ceo2_interface"]'],
-        ['"at oxygen vacancies"', '["o_vac", "<the sample>"]'],
-        ['"gas-phase CO₂ in the cell"', 'nothing — leave measured_on out'],
-        ['"on oxidised copper" (no state given)', 'the sample, and the paper’s wording in the note'],
+        ['"at the Pt-ceria interface"', '["pt0_ceo2_interface"], plus the catalyst'],
+        ['"at oxygen vacancies"', '["o_vac", "<the catalyst>"]'],
+        ['"Cu/ZnO diluted in KBr"', '"cu_zno", with "diluent": ["kbr"]'],
+        ['"gas-phase CO₂ in the cell"', 'nothing: leave measured_on out (no specimen)'],
+        ['"adsorbed CO" (surface never named)', 'nothing, and the note says so (specimen not stated)'],
+        ['"RAIRS of atop CO on Cu(110)"', '"cu_110"'],
+        ['"singleton chosen to resemble Pt(100)"', '"pt_100", with technique computational'],
+        ['"on oxidised copper" (no state given)', 'the catalyst, and the paper’s wording in the note'],
       ],
     },
     never: [
       'Never invent an oxidation state the paper does not give. "Oxidised copper" is not cu_1p.',
-      'Never drop the sample because you have the site. Both keys cost nothing and answer different questions.',
+      'Never drop the catalyst because you have the site. Both keys cost nothing, and without the ' +
+      'catalyst the claim has no specimen.',
+      'Never put two catalysts in one row. It makes one measurement look like two, and the specimen ' +
+      'of the row cannot be read.',
+      'Never put a diluent in measured_on. It would make every KBr-diluted claim answer a search for K and Br.',
     ],
     example: {
-      caption: 'A site and a sample in one claim (gah_stretch)',
+      caption: 'A site and the catalyst in one claim (gah_stretch)',
       code: `{
   "key": "AlAbdulghani.UncoveringPressureDependentMechanism.2025",
   "wn": 1976,
-  "measured_on": ["ga", "gazrox"],
+  "measured_on": ["ga_3p", "gazrox"],
   "technique": "drifts",
   "note": "Fig. 4b to 4d … ν(Ga-H) at 1976 cm⁻¹ …"
 }`,
-      note: 'The site is the Ga centre the paper names by writing Ga-H; the sample is what was in the cell. A query for either one finds this row. Note the key is `ga` and not `ga_3p`: the paper states no charge, so the record states none.',
+      note: 'GaZrOₓ is the specimen and Ga³⁺ the placement: Ga³⁺ is drawn filled, GaZrOₓ hollow. A query for either one finds this row. The paper states no charge; the site is Ga³⁺ because a site always carries one, and the record’s note says that the charge is the author’s reading.',
     },
   },
   {
@@ -312,26 +380,51 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'the table does not have.',
     ],
     steps: [
-      'Pick the level first. It decides which fields the entry carries and how the badge is drawn.',
+      'Pick the level first: a material or a site. It decides which fields the entry carries and how ' +
+      'the badge is drawn. Whether a material is the specimen of a claim is never decided here.',
+      'Then ask whether it is a more specific version of something already there. γ-Al₂O₃ of Al₂O₃, a ' +
+      'facet of its oxide, a single crystal of a compound, a coordination or an oxidation state of a ' +
+      'site, nanoparticles of a metal: each is a new record with `refines` pointing at the parent and ' +
+      'the attribute that makes it specific (`polymorph`, `facet`, `coordination`, `oxidation_state`, ' +
+      '`charge`, `form`). Add the parent first if it is missing.',
       'Key: ASCII, lower case, charge spelled out (`cu_1p`, `zr_4p`, `o_vac`). Element-symbol keys always ' +
       'mean the element, so `co_0` is cobalt metal and never carbon monoxide.',
-      'Label: Unicode, exactly as a reader would write it (`Cu⁺`, `Fe₃O₄(001)`).',
-      'A site gets `kind` and, where it applies, `element` and `oxidation_state`. A phase gets `formula` ' +
-      'and `elements`, plus `facet` where it is a single crystal cut on a named plane. A sample gets ' +
-      '`composition` and `elements`. A facet is a phase and never a sample, and it stays out of the ' +
-      'formula: a cut oxide is the same compound as the uncut one, so Fe₃O₄(001) and Fe₃O₄(111) both ' +
-      'read formula Fe₃O₄ and differ only in `facet`.',
-      'Add the new key to the `parts` of whatever contains it, and to nothing else. `parts` points down ' +
-      'the scale only: a sample lists its phases and sites, a phase lists its sites.',
-      'Run `python build.py`. It fails if a part sits at a coarser level than its container, or if a ' +
-      'container does not list the elements of something it contains.',
+      'Label: Unicode, exactly as a reader would write it (`Cu⁺`, `Fe₃O₄(001)`, `γ-Al₂O₃`).',
+      'A site gets `kind` and, where it applies, `element` and `oxidation_state`. A compound gets ' +
+      '`kind` and `formula`. A composite gets `composition` only where its label and its parts cannot ' +
+      'say it (ZSM-5). A refinement gets none of these it can inherit: Fe₃O₄(001) carries `facet` and ' +
+      '`refines`, and its formula and elements come from Fe₃O₄.',
+      'List what it is made of in `parts`, on the same level or lower, never up. A composite lists the ' +
+      'materials it contains, and a site directly only where it belongs to none of them: an isolated ' +
+      'cation from surface organometallic chemistry, an exchanged cation, a dopant, an interface, and ' +
+      'every zero-valent metal atom: Pd/Al₂O₃ is Pd⁰ + Al₂O₃. A metal is never a material, being only ' +
+      'its atom. A compound lists its ions (Al₂O₃ is Al³⁺ + O²⁻, KBr is K⁺ + Br⁻), adding any ion site ' +
+      'that is missing. A zeolite is one framework, not Al₂O₃ + SiO₂: ZSM-5 is Al³⁺, Si⁴⁺ and O²⁻, and ' +
+      'its counter-cation is a refinement (H-ZSM-5 adds H⁺, Na-ZSM-5 adds Na⁺). The Na in ' +
+      'Ru/"Na₂O"/Al₂O₃ is likewise an Na⁺ site.',
+      'The parts are also what tells the build a compound from a composite: only ions makes one ' +
+      'compound, a metal atom, an interface or another material a composite. Get them right and a ' +
+      'claim naming the record alone is read correctly.',
+      'A catalyst built on silicon says so in its label (Cu/Au on Si) and lists Si⁰; a film electrode ' +
+      'is then that material refined by form, not a record of its own.',
+      'A polymorph, a facet or a form only where the paper states it. γ-Al₂O₃ when the methods say γ ' +
+      '(and the note says where), plain Al₂O₃ when they say only alumina, however likely γ is: a search ' +
+      'for Al₂O₃ finds the γ claims anyway, and a γ the paper never wrote cannot be taken back out.',
+      'A site always carries its charge (Ga³⁺, never bare Ga); "any gallium" is what the element is for. ' +
+      'Where the paper gives no charge, choose the usual one and say in the record’s note that it is ' +
+      'the author’s reading.',
+      'Author `elements` only for an element the record does not model as a part, such as the Si, O ' +
+      'and H of a silanol, a group rather than a set of ions. Symbols must exist in ' +
+      'data/elements.jsonc.',
+      'Run `python build.py`. It fails on a part at a coarser level, a refinement on another level or ' +
+      'without an attribute, a loop, or an unknown element, and warns on a redundant authored element.',
     ],
     rules: [
       '`elements` is authored, never parsed out of the composition string. The strings are written the ' +
       'way the literature writes them (Ru/"Na₂O"/Al₂O₃) and parsing them back is exactly the fragile ' +
       'step this table exists to remove.',
-      'An interface site is the one entry allowed to name a phase in its `parts`, because a perimeter ' +
-      'is the metal against the oxide rather than the metal against one cation.',
+      'Elements flow up `parts` and searches flow down `refines`. If a new record would need a link ' +
+      'that does neither, it is probably a note, not a record.',
     ],
   },
   {
@@ -356,8 +449,8 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['transmission', 'Beam straight through a self-supporting wafer'],
         ['atr', 'Attenuated total reflectance against an internal-reflection crystal'],
         ['irras', 'Grazing-incidence reflection off a flat single crystal, in vacuum'],
-        ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background'],
-        ['seiras', 'Surface-enhanced IR on a metal-film electrode, nearly always through an ATR prism (Kretschmann). Not plain `atr`: the surface selection rule applies, and the spectra are differences against a reference potential, so a band pointing down is a species consumed'],
+        ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background. A refinement of `irras`: the filter switches it with IRRAS'],
+        ['seiras', 'Surface-enhanced IR on a metal-film electrode, nearly always through an ATR prism (Kretschmann). Not plain `atr`: the surface selection rule applies, and the spectra are differences against a reference potential, so a band pointing down is a species consumed. A refinement of `atr`: the filter switches it with ATR'],
         ['emission', 'The hot sample is the source; no beam passes through it'],
         ['mioirs', 'Mixed Isotope Operando IR: the cell is fed a mixed isotopic stream (a little ¹³CO in ¹²CO) so neighbouring adsorbates stop sharing a frequency and the dipole coupling between them is detuned. It names what went into the cell rather than how the beam arrived, and it is a value of its own because a decoupled adlayer is a different measurement whatever geometry recorded it'],
         ['infrared', 'Placeholder: the paper says IR or FTIR and names no geometry'],
@@ -384,6 +477,10 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'CO into a cell is `gas`; the same sample after evacuation is `vacuum`. Leave it out where the ' +
       'paper does not say, and where one measurement genuinely spans media, as a supercritical ' +
       'sweep does, say so in the note rather than picking one.',
+      'A lattice line of the solid itself (an oxide phonon, a bulk defect) usually needs no medium: ' +
+      'what surrounded the sample rarely moves it, and an ex-situ Raman spectrum of a bare oxide ' +
+      'seldom says. Record one where the paper states it (in air, under the reaction feed), and ' +
+      'leave it out otherwise; the build does not count such a claim as missing one.',
       'Where a paper reports several media or forms for the same mode, each is its own claim, never ' +
       'one row carrying the lowest number.',
       'A Raman claim also gets `laser_nm`, the excitation wavelength the paper states, as a plain ' +
@@ -395,6 +492,13 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'Write it only where the paper names the line. "Argon ion laser" without a wavelength is not ' +
       'a wavelength: argon has several lines, and 514.5 is a guess however likely. Leave the field ' +
       'out and say what the paper said in the note.',
+      'A Raman line read on the blue side of the laser gets `"scattering": "anti-stokes"`, and its ' +
+      'number goes in `wn` without the sign: a paper’s −418 cm⁻¹ is `"wn": 418`. It is the same mode ' +
+      'at the same distance from the line, so it is a claim on the same band, never a band of its ' +
+      'own. It is a claim only where the paper prints an anti-Stokes position; a paper that merely ' +
+      'says it saw the anti-Stokes lines says so in the note of its Stokes claim. Leave the field ' +
+      'out on a plain positive shift: the build fills in `"stokes"` on every Raman claim that ' +
+      'names no side, so every Raman claim carries one of the two tags.',
     ],
     never: [
       'Never guess the geometry from the catalyst. Write `infrared` when the paper names only the ' +
@@ -541,7 +645,7 @@ short             δₛ(CH₃) umbrella MeOH`,
       'Both bands then collect their own claims, each with its own window.',
       'One band per mode per label, never one per isotopologue. A study that resolves the fully ' +
       '¹⁸O-labelled species and two partly labelled ones reports three positions for the same mode, ' +
-      'a few cm⁻¹ apart: that is one band and one assignment carrying all three, with the note ' +
+      'a few cm⁻¹ apart: that is one band and one claim carrying all three, with the note ' +
       'saying which labelling gives which. Splitting them into a band each spends a dozen rows ' +
       'saying one thing.',
       'The build tells you when a mode has been split too finely: bands that no longer fit the ' +
@@ -585,9 +689,9 @@ short             δₛ(CH₃) umbrella MeOH`,
       '`intensity` (vs, s, m, w, vw) and `width` (sharp, medium, broad, very_broad): take the paper’s ' +
       'own adjective and map it. Omit both rather than estimating from a plot.',
       '`confidence` reads the paper’s hedging, and never upgrades it: **confirmed** when the paper ' +
-      'demonstrates the assignment (substitution, dosing, a calculation that matches); **likely** for a ' +
-      'standard assignment consistent with the literature; **tentative** when the paper hedges; ' +
-      '**speculative** when it offers the assignment as one option among several.',
+      'demonstrates the claim (substitution, dosing, a calculation that matches); **likely** for a ' +
+      'standard claim consistent with the literature; **tentative** when the paper hedges; ' +
+      '**speculative** when it offers the claim as one option among several.',
       'All three sit on the band, not the claim, which is a known compromise: they describe an ' +
       'observation but are authored once. When two papers disagree strongly, the disagreement belongs ' +
       'in the notes.',
@@ -618,6 +722,7 @@ short             δₛ(CH₃) umbrella MeOH`,
         ['isotope', 'band.isotopologue_of'],
         ['ir-active, raman-active', 'the mode’s own booleans'],
         ['515 nm, 785 nm, …', 'references[].laser_nm'],
+        ['stokes, anti-stokes', 'references[].scattering'],
         ['computational (on a band)', 'every claim on it having that technique'],
       ],
     },
@@ -629,7 +734,7 @@ short             δₛ(CH₃) umbrella MeOH`,
       'transmission claim and a DRIFTS one alike. It only means anything for a surface species: a ' +
       'gas-phase band in a cell was dosed by definition and the tag would say nothing.',
       'The tag is not a criticism. Dosing is how a reference spectrum gets made, and it is often ' +
-      'the cleanest assignment in the atlas. It matters because a dosed species is evidence that ' +
+      'the cleanest claim in the atlas. It matters because a dosed species is evidence that ' +
       'the band belongs to that species, and not evidence that the species forms under reaction.',
       'Author the caveat tags on the **band**, not on the claim: `misassignment-warning` when the ' +
       'position is a known trap, `site-sensitive` when the position moves with the surface so a ' +
@@ -658,14 +763,14 @@ short             δₛ(CH₃) umbrella MeOH`,
     label: 'What to look for',
     title: 'What to look for the second time',
     lead: [
-      'Open the References page grouped by Reference, read the paper’s own table of assignments beside ' +
+      'Open the References page grouped by Reference, read the paper’s own table of claims beside ' +
       'it, and work down this list. Most of it is upgrading, not correcting.',
     ],
     steps: [
-      'Missing claims. Compare the rows against every assignment the paper actually makes. Bands the ' +
+      'Missing claims. Compare the rows against every claim the paper actually makes. Bands the ' +
       'atlas did not have on the first pass are the commonest gap.',
-      'Surfaces that can be sharpened. Did the paper name a site where the row records only a sample? ' +
-      'Re-read the sentence that makes the assignment, not the methods. This is the most valuable ' +
+      'Surfaces that can be sharpened. Did the paper place the species on a site or a support where the row records only the catalyst? ' +
+      'Re-read the sentence that makes the claim, not the methods. This is the most valuable ' +
       'single upgrade, because it is what a site query runs on.',
       'Claims with no technique. The Dataset page lists them.',
       'Notes carrying a wavenumber, a surface or a technique in prose. Move each into its field.',
@@ -693,12 +798,13 @@ short             δₛ(CH₃) umbrella MeOH`,
     ],
     checklist: [
       'Every claim’s `key` resolves to an entry in references.bib.',
-      'Every `measured_on` key exists in surfaces.jsonc, at the level the paper chose.',
+      'Every `measured_on` key exists in surfaces.jsonc, at the level the paper chose and no more specific, and each row names one catalyst.',
+      'What the sample was only diluted in sits in `diluent`, not `measured_on`.',
       'No derived tag has been authored by hand.',
       'Every isotopologue is its own band, linked with `isotopologue_of`.',
       'Notes carry conditions and caveats, not wavenumbers or surfaces.',
       'Unicode everywhere, no markup, no underscores outside machine identifiers.',
-      'New surfaces are listed in the `parts` of whatever contains them.',
+      'New surfaces are listed in the `parts` of whatever is made of them, and a more specific version `refines` its parent.',
       '`python build.py` passes, and its warning list is no longer than it was before.',
     ],
   },

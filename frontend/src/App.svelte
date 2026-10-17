@@ -2,18 +2,23 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
-  import { getLegendCategories, getLegendTags, isReferenced, UNRECORDED, type BandStateMode, type ClaimFilter } from './lib/chart';
-  import { installLookups } from './lib/labels';
-  import { tagRole } from './lib/dataModel';
-  import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
+  import { getLegendCategories, getLegendTags, isReferenced, type BandStateMode } from './lib/chart';
   import {
-    GROUP_DIMS,
-    ALL_TECHNIQUES,
-    IR_TECHNIQUES,
-    RAMAN_TECHNIQUES,
-    TECHNIQUE_LABEL,
-    type GroupDim,
-  } from './lib/refGrouping';
+    emptyFilter, countClaims, installTechniques, cloneFilter, toggleClaim, toggleClaims, claimExcluded, techniqueWithRefinements, countOn,
+    toggleTechniques, setTechniques, onlyTechniques, togglePhase, setPhase, onlyPhase, phaseExcluded,
+    toggleElements, onlyElements, elementOn,
+    TECHNIQUE_FAMILIES, PHASE_PARTS,
+    type ClaimFilter, type PhasePart,
+  } from './lib/claimFilter';
+  import ClaimFilterPanel from './components/ClaimFilterPanel.svelte';
+  import PeriodicPicker from './components/PeriodicPicker.svelte';
+  import SelectionPanel from './components/SelectionPanel.svelte';
+  import ModeSwitch from './components/ModeSwitch.svelte';
+  import { shortCite } from './lib/citations';
+  import { installLookups, allElements } from './lib/labels';
+  import { tagRole, installTechniqueSpecs } from './lib/dataModel';
+  import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
+  import { GROUP_DIMS, IR_TECHNIQUES, RAMAN_TECHNIQUES, type GroupDim } from './lib/refGrouping';
   import BandChart from './components/BandChart.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import ColorLegend from './components/ColorLegend.svelte';
@@ -57,40 +62,29 @@
   // What lists its citations on the References page: bands, modes, Knowledge.
   let refIncludeBands = true;
   let refIncludeModes = false;
-  let refIncludeKnowledge = true;
-  // Which techniques the References page shows. A Set of every value means
-  // "no filter", which is what `refTechniqueFilter` below turns it into, so
-  // the page never pays for a filter nobody asked for.
-  let refTechniques = new Set<string>(ALL_TECHNIQUES);
-  let refTechniquesOpen = false;
+  let refIncludeKnowledge = false;
+  // Whether the Include section is open; kept here so it survives a page change.
+  let refIncludeOpen = false;
+  // Which claims the References page lists: the same Techniques, Phases and
+  // Elements sections as the band chart, with a filter of its own so
+  // narrowing one page never quietly narrows the other.
+  let refFilter: ClaimFilter = emptyFilter();
+  let refShowTechniques = false;
+  let refShowPhases = false;
+  let refShowElements = false;
+  let refOpenGroups: ReadonlySet<string> = new Set();
   // Reported by the References page whenever it rebuilds, so the sidebar can
   // say how much of each kind the current filters actually leave on screen.
   let refCounts: RefCounts | null = null;
-  $: refTechniqueFilter =
-    refTechniques.size === ALL_TECHNIQUES.length ? null : refTechniques;
-  /** How many of the seven infrared geometries are on: all, none or some. */
-  $: irOn = IR_TECHNIQUES.filter(t => refTechniques.has(t)).length;
-  // Raman is a family too now that spontaneous Raman is a value of its own.
-  $: ramanOn = RAMAN_TECHNIQUES.filter(t => refTechniques.has(t)).length;
-  function toggleTechnique(key: string) {
-    const next = new Set(refTechniques);
-    if (next.has(key)) next.delete(key); else next.add(key);
-    refTechniques = next;
-  }
-  /** The IR parent switch: all seven off if any are on, else all seven on. */
-  function toggleIr() {
-    const next = new Set(refTechniques);
-    if (irOn > 0) for (const t of IR_TECHNIQUES) next.delete(t);
-    else for (const t of IR_TECHNIQUES) next.add(t);
-    refTechniques = next;
-  }
-  /** The Raman parent switch, the same contract as the IR one above. */
-  function toggleRaman() {
-    const next = new Set(refTechniques);
-    if (ramanOn > 0) for (const t of RAMAN_TECHNIQUES) next.delete(t);
-    else for (const t of RAMAN_TECHNIQUES) next.add(t);
-    refTechniques = next;
-  }
+  /** Every element any claim names: the Elements section's rows. */
+  $: claimElementList = dataset
+    ? [...new Set(dataset.bands.flatMap(b => b.references.flatMap(r => r.specimen_elements ?? [])))]
+    : [];
+  /** Claims per value, over every claim: each claim is its own unit here. */
+  $: refFilterCounts = countClaims(
+    (dataset?.bands ?? []).flatMap(b => b.references.map(r => [r])),
+    refFilter.elementScope,
+  );
   // A Knowledge card to open when arriving from a References-page link.
   let knOpen: string | null = null;
   $: if (page !== 'knowledge') knOpen = null;
@@ -406,6 +400,9 @@
       // Species and surface keys resolve to labels through this; install it
       // before any component renders one.
       installLookups(dataset);
+      // The technique lists the filter, legend and Dataset page read.
+      installTechniques(dataset.techniques);
+      installTechniqueSpecs(dataset.techniques);
       refs = (await rRes.json()) as RefMap;
       // Vibrations/tag-tooltip content is supplementary — don't fail the
       // whole app if either is missing (e.g. build.py predates the feature).
@@ -424,6 +421,15 @@
     const next = new Set(enabledGroups);
     if (e.detail.enabled) next.add(e.detail.key); else next.delete(e.detail.key);
     enabledGroups = next;
+  }
+
+  /** Double-click a family: only that one; asked again, every family. */
+  function handleGroupOnly(e: CustomEvent<{ key: string }>) {
+    if (!dataset) return;
+    const k = e.detail.key;
+    enabledGroups = enabledGroups.size === 1 && enabledGroups.has(k)
+      ? new Set(Object.keys(dataset.groups))
+      : new Set([k]);
   }
 
   function handleSetSelect(e: CustomEvent<{ key: string }>) {
@@ -492,7 +498,8 @@
     if (tagRole(tag) !== 'technique') return null;
     if (tag === 'infrared') return [...IR_TECHNIQUES];
     if (tag === 'raman') return [...RAMAN_TECHNIQUES];
-    return [tag];
+    // A technique takes its refinements along: the ATR chip is ATR-SEIRAS too.
+    return techniqueWithRefinements(tag);
   }
   /* The phase chips the same way: a form chip (free, dissolved, adsorbed,
      surface, lattice) or a medium chip (in vacuum, in gas, in liquid, in
@@ -511,16 +518,12 @@
   function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
     const members = techniqueMembers(e.detail.tag);
     if (members) {
-      const next = new Set(excludedTechniques);
-      for (const t of members) if (e.detail.visible) next.delete(t); else next.add(t);
-      excludedTechniques = next;
+      chartFilter = setTechniques(chartFilter, members, e.detail.visible);
       return;
     }
     const ph = phaseOfTag(e.detail.tag);
     if (ph) {
-      const next = new Set(excludedPhase[ph.part]);
-      if (e.detail.visible) next.delete(ph.key); else next.add(ph.key);
-      excludedPhase = { ...excludedPhase, [ph.part]: next };
+      chartFilter = setPhase(chartFilter, ph.part, ph.key, e.detail.visible);
       return;
     }
     // A single click always exits isolate mode first and applies the
@@ -547,12 +550,12 @@
   function handleTagDblClick(e: CustomEvent<{ tag: string }>) {
     const members = techniqueMembers(e.detail.tag);
     if (members) {
-      onlyTechniques(members);
+      chartFilter = onlyTechniques(chartFilter, members);
       return;
     }
     const ph = phaseOfTag(e.detail.tag);
     if (ph) {
-      onlyPhase(ph.part, [ph.key]);
+      chartFilter = onlyPhase(chartFilter, ph.part, [ph.key]);
       return;
     }
     tagIsolate = tagIsolate === e.detail.tag ? null : e.detail.tag;
@@ -566,9 +569,9 @@
     const off = new Set(hiddenTags);
     for (const t of legendTags) {
       const members = techniqueMembers(t.key);
-      if (members?.every(m => excludedTechniques.has(m))) off.add(t.key);
+      if (members?.every(m => chartFilter.techniques.has(m))) off.add(t.key);
       const ph = phaseOfTag(t.key);
-      if (ph && excludedPhase[ph.part].has(ph.key)) off.add(t.key);
+      if (ph && phaseExcluded(chartFilter, ph.part).has(ph.key)) off.add(t.key);
     }
     return off;
   })();
@@ -698,7 +701,82 @@
   // reporting, not a band it doubts; greying it before anybody asked reads as
   // a caveat about the chemistry rather than an answer to a question about
   // method.
-  let excludedTechniques: ReadonlySet<string> = new Set();
+  let chartFilter: ClaimFilter = emptyFilter();
+  /* The rest of each page's selection, beyond its filter: bands switched off
+     by hand, the chart's wavenumber range, and a band scope carried over from
+     the other page. Each page has its own; the transfer buttons copy one
+     page's selection onto the other. Single claims switched off by hand live
+     in the filter itself (filter.claims), since they decide whether a claim
+     counts exactly as a technique does. */
+  let chartHiddenBands: ReadonlySet<string> = new Set();
+  let chartRange: [number, number] | null = null;
+  let chartScope: ReadonlySet<string> | null = null;
+  let refHiddenBands: ReadonlySet<string> = new Set();
+  let refRange: [number, number] | null = null;
+  let refScope: ReadonlySet<string> | null = null;
+  let chartSelOpen = true;
+  let refSelOpen = true;
+  /* How the References page lists a claim that does not count (filtered out,
+     or switched off by hand): faint, plain, or not at all. The page's own
+     Band States: it never changes what counts, only how it is shown. */
+  type ClaimOffMode = 'faint' | 'plain' | 'hidden';
+  let refOffMode: ClaimOffMode = 'faint';
+  let refOffOpen = true;
+  const OFF_MODES = [
+    { value: 'faint', label: 'faint', look: 'faded' as const, title: 'Listed, faint, with the switch that brings it back' },
+    { value: 'plain', label: 'plain', title: 'Listed like any other claim; it still does not count' },
+    { value: 'hidden', label: 'hidden', title: 'Not listed at all; restore it under Selection' },
+  ];
+  const setOffMode = (v: string) => { refOffMode = v as ClaimOffMode; };
+
+  const toggled = <T,>(set: ReadonlySet<T>, key: T): ReadonlySet<T> => {
+    const next = new Set(set);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    return next;
+  };
+  const overlaps = (b: { wn_min: number; wn_max: number }, r: [number, number] | null) =>
+    !r || (b.wn_max >= r[0] && b.wn_min <= r[1]);
+
+  /** Band chart → References: the claims of the bands the chart is drawing now. */
+  function collectReferences() {
+    refFilter = cloneFilter(chartFilter);
+    refHiddenBands = new Set(chartHiddenBands);
+    refRange = chartRange;
+    refScope = new Set(chartBands.filter(b => enabledGroups.has(b.group) && overlaps(b, chartRange)).map(b => b.id));
+    refSelOpen = true;
+    page = 'references';
+  }
+  /** References → band chart: the bands that still have a counted claim in the list. */
+  function showBands() {
+    if (!dataset) return;
+    chartFilter = cloneFilter(refFilter);
+    chartHiddenBands = new Set(refHiddenBands);
+    chartRange = refRange;
+    chartScope = new Set(dataset.bands
+      .filter(b => (!refScope || refScope.has(b.id)) && !refHiddenBands.has(b.id) && overlaps(b, refRange))
+      .filter(b => b.references.some(r => !claimExcluded(r, refFilter)))
+      .map(b => b.id));
+    chartSelOpen = true;
+    page = 'chart';
+  }
+  $: bandById = new Map((dataset?.bands ?? []).map(b => [b.id, b]));
+  $: claimById = new Map((dataset?.bands ?? []).flatMap(b => b.references.filter(r => r.id != null).map(r => [r.id as number, { band: b, ref: r }])));
+  /* What each page shows right now, for the Selection header: the chart's
+     drawn bands and the claims that count on them, the References page's
+     claims and sources as it reports them. */
+  $: chartShown = chartBands.filter(b => enabledGroups.has(b.group) && overlaps(b, chartRange));
+  /* The first number of every filter row: the same count, over what is shown
+     now and only the claims that count. */
+  $: chartShownCounts = countClaims(chartShown.map(b => b.references.filter(r => !claimExcluded(r, chartFilter))), chartFilter.elementScope);
+  $: refListed = (dataset?.bands ?? []).filter(b => (!refScope || refScope.has(b.id)) && !refHiddenBands.has(b.id) && overlaps(b, refRange));
+  $: refShownCounts = countClaims(refListed.flatMap(b => b.references.filter(r => !claimExcluded(r, refFilter)).map(r => [r])), refFilter.elementScope);
+  $: chartLive = `${chartShown.length} bands · ${chartShown.reduce((n, b) => n + b.references.filter(r => !claimExcluded(r, chartFilter)).length, 0)} claims`;
+  $: refLive = refCounts ? `${refCounts.claimsShown} claims · ${refCounts.papersShown} sources` : '';
+  const bandLabelOf = (id: string) => bandById.get(id)?.short ?? id;
+  const claimLabelOf = (id: number) => {
+    const c = claimById.get(id);
+    return c ? `#${id} ${c.band.short} · ${shortCite(refs?.[c.ref.key] ?? {}, c.ref.key)}` : `#${id}`;
+  };
   // The second is one three-way choice per condition (the sidebar's Band
   // States): the band's own look (hollow, faded), drawn plain, or out of the
   // chart with the lanes re-laid without it.
@@ -710,35 +788,15 @@
     { mode: 'plain', label: 'plain' },
     { mode: 'hidden', label: 'hidden' },
   ];
-  /* Both families are offered in either view, each under a switch of its
-     own, and the calculations after them, in the References page's order. */
-  const CHART_FAMILIES: { key: string; label: string; title: string; members: readonly string[] }[] = [
-    { key: 'infrared', label: 'IR', title: 'Absorption of infrared light by vibrations that change the dipole moment.', members: IR_TECHNIQUES },
-    { key: 'raman', label: 'Raman', title: 'Inelastic scattering of laser light by vibrations that change the polarizability.', members: RAMAN_TECHNIQUES },
-  ];
-  /* What each technique is, in one sentence: the tooltip on its row. */
-  const TECHNIQUE_TIP: Record<string, string> = {
-    infrared: 'An infrared measurement whose sampling geometry the source does not name.',
-    drifts: 'Infrared light scattered back from a powder bed (diffuse reflectance).',
-    transmission: 'Infrared light passed straight through a thin wafer or a gas cell.',
-    atr: 'Infrared light totally reflected inside a crystal, probing the sample pressed against it.',
-    irras: 'Infrared light reflected at grazing incidence off a flat, usually metal, surface.',
-    pm_irras: 'Grazing-incidence reflection with the polarisation switched to cancel the gas background.',
-    seiras: 'Infrared absorption enhanced by a thin metal-film electrode, read through an ATR prism.',
-    emission: 'Infrared light emitted by the hot sample itself.',
-    raman: 'Raman scattering whose kind the source does not name.',
-    srs: 'Laser light scattered inelastically by the sample on its own (spontaneous Raman).',
-    computational: 'A frequency calculated rather than measured.',
-  };
-  const familyOn = (members: readonly string[], excluded: ReadonlySet<string>) =>
-    members.filter(t => !excluded.has(t)).length;
-  $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
   let showTechniques = false;
+  let showPhases = false;
+  let showElements = false;
   /* Which chart sections are open. Kept here rather than in each component
      so a section stays as it was left when the reader goes to another page
      and comes back. */
+  let spectroscopyOpen = true;
   let appearanceOpen = true;
-  let axisOpen = true;
+  let axisOpen = false;
   let bandStatesOpen = true;
   let groupFilterOpen = true;
   /* Which families (IR, Raman) and phase parts (Form, Medium) are open.
@@ -751,56 +809,6 @@
     openGroups = next;
   }
 
-  // The second half of "which claims count": how the sample was held for
-  // each claim (the Phases section), in two parts that combine. The form is
-  // where the species was, the medium what surrounded it, so "adsorbed" with
-  // only "liquid" left on is the electrochemistry. Sets of the excluded, like
-  // the techniques, empty by default; a claim that records neither is keyed
-  // under UNRECORDED so it can be switched off as a group too.
-  type PhasePart = 'form' | 'medium';
-  type PhaseRow = { key: string; label: string; title: string; tag: string | null };
-  const PHASE_PARTS: { key: PhasePart; label: string; rows: PhaseRow[] }[] = [
-    { key: 'form', label: 'Form', rows: [
-      { key: 'free', tag: 'free', label: 'Free', title: 'The molecule on its own: a gas, the liquid itself, or isolated in a matrix.' },
-      { key: 'dissolved', tag: 'dissolved', label: 'Dissolved', title: 'A solute in a liquid.' },
-      { key: 'adsorbed', tag: 'adsorbed', label: 'Adsorbed', title: 'Held on a surface.' },
-      { key: 'surface', tag: 'surface', label: 'Surface group', title: 'A group belonging to the solid, such as a hydroxyl or a hydride.' },
-      { key: 'lattice', tag: 'lattice', label: 'Lattice', title: 'A vibration or a defect of the solid itself.' },
-      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No form recorded.' },
-    ] },
-    { key: 'medium', label: 'Medium', rows: [
-      { key: 'vacuum', tag: 'in vacuum', label: 'Vacuum', title: 'An evacuated or ultra-high-vacuum cell with no gas let in.' },
-      { key: 'gas', tag: 'in gas', label: 'Gas', title: 'A gas atmosphere, from a fraction of a mbar of dosed gas to a flowing feed at pressure.' },
-      { key: 'liquid', tag: 'in liquid', label: 'Liquid', title: 'A liquid or an electrolyte.' },
-      { key: 'supercritical', tag: 'in supercritical', label: 'Supercritical', title: 'A dense fluid above its critical point, neither gas nor liquid.' },
-      { key: 'matrix', tag: 'in matrix', label: 'Matrix', title: 'A frozen noble gas the molecule is isolated in.' },
-      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No medium recorded.' },
-    ] },
-  ];
-  let excludedPhase: Record<PhasePart, ReadonlySet<string>> = { form: new Set(), medium: new Set() };
-  let showPhases = false;
-  $: countedPhases = PHASE_PARTS.reduce((n, part) => n + part.rows.filter(r => !excludedPhase[part.key].has(r.key)).length, 0);
-  const PHASE_ROW_COUNT = PHASE_PARTS.reduce((n, part) => n + part.rows.length, 0);
-  function togglePhase(part: PhasePart, key: string) {
-    const next = new Set(excludedPhase[part]);
-    if (next.has(key)) next.delete(key); else next.add(key);
-    excludedPhase = { ...excludedPhase, [part]: next };
-  }
-  /* Double-click a row, a family or a legend chip to count only that, the
-     way a double-click isolates a tag in the legend; a second double-click
-     on the same thing counts everything again. */
-  function isolate(all: readonly string[], keep: readonly string[], excluded: ReadonlySet<string>): ReadonlySet<string> {
-    const others = all.filter(k => !keep.includes(k));
-    const already = others.every(k => excluded.has(k)) && keep.every(k => !excluded.has(k));
-    return already ? new Set() : new Set(others);
-  }
-  function onlyTechniques(keep: readonly string[]) {
-    excludedTechniques = isolate(ALL_TECHNIQUES, keep, excludedTechniques);
-  }
-  function onlyPhase(part: PhasePart, keep: readonly string[]) {
-    const all = PHASE_PARTS.find(p => p.key === part)!.rows.map(r => r.key);
-    excludedPhase = { ...excludedPhase, [part]: isolate(all, keep, excludedPhase[part]) };
-  }
   /* A native button fires click, click, then dblclick for one double-click,
      so the single click is held back long enough to be cancelled, as the tag
      legend does (TagLegend.svelte). */
@@ -813,19 +821,7 @@
     if (pendingRowClick) { clearTimeout(pendingRowClick); pendingRowClick = null; }
     fn();
   }
-  $: claimFilter = { techniques: excludedTechniques, forms: excludedPhase.form, media: excludedPhase.medium } as ClaimFilter;
-  function toggleChartTechnique(key: string) {
-    const next = new Set(excludedTechniques);
-    if (next.has(key)) next.delete(key); else next.add(key);
-    excludedTechniques = next;
-  }
-  /** A family switch: all of it off if any is on, else all of it on. */
-  function toggleChartFamily(members: readonly string[]) {
-    const next = new Set(excludedTechniques);
-    if (familyOn(members, excludedTechniques) > 0) for (const t of members) next.add(t);
-    else for (const t of members) next.delete(t);
-    excludedTechniques = next;
-  }
+  $: claimFilter = chartFilter;
   // The electromagnetic regions marked on the chart: the strip of names above
   // the plot, the dashed borders and the tint fading from them. One switch for
   // all three, since a border with no name says nothing.
@@ -857,29 +853,15 @@
   // technique a band was measured with moves it into this state like any
   // band without a claim in the chosen spectroscopy.
   $: chartBands = baseBands
+    .filter(b => !chartHiddenBands.has(b.id) && (!chartScope || chartScope.has(b.id)))
     .filter(b => inactiveMode !== 'hidden' || !b.tags.includes(inactiveTag))
     .filter(b => unreferencedMode !== 'hidden' || isReferenced(b, claimFilter));
-  /** How many bands in the enabled groups each technique has a claim in. */
-  $: techniqueCounts = (() => {
-    const counts: Record<string, number> = {};
-    for (const b of baseBands) {
-      if (!enabledGroups.has(b.group)) continue;
-      for (const t of new Set(b.references.map(r => r.technique).filter(Boolean) as string[])) {
-        counts[t] = (counts[t] ?? 0) + 1;
-      }
-    }
-    return counts;
-  })();
-  /** How many bands in the enabled groups have a claim in each form and medium. */
-  $: phaseCounts = (() => {
-    const counts: Record<PhasePart, Record<string, number>> = { form: {}, medium: {} };
-    for (const b of baseBands) {
-      if (!enabledGroups.has(b.group)) continue;
-      for (const f of new Set(b.references.map(r => r.form || UNRECORDED))) counts.form[f] = (counts.form[f] ?? 0) + 1;
-      for (const m of new Set(b.references.map(r => r.medium || UNRECORDED))) counts.medium[m] = (counts.medium[m] ?? 0) + 1;
-    }
-    return counts;
-  })();
+  /** How many bands in the enabled groups carry each technique, form, medium
+   *  and element in at least one claim: the chart sections' row counts. */
+  $: chartFilterCounts = countClaims(
+    baseBands.filter(b => enabledGroups.has(b.group)).map(b => b.references),
+    chartFilter.elementScope,
+  );
 
   // Passed the live filters so a tag whose bands are all hidden by another
   // filter greys out too, rather than looking available when it is not.
@@ -1058,43 +1040,86 @@
               {/if}
             </div>
 
+            <!-- Techniques, Phases, Elements and Band States, each a button of
+                 its own in the open sidebar's order: which claims count, then
+                 what a band with none left does. Each flyout is its section at
+                 its smallest: the technique families and the calculations, the
+                 phase rows, the element symbols. -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div class="mini-btn-wrap"
-              on:mouseenter={() => openFly('endis')} on:mouseleave={closeFly}>
-              <button class="page-mini-btn ctl-btn" aria-label="Techniques and band states"
-              ><Icon name="toggles" size={15} width={1.8} /></button>
-              {#if flyOpen === 'endis'}
-                <!-- Techniques, Phases and Band States in one flyout, in the
-                     open sidebar's order: which claims count, then what a
-                     band with none left does. The techniques at their smallest,
-                     the two families and the calculations, not every
-                     geometry. -->
+              on:mouseenter={() => openFly('techniques')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Techniques"
+              ><Icon name="technique" size={15} width={1.8} /></button>
+              {#if flyOpen === 'techniques'}
                 <div class="fly">
                   <div class="fly-title">Techniques</div>
-                  {#each CHART_FAMILIES as fam (fam.key)}
-                    {@const on = familyOn(fam.members, excludedTechniques)}
+                  {#each TECHNIQUE_FAMILIES as fam (fam.key)}
+                    {@const on = countOn(fam.members, chartFilter.techniques)}
                     <button class="fly-item" class:fly-on={on > 0}
-                      on:click={() => rowClick(() => toggleChartFamily(fam.members))}
-                      on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
+                      on:click={() => rowClick(() => (chartFilter = toggleTechniques(chartFilter, fam.members)))}
+                      on:dblclick={() => rowDblClick(() => (chartFilter = onlyTechniques(chartFilter, fam.members)))}
                     ><span class="fly-box" class:on={on > 0}></span>{fam.label} ({on} / {fam.members.length})</button>
                   {/each}
-                  <button class="fly-item" class:fly-on={!excludedTechniques.has('computational')}
-                    on:click={() => rowClick(() => toggleChartTechnique('computational'))}
-                    on:dblclick={() => rowDblClick(() => onlyTechniques(['computational']))}
-                  ><span class="fly-box" class:on={!excludedTechniques.has('computational')}></span>computational</button>
-                  <div class="fly-rule"></div>
-                  <div class="fly-title">Phases</div>
+                  <button class="fly-item" class:fly-on={!chartFilter.techniques.has('computational')}
+                    on:click={() => rowClick(() => (chartFilter = toggleTechniques(chartFilter, ['computational'])))}
+                    on:dblclick={() => rowDblClick(() => (chartFilter = onlyTechniques(chartFilter, ['computational'])))}
+                  ><span class="fly-box" class:on={!chartFilter.techniques.has('computational')}></span>computational</button>
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('phases')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Species state"
+              ><Icon name="phase" size={15} width={1.8} /></button>
+              {#if flyOpen === 'phases'}
+                <div class="fly">
+                  <div class="fly-title">Species State</div>
                   {#each PHASE_PARTS as part (part.key)}
                     <div class="fly-note">{part.label.toLowerCase()}</div>
                     {#each part.rows as ph (ph.key)}
-                      <button class="fly-item" class:fly-on={!excludedPhase[part.key].has(ph.key)}
+                      <button class="fly-item" class:fly-on={!phaseExcluded(chartFilter, part.key).has(ph.key)}
                         title={ph.title}
-                        on:click={() => rowClick(() => togglePhase(part.key, ph.key))}
-                        on:dblclick={() => rowDblClick(() => onlyPhase(part.key, [ph.key]))}
-                      ><span class="fly-box" class:on={!excludedPhase[part.key].has(ph.key)}></span>{ph.label.toLowerCase()}</button>
+                        on:click={() => rowClick(() => (chartFilter = togglePhase(chartFilter, part.key, ph.key)))}
+                        on:dblclick={() => rowDblClick(() => (chartFilter = onlyPhase(chartFilter, part.key, [ph.key])))}
+                      ><span class="fly-box" class:on={!phaseExcluded(chartFilter, part.key).has(ph.key)}></span>{ph.label.toLowerCase()}</button>
                     {/each}
                   {/each}
-                  <div class="fly-rule"></div>
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('elements')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Specimen elements"
+              ><Icon name="element" size={15} width={1.8} /></button>
+              {#if flyOpen === 'elements'}
+                <!-- The symbols alone, read in whichever scope the open sidebar last chose. -->
+                <div class="fly">
+                  <div class="fly-title">Specimen Elements</div>
+                  <div class="fly-pse">
+                    <PeriodicPicker compact
+                      elements={allElements()}
+                      present={new Set(claimElementList)}
+                      isOn={el => elementOn(chartFilter, el)}
+                      isPinned={el => chartFilter.onlyElements.has(el)}
+                      on:toggle={e => (chartFilter = toggleElements(chartFilter, e.detail.els))}
+                      on:only={e => (chartFilter = onlyElements(chartFilter, e.detail.els))}
+                    />
+                  </div>
+                </div>
+              {/if}
+            </div>
+
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="mini-btn-wrap"
+              on:mouseenter={() => openFly('endis')} on:mouseleave={closeFly}>
+              <button class="page-mini-btn ctl-btn" aria-label="Band states"
+              ><Icon name="toggles" size={15} width={1.8} /></button>
+              {#if flyOpen === 'endis'}
+                <div class="fly">
                   <div class="fly-title">Band States</div>
                   <button class="fly-item" class:fly-on={showIsotopes}
                     on:click={() => (showIsotopes = !showIsotopes)}
@@ -1118,11 +1143,11 @@
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div class="mini-btn-wrap"
               on:mouseenter={() => openFly('groups')} on:mouseleave={closeFly}>
-              <button class="page-mini-btn ctl-btn" aria-label="Group filter"
+              <button class="page-mini-btn ctl-btn" aria-label="Species families"
               ><Icon name="filter" size={15} width={1.8} /></button>
               {#if flyOpen === 'groups'}
                 <div class="fly">
-                  <div class="fly-title">Group filter</div>
+                  <div class="fly-title">Species Families</div>
                   <button class="fly-item" class:fly-on={activeSetKey === 'all'}
                     on:click={() => { chooseSet('all'); flyOpen = null; }}
                   >All groups</button>
@@ -1157,9 +1182,33 @@
 
         <!-- Page-specific sidebar controls -->
         {#if page === 'chart'}
-          <SpectroscopySwitch value={spectroscopy} on:change={e => (spectroscopy = e.detail.value)} />
+          <SelectionPanel
+            action="Collect references"
+            to="references"
+            actionTitle="Open the References page with the claims of the bands this chart draws now, under the same filters"
+            hiddenBands={chartHiddenBands}
+            hiddenClaims={chartFilter.claims}
+            range={chartRange}
+            scope={chartScope}
+            scopeFrom="References"
+            bandLabel={bandLabelOf}
+            claimLabel={claimLabelOf}
+            bind:open={chartSelOpen}
+            live={chartLive}
+            on:transfer={collectReferences}
+            on:restoreBand={e => (chartHiddenBands = toggled(chartHiddenBands, e.detail.id))}
+            on:restoreClaim={e => (chartFilter = toggleClaim(chartFilter, e.detail.id))}
+            on:restoreAll={() => { chartHiddenBands = new Set(); chartFilter = { ...chartFilter, claims: new Set() }; }}
+            on:clearRange={() => (chartRange = null)}
+            on:clearScope={() => (chartScope = null)}
+          />
+
+          <hr class="divider strong" />
+
+          <SpectroscopySwitch value={spectroscopy} bind:open={spectroscopyOpen} on:change={e => (spectroscopy = e.detail.value)} />
 
           <hr class="divider" />
+
 
           <section>
             <!-- Appearance, not Color by: the section holds the colour
@@ -1208,122 +1257,23 @@
             on:laserChange={e => (laserWn = e.detail.wn)}
           />
 
-          <hr class="divider" />
+          <hr class="divider strong" />
 
-          <section>
-            <!-- Which claims count. The first of three steps the rest of the
-                 sidebar takes in order: which claims count (here), what a
-                 band with none left looks like (Band States), which chemistry
-                 is on screen (Group Filter). Both families are offered in
-                 either view and all of it is on to begin with. Collapsed
-                 like the group list: it is a narrowing tool, not an everyday
-                 control. -->
-            <!-- The header is the disclosure, with how much is counted beside
-                 it; opening it goes straight to the families, and each family
-                 opens on its own. -->
-            <SectionHead title="Techniques" bind:open={showTechniques} summary={`${countedTechniques} / ${ALL_TECHNIQUES.length}`} />
-            {#if showTechniques}
-              <div class="filter-list">
-                {#each CHART_FAMILIES as fam (fam.key)}
-                {@const on = familyOn(fam.members, excludedTechniques)}
-                <div class="fam-row">
-                  <button class="fam-caret" aria-label="Show the {fam.label} techniques" aria-expanded={openGroups.has(fam.key)}
-                    on:click={() => toggleOpenGroup(fam.key)}>{openGroups.has(fam.key) ? '▾' : '▸'}</button>
-                  <button
-                    class="include-row tech-row"
-                    class:off={on === 0}
-                    aria-pressed={on > 0}
-                    title={fam.title}
-                    on:click={() => rowClick(() => toggleChartFamily(fam.members))}
-                    on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
-                  >
-                    <span class="inc-label">{fam.label}</span>
-                    <span class="count">{on} / {fam.members.length}</span>
-                  </button>
-                </div>
-                {#if openGroups.has(fam.key)}
-                <div class="tech-filter">
-                {#each fam.members as t (t)}
-                  <button
-                    class="include-row tech-row tech-child"
-                    class:off={excludedTechniques.has(t)}
-                    aria-pressed={!excludedTechniques.has(t)}
-                    title={TECHNIQUE_TIP[t] ?? TECHNIQUE_LABEL[t]}
-                    on:click={() => rowClick(() => toggleChartTechnique(t))}
-                    on:dblclick={() => rowDblClick(() => onlyTechniques([t]))}
-                  ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
-                    <span class="count">{techniqueCounts[t] ?? 0}</span>
-                  </button>
-                {/each}
-                </div>
-                {/if}
-                {/each}
-                <div class="fam-row">
-                <span class="fam-caret" aria-hidden="true"></span>
-                <button
-                  class="include-row tech-row"
-                  class:off={excludedTechniques.has('computational')}
-                  aria-pressed={!excludedTechniques.has('computational')}
-                  title={TECHNIQUE_TIP.computational}
-                  on:click={() => rowClick(() => toggleChartTechnique('computational'))}
-                    on:dblclick={() => rowDblClick(() => onlyTechniques(['computational']))}
-                ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
-                  <span class="count">{techniqueCounts.computational ?? 0}</span>
-                </button>
-                </div>
-              </div>
-            {/if}
-          </section>
+          <ClaimFilterPanel
+            bind:filter={chartFilter}
+            counts={chartFilterCounts}
+            shown={chartShownCounts}
+            elements={claimElementList}
+            unit="bands"
+            bind:showTechniques
+            bind:showPhases
+            bind:showElements
+            bind:openGroups
+          />
 
-          <hr class="divider" />
+          <hr class="divider strong" />
 
-          <section>
-            <!-- The other half of which claims count: how the sample was
-                 held for each claim, as two lists that combine. Form is where
-                 the species was, medium what surrounded it, the same two
-                 fields the legend's phase chips come from. Switched off, a
-                 claim greys out in the card like an excluded technique's, and
-                 a band left with none counts as unreferenced. -->
-            <SectionHead title="Phases" bind:open={showPhases} summary={`${countedPhases} / ${PHASE_ROW_COUNT}`} />
-            {#if showPhases}
-              <div class="filter-list">
-                {#each PHASE_PARTS as part (part.key)}
-                  {@const on = part.rows.filter(r => !excludedPhase[part.key].has(r.key)).length}
-                  <!-- Form and Medium combine rather than nest, so the part
-                       row only opens and closes; it is not a switch. -->
-                  <div class="fam-row">
-                    <button class="fam-caret" aria-label="Show the {part.label.toLowerCase()} rows" aria-expanded={openGroups.has(part.key)}
-                      on:click={() => toggleOpenGroup(part.key)}>{openGroups.has(part.key) ? '▾' : '▸'}</button>
-                    <button class="include-row tech-row part-row" aria-expanded={openGroups.has(part.key)}
-                      on:click={() => toggleOpenGroup(part.key)}>
-                      <span class="inc-label">{part.label}</span>
-                      <span class="count">{on} / {part.rows.length}</span>
-                    </button>
-                  </div>
-                  {#if openGroups.has(part.key)}
-                  <div class="tech-filter">
-                  {#each part.rows as ph (ph.key)}
-                    <button
-                      class="include-row tech-row tech-child"
-                      class:off={excludedPhase[part.key].has(ph.key)}
-                      aria-pressed={!excludedPhase[part.key].has(ph.key)}
-                      title={ph.title}
-                      on:click={() => rowClick(() => togglePhase(part.key, ph.key))}
-                      on:dblclick={() => rowDblClick(() => onlyPhase(part.key, [ph.key]))}
-                    ><span class="inc-label">{ph.label}</span>
-                      <span class="count">{phaseCounts[part.key][ph.key] ?? 0}</span>
-                    </button>
-                  {/each}
-                  </div>
-                  {/if}
-                {/each}
-              </div>
-            {/if}
-          </section>
-
-          <hr class="divider" />
-
-          <Sidebar
+                    <Sidebar
             groups={dataset.groups}
             sets={dataset.sets}
             sortedKeys={sortedGroupKeys}
@@ -1335,6 +1285,7 @@
             {unreferencedMode}
             {spectroscopy}
             on:groupToggle={handleGroupToggle}
+            on:groupOnly={handleGroupOnly}
             on:setSelect={handleSetSelect}
             on:isotopeToggle={e => showIsotopes = e.detail.enabled}
             on:inactiveMode={e => (inactiveMode = e.detail.mode)}
@@ -1405,6 +1356,29 @@
           </nav>
 
         {:else if page === 'references'}
+          <SelectionPanel
+            action="Show bands"
+            to="chart"
+            actionTitle="Open the band chart with the bands that still have a counted claim here, under the same filters"
+            hiddenBands={refHiddenBands}
+            hiddenClaims={refFilter.claims}
+            range={refRange}
+            scope={refScope}
+            scopeFrom="the band chart"
+            bandLabel={bandLabelOf}
+            claimLabel={claimLabelOf}
+            bind:open={refSelOpen}
+            live={refLive}
+            on:transfer={showBands}
+            on:restoreBand={e => (refHiddenBands = toggled(refHiddenBands, e.detail.id))}
+            on:restoreClaim={e => (refFilter = toggleClaim(refFilter, e.detail.id))}
+            on:restoreAll={() => { refHiddenBands = new Set(); refFilter = { ...refFilter, claims: new Set() }; }}
+            on:clearRange={() => (refRange = null)}
+            on:clearScope={() => (refScope = null)}
+          />
+
+          <hr class="divider strong" />
+
           <section>
             <h3>Group by</h3>
             <Dropdown
@@ -1425,9 +1399,15 @@
             />
           </section>
 
+          <hr class="divider" />
+
           <!-- What lists its papers here: the bands, the modes, the Knowledge cards. -->
           <section>
-            <h3>Include</h3>
+            <!-- A disclosure like Techniques and Phases, with how many of the
+                 three are on beside it, so a closed section still says it. -->
+            <SectionHead title="Include" bind:open={refIncludeOpen}
+              summary={`${[refIncludeBands, refIncludeModes, refIncludeKnowledge].filter(Boolean).length} / 3`} />
+            {#if refIncludeOpen}
             <button
               class="include-row"
               class:off={!refIncludeBands}
@@ -1435,89 +1415,11 @@
               title="Every band that cites the paper, with its wavenumber and surface"
               on:click={() => (refIncludeBands = !refIncludeBands)}
             >
-              <span class="inc-label">Assignments</span>
+              <span class="inc-label">Claims</span>
               {#if refCounts}
-                <span class="count">{refCounts.claimsShown} / {refCounts.claimsTotal}</span>
+                <span class="count" title="{refCounts.claimsShown} claims listed and counted now, of {refCounts.claimsTotal} in the atlas">{refCounts.claimsShown} / {refCounts.claimsTotal}</span>
               {/if}
             </button>
-            <!-- Which kinds of measurement those assignments may come from.
-                 Nested under the assignments it filters, and collapsed by
-                 default: it is a narrowing tool, not an everyday control. A
-                 claim that records no technique at all is never filtered out
-                 by it, so switching a technique off never hides the gaps. -->
-            {#if refIncludeBands}
-              <div class="tech-filter">
-                <button
-                  class="disclosure tech-disclosure"
-                  on:click={() => (refTechniquesOpen = !refTechniquesOpen)}
-                  aria-expanded={refTechniquesOpen}
-                >
-                  <span class="caret">{refTechniquesOpen ? '▾' : '▸'}</span>
-                  Technique
-                  <span class="count">{refTechniques.size} / {ALL_TECHNIQUES.length}</span>
-                </button>
-                {#if refTechniquesOpen}
-                  <!-- The IR parent reads off only when all seven are off; a
-                       partial selection stays upright and lets the count say
-                       how many, which is what an indeterminate checkbox used
-                       to carry. -->
-                  <button
-                    class="include-row tech-row"
-                    class:off={irOn === 0}
-                    aria-pressed={irOn > 0}
-                    title="Infrared, every sampling geometry at once"
-                    on:click={toggleIr}
-                  >
-                    <span class="inc-label">IR</span>
-                    <span class="count">{irOn} / {IR_TECHNIQUES.length}</span>
-                  </button>
-                  {#each IR_TECHNIQUES as t (t)}
-                    <button
-                      class="include-row tech-row tech-child"
-                      class:off={!refTechniques.has(t)}
-                      aria-pressed={refTechniques.has(t)}
-                      title={TECHNIQUE_LABEL[t]}
-                      on:click={() => toggleTechnique(t)}
-                    ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
-                      {#if refCounts}<span class="count">{refCounts.byTechnique[t] ?? 0}</span>{/if}
-                    </button>
-                  {/each}
-                  <!-- Raman has members of its own now, so it gets the same
-                       parent-and-children shape as IR: the parent switches
-                       the family, the children the individual values. -->
-                  <button
-                    class="include-row tech-row"
-                    class:off={ramanOn === 0}
-                    aria-pressed={ramanOn > 0}
-                    title="Raman, every kind at once"
-                    on:click={toggleRaman}
-                  >
-                    <span class="inc-label">Raman</span>
-                    <span class="count">{ramanOn} / {RAMAN_TECHNIQUES.length}</span>
-                  </button>
-                  {#each RAMAN_TECHNIQUES as t (t)}
-                    <button
-                      class="include-row tech-row tech-child"
-                      class:off={!refTechniques.has(t)}
-                      aria-pressed={refTechniques.has(t)}
-                      title={TECHNIQUE_LABEL[t]}
-                      on:click={() => toggleTechnique(t)}
-                    ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
-                      {#if refCounts}<span class="count">{refCounts.byTechnique[t] ?? 0}</span>{/if}
-                    </button>
-                  {/each}
-                  <button
-                    class="include-row tech-row"
-                    class:off={!refTechniques.has('computational')}
-                    aria-pressed={refTechniques.has('computational')}
-                    title={TECHNIQUE_LABEL.computational}
-                    on:click={() => toggleTechnique('computational')}
-                  ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
-                    {#if refCounts}<span class="count">{refCounts.byTechnique.computational ?? 0}</span>{/if}
-                  </button>
-                {/if}
-              </div>
-            {/if}
             <button
               class="include-row"
               class:off={!refIncludeModes}
@@ -1527,7 +1429,7 @@
             >
               <span class="inc-label">Normal modes</span>
               {#if refCounts}
-                <span class="count">{refCounts.modesShown} / {refCounts.modesTotal}</span>
+                <span class="count" title="{refCounts.modesShown} cited normal modes listed now, of {refCounts.modesTotal} that cite a paper">{refCounts.modesShown} / {refCounts.modesTotal}</span>
               {/if}
             </button>
             <button
@@ -1539,11 +1441,40 @@
             >
               <span class="inc-label">Knowledge</span>
               {#if refCounts}
-                <span class="count">{refCounts.knowledgeShown} / {refCounts.knowledgeTotal}</span>
+                <span class="count" title="{refCounts.knowledgeShown} Knowledge-card citations listed now, of {refCounts.knowledgeTotal}">{refCounts.knowledgeShown} / {refCounts.knowledgeTotal}</span>
               {/if}
             </button>
             <p class="include-hint">Modes and Knowledge show under each reference when grouping by reference first.</p>
+            {/if}
           </section>
+
+          <!-- Which claims are listed: the band chart's three sections,
+               behaving the same way, with a filter of the page's own. -->
+          {#if refIncludeBands}
+            <hr class="divider strong" />
+            <ClaimFilterPanel
+              bind:filter={refFilter}
+              counts={refFilterCounts}
+              shown={refShownCounts}
+              elements={claimElementList}
+              unit="claims"
+              bind:showTechniques={refShowTechniques}
+              bind:showPhases={refShowPhases}
+              bind:showElements={refShowElements}
+              bind:openGroups={refOpenGroups}
+            />
+
+            <hr class="divider strong" />
+
+            <section>
+              <SectionHead title="Switched-off Claims" bind:open={refOffOpen} summary={refOffMode}
+                hint="How this list shows a claim that does not count, because a filter above excludes it or you switched it off by hand: faint, plain, or not at all. It changes only the look; such a claim never counts." />
+              {#if refOffOpen}
+                <ModeSwitch value={refOffMode} options={OFF_MODES} label="Switched-off claims"
+                  on:change={e => setOffMode(e.detail.value)} />
+              {/if}
+            </section>
+          {/if}
         {/if}
 
       </div>
@@ -1555,7 +1486,7 @@
       {#if page === 'home'}
         <HomePage
           bandCount={dataset.bands.length}
-          assignmentCount={dataset.bands.reduce((n, b) => n + b.references.length, 0)}
+          claimCount={dataset.bands.reduce((n, b) => n + b.references.length, 0)}
           referenceCount={refs ? Object.keys(refs).length : 0}
           on:navigate={handleHomeNavigate}
         />
@@ -1570,6 +1501,8 @@
         <div class="chart-main">
         <div class="chart-scroll">
           <BandChart
+            range={chartRange}
+            on:range={e => (chartRange = e.detail.range)}
             on:select={handleBandSelect}
             clearNonce={bandClearNonce}
             {presenting}
@@ -1630,6 +1563,10 @@
                 fill
                 linkedModes={sideModes}
                 playNonce={bandPlayNonce}
+                hideable
+                on:hideBand={e => (chartHiddenBands = toggled(chartHiddenBands, e.detail.id))}
+                on:toggleClaim={e => (chartFilter = toggleClaim(chartFilter, e.detail.id))}
+                on:toggleClaims={e => (chartFilter = toggleClaims(chartFilter, e.detail.ids))}
                 on:navigateRef={handleNavigateRef}
                 on:navigateMode={handleNavigateMode}
               />
@@ -1644,7 +1581,13 @@
         </div><!-- chart-row -->
       {:else if page === 'references'}
         <ReferencesPage
-          bands={dataset.bands}
+          bands={refScope ? dataset.bands.filter(b => refScope?.has(b.id)) : dataset.bands}
+          hiddenBands={refHiddenBands}
+          range={refRange}
+          offMode={refOffMode}
+          on:toggleClaims={e => (refFilter = toggleClaims(refFilter, e.detail.ids))}
+          on:toggleClaim={e => (refFilter = toggleClaim(refFilter, e.detail.id))}
+          on:toggleBand={e => (refHiddenBands = toggled(refHiddenBands, e.detail.id))}
           groups={dataset.groups}
           {refs}
           {vibrations}
@@ -1654,7 +1597,7 @@
           includeBands={refIncludeBands}
           includeModes={refIncludeModes}
           includeKnowledge={refIncludeKnowledge}
-          techniques={refTechniqueFilter}
+          filter={refFilter}
           on:counts={e => (refCounts = e.detail)}
           on:navigateKnowledge={handleNavigateKnowledge}
         />
@@ -1952,6 +1895,7 @@
     white-space: nowrap;
   }
 
+  .fly-pse { padding: 4px 8px 6px; }
   .fly-item {
     display: flex;
     align-items: center;
@@ -2193,7 +2137,8 @@
     gap: 1px;
   }
 
-  /* References page: what else lists its citations, and which techniques.
+  /* References page: what else lists its citations. Which claims are listed
+     is ClaimFilterPanel's, the same three sections as the band chart.
      No checkboxes anywhere: a row is on when it reads normally and off when
      it is greyed and struck through, the same idiom the chart sidebar uses
      for a switched-off group. The state IS the styling. */
@@ -2228,54 +2173,6 @@
     color: var(--ink-050);
   }
 
-  /* The technique filter, nested under the assignments it narrows. Indented
-     against a hairline so it reads as belonging to the row above rather than
-     as a fourth Include option, and collapsed by default: it is an escape
-     hatch, the same idiom as the chart sidebar's per-group list. */
-  /* A group row (IR, Raman, Form, Medium): its own caret opens the rows
-     under it, the rest of the row is the switch as before. */
-  .fam-row {
-    display: flex;
-    align-items: center;
-  }
-  .fam-caret {
-    flex: 0 0 14px;
-    width: 14px;
-    padding: 0;
-    background: none;
-    border: none;
-    font: inherit;
-    font-size: 11px;
-    color: var(--ink-200);
-    cursor: pointer;
-    text-align: left;
-  }
-  .fam-caret:hover { color: var(--ink-700); }
-  .fam-row .include-row { flex: 1; min-width: 0; }
-  .part-row .inc-label { color: var(--ink-500); }
-
-  .tech-filter {
-    margin: 2px 0 2px 7px;
-    padding-left: 9px;
-    border-left: 1px solid var(--line);
-  }
-
-  .disclosure {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    padding: 3px 0;
-    background: none;
-    border: none;
-    font: inherit;
-    font-size: var(--t-nav-size);
-    color: var(--ink-500);
-    cursor: pointer;
-    text-align: left;
-  }
-  .disclosure:hover { color: var(--ink-700); }
-  .caret { color: var(--ink-200); }
   /* The counts sit hard right and never wrap: a ratio broken across two lines
      stops reading as one number, and in a sidebar this narrow that is exactly
      what "319 / 319" does if you let it. */
@@ -2287,11 +2184,6 @@
     white-space: nowrap;
   }
   .inc-label { min-width: 0; }
-
-  /* A hair tighter than the Include rows above: seven of them stack up. */
-  .tech-row { padding: 1px 0; }
-  /* The seven infrared geometries, under their own IR parent switch. */
-  .tech-child { padding-left: 16px; }
 
   .sg-toc-item {
     display: block;

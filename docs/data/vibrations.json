@@ -397,7 +397,8 @@
           "bands": [
             "co_linear_mu1",
             "co_cation_stretch",
-            "co_linear_13co"
+            "co_linear_13co",
+            "co_cation_13co"
           ]
         },
         {
@@ -579,7 +580,8 @@
           "wn_start": 2020,
           "wn_end": 2200,
           "bands": [
-            "co_gemdi_sym"
+            "co_gemdi_sym",
+            "co_gemdi_sym_13co"
           ]
         },
         {
@@ -670,7 +672,8 @@
           "wn_start": 1980,
           "wn_end": 2150,
           "bands": [
-            "co_gemdi_asym"
+            "co_gemdi_asym",
+            "co_gemdi_asym_13co"
           ]
         },
         {

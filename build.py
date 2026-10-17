@@ -24,6 +24,12 @@ from ir_bands.loader import (
     load_dataset,
     load_references,
     load_surfaces,
+    load_elements,
+    load_techniques,
+    install_techniques,
+    surface_warnings,
+    derive_claim_elements,
+    derive_band_symmetry,
     load_species,
     load_tags,
     load_vibrations,
@@ -36,6 +42,7 @@ from ir_bands.loader import (
     tag_isotopologues,
     tag_lasers,
     tag_phases,
+    tag_scattering,
     check_branches,
     check_phase,
     tag_techniques,
@@ -60,6 +67,8 @@ REFS_SRC = DATA_DIR / "references.bib"
 VIBRATIONS_SRC = DATA_DIR / "vibrations.jsonc"
 TAGS_SRC = DATA_DIR / "tags.jsonc"
 SURFACES_SRC = DATA_DIR / "surfaces.jsonc"
+ELEMENTS_SRC = DATA_DIR / "elements.jsonc"
+TECHNIQUES_SRC = DATA_DIR / "techniques.jsonc"
 SPECIES_SRC = DATA_DIR / "species.jsonc"
 
 BANDS_OUT = DOCS_DATA / "bands.json"
@@ -610,34 +619,6 @@ def _band_to_dict(b) -> dict:
 
 
 
-def _surface_to_dict(surface, surfaces: dict) -> dict:
-    """Serialise a surface, adding the element closure the frontend queries on.
-
-    `elements` is authored: it says what the author knew about that entry
-    alone. `all_elements` walks `parts` and unions everything below, so a
-    query for Cu reaches the Pt-CeO2 interface, the composite defect site and
-    the sample alike without the frontend re-deriving containment.
-    """
-    seen: set[str] = set()
-    elements: set[str] = set()
-
-    def walk(key: str) -> None:
-        if key in seen:
-            return
-        seen.add(key)
-        node = surfaces.get(key)
-        if node is None:
-            return
-        elements.update(node.all_elements)
-        for part in node.parts:
-            walk(part)
-
-    walk(surface.key)
-    out = asdict(surface)
-    out["all_elements"] = sorted(elements)
-    return out
-
-
 def main() -> int:
     DOCS_DATA.mkdir(parents=True, exist_ok=True)
 
@@ -645,10 +626,19 @@ def main() -> int:
     references = load_references(REFS_SRC)
     print(f"  {len(references)} reference entries")
 
+    print(f"→ Loading techniques from {TECHNIQUES_SRC.relative_to(ROOT)}")
+    # First, so every claim's technique is checked against the table as it is read.
+    techniques = load_techniques(TECHNIQUES_SRC)
+    install_techniques(techniques)
+    print(f"  {len(techniques)} techniques")
+
     print(f"→ Loading surfaces from {SURFACES_SRC.relative_to(ROOT)}")
-    surfaces = load_surfaces(SURFACES_SRC)
+    elements = load_elements(ELEMENTS_SRC)
+    surfaces = load_surfaces(SURFACES_SRC, elements)
+    for w in surface_warnings(surfaces):
+        print(f"  ⚠ {w}", file=sys.stderr)
     levels = {lv: sum(1 for s in surfaces.values() if s.level == lv)
-              for lv in ("site", "phase", "sample")}
+              for lv in ("site", "material")}
     print(f"  {len(surfaces)} surfaces ("
           + ", ".join(f"{n} {lv}" for lv, n in levels.items()) + ")")
 
@@ -668,6 +658,9 @@ def main() -> int:
     dataset.species = species
 
     validate_dataset(dataset, references=references)
+    # Each claim's two element sets, from the surfaces it names.
+    for w in derive_claim_elements(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
 
     fermi_warnings = tag_fermi_pairs(dataset)
     for w in fermi_warnings:
@@ -699,6 +692,9 @@ def main() -> int:
     # laser_nm -> the "514.5 nm" chip, coloured from the light in the frontend.
     for w in tag_lasers(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
+    # scattering -> "stokes" / "anti-stokes": which side of that line.
+    for w in tag_scattering(dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
     # medium -> "in gas" / "in liquid" / ..., form -> "adsorbed" / "free" / ...
     # These are the only phase tags there are; a band shows the union of its
     # claims'.
@@ -724,6 +720,10 @@ def main() -> int:
     vibrations = load_vibrations(VIBRATIONS_SRC)
     n_modes = sum(len(m.modes) for m in vibrations.molecules)
     print(f"  {len(vibrations.molecules)} molecules, {n_modes} modes")
+    # Before validate_vibrations, which back-fills vibration_modes onto
+    # overtones and isotopologues: those must not inherit a parent's label.
+    for w in derive_band_symmetry(vibrations, dataset):
+        print(f"  ⚠ {w}", file=sys.stderr)
     for w in validate_vibrations(vibrations, dataset, references=references):
         print(f"  ⚠ {w}", file=sys.stderr)
 
@@ -740,8 +740,11 @@ def main() -> int:
         # Small enough to ship in the same file the frontend already fetches,
         # and needed on every page that renders a band label or a site badge.
         "species": {k: asdict(v) for k, v in dataset.species.items()},
-        "surfaces": {k: _surface_to_dict(v, dataset.surfaces)
-                     for k, v in dataset.surfaces.items()},
+        "surfaces": {k: asdict(v) for k, v in dataset.surfaces.items()},
+        # The Element entity, for the element filters' grouping by category.
+        "elements": elements,
+        # The Technique records, in the order the filter lists them.
+        "techniques": techniques,
         "bands": [_band_to_dict(b) for b in dataset.bands],
     }
     BANDS_OUT.write_text(
@@ -779,6 +782,8 @@ def main() -> int:
         (TAGS_SRC, DOCS_DATA / "tags.jsonc"),
         (SURFACES_SRC, DOCS_DATA / "surfaces.jsonc"),
         (SPECIES_SRC, DOCS_DATA / "species.jsonc"),
+        (ELEMENTS_SRC, DOCS_DATA / "elements.jsonc"),
+        (TECHNIQUES_SRC, DOCS_DATA / "techniques.jsonc"),
     ]:
         shutil.copy(src, dst)
         print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")

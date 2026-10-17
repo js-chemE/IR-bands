@@ -19,14 +19,18 @@ export type Branch = 'O' | 'P' | 'Q' | 'R' | 'S';
 export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';
 export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
-export type Phase = 'gas' | 'adsorbed' | 'surface' | 'solution';
+export type Phase = 'gas' | 'adsorbed' | 'surface' | 'solution' | 'solid';
 export type Medium = 'vacuum' | 'gas' | 'liquid' | 'supercritical' | 'matrix';
 export type Form = 'free' | 'dissolved' | 'adsorbed' | 'surface' | 'lattice';
-export type Technique =
-  | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'seiras' | 'emission'
-  | 'mioirs' | 'infrared' | 'raman' | 'srs' | 'computational';
-export type SurfaceLevel = 'site' | 'phase' | 'sample';
-export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';
+/** A key of data/techniques.jsonc. */
+export type Technique = string;
+export type SurfaceLevel = 'site' | 'material';
+export type MaterialKind = 'oxide' | 'mixed oxide' | 'halide';
+/** How far a claim places its species: on a site, on a material (a part of
+ *  the specimen, or a specimen that is one compound), or only on a composite
+ *  specimen, seen there and not located in it. */
+export type Placement = 'site' | 'material' | 'specimen';
+export type SiteKind = 'metal' | 'atom' | 'cation' | 'anion' | 'defect' | 'interface' | 'bronsted' | 'hydroxyl';
 export type ColorDim = 'group' | 'vibration' | 'atoms' | 'references' | 'technique';
 /** Which selection rule the band chart draws: the other technique's silent bands fade. */
 export type Spectroscopy = 'ir' | 'raman';
@@ -54,7 +58,7 @@ export interface BasedOn {
 
 export interface BandReference {
   key: string;
-  /** The assignment's own number: unique, never reused, kept through edits. */
+  /** The claim's own number: unique, never reused, kept through edits. */
   id?: number | null;
   wn: number | number[] | null;
   // Keys into Dataset.surfaces, not display text: where this source measured
@@ -64,10 +68,25 @@ export interface BandReference {
   technique: Technique | null;
   /** Raman excitation wavelength in nm. Derives the coloured wavelength tag. */
   laser_nm?: number | null;
+  /** Which side of the laser line a Raman claim was read on; wn is the
+   *  magnitude either way. Derives the "stokes" / "anti-stokes" tag. */
+  scattering?: 'stokes' | 'anti-stokes' | null;
   /** What surrounded the sample. Derives the "in gas" style tag. */
   medium?: Medium | null;
   /** Where the species was. Derives a tag of the same name. */
   form?: Form | null;
+  /** Surfaces the sample was mixed with but is not made of (KBr, an α-Al₂O₃
+   *  bed). Kept out of measured_on and out of both element sets. */
+  diluent?: string[];
+  /** Derived by build.py: elements of where the claim placed the species. */
+  site_elements?: string[];
+  /** Derived by build.py: elements of every key named. */
+  specimen_elements?: string[];
+  /** Derived by build.py: what was investigated, the materials named that no
+   *  other named material contains (Pd/TiO₂ beside TiO₂; TiO₂ named alone). */
+  specimens?: string[];
+  /** Derived by build.py: how far the claim places its species. */
+  placement?: Placement | null;
   note: string | null;
   tags: string[];
   // Computed by build.py: "<band id>::<citekey>", with an ordinal when one
@@ -77,32 +96,55 @@ export interface BandReference {
 
 /** Where a band was measured, at whatever scale the paper stated.
  *
- *  One table at three levels rather than separate sites and materials: TiO₂
- *  is the sample when a paper measures bare titania and a phase when that
- *  titania supports Pt, so the entry does not change, only the role. `level`
- *  is what the badge is drawn from: a site is filled, a phase or sample is
- *  hollow, so the scale of a claim is readable at a glance.
+ *  Two levels: a site (the atom-scale spot, or an ion) and a material (any
+ *  piece of solid, one compound or a whole catalyst). The role is not the
+ *  record's: TiO₂ is the specimen when a paper measures bare titania and a
+ *  part of it when that titania supports Pt, and the claim says which by what
+ *  else it names. `level` is what the badge is drawn from: a site is filled,
+ *  a material hollow, so the scale of a claim is readable at a glance.
  */
 export interface Surface {
   key: string;
   label: string;
   level: SurfaceLevel;
   /** Sites only. */
-  kind: SiteKind | null;
+  /** A site's or a compound's kind; a refinement inherits its parent's. */
+  kind: SiteKind | MaterialKind | null;
   element: string | null;
   oxidation_state: number | null;
   formula: string | null;
   composition: string | null;
-  /** Authored: what this entry alone contains. */
+  /** Authored: what this entry contains that its parts and parent do not. */
   elements: string[];
+  /** The record this one is a more specific version of, on the same level.
+   *  Searches flow down it: Al₂O₃ finds γ-Al₂O₃, not the other way. */
+  refines: string | null;
+  charge: number | null;
+  coordination: string | null;
+  polymorph: string | null;
   facet: string | null;
-  /** The surfaces one scale down: a sample's phases and sites, a phase's
-   *  sites, a composite site's simpler sites. The only containment link. */
+  form: string | null;
+  stoichiometry: string | null;
+  /** "Is made of": records on the same level or lower. Elements flow up. */
   parts: string[];
-  /** Computed by build.py: `elements` unioned over the whole `parts` tree.
-   *  What an element query ("anything with Cu in it") runs against. */
+  /** Computed by build.py: the closure over parts and refines. */
   all_elements: string[];
+  /** Computed by build.py: the refinement chain upwards, nearest first. */
+  lineage: string[];
+  /** Computed by build.py: a material made only of ionic sites, one compound
+   *  (TiO₂, ZSM-5) rather than a composite (Cu/ZnO). False for a site. */
+  compound?: boolean;
   note: string;
+}
+
+/** An element as an entity: data/elements.jsonc. */
+export interface ElementInfo {
+  name: string;
+  z: number;
+  group: number | null;
+  period: number;
+  block: string;
+  category: string;
 }
 
 export interface Species {
@@ -145,6 +187,10 @@ export interface Band {
   // form; topology is a Topology id on this species' molecule.
   phase: Phase | null;
   topology: string | null;
+  /** The mode's Mulliken label, with literal <sub>/<sup> ("A<sub>1g</sub>"),
+   *  so it is rendered with {@html}. Authored, or derived by build.py from
+   *  the band's own vibration_modes. */
+  symmetry?: string | null;
   intensity: BandIntensity | null;
   width: BandWidth | null;
   confidence: BandConfidence | null;
@@ -157,6 +203,8 @@ export interface Group {
   key: string;
   label: string;
   color: string;
+  /** What vibrates: a molecule or adsorbate (species) or the solid itself (specimen). */
+  of?: 'species' | 'specimen';
 }
 
 /** A named selection of groups, offered by the chart's filter. */
@@ -185,6 +233,9 @@ export interface Dataset {
   lanes: string[][];
   species: Record<string, Species>;
   surfaces: Record<string, Surface>;
+  elements: Record<string, ElementInfo>;
+  /** The Technique records, in the order the filter lists them. */
+  techniques: Record<string, import('./claimFilter').TechniqueRecord>;
   bands: Band[];
 }
 

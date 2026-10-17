@@ -17,7 +17,7 @@ from pathlib import Path
 from ir_bands.schema import (
     Band, BasedOn, Dataset, Group, GroupSet, Molecule, Reference,
     Region, Species, Surface, Topology, Vibration, VibrationMode, Vibrations,
-    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES, VALID_ISOTOPES, MEDIUM_TAGS,
+    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES, VALID_ISOTOPES, MEDIUM_TAGS, SURFACE_RANK, REFINEMENT_ATTRIBUTES, IONIC_SITE_KINDS,
     VALID_TECHNIQUES,
     DESCRIPTION_MAX_WORDS, ISOTOPE_TAGS, REFERENCE_NOTE_MAX_WORDS,
     MARKUP_EXEMPT_VIBRATION_FIELDS, SUBSCRIPT_CHARS,
@@ -91,8 +91,10 @@ def _parse_reference(raw) -> Reference | None:
             id=raw.get("id"),
             wn=raw.get("wn"),
             measured_on=raw.get("measured_on"),
+            diluent=_as_list(raw.get("diluent")),
             technique=raw.get("technique"),
             laser_nm=raw.get("laser_nm"),
+            scattering=raw.get("scattering"),
             medium=raw.get("medium"),
             form=raw.get("form"),
             note=raw.get("note"),
@@ -139,6 +141,7 @@ def _parse_band(raw: dict) -> Band:
         isotope=raw.get("isotope"),
         phase=raw.get("phase"),
         topology=raw.get("topology"),
+        symmetry=raw.get("symmetry"),
         vibration_modes=list(raw.get("vibration_modes", [])),
     )
 
@@ -156,6 +159,9 @@ def load_dataset(path: str | Path, validate: bool = True) -> Dataset:
     metadata = raw.get("metadata", {})
     regions = {k: Region(key=k, **v) for k, v in raw.get("regions", {}).items()}
     groups = {k: Group(key=k, **v) for k, v in raw.get("groups", {}).items()}
+    for g in groups.values():
+        if g.of not in ("species", "specimen"):
+            raise ValueError(f"group {g.key}: of={g.of!r} must be species or specimen")
     sets = {
         k: GroupSet(
             key=k,
@@ -252,15 +258,15 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
 
     id_set = set(seen)
 
-    # 1b. Every assignment carries its own number, unique and never reused.
-    #     The numbers are handed out from metadata.next_assignment_id, which
+    # 1b. Every claim carries its own number, unique and never reused.
+    #     The numbers are handed out from metadata.next_claim_id, which
     #     only ever goes up: a deleted claim takes its number with it, and an
     #     edited one keeps it. Anything at or above the mark was either typed
     #     by hand or the mark was not raised after handing it out, and either
     #     way the next claim added would collide with it.
-    next_id = dataset.metadata.get("next_assignment_id")
+    next_id = dataset.metadata.get("next_claim_id")
     if not isinstance(next_id, int) or isinstance(next_id, bool):
-        errors.append("metadata.next_assignment_id must be an integer: the next free assignment id")
+        errors.append("metadata.next_claim_id must be an integer: the next free claim id")
         next_id = None
     seen_aid: dict[int, str] = {}
     unnumbered: list[str] = []
@@ -279,15 +285,15 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
                 seen_aid[ref.id] = where
             if next_id is not None and ref.id >= next_id:
                 errors.append(
-                    f"{where}: id {ref.id} is not below metadata.next_assignment_id "
+                    f"{where}: id {ref.id} is not below metadata.next_claim_id "
                     f"({next_id}); raise the mark past every id handed out"
                 )
     if unnumbered:
         start = next_id if next_id is not None else max(seen_aid, default=0) + 1
         hint = ", ".join(f"{w} -> {start + i}" for i, w in enumerate(unnumbered))
         errors.append(
-            f"{len(unnumbered)} assignment(s) without an id. Give them the next free "
-            f"numbers and set metadata.next_assignment_id to {start + len(unnumbered)}: {hint}"
+            f"{len(unnumbered)} claim(s) without an id. Give them the next free "
+            f"numbers and set metadata.next_claim_id to {start + len(unnumbered)}: {hint}"
         )
 
     # 2. Group keys exist
@@ -314,6 +320,15 @@ def validate_dataset(dataset: Dataset, references: dict | None = None) -> None:
         for gk in dataset.groups:
             if gk not in seen_in_lane:
                 errors.append(f"Group {gk!r} is in no lane; add it to the lanes table")
+        # Specimen lanes below species lanes: the chart draws one divider
+        # between the two, so a lane order that interleaves them cannot be drawn.
+        kinds = [dataset.groups[gk].of for lane in dataset.lanes for gk in lane if gk in dataset.groups]
+        if "specimen" in kinds and "species" in kinds[kinds.index("specimen"):]:
+            errors.append("Lanes: every specimen group (of: specimen) must come after every species group")
+        for i, lane in enumerate(dataset.lanes):
+            ofs = {dataset.groups[gk].of for gk in lane if gk in dataset.groups}
+            if len(ofs) > 1:
+                errors.append(f"Lane {i}: mixes species and specimen groups")
 
     # 2b. Every set names real groups, and says something (an empty set would
     #     render as a filter that hides everything).
@@ -957,12 +972,14 @@ def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
 #: The claim forms (and, for a free molecule, media) each band phase is
 #: consistent with. A gas-phase band is the free molecule in a gas, a vacuum or
 #: a matrix; a solution band is free or dissolved in a liquid; a surface band is
-#: a group or a lattice mode of the solid.
+#: a group belonging to the solid (a hydroxyl, a hydride); a solid band is a
+#: lattice mode or a defect of the solid itself.
 PHASE_FORMS = {
     "gas": ({"free"}, {"gas", "vacuum", "supercritical", "matrix", None}),
     "solution": ({"free", "dissolved"}, {"liquid", None}),
     "adsorbed": ({"adsorbed"}, None),
-    "surface": ({"surface", "lattice"}, None),
+    "surface": ({"surface"}, None),
+    "solid": ({"lattice"}, None),
 }
 
 
@@ -1003,29 +1020,41 @@ def check_phase(dataset: Dataset) -> list[str]:
     return warnings
 
 
-#: Which spectroscopy each technique belongs to. Mirrors TECHNIQUES[].
-#: spectroscopy in frontend/src/lib/dataModel.ts; keep the two in step.
-RAMAN_TECHNIQUES = {"raman", "srs"}
+#: Which techniques are Raman, and each technique's family: both filled from
+#: data/techniques.jsonc by install_techniques(), never written here.
+RAMAN_TECHNIQUES: set[str] = set()
+TECHNIQUE_FAMILY: dict[str, str] = {}
 
-#: Technique -> the umbrella tag derived alongside it. Mirrors
-#: TECHNIQUE_FAMILY in frontend/src/lib/dataModel.ts; keep the two in step.
-#: "infrared" and "raman" map to themselves: a paper that says only "IR" or
-#: "Raman" has named the family and nothing finer, so the family tag and the
-#: value are one chip.
-TECHNIQUE_FAMILY = {
-    "drifts": "infrared",
-    "transmission": "infrared",
-    "atr": "infrared",
-    "infrared": "infrared",
-    "irras": "infrared",
-    "pm_irras": "infrared",
-    "seiras": "infrared",
-    "emission": "infrared",
-    "mioirs": "infrared",
-    "raman": "raman",
-    "srs": "raman",
-    "computational": "computational",
-}
+VALID_TECHNIQUE_FAMILIES = {"infrared", "raman", "computational"}
+
+
+def load_techniques(path: str | Path) -> dict[str, dict]:
+    """Load the Technique records from data/techniques.jsonc, in file order."""
+    table = dict(load_jsonc(path).get("techniques", {}))
+    errors = []
+    for key, rec in table.items():
+        if rec.get("family") not in VALID_TECHNIQUE_FAMILIES:
+            errors.append(f"Technique {key}: family {rec.get('family')!r} not in {sorted(VALID_TECHNIQUE_FAMILIES)}")
+        if rec.get("spectroscopy") not in ("ir", "raman", None):
+            errors.append(f"Technique {key}: spectroscopy {rec.get('spectroscopy')!r} not ir | raman | null")
+        parent = rec.get("parent")
+        if parent is not None and parent not in table:
+            errors.append(f"Technique {key}: parent {parent!r} is not a technique")
+        if not rec.get("label"):
+            errors.append(f"Technique {key}: no label")
+    if errors:
+        raise ValueError("techniques.jsonc validation failed:\n  " + "\n  ".join(errors))
+    return table
+
+
+def install_techniques(table: dict[str, dict]) -> None:
+    """Make the Technique table the one list the rest of the build checks against."""
+    VALID_TECHNIQUES.clear()
+    VALID_TECHNIQUES.update(table)
+    RAMAN_TECHNIQUES.clear()
+    RAMAN_TECHNIQUES.update(k for k, r in table.items() if r.get("spectroscopy") == "raman")
+    TECHNIQUE_FAMILY.clear()
+    TECHNIQUE_FAMILY.update({k: r["family"] for k, r in table.items()})
 
 #: Branch letters that only Raman can produce. The infrared absorbs one
 #: photon through a rank-one operator, the dipole, so it reaches dJ = 0, +/-1
@@ -1129,8 +1158,13 @@ def tag_phases(dataset: Dataset) -> list[str]:
             # A calculation records what its model contains (a slab in vacuum,
             # a free molecule), so it carries the two fields like any claim.
             total += 1
+            # A lattice line belongs to the solid itself: what surrounded it
+            # rarely moves the band, and an ex-situ spectrum of a bare oxide
+            # seldom says. So a lattice claim is not counted as missing a
+            # medium; it still records one wherever the paper states it.
             if ref.medium is None:
-                no_medium += 1
+                if ref.form != "lattice":
+                    no_medium += 1
             elif MEDIUM_TAGS[ref.medium] not in ref.tags:
                 ref.tags.append(MEDIUM_TAGS[ref.medium])
             if ref.form is None:
@@ -1140,7 +1174,7 @@ def tag_phases(dataset: Dataset) -> list[str]:
             if ref.form == "dissolved" and ref.medium not in (None, "liquid"):
                 warnings.append(f"Band {b.id}, claim {ref.id}: form dissolved in medium {ref.medium}")
     if no_medium:
-        warnings.append(f"{no_medium} of {total} claims record no medium (vacuum | gas | liquid | supercritical | matrix)")
+        warnings.append(f"{no_medium} of {total} claims record no medium (vacuum | gas | liquid | supercritical | matrix); lattice claims are not counted")
     if no_form:
         warnings.append(f"{no_form} of {total} claims record no form (free | dissolved | adsorbed | surface | lattice)")
     return warnings
@@ -1177,6 +1211,38 @@ def tag_lasers(dataset: Dataset) -> list[str]:
     return warnings
 
 
+def tag_scattering(dataset: Dataset) -> list[str]:
+    """Derive each Raman claim's side-of-the-line tag from scattering.
+
+    The tag is the value itself, "stokes" or "anti-stokes". Both sides are the
+    same mode, so the claim stays on the same band and wn is the magnitude;
+    the tag is what lets a reader see that a row was read off the blue side.
+
+    Every Raman claim gets one, so the vocabulary is uniform: a claim that
+    names no side is a positive shift, which is the Stokes side, and is
+    filled in as "stokes" here. Only an anti-Stokes reading is authored.
+
+    Warns where the field is set on a claim that is not Raman: an absorption
+    has no laser line to be on either side of.
+    """
+    warnings: list[str] = []
+    for b in dataset.bands:
+        for ref in b.references:
+            if ref.scattering is None and ref.technique in RAMAN_TECHNIQUES:
+                ref.scattering = "stokes"
+            if ref.scattering is None:
+                continue
+            if ref.technique not in RAMAN_TECHNIQUES:
+                warnings.append(
+                    f"Band {b.id}, reference {ref.key}: scattering is set but "
+                    f"technique={ref.technique!r}; Stokes and anti-Stokes are "
+                    f"the two sides of a Raman laser line"
+                )
+            if ref.scattering not in ref.tags:
+                ref.tags.append(ref.scattering)
+    return warnings
+
+
 def assign_reference_uids(dataset: Dataset) -> list[str]:
     """Give every citation a stable handle: "<band id>::<citekey>".
 
@@ -1196,13 +1262,19 @@ def assign_reference_uids(dataset: Dataset) -> list[str]:
     return []
 
 
-def load_surfaces(path: str | Path) -> dict[str, Surface]:
-    """Load the surfaces table from data/surfaces.jsonc.
+def load_elements(path: str | Path) -> dict[str, dict]:
+    """Load the Element entity from data/elements.jsonc: symbol -> record."""
+    return dict(load_jsonc(path).get("elements", {}))
 
-    One table at three levels; see the Surface docstring for why they are not
-    separated. `parts` points down the scale and must resolve, and a part may
-    not sit at a coarser level than its container, which is what stops the
-    containment chain from looping back on itself.
+
+def load_surfaces(path: str | Path, elements: dict | None = None) -> dict[str, Surface]:
+    """Load the surfaces table from data/surfaces.jsonc and derive its closures.
+
+    Checks the two links: every `parts` key resolves and sits on the same
+    level or lower, every `refines` key resolves to one record on the same
+    level, a refinement names what it adds, and neither link loops. Then
+    computes each record's `all_elements` (the closure over parts and the
+    refined parent) and its `lineage` (the refinement chain upward).
     """
     raw = load_jsonc(path)
     surfaces = {
@@ -1216,45 +1288,205 @@ def load_surfaces(path: str | Path) -> dict[str, Surface]:
             formula=value.get("formula"),
             composition=value.get("composition"),
             elements=list(value.get("elements", [])),
+            refines=value.get("refines"),
+            charge=value.get("charge"),
+            coordination=value.get("coordination"),
+            polymorph=value.get("polymorph"),
             facet=value.get("facet"),
+            form=value.get("form"),
+            stoichiometry=value.get("stoichiometry"),
             parts=list(value.get("parts", [])),
             note=value.get("note", ""),
         )
         for key, value in raw.get("surfaces", {}).items()
     }
 
-    rank = {"sample": 2, "phase": 1, "site": 0}
     errors: list[str] = []
     for surf in surfaces.values():
+        if elements is not None:
+            for e in [surf.element, *surf.elements]:
+                if e is not None and e not in elements:
+                    errors.append(f"Surface {surf.key}: unknown element symbol {e!r} (not in elements.jsonc)")
         for part in surf.parts:
-            if part not in surfaces:
+            child = surfaces.get(part)
+            if child is None:
                 errors.append(f"Surface {surf.key}: part {part!r} is not a surface key")
+            elif SURFACE_RANK[child.level] > SURFACE_RANK[surf.level]:
+                errors.append(
+                    f"Surface {surf.key} ({surf.level}) lists {part!r} ({child.level}) as a part; "
+                    "parts point to the same level or lower, never up"
+                )
+        if surf.refines is not None:
+            parent = surfaces.get(surf.refines)
+            if parent is None:
+                errors.append(f"Surface {surf.key}: refines {surf.refines!r}, which is not a surface key")
+            elif parent.level != surf.level:
+                errors.append(
+                    f"Surface {surf.key} ({surf.level}) refines {surf.refines!r} ({parent.level}); "
+                    "a refinement stays on its parent's level"
+                )
+            if not any(getattr(surf, a) is not None for a in REFINEMENT_ATTRIBUTES):
+                errors.append(
+                    f"Surface {surf.key} refines {surf.refines!r} without saying what it adds; "
+                    f"set one of {', '.join(REFINEMENT_ATTRIBUTES)}"
+                )
+
+    # Neither link may loop: walk each from every record.
+    def loops(start: str, nxt) -> bool:
+        seen, stack = set(), list(nxt(start))
+        while stack:
+            k = stack.pop()
+            if k == start:
+                return True
+            if k in seen or k not in surfaces:
                 continue
-            child = surfaces[part]
-            # An interface is the one site defined by what it touches, and one
-            # of those is usually a whole phase: the Pt-CeO2 perimeter is not
-            # the Pt atom plus a Ce cation, it is the metal against the oxide.
-            # Every other container lists parts strictly below it.
-            interface = surf.level == "site" and surf.kind == "interface"
-            if rank[child.level] > rank[surf.level] and not interface:
-                errors.append(
-                    f"Surface {surf.key} ({surf.level}) lists {part!r} ({child.level}) "
-                    "as a part; parts go down the scale, never up "
-                    "(only an interface site may name a phase)"
-                )
-            # A container cannot present something made of an element it does
-            # not contain; that check is what an element query relies on.
-            own = set(surf.all_elements)
-            child_elements = set(child.all_elements)
-            if own and child_elements and not child_elements <= own:
-                missing = sorted(child_elements - own)
-                errors.append(
-                    f"Surface {surf.key}: part {part!r} contains {missing} which "
-                    f"{surf.key} does not list among its elements"
-                )
+            seen.add(k)
+            stack.extend(nxt(k))
+        return False
+    for key in surfaces:
+        if loops(key, lambda k: surfaces[k].parts if k in surfaces else []):
+            errors.append(f"Surface {key}: its parts lead back to itself")
+        if loops(key, lambda k: [surfaces[k].refines] if k in surfaces and surfaces[k].refines else []):
+            errors.append(f"Surface {key}: its refinement chain leads back to itself")
     if errors:
         raise ValueError("surfaces.jsonc validation failed:\n  " + "\n  ".join(errors))
+
+    cache: dict[str, set[str]] = {}
+    def closure(key: str, trail: frozenset = frozenset()) -> set[str]:
+        if key in cache:
+            return cache[key]
+        s = surfaces[key]
+        out = set(s.elements) | ({s.element} if s.element else set())
+        for p in s.parts:
+            if p not in trail:
+                out |= closure(p, trail | {key})
+        if s.refines and s.refines not in trail:
+            out |= closure(s.refines, trail | {key})
+        cache[key] = out
+        return out
+    for key, s in surfaces.items():
+        s.all_elements = sorted(closure(key))
+        chain, k = [], s.refines
+        while k:
+            chain.append(k)
+            k = surfaces[k].refines
+        s.lineage = chain
+
+    # One compound or a composite, read off what a material is made of:
+    # only ionic sites, through its parts and the record it refines.
+    def made_of(key: str) -> list[Surface]:
+        out, k = [], key
+        while k:
+            out += [surfaces[p] for p in surfaces[k].parts]
+            k = surfaces[k].refines
+        return out
+    for s in surfaces.values():
+        if s.level == "material":
+            s.compound = all(
+                p.level == "site" and _site_kind(p, surfaces) in IONIC_SITE_KINDS
+                for p in made_of(s.key)
+            )
     return surfaces
+
+
+def _site_kind(s: Surface, surfaces: dict[str, Surface]) -> str | None:
+    """A site's kind, inherited along `refines`."""
+    while s is not None:
+        if s.kind:
+            return s.kind
+        s = surfaces.get(s.refines) if s.refines else None
+    return None
+
+
+def surface_contents(key: str, surfaces: dict[str, Surface]) -> set[str]:
+    """Every record `key` is made of, through parts and through the records
+    it and its parts refine: what makes Al2O3 a part of Ru/Al2O3 when the
+    specimen lists only gamma-Al2O3."""
+    out: set[str] = set()
+    stack = [key]
+    while stack:
+        k = stack.pop()
+        chain = [k] + list(surfaces[k].lineage)
+        for a in chain:
+            for p in surfaces[a].parts:
+                for q in [p] + list(surfaces[p].lineage):
+                    if q not in out:
+                        out.add(q)
+                        stack.append(q)
+    return out
+
+
+def surface_warnings(surfaces: dict[str, Surface]) -> list[str]:
+    """Authored elements the parts or the parent already supply.
+
+    Elements are typed once: a record authors only what its parts and its
+    refined parent do not give it. Anything more is a second copy that can
+    drift, so it is reported (not rejected).
+    """
+    out: list[str] = []
+    for s in surfaces.values():
+        supplied: set[str] = set()
+        for p in s.parts:
+            supplied |= set(surfaces[p].all_elements)
+        if s.refines:
+            supplied |= set(surfaces[s.refines].all_elements)
+        extra = sorted(set(s.elements) & supplied)
+        if extra:
+            out.append(f"surface {s.key!r} authors {extra}, which its parts or parent already supply")
+    return out
+
+
+def derive_claim_elements(dataset: Dataset) -> list[str]:
+    """Give every claim its two element sets, and check its diluents.
+
+    `specimens`: the materials it names that no other material it names
+    contains, so the hierarchy of the keys decides the role and no record has
+    to. `placement`: how far it places the species, "site" if it names a site,
+    "material" if it names a material inside the specimen or the specimen is
+    one compound, "specimen" if it names only a composite. `site_elements`:
+    the closure of that placement. `specimen_elements`: the closure of every
+    key it names. A diluent is validated (it must be a surface key and not
+    also a measured_on key) and counted in neither.
+
+    Warns where one claim names two specimens: one row is one measurement on
+    one solid, and two unrelated materials in it are two claims in one.
+    """
+    warnings: list[str] = []
+    surf = dataset.surfaces
+    contents = {k: surface_contents(k, surf) for k in surf}
+    for b in dataset.bands:
+        for ref in b.references:
+            keys = [k for k in _as_list(ref.measured_on) if k in surf]
+            sites = [k for k in keys if surf[k].level == "site"]
+            materials = [k for k in keys if surf[k].level == "material"]
+            ref.specimens = [
+                k for k in materials
+                if not any(o != k and k in contents[o] for o in materials)
+            ]
+            parts = [k for k in materials if k not in ref.specimens]
+            placed = sites + parts + [k for k in ref.specimens if surf[k].compound]
+            if sites:
+                ref.placement = "site"
+            elif parts or any(surf[k].compound for k in ref.specimens):
+                ref.placement = "material"
+            elif ref.specimens:
+                ref.placement = "specimen"
+            else:
+                ref.placement = None
+            ref.site_elements = sorted({e for k in placed for e in surf[k].all_elements})
+            ref.specimen_elements = sorted({e for k in keys for e in surf[k].all_elements})
+            if len(ref.specimens) > 1:
+                warnings.append(
+                    f"Band {b.id}, claim {ref.id}: names {len(ref.specimens)} specimens "
+                    f"({', '.join(ref.specimens)}), none part of another; one row is one "
+                    "measurement on one solid"
+                )
+            for d in ref.diluent:
+                if d not in surf:
+                    warnings.append(f"Band {b.id}, claim {ref.id}: diluent {d!r} is not a surface key")
+                elif d in keys:
+                    warnings.append(f"Band {b.id}, claim {ref.id}: {d!r} is both measured_on and a diluent")
+    return warnings
 
 
 def load_species(path: str | Path) -> dict[str, Species]:
@@ -1290,6 +1522,41 @@ def load_tags(path: str | Path) -> dict:
         if not isinstance(value, dict) or not value.get("tip"):
             raise ValueError(f"tags.jsonc: tag {key!r} is missing a non-empty 'tip'")
     return tags
+
+
+def derive_band_symmetry(vib: Vibrations, dataset: Dataset) -> list[str]:
+    """Fill Band.symmetry from the band's own vibration_modes.
+
+    Must run before _link_modes_to_bands(), which back-fills vibration_modes
+    onto overtones, combinations and isotopologues. None of those inherits
+    the label: an overtone or a combination transforms as a product of its
+    parents, and substituting one atom can lower the point group (¹⁶O¹²C¹⁸O
+    is not D∞h), so a parent's label is not theirs.
+
+    Only the modes valid for the band's own topology count (a mode with no
+    topology, or the band's). The label is filled only where those modes
+    agree on one value; a band whose modes disagree, a degenerate pair of
+    different species say, is left without one rather than given a guess.
+    An authored value wins, and a disagreement with the modes is reported.
+    """
+    warnings: list[str] = []
+    modes = {m.id: m for mol in vib.molecules for m in mol.modes}
+    for b in dataset.bands:
+        labels = {
+            modes[mid].symmetry
+            for mid in b.vibration_modes
+            if mid in modes and modes[mid].symmetry
+            and modes[mid].topology in (None, b.topology)
+        }
+        if b.symmetry is not None:
+            if labels and labels != {b.symmetry}:
+                warnings.append(
+                    f"Band {b.id}: symmetry {b.symmetry!r} disagrees with its "
+                    f"vibration_modes ({', '.join(sorted(labels))})"
+                )
+        elif len(labels) == 1:
+            b.symmetry = next(iter(labels))
+    return warnings
 
 
 def _link_modes_to_bands(vib: Vibrations, dataset: Dataset) -> list[str]:

@@ -12,15 +12,15 @@
     <p>
       The Spectral Band Atlas is an interactive reference for IR absorption bands
       observed in CO₂ hydrogenation catalysis. It compiles and cross-references
-      published band assignments from peer-reviewed literature, covering gas-phase
+      published band claims from peer-reviewed literature, covering gas-phase
       molecules (CO₂, CO, CH₄, H₂O&hellip;), surface intermediates (formates,
       carbonates, methoxy groups&hellip;), support hydroxyl groups, and adsorbates on
       metal and oxide surfaces.
     </p>
     <p>
-      The atlas is a <strong>work in progress</strong>. Band assignments and wavenumber
-      ranges are taken from the cited references; the assignment of references to bands
-      is in particular incomplete. Errors and omissions are possible — please verify
+      The atlas is a <strong>work in progress</strong>. Band claims and wavenumber
+      ranges are taken from the cited references; the claims on each band are in
+      particular incomplete. Errors and omissions are possible — please verify
       against the original literature before use.
     </p>
   </section>
@@ -188,7 +188,7 @@
     <h2>Disclaimer</h2>
     <p>
       This atlas is provided for informational and research purposes without warranty
-      of any kind. Band assignments represent the authors' best interpretation of the
+      of any kind. Band claims represent the authors' best interpretation of the
       cited literature and may not be complete or free of error. The Delft University
       of Technology assumes no liability for the accuracy or completeness of the
       information presented.

@@ -134,11 +134,29 @@
       "molecule": null,
       "note": "The Ga-O network of a gallium oxide support itself, not anything adsorbed on it. Here for the same reason as the silica framework and the oxygen vacancy: its own vibrations put bands on the chart that no adsorbate made."
     },
+    "titania": {
+      "label": "Titania framework",
+      "formula": "TiO₂",
+      "molecule": null,
+      "note": "The Ti-O network of titanium dioxide itself, not anything adsorbed on it: its lattice phonons and the second-order bands of the crystal. Which polymorph a band belongs to, anatase or rutile, is said by the surface the claim names, not here."
+    },
+    "alumina": {
+      "label": "Alumina framework",
+      "formula": "Al₂O₃",
+      "molecule": null,
+      "note": "The Al-O network of an aluminium oxide itself, not anything adsorbed on it: its lattice phonons, and the defect lines of the crystal. Which polymorph a band belongs to is said by the surface the claim names (α-Al₂O₃, sapphire), not here."
+    },
     "silica": {
       "label": "Silica framework",
       "formula": "SiO₂",
       "molecule": null,
       "note": "The Si-O-Si network of a silica or silicate support itself, not anything adsorbed on it. Here for the same reason as the oxygen vacancy: its overtones put bands on the chart that no adsorbate made."
+    },
+    "indium_oxide": {
+      "label": "Indium oxide framework",
+      "formula": "In₂O₃",
+      "molecule": null,
+      "note": "The In-O network of indium oxide itself, not anything adsorbed on it: its lattice phonons. Which polymorph a band belongs to is said by the surface the claim names (c-In₂O₃), not here."
     },
     "hydride": {
       "label": "Hydride",

@@ -18,7 +18,7 @@
   import { createEventDispatcher } from 'svelte';
   import { TAG_STYLES } from '../lib/tokens';
   import { tagStyle } from '../lib/colors';
-  import { SURFACE_LEVEL_TITLE } from '../lib/labels';
+  import { DILUENT_TITLE, claimBadgeTitle } from '../lib/labels';
   import VibrationMiniCard from './vibration/VibrationMiniCard.svelte';
   import Icon from './Icon.svelte';
   import type { TipData } from '../lib/chart';
@@ -46,11 +46,20 @@
    * last reference rather than pinned to the floor.
    */
   export let fill = false;
+  /** Offer the switches that take this band, or one of its claims, out of the
+   *  selection. Only the docked card: the floating one never takes the pointer. */
+  export let hideable = false;
 
   const dispatch = createEventDispatcher<{
+    hideBand: { id: string };
+    toggleClaim: { id: number };
+    toggleClaims: { ids: number[] };
     navigateRef: { key: string };
     navigateMode: { moleculeId: string; topologyId: string; modeId: string };
   }>();
+
+  /** The claim ids one paper makes on this band. */
+  const paperIdsOf = (key: string) => td.refs.filter(r => r.key === key && r.id != null).map(r => r.id ?? -1);
 
   function wnList(wn: number | number[] | null): number[] {
     if (wn == null) return [];
@@ -80,9 +89,16 @@
 
 <div class="band-card" class:fill>
       <!-- Header -->
-      <div class="tip-header" style="border-left-color:{color}">
+      <div class="tip-header" class:has-hide={hideable} style="border-left-color:{color}">
+        {#if hideable}
+          <button class="hide-btn band-hide" on:click={() => dispatch('hideBand', { id: td.id })}
+            title="Hide this band: it leaves the chart and its claims stop counting. Restore it under Hidden in the sidebar."
+            aria-label="Hide this band"><Icon name="eye-off" size={14} width={1.8} /></button>
+        {/if}
         <div class="tip-name">{td.name}</div>
-        <div class="tip-vib">{td.vib}</div>
+        <!-- The symmetry label carries <sub> for its letter subscripts, the
+             one band field that does, so it is the one part set as HTML. -->
+        <div class="tip-vib">{td.vib}{#if td.symmetry} | {@html td.symmetry}{/if}</div>
         <div class="tip-wn">{td.wnRange}</div>
         <div class="tip-group" style="color:{color}">{td.group}</div>
       </div>
@@ -178,14 +194,36 @@
                     ? `Its technique is switched off under Techniques in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
                     : ref.off === 'excluded-phase'
                     ? `Its form or medium is switched off under Phases in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : ref.off === 'hidden'
+                    ? `You switched this claim off, so it does not count. The eye in its corner counts it again. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : ref.off === 'excluded-material'
+                    ? `Its surface is switched off under Materials in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : ref.off === 'excluded-element'
+                    ? `Its surface's elements are switched off under Elements in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
                     : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,
                      the paper itself on the right. The book is the References
                      page's own symbol, the chain the usual one for a URL. -->
                 <div class="tip-ref-goto">
+                  {#if hideable && ref.id != null}
+                    <button class="tip-ref-goto-btn hide-btn" class:is-hidden={ref.off === 'hidden'}
+                      on:click|stopPropagation={() => dispatch('toggleClaim', { id: ref.id ?? -1 })}
+                      title={ref.off === 'hidden' ? 'Count this claim again' : 'Switch this claim off: it greys out and stops counting'}
+                      aria-label={ref.off === 'hidden' ? 'Count this claim again' : 'Switch this claim off'}
+                    ><Icon name={ref.off === 'hidden' ? 'eye' : 'eye-off'} size={12} width={2} /></button>
+                    {#if paperIdsOf(ref.key).length > 1}
+                      {@const paperIds = paperIdsOf(ref.key)}
+                      {@const paperOff = td.refs.filter(r => r.key === ref.key).every(r => r.off === 'hidden')}
+                      <button class="tip-ref-goto-btn hide-btn paper-btn" class:is-hidden={paperOff}
+                        on:click|stopPropagation={() => dispatch('toggleClaims', { ids: paperIds })}
+                        title={paperOff ? `Count all ${paperIds.length} claims of this paper on this band again` : `Switch off all ${paperIds.length} claims of this paper on this band`}
+                        aria-label={paperOff ? 'Count all of this paper’s claims again' : 'Switch off all of this paper’s claims on this band'}
+                      ><Icon name={paperOff ? 'eye' : 'eye-off'} size={12} width={2} /><span class="paper-n">×{paperIds.length}</span></button>
+                    {/if}
+                  {/if}
                   {#if ref.id != null}
-                    <span class="card-id" title="Assignment {ref.id}: this claim's own number, never reused">#{ref.id}</span>
+                    <span class="card-id" title="Claim {ref.id}: this claim's own number, never reused">#{ref.id}</span>
                   {/if}
                   <button
                     class="tip-ref-goto-btn"
@@ -219,9 +257,12 @@
                     {#each ref.surfaces as s}
                       <span
                         class="badge-site"
-                        class:badge-coarse={s.level !== 'site'}
-                        title={SURFACE_LEVEL_TITLE[s.level]}
+                        class:badge-coarse={s.role !== 'placed'}
+                        title={claimBadgeTitle(s)}
                       >{s.label}</span>
+                    {/each}
+                    {#each ref.diluents as d}
+                      <span class="badge-site badge-coarse badge-diluent" title={DILUENT_TITLE}>in {d.label}</span>
                     {/each}
                   </div>
                 {/if}
@@ -391,7 +432,7 @@
     font-size: var(--t-tip-ref-title-size);
     font-weight: var(--t-tip-ref-title-weight);
     color: var(--t-tip-ref-title-color);
-    /* Clears .tip-ref-goto: the assignment number, two 18px buttons and the
+    /* Clears .tip-ref-goto: the claim number, two 18px buttons and the
        gaps between them. Only the title line needs it, so the badges and the
        note keep the full width. */
     padding-right: 72px;
@@ -408,7 +449,7 @@
     gap: 3px;
   }
 
-  /* An identifier: the band id, an assignment number. Small, mono and faint,
+  /* An identifier: the band id, a claim number. Small, mono and faint,
      there to be copied rather than read. */
   .card-id {
     font-family: var(--t-tip-id-ff);
@@ -476,6 +517,10 @@
      of the site badge, not a second pill style. */
   .badge-coarse {
     background: var(--badge-site-bg-soft);
+  }
+  /* What the sample was mixed with: dashed, since it is not the catalyst. */
+  .badge-diluent {
+    border-style: dashed;
   }
 
   .tip-ref-tags {
@@ -582,4 +627,24 @@
   @media (prefers-reduced-motion: reduce) {
     .mol-caret { transition: none; }
   }
+  /* The hide switches: faint until hovered, so a band read for its content is
+     not covered in controls. The band's sits in the header's corner. */
+  .tip-header { position: relative; }
+  .tip-header.has-hide { padding-right: 22px; }
+  .band-hide {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 2px;
+    background: none;
+    border: none;
+    color: var(--ink-200);
+    cursor: pointer;
+    opacity: 0.6;
+  }
+  .hide-btn:hover { opacity: 1; color: var(--ink-700); }
+  .hide-btn.is-hidden { color: var(--brand-accent); opacity: 1; }
+  /* One paper's claims on this band at once: the eye with the number it covers. */
+  .paper-btn { width: auto; padding: 0 3px; gap: 1px; }
+  .paper-n { font-family: var(--font-mono); font-size: 9px; }
 </style>

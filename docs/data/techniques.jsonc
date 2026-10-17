@@ -1,0 +1,114 @@
+// =============================================================================
+// Techniques: how a claim's spectrum was taken, as records of their own.
+// -----------------------------------------------------------------------------
+// references[].technique in bands.jsonc is a key of this table; build.py fails
+// on any other value. Everything the atlas knows about a technique lives here
+// and nowhere else: the build, the band chart's Techniques filter, the legend
+// and the Dataset page all read it from bands.json. The order of the file is
+// the order the filter and the Dataset page list them in.
+//
+// SCHEMA
+//   <key>:          ASCII identifier, the value a claim writes and the tag the
+//                     build derives from it
+//     label:        display text (required)
+//     family:       infrared | raman | computational (required). The family
+//                     switch in the filter and the gap in the legend.
+//     spectroscopy: ir | raman | null. Which selection rule its evidence
+//                     speaks to; null for a calculation.
+//     parent:       the technique this one refines (optional): ATR-SEIRAS is
+//                     ATR with an enhancing film, PM-IRRAS is IRRAS with the
+//                     polarisation modulated. Switching or isolating the parent
+//                     takes the refinement along; the claim keeps its own value.
+//     tip:          one sentence saying what it is, the filter row's tooltip
+//     note:         the longer account shown on the Dataset page
+// =============================================================================
+{
+  "techniques": {
+    "infrared": {
+      "label": "IR (unspecified)",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "An infrared measurement whose sampling geometry the source does not name.",
+      "note": "The placeholder of the infrared family: the source says only IR or FTIR, and FTIR names the interferometer rather than the sampling geometry. The value and the family umbrella are one chip, as for raman. Use it when the paper genuinely does not say, and replace it once it does."
+    },
+    "drifts": {
+      "label": "DRIFTS",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "Infrared light scattered back from a powder bed (diffuse reflectance).",
+      "note": "Diffuse reflectance off a powder bed. The workhorse for supported catalysts."
+    },
+    "transmission": {
+      "label": "Transmission",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "Infrared light passed straight through a thin wafer or a gas cell.",
+      "note": "Self-supporting wafer, beam straight through."
+    },
+    "atr": {
+      "label": "ATR",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "Infrared light totally reflected inside a crystal, probing the sample pressed against it.",
+      "note": "Attenuated total reflectance against an internal-reflection crystal. Common for liquid-phase and wet surfaces."
+    },
+    "seiras": {
+      "label": "ATR-SEIRAS",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "parent": "atr",
+      "tip": "ATR through a thin metal-film electrode that enhances the absorption near the metal.",
+      "note": "Surface-enhanced infrared absorption, almost always in the ATR (Kretschmann) geometry: a nanostructured metal film, tens of nm thick, is deposited on an internal-reflection prism and serves as the electrode, with the electrolyte on its far side. The beam reaches the film through the prism, so the bulk electrolyte barely absorbs, and the film’s islands enhance the field within a few nm of the metal by one to two orders of magnitude. Two consequences make it an experiment of its own rather than plain ATR. The surface selection rule applies, as for IRRAS: only dipole components normal to the metal are enhanced, so an absent band can mean a mode lying flat. And the spectra are almost always differences against a reference potential, so a band can point down, meaning a species consumed (interfacial CO₂) rather than formed. The film is the electrode, so its own metal (and any underlayer, often Au) is the surface the claim is about."
+    },
+    "irras": {
+      "label": "IRRAS",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "Infrared light reflected at grazing incidence off a flat, usually metal, surface.",
+      "note": "Grazing-incidence reflection off a flat, usually single-crystal sample, in vacuum. The surface selection rule applies: only dipole components along the surface normal absorb, so a mode missing from the spectrum may be lying flat rather than absent."
+    },
+    "pm_irras": {
+      "label": "PM-IRRAS",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "parent": "irras",
+      "tip": "Grazing-incidence reflection with the polarisation switched to cancel the gas background.",
+      "note": "IRRAS with the polarisation modulated between s and p, which cancels the isotropic gas and window background. It is what makes reflection work outside vacuum."
+    },
+    "emission": {
+      "label": "Emission",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "Infrared light emitted by the hot sample itself.",
+      "note": "The hot sample is the source: no beam is passed through it. Used where a bed is too opaque or too hot for the other geometries."
+    },
+    "mioirs": {
+      "label": "MIOIRS",
+      "family": "infrared",
+      "spectroscopy": "ir",
+      "tip": "An infrared spectrum of a deliberately mixed isotopic feed, which detunes the coupling between neighbouring adsorbates.",
+      "note": "Mixed Isotope Operando Infrared Spectroscopy: the sample is fed a deliberately mixed isotopic stream, a little ¹³CO in ¹²CO, so that neighbouring adsorbates no longer vibrate at the same frequency and the dipole coupling between them is detuned. The odd value of the infrared family, since it names what is fed to the cell rather than how the beam reaches the sample, but a decoupled adlayer is a different measurement whatever geometry recorded it, which is why it is a value and not a tag. Proposed by Monai in 2024; nothing in the atlas carries it yet."
+    },
+    "raman": {
+      "label": "Raman (unspecified)",
+      "family": "raman",
+      "spectroscopy": "raman",
+      "tip": "Raman scattering whose kind the source does not name.",
+      "note": "Inelastic scattering of a laser rather than absorption: a Raman shift, the same vibrational energy seen through the polarizability. The placeholder of its family, the way infrared is for the infrared: it says the source named Raman and nothing finer. Use srs where the paper says spontaneous."
+    },
+    "srs": {
+      "label": "Spontaneous Raman",
+      "family": "raman",
+      "spectroscopy": "raman",
+      "tip": "Laser light scattered inelastically by the sample on its own (spontaneous Raman).",
+      "note": "Spontaneous Raman scattering, named explicitly. The specific value under raman, the way DRIFTS and transmission sit under the infrared: the scattering happens by itself from one laser, rather than being driven by a second beam as in the coherent techniques (CARS, stimulated Raman). Use it only where the source says spontaneous; plain raman stays the value for a paper that does not."
+    },
+    "computational": {
+      "label": "Computational",
+      "family": "computational",
+      "spectroscopy": null,
+      "tip": "A frequency calculated rather than measured.",
+      "note": "Not a geometry at all: a frequency from a calculation. Arguably a separate origin axis."
+    }
+  }
+}

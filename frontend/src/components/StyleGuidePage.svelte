@@ -223,7 +223,7 @@
     },
     {
       field: 'confidence',
-      rule: 'How firmly the assignment is established, not how much you like it.',
+      rule: 'How firmly the claim is established, not how much you like it.',
       values: [
         ['confirmed', 'Multiple independent sources agree'],
         ['likely', 'One solid source, no contradiction'],
@@ -696,7 +696,7 @@
           0, +1, &minus;1, in that order. A fourth overlapping band falls back to the
           centre line and is logged by the build, which is usually the signal that one
           mode has been split into more bands than it needs: several isotopologues of
-          one band belong on one band, with the positions in the assignment.
+          one band belong on one band, with the positions in the claim.
         </p>
         <table class="spec-table">
           <tbody>
@@ -846,7 +846,7 @@
           <li>Point at a <code>branch_group</code> instead when the parent is itself split into branches: a combination built from ν₃ is built from ν₃ whichever branch a paper happened to read.</li>
           <li>Give <code>label</code> alone, with neither id nor group, when the parent mode is not in the dataset at all (an IR-inactive fundamental, for instance). The band then states its parentage without drawing a line to nothing.</li>
           <li>An overtone is not a category: keep the parent's <code>vibration.category</code>, add the <code>overtone</code> tag, and let <code>based_on</code> with <code>multiplier: 2</code> carry the arithmetic.</li>
-          <li>Never point a child at itself, and never invent a parent to justify a band whose assignment is uncertain. That is what <code>confidence</code> is for.</li>
+          <li>Never point a child at itself, and never invent a parent to justify a band whose claim is uncertain. That is what <code>confidence</code> is for.</li>
         </ul>
 
         <h4>Why the shapes differ</h4>
@@ -1974,7 +1974,7 @@
                 extracting a paper and before going over one again: one row per
                 (band, paper) claim and never an average, which field each fact
                 belongs in, how to choose the surface level from the sentence
-                that makes the assignment, what a note carries and in what
+                that makes the claim, what a note carries and in what
                 order, and the fork between an isotopologue band and the
                 <code>isotope-labeling</code> tag.
               </td>
