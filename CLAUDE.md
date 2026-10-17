@@ -457,6 +457,14 @@ so both draw `Icon.svelte` and neither keeps a copy of the paths.
   but not each geometry, and the axis offers the quantity and the two switches
   but neither the unit (every quantity opens in the unit it is usually drawn
   in) nor the shift zero (a number to type).
+- **A chart section's heading is its disclosure, with no arrow**
+  (`SectionHead.svelte`): Appearance, X Axis, Techniques, Phases, Band States
+  and Group Filter. Open, the heading is in full ink; closed, it steps back to
+  a lighter one, and a short summary of the setting sits at its right ("group",
+  "cm⁻¹", "11 / 11"), so a closed section still says what it is set to. The
+  open states live in `App.svelte`, so a section stays as it was left across
+  pages. Inside a section, a group (IR, Raman, Form, Medium) opens with its own
+  small caret.
 - **The boundary rule is grey (`--line-boundary`), never blue.** Blue in the
   sidebar means "you are here", and nothing else may borrow it.
 

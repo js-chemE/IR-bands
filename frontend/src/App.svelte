@@ -31,6 +31,7 @@
   import KnowledgePage, { SECTIONS as KN_SECTIONS } from './components/KnowledgePage.svelte';
   import ChartTooNarrow from './components/ChartTooNarrow.svelte';
   import Icon from './components/Icon.svelte';
+  import SectionHead from './components/SectionHead.svelte';
   import BandCard from './components/BandCard.svelte';
   import { linkedModesFor } from './lib/vibrationLinks';
 
@@ -733,6 +734,13 @@
     members.filter(t => !excluded.has(t)).length;
   $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
   let showTechniques = false;
+  /* Which chart sections are open. Kept here rather than in each component
+     so a section stays as it was left when the reader goes to another page
+     and comes back. */
+  let appearanceOpen = true;
+  let axisOpen = true;
+  let bandStatesOpen = true;
+  let groupFilterOpen = true;
   /* Which families (IR, Raman) and phase parts (Form, Medium) are open.
      Closed to begin with: opening a section shows its groups, and a group
      shows its rows only when asked. */
@@ -1158,7 +1166,9 @@
                  spectral regions, and only the first of those is a colour.
                  The dropdown says "Color by" itself now that the heading
                  no longer does. -->
-            <h3>Appearance</h3>
+            <SectionHead title="Appearance" bind:open={appearanceOpen}
+              summary={COLOR_DIM_OPTIONS.find(o => o.dim === colorDim)?.label.toLowerCase() ?? colorDim} />
+            {#if appearanceOpen}
             <Dropdown
               value={colorDim}
               options={COLOR_DIM_OPTIONS.map(o => ({ value: o.dim, label: `Color by ${o.label.toLowerCase()}` }))}
@@ -1179,6 +1189,7 @@
                 on:toggle={e => (showRegions = e.detail.on)}
               >spectral regions</LookPill>
             </div>
+            {/if}
           </section>
 
           <hr class="divider" />
@@ -1189,6 +1200,7 @@
             {shiftOn}
             {laserWn}
             reversed={axisReversed}
+            bind:open={axisOpen}
             on:axisChange={handleAxisChange}
             on:reverseToggle={e => (axisReversed = e.detail.on)}
             on:shiftToggle={e => (shiftOn = e.detail.on)}
@@ -1208,13 +1220,7 @@
             <!-- The header is the disclosure, with how much is counted beside
                  it; opening it goes straight to the families, and each family
                  opens on its own. -->
-            <h3>
-              <button class="h3-toggle" on:click={() => (showTechniques = !showTechniques)} aria-expanded={showTechniques}>
-                <span class="caret">{showTechniques ? '▾' : '▸'}</span>
-                Techniques
-                <span class="h3-count">{countedTechniques} / {ALL_TECHNIQUES.length}</span>
-              </button>
-            </h3>
+            <SectionHead title="Techniques" bind:open={showTechniques} summary={`${countedTechniques} / ${ALL_TECHNIQUES.length}`} />
             {#if showTechniques}
               <div class="filter-list">
                 {#each CHART_FAMILIES as fam (fam.key)}
@@ -1277,13 +1283,7 @@
                  fields the legend's phase chips come from. Switched off, a
                  claim greys out in the card like an excluded technique's, and
                  a band left with none counts as unreferenced. -->
-            <h3>
-              <button class="h3-toggle" on:click={() => (showPhases = !showPhases)} aria-expanded={showPhases}>
-                <span class="caret">{showPhases ? '▾' : '▸'}</span>
-                Phases
-                <span class="h3-count">{countedPhases} / {PHASE_ROW_COUNT}</span>
-              </button>
-            </h3>
+            <SectionHead title="Phases" bind:open={showPhases} summary={`${countedPhases} / ${PHASE_ROW_COUNT}`} />
             {#if showPhases}
               <div class="filter-list">
                 {#each PHASE_PARTS as part (part.key)}
@@ -1328,6 +1328,8 @@
             sortedKeys={sortedGroupKeys}
             {enabledGroups}
             {showIsotopes}
+            bind:bandStatesOpen
+            bind:groupFilterOpen
             {inactiveMode}
             {unreferencedMode}
             {spectroscopy}
@@ -2229,34 +2231,6 @@
      against a hairline so it reads as belonging to the row above rather than
      as a fourth Include option, and collapsed by default: it is an escape
      hatch, the same idiom as the chart sidebar's per-group list. */
-  /* A section header that is also its disclosure (Techniques, Phases): the
-     heading's own type, with the counted fraction small beside it. */
-  .h3-toggle {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    width: 100%;
-    padding: 0;
-    background: none;
-    border: none;
-    font: inherit;
-    letter-spacing: inherit;
-    text-transform: inherit;
-    color: inherit;
-    cursor: pointer;
-    text-align: left;
-  }
-  .h3-toggle:hover { color: var(--ink-700); }
-  .h3-toggle .caret { font-size: 11px; color: var(--ink-200); }
-  .h3-count {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0;
-    text-transform: none;
-    color: var(--ink-200);
-  }
-
   /* A group row (IR, Raman, Form, Medium): its own caret opens the rows
      under it, the rest of the row is the switch as before. */
   .fam-row {

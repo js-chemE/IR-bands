@@ -14,6 +14,7 @@
   import { AXES, ZERO_UNITS, ZERO_UNIT_BREAKS } from '../lib/units';
   import Dropdown from './Dropdown.svelte';
   import ZeroField from './ZeroField.svelte';
+  import SectionHead from './SectionHead.svelte';
 
   export let axisProperty: AxisProperty;
   export let axisUnit: string;
@@ -23,6 +24,16 @@
   export let laserWn: number | null = null;
   /** Large values on the left. */
   export let reversed = false;
+  /** Whether the section is open; the heading is the toggle. */
+  export let open = true;
+
+  /* What the closed heading says: the unit, which names the quantity on its
+     own, and the two switches only where they are not at its usual setting. */
+  $: summary = [
+    axisUnit,
+    reversed !== AXES[axisProperty].reversed ? (reversed ? 'inverted' : 'normal') : null,
+    shiftOn ? 'shift' : null,
+  ].filter(Boolean).join(' · ');
 
   const dispatch = createEventDispatcher<{
     axisChange: { property: AxisProperty; unit: string };
@@ -53,7 +64,8 @@
 </script>
 
 <section>
-  <h3>X axis</h3>
+  <SectionHead title="X Axis" bind:open {summary} />
+  {#if open}
 
   <!-- Two two-sided switches, the Spectroscopy switch's shape at the size the
        pills were: each names both of its states, because "reverse off" and
@@ -132,6 +144,7 @@
       </div>
     </div>
   {/if}
+{/if}
 </section>
 
 <style>

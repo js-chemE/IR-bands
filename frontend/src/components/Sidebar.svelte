@@ -1,5 +1,6 @@
 <script lang="ts">
   import Dropdown from './Dropdown.svelte';
+  import SectionHead from './SectionHead.svelte';
   import { ISOTOPE_STYLE } from '../lib/tokens';
   /**
    * The band chart's filter: a set on top, the individual groups underneath.
@@ -25,6 +26,9 @@
   export let inactiveMode: BandStateMode = 'look';
   /** The bands none of whose claims counts: faded, plain or out. */
   export let unreferencedMode: BandStateMode = 'look';
+  /** Whether each section is open; its heading is the toggle. */
+  export let bandStatesOpen = true;
+  export let groupFilterOpen = true;
   /** IR or Raman: whose inactive bands the inactive pill means. */
   export let spectroscopy: Spectroscopy = 'ir';
 
@@ -85,10 +89,22 @@
   })();
 
   $: activeNote = sets[activeSet]?.note ?? '';
+
+  /* What each closed heading says. Band States names only what differs
+     from its defaults (hollow, faded, no isotopologues), since the full
+     state does not fit beside the heading and the defaults go without
+     saying. */
+  $: bandStatesSummary = [
+    inactiveMode !== 'look' ? `${technique}-inactive ${inactiveMode}` : null,
+    unreferencedMode !== 'look' ? `unref. ${unreferencedMode}` : null,
+    showIsotopes ? 'isotopes' : null,
+  ].filter(Boolean).join(' · ');
+  $: groupFilterSummary = `${enabledGroups.size} / ${sortedKeys.length}`;
 </script>
 
 <section>
-  <h3>Band States</h3>
+  <SectionHead title="Band States" bind:open={bandStatesOpen} summary={bandStatesSummary} />
+  {#if bandStatesOpen}
   <!-- What a band in each condition does, as one choice: its own look, drawn
        like any other, or out of the chart. This replaced a look pill under
        Appearance and a filter pill here for each condition, which said one
@@ -125,10 +141,12 @@
       </div>
     </div>
   {/each}
+  {/if}
 </section>
 
 <section>
-  <h3>Group Filter</h3>
+  <SectionHead title="Group Filter" bind:open={groupFilterOpen} summary={groupFilterSummary} />
+  {#if groupFilterOpen}
 
   <!-- "Custom" is only offered once the selection has drifted off every set,
        so the dropdown never invites you to pick it out of nowhere. -->
@@ -170,6 +188,7 @@
       {/each}
     </div>
   {/if}
+  {/if}
 </section>
 
 <style>
@@ -177,15 +196,6 @@
      different kinds of cut, so they get real air between them rather than a
      rule. */
   section + section { margin-top: 22px; }
-
-  h3 {
-    margin: 0 0 8px 0;
-    font-size: var(--t-sidebar-head-size);
-    font-weight: var(--t-sidebar-head-weight);
-    text-transform: var(--t-sidebar-head-tt);
-    letter-spacing: var(--t-sidebar-head-ls);
-    color: var(--t-sidebar-head-color);
-  }
 
   .set-note {
     margin: 6px 0 0;
