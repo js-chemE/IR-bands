@@ -80,18 +80,30 @@ VALID_TECHNIQUES = {
     "mioirs", "seiras", "infrared", "raman", "srs", "computational",
 }
 
-# What was actually in the beam for one claim. Distinct from Band.phase above,
-# which says what the band IS (a free molecule, an adsorbate, the surface
-# itself) and is a property of the mode wherever it appears. This says how the
-# sample was held for this one measurement, and it moves the number: the same
-# O-H stretch is 3687 cm-1 as a vapour, ~3300 as a hydrogen-bonded liquid and
-# 3690 isolated in solid neon. Recording it is what stops three such rows
-# looking like a disagreement when they are three different experiments.
+# How the sample was held for one claim, on two axes, because one word cannot
+# say both. Distinct from Band.phase above, which says what the band IS
+# wherever it appears. Both move the number: the same O-H stretch is 3687 cm-1
+# as a vapour, ~3300 as a hydrogen-bonded liquid and 3690 isolated in solid
+# neon, and CO on a metal sits tens of cm-1 apart in UHV, under a gas and at an
+# electrode in an electrolyte.
 #
-# "matrix" is a solid, but the molecule in it is isolated and unrotating, so it
-# is kept apart from "solid", which means the bulk substance itself.
-SampleState = Literal["gas", "liquid", "matrix", "solid", "adsorbed"]
-VALID_STATES = {"gas", "liquid", "matrix", "solid", "adsorbed"}
+# medium: what surrounds the sample during the measurement. "vacuum" is an
+# evacuated or UHV cell with no gas let in; "gas" is any gas atmosphere, from a
+# fraction of a mbar of dosed CO to a flowing feed at 20 bar; "liquid" a liquid
+# or an electrolyte; "matrix" a frozen noble gas the molecule is isolated in.
+#
+# form: where the species is. "free" is the molecule on its own (a gas, the
+# liquid itself, matrix-isolated); "dissolved" a solute in a liquid; "adsorbed"
+# held on a surface; "surface" a group belonging to the solid (a hydroxyl, a
+# hydride); "lattice" a vibration or a defect of the solid itself.
+Medium = Literal["vacuum", "gas", "liquid", "matrix"]
+VALID_MEDIA = {"vacuum", "gas", "liquid", "matrix"}
+Form = Literal["free", "dissolved", "adsorbed", "surface", "lattice"]
+VALID_FORMS = {"free", "dissolved", "adsorbed", "surface", "lattice"}
+#: The tag each medium derives. Spelled "in gas" rather than "gas" so a band
+#: measured as an adsorbate under a gas does not wear a chip that reads like a
+#: gas-phase band.
+MEDIUM_TAGS = {m: f"in {m}" for m in VALID_MEDIA}
 
 # How specific a surface is. "Where was this measured" has a scale rather than
 # a single answer: the same titania is the sample when it is measured bare and
@@ -320,9 +332,10 @@ class Reference:
     # Excitation wavelength in nm, for a Raman claim. The tag chip ("514.5 nm",
     # in the colour of that light) is derived from it by tag_lasers().
     laser_nm: Optional[float] = None
-    # What was in the beam: gas | liquid | matrix | solid | adsorbed. Derives a
-    # tag of the same name. See SampleState above for why this is not Band.phase.
-    state: Optional[SampleState] = None
+    # How the sample was held: what surrounded it, and where the species was.
+    # Each derives a tag ("in liquid", "adsorbed"). See Medium and Form above.
+    medium: Optional[Medium] = None
+    form: Optional[Form] = None
     note: Optional[str] = None
     tags: list[str] = field(default_factory=list)
 
@@ -336,9 +349,13 @@ class Reference:
             raise ValueError(
                 f"reference {self.key}: technique={self.technique!r} not in {VALID_TECHNIQUES}"
             )
-        if self.state is not None and self.state not in VALID_STATES:
+        if self.medium is not None and self.medium not in VALID_MEDIA:
             raise ValueError(
-                f"reference {self.key}: state={self.state!r} not in {VALID_STATES}"
+                f"reference {self.key}: medium={self.medium!r} not in {VALID_MEDIA}"
+            )
+        if self.form is not None and self.form not in VALID_FORMS:
+            raise ValueError(
+                f"reference {self.key}: form={self.form!r} not in {VALID_FORMS}"
             )
         if self.laser_nm is not None and not (0 < float(self.laser_nm) < 100000):
             raise ValueError(
@@ -536,7 +553,7 @@ class Band:
     # gas | adsorbed | surface | solution, or None when the band applies to both the free
     # molecule and its adsorbed form. No tag is derived from it: a band has no
     # sample of its own, so the phase chips come from each claim's own state
-    # (tag_states) and the band shows the union of them. This field is the
+    # (tag_phases) and the band shows the union of them. This field is the
     # editorial statement of what the species is, which the sets filter on;
     # check_phase() warns where it contradicts the claims underneath it.
     phase: Optional[Phase] = None

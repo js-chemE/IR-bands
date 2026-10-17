@@ -35,7 +35,7 @@ from ir_bands.loader import (
     tag_fundamentals,
     tag_isotopologues,
     tag_lasers,
-    tag_states,
+    tag_phases,
     check_branches,
     check_phase,
     tag_techniques,
@@ -699,9 +699,10 @@ def main() -> int:
     # laser_nm -> the "514.5 nm" chip, coloured from the light in the frontend.
     for w in tag_lasers(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
-    # state -> "gas" / "liquid" / "matrix" / "solid" / "adsorbed". These are
-    # the only phase tags there are; a band shows the union of its claims'.
-    for w in tag_states(dataset):
+    # medium -> "in gas" / "in liquid" / ..., form -> "adsorbed" / "free" / ...
+    # These are the only phase tags there are; a band shows the union of its
+    # claims'.
+    for w in tag_phases(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)
     for w in check_phase(dataset):
         print(f"  ⚠ {w}", file=sys.stderr)

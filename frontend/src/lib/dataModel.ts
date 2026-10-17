@@ -124,7 +124,8 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
       { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives its own name as a tag on the claim, and its family (infrared, raman, computational) as an umbrella on the band, so the legend can ask "seen in the infrared at all" without ticking seven chips. The umbrella is a legend switch only: it is not drawn on the band or the claim, where the specific chip already says it.' },
       { name: 'laser_nm', type: 'number', req: 'opt', note: 'Raman excitation wavelength in nm, recorded only where the source names the line. Derives two chips, the colour family and the line itself ("green laser", "515 nm"), both coloured from the light rather than from a fixed table, since a wavelength is a number and no vocabulary can hold one. Only meaningful on a Raman technique, raman or srs; the build warns otherwise.' },
-      { name: 'state', type: 'gas | liquid | matrix | solid | adsorbed', req: 'opt', note: 'What was in the beam for this claim, and every claim should carry one. Not band.phase, which says what the band is wherever it appears: this says how the sample was held here, and it moves the number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; without the field those read as a disagreement instead of three experiments. Derives a tag of the same name.' },
+      { name: 'medium', type: 'vacuum | gas | liquid | matrix', req: 'opt', note: 'What surrounded the sample for this claim: an evacuated or UHV cell, any gas atmosphere (a fraction of a mbar of dosed CO counts), a liquid or electrolyte, or a frozen noble-gas matrix. Derives the tag "in vacuum", "in gas", "in liquid" or "in matrix". Left out where the paper does not say, which is honest where a guess is not.' },
+      { name: 'form', type: 'free | dissolved | adsorbed | surface | lattice', req: 'opt', note: 'Where the species was: on its own (a gas, the liquid itself, matrix-isolated), dissolved in a liquid, held on a surface, a group of the solid (a hydroxyl, a hydride), or a vibration or defect of the solid itself. Derives a tag of the same name. With medium it separates what one word could not: CO adsorbed in UHV, under a gas and at an electrode in an electrolyte. Not band.phase, which says what the band is wherever it appears.' },
       { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
       { name: 'uid', type: 'string', req: 'calc', note: 'Computed by build.py, with an ordinal when one paper makes several claims about the same band. A readable handle for the References page; the authored id is the stable one.' },
@@ -534,6 +535,13 @@ export function isUmbrellaTag(tag: string, role: TagRole): boolean {
  * groups rather than eleven chips: the infrared geometries, then the Raman
  * ones, then the calculations, which are not a measurement at all.
  */
+/** The two halves of the phase role, for the legend's gap between them:
+    what the species is, then what surrounded it. */
+export const PHASE_PART: Record<string, 'form' | 'medium'> = {
+  free: 'form', dissolved: 'form', adsorbed: 'form', surface: 'form', lattice: 'form',
+  'in vacuum': 'medium', 'in gas': 'medium', 'in liquid': 'medium', 'in matrix': 'medium',
+};
+
 export const TECHNIQUE_FAMILY_ORDER: Record<string, number> = {
   infrared: 0,
   raman: 1,
@@ -577,7 +585,7 @@ export const TAG_ROLE_LABEL: Record<TagRole, string> = {
 export const TAG_ROLE_NOTE: Record<TagRole, string> = {
   structure: 'A fact about the band itself. Mostly derived by build.py from the link fields.',
   isotope: 'The band is a labelled twin of another one, not the ordinary molecule. All derived from band.isotope, with the umbrella tag first and the substitution behind it.',
-  phase: 'What was in the beam. Derived from assignment.state, on the claim rather than on the band: a band has no sample of its own, so it shows the union of the states its claims were measured in. Band.phase is an editorial statement about the species, used by the sets, and the build warns where it contradicts the claims underneath it.',
+  phase: 'How the sample was held, in two parts: the form (free, dissolved, adsorbed, surface, lattice) and the medium around it (in vacuum, in gas, in liquid, in matrix). Derived from assignment.form and assignment.medium, on the claim rather than on the band: a band has no sample of its own, so it shows the union of the states its claims were measured in. Band.phase is an editorial statement about the species, used by the sets, and the build warns where it contradicts the claims underneath it.',
   activity: 'IR / Raman selection rule, derived by the loader from the mode’s booleans.',
   technique: 'How the spectrum was taken. Now derived from assignment.technique.',
   laser: 'Which light the Raman measurement used, grouped by the colour of it and derived from assignment.laser_nm. A role of its own rather than part of the technique: it qualifies one technique rather than naming another, and the chips are coloured from the light itself instead of from the tag table.',
@@ -608,14 +616,18 @@ export const TAG_ROLES: Record<string, TagRole> = {
   // adsorbed, and methoxy is not undissociated.
   undissociated: 'phase',
   'frustrated-mode': 'phase',
-  // What was in the beam for one claim, from assignment.state, and the whole
-  // of the phase vocabulary: a band carries no phase tag of its own, it shows
-  // the union of its claims'.
-  gas: 'phase',
-  liquid: 'phase',
-  matrix: 'phase',
-  solid: 'phase',
+  // How the sample was held for one claim, from assignment.form and
+  // assignment.medium, and the whole of the phase vocabulary: a band carries
+  // no phase tag of its own, it shows the union of its claims'.
+  free: 'phase',
+  dissolved: 'phase',
   adsorbed: 'phase',
+  surface: 'phase',
+  lattice: 'phase',
+  'in vacuum': 'phase',
+  'in gas': 'phase',
+  'in liquid': 'phase',
+  'in matrix': 'phase',
   // Selection rule.
   'ir-active': 'activity',
   'ir-inactive': 'activity',
@@ -660,11 +672,15 @@ export const DERIVED_TAGS: Record<string, string> = {
   // Both levels of it: the claim tag from its own technique, the band tag
   // from every claim on the band having that technique and no other.
   computational: 'assignment.technique',
-  gas: 'assignment.state',
-  liquid: 'assignment.state',
-  matrix: 'assignment.state',
-  solid: 'assignment.state',
-  adsorbed: 'assignment.state',
+  free: 'assignment.form',
+  dissolved: 'assignment.form',
+  adsorbed: 'assignment.form',
+  surface: 'assignment.form',
+  lattice: 'assignment.form',
+  'in vacuum': 'assignment.medium',
+  'in gas': 'assignment.medium',
+  'in liquid': 'assignment.medium',
+  'in matrix': 'assignment.medium',
   fundamental: 'vibration.category + band.based_on',
   'fermi-resonance': 'band.fermi_partner',
   'rotational-branches': 'band.branch_group',

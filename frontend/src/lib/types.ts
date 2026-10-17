@@ -20,6 +20,8 @@ export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';
 export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
 export type Phase = 'gas' | 'adsorbed' | 'surface' | 'solution';
+export type Medium = 'vacuum' | 'gas' | 'liquid' | 'matrix';
+export type Form = 'free' | 'dissolved' | 'adsorbed' | 'surface' | 'lattice';
 export type Technique =
   | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'seiras' | 'emission'
   | 'mioirs' | 'infrared' | 'raman' | 'srs' | 'computational';
@@ -62,8 +64,10 @@ export interface BandReference {
   technique: Technique | null;
   /** Raman excitation wavelength in nm. Derives the coloured wavelength tag. */
   laser_nm?: number | null;
-  /** What was in the beam for this claim. Derives a tag of the same name. */
-  state?: 'gas' | 'liquid' | 'matrix' | 'solid' | 'adsorbed' | null;
+  /** What surrounded the sample. Derives the "in gas" style tag. */
+  medium?: Medium | null;
+  /** Where the species was. Derives a tag of the same name. */
+  form?: Form | null;
   note: string | null;
   tags: string[];
   // Computed by build.py: "<band id>::<citekey>", with an ordinal when one

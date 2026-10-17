@@ -82,7 +82,7 @@ export const GUIDE: GuideSection[] = [
         ['A peak position', 'references[].wn'],
         ['The surface the band was assigned to', 'references[].measured_on'],
         ['How the spectrum was taken', 'references[].technique'],
-        ['What state the sample was in', 'references[].state'],
+        ['What surrounded the sample, and where the species sat', 'references[].medium, references[].form'],
         ['Temperature, pressure, feed, pretreatment', 'references[].note'],
         ['What the mode is, and what it is confused with', 'band.description'],
         ['How strong, how broad, how certain', 'band.intensity / width / confidence'],
@@ -367,19 +367,24 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       ],
     },
     rules: [
-      'Every claim also gets a `state`: what was actually in the beam, one of `gas`, `liquid`, ' +
-      '`matrix`, `solid` or `adsorbed`. This is not the band’s own `phase`, which says what the ' +
-      'band is wherever it appears; this says how this one sample was held, and it moves the ' +
-      'number. Methanol’s O-H stretch is 3687 cm⁻¹ as a vapour, near 3300 hydrogen-bonded in the ' +
-      'liquid and 3690 isolated in solid neon. Without the field those three rows read as a ' +
-      'disagreement instead of three different experiments.',
-      '`matrix` is a solid, but the molecule in it is isolated and not rotating, so it stays apart ' +
-      'from `solid`, which means the bulk substance itself. A matrix value is close to the free ' +
-      'molecule and still host-dependent: neon and argon disagree with each other by up to 20 cm⁻¹.',
-      'Where a paper reports several states for the same mode, each is its own claim with its own ' +
-      'state, never one row carrying the lowest number. Where one measurement genuinely spans ' +
-      'states, as a supercritical sweep does, leave the field out and say so in the note rather ' +
-      'than picking whichever state it was in longest.',
+      'Every claim also says how the sample was held, on two axes. `medium` is what surrounded it: ' +
+      '`vacuum` (an evacuated or UHV cell, no gas let in), `gas` (any gas atmosphere, a fraction of ' +
+      'a mbar of dosed CO included), `liquid` (a liquid or an electrolyte) or `matrix` (a frozen ' +
+      'noble gas). `form` is where the species was: `free` (on its own: a gas, the liquid itself, ' +
+      'matrix-isolated), `dissolved` (a solute), `adsorbed`, `surface` (a group of the solid, such ' +
+      'as a hydroxyl or a hydride) or `lattice` (a mode or a defect of the solid itself).',
+      'Both move the number, and one word could not say both. Methanol’s O-H stretch is 3687 cm⁻¹ ' +
+      'as a vapour, near 3300 hydrogen-bonded in the liquid and 3690 isolated in solid neon; CO on ' +
+      'a metal is a different number in UHV, under a gas and at an electrode. Neither is the band’s ' +
+      'own `phase`, which says what the band is wherever it appears.',
+      'A matrix value is close to the free molecule and still host-dependent: neon and argon ' +
+      'disagree with each other by up to 20 cm⁻¹.',
+      'Take the medium from the conditions the paper states for that spectrum. Dosing 0.15 mbar of ' +
+      'CO into a cell is `gas`; the same sample after evacuation is `vacuum`. Leave it out where the ' +
+      'paper does not say, and where one measurement genuinely spans media, as a supercritical ' +
+      'sweep does, say so in the note rather than picking one.',
+      'Where a paper reports several media or forms for the same mode, each is its own claim, never ' +
+      'one row carrying the lowest number.',
       'A Raman claim also gets `laser_nm`, the excitation wavelength the paper states, as a plain ' +
       'number in nm: `"laser_nm": 515`. The build turns it into a chip of its own, coloured with ' +
       'the colour of that light, because the line decides what the measurement could see. A ' +
@@ -603,7 +608,8 @@ short             δₛ(CH₃) umbrella MeOH`,
     table: {
       head: ['Do not author', 'It is derived from'],
       rows: [
-        ['gas, liquid, matrix, solid, adsorbed', 'references[].state'],
+        ['free, dissolved, adsorbed, surface, lattice', 'references[].form'],
+        ['in vacuum, in gas, in liquid, in matrix', 'references[].medium'],
         ['drifts, transmission, computational', 'references[].technique'],
         ['infrared, raman (the family umbrellas)', 'references[].technique, alongside the value'],
         ['fermi-resonance', 'band.fermi_partner'],

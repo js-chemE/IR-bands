@@ -1,6 +1,6 @@
 import * as Plot from '@observablehq/plot';
 import type { Band, GroupMap, ColorDim, AxisProperty, LegendCategory, RefMap, Spectroscopy, Technique } from './types';
-import { TECHNIQUES, TAG_ROLES } from './dataModel';
+import { PHASE_PART, TECHNIQUES, TAG_ROLES } from './dataModel';
 import { getCat, getCatLabel, getCatColor, getColor, fadeColor, tagStyle, EVIDENCE_ORDER } from './colors';
 import { wnToValue, valueToWn, axisRange, axisLabel, shiftNeedsZero } from './units';
 import { C, FONTS, CHART_LAYOUT, EM_REGION_LOOK } from './tokens';
@@ -289,11 +289,10 @@ export interface TipRef {
   /**
    * Greyed out and folded: 'unknown' when the claim records no technique at
    * all, 'excluded' when its technique is one the sidebar's Techniques
-   * section has switched off, 'excluded-state' when its phase (the state the
-   * sample was held in) is one the Phases section has switched off; null
-   * when it stands as usual.
+   * section has switched off, 'excluded-phase' when its form or its medium
+   * is one the Phases section has switched off; null when it stands as usual.
    */
-  off: 'unknown' | 'excluded' | 'excluded-state' | null;
+  off: 'unknown' | 'excluded' | 'excluded-phase' | null;
 }
 
 /** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
@@ -312,17 +311,18 @@ export interface BandLooks {
 export type BandStateMode = 'look' | 'plain' | 'hidden';
 
 /**
- * Which claims count: the techniques and the phases switched off in the
- * sidebar. Both are sets of the excluded, so a value the filter does not list
- * is never silently dropped. A claim that records no state is keyed under
- * UNRECORDED_STATE, so the Phases section can switch those off too.
+ * Which claims count: the techniques, forms and media switched off in the
+ * sidebar. All are sets of the excluded, so a value the filter does not list
+ * is never silently dropped. A claim that records no form or no medium is
+ * keyed under UNRECORDED, so the Phases section can switch those off too.
  */
 export interface ClaimFilter {
   techniques: ReadonlySet<string>;
-  states: ReadonlySet<string>;
+  forms: ReadonlySet<string>;
+  media: ReadonlySet<string>;
 }
-export const UNRECORDED_STATE = 'unrecorded';
-const NO_FILTER: ClaimFilter = { techniques: new Set(), states: new Set() };
+export const UNRECORDED = 'unrecorded';
+const NO_FILTER: ClaimFilter = { techniques: new Set(), forms: new Set(), media: new Set() };
 
 /** Technique → IR or Raman, from the Technique spec. */
 const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscopy]));
@@ -343,12 +343,13 @@ const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscop
  * technique counts until somebody says otherwise, the calculations included.
  */
 export function refOff(
-  ref: { technique?: Technique | null; state?: string | null },
+  ref: { technique?: Technique | null; form?: string | null; medium?: string | null },
   filter: ClaimFilter = NO_FILTER,
 ): TipRef['off'] {
   if (!ref.technique) return 'unknown';
   if (filter.techniques.has(ref.technique)) return 'excluded';
-  return filter.states.has(ref.state || UNRECORDED_STATE) ? 'excluded-state' : null;
+  if (filter.forms.has(ref.form || UNRECORDED)) return 'excluded-phase';
+  return filter.media.has(ref.medium || UNRECORDED) ? 'excluded-phase' : null;
 }
 
 /**
@@ -435,7 +436,9 @@ export function getBandTags(b: Band, spectroscopy: Spectroscopy | null = null): 
        sample was held in, so the chip belongs to the claim and the band shows
        the union of them. A band measured both as a vapour and on a surface
        says so, instead of having to pick one. */
-    if (r.state && !auto.includes(r.state)) auto.push(r.state);
+    if (r.form && !auto.includes(r.form)) auto.push(r.form);
+    const inMedium = r.medium ? `in ${r.medium}` : null;
+    if (inMedium && !auto.includes(inMedium)) auto.push(inMedium);
     // The excitation line only means anything in the Raman view: in the
     // infrared one it labels a claim that is greyed out anyway. Kept for the
     // Dataset page (no spectroscopy), which inventories everything.
@@ -514,9 +517,17 @@ const TECHNIQUE_SEQUENCE = [
  * midpoint plus its own wavelength, which lands it after its family and
  * before the next one.
  */
+/** The phase tags in a fixed order, form then medium, rather than by count. */
+const PHASE_SEQUENCE = [
+  'free', 'dissolved', 'adsorbed', 'surface', 'lattice',
+  'in vacuum', 'in gas', 'in liquid', 'in matrix',
+];
+
 function withinRoleRank(key: string): number {
   const i = TECHNIQUE_SEQUENCE.indexOf(key);
   if (i >= 0) return i;
+  const p = PHASE_SEQUENCE.indexOf(key);
+  if (p >= 0) return p;
   if (key === 'computational') return 90;
 
   const family = laserFamilyNm(key);
@@ -616,7 +627,8 @@ export function getLegendTags(
     return {
       key, label: key, count, visibleCount: visible.get(key) ?? 0,
       role, roleLabel: TAG_ROLE_LABEL[role],
-      subgroup: role === 'technique' ? (TECHNIQUE_FAMILY[key] ?? '') : '',
+      subgroup: role === 'technique' ? (TECHNIQUE_FAMILY[key] ?? '')
+        : role === 'phase' ? (PHASE_PART[key] ?? '') : '',
       ...style,
     };
   });
@@ -626,7 +638,9 @@ export function getLegendTags(
   // the caveat last. Within a role the commonest tag leads, which keeps the
   // long tail of one-band tags out of the way.
   const subRank = (t: LegendTag) =>
-    t.subgroup ? (TECHNIQUE_FAMILY_ORDER[t.subgroup] ?? 99) : 0;
+    !t.subgroup ? 0
+      : t.role === 'phase' ? (t.subgroup === 'form' ? 1 : 2)
+      : (TECHNIQUE_FAMILY_ORDER[t.subgroup] ?? 99);
   result.sort((a, b) =>
     tagRoleRank(a.role) - tagRoleRank(b.role) ||
     // Family before umbrella: a family leader leads ITS OWN family, not the

@@ -176,8 +176,8 @@
                   ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
                   : ref.off === 'excluded'
                     ? `Its technique is switched off under Techniques in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
-                    : ref.off === 'excluded-state'
-                    ? `Its phase is switched off under Phases in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : ref.off === 'excluded-phase'
+                    ? `Its form or medium is switched off under Phases in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
                     : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,

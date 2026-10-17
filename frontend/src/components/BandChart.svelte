@@ -57,7 +57,7 @@
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
   export let looks: BandLooks = { inactive: true, unreferenced: true };
   /** The techniques and phases whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
-  export let claimFilter: ClaimFilter = { techniques: new Set(), states: new Set() };
+  export let claimFilter: ClaimFilter = { techniques: new Set(), forms: new Set(), media: new Set() };
   /** Whether the electromagnetic regions are marked: the strip of names, the borders and their fades. */
   export let showRegions = true;
   export let hoveredCat: string | null = null;

@@ -17,7 +17,7 @@ from pathlib import Path
 from ir_bands.schema import (
     Band, BasedOn, Dataset, Group, GroupSet, Molecule, Reference,
     Region, Species, Surface, Topology, Vibration, VibrationMode, Vibrations,
-    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES, VALID_ISOTOPES,
+    VALID_INTENSITIES, VALID_WIDTHS, VALID_CONFIDENCES, VALID_PHASES, VALID_ISOTOPES, MEDIUM_TAGS,
     VALID_TECHNIQUES,
     DESCRIPTION_MAX_WORDS, ISOTOPE_TAGS, REFERENCE_NOTE_MAX_WORDS,
     MARKUP_EXEMPT_VIBRATION_FIELDS, SUBSCRIPT_CHARS,
@@ -93,7 +93,8 @@ def _parse_reference(raw) -> Reference | None:
             measured_on=raw.get("measured_on"),
             technique=raw.get("technique"),
             laser_nm=raw.get("laser_nm"),
-            state=raw.get("state"),
+            medium=raw.get("medium"),
+            form=raw.get("form"),
             note=raw.get("note"),
             tags=list(raw.get("tags", [])),
         )
@@ -953,11 +954,16 @@ def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
     return groups
 
 
-#: The claim states a band phase is consistent with, where the two
-#: vocabularies spell it differently. A band "in solution" (CO2(aq), the water
-#: at an electrode) is measured with the sample held as a liquid; every other
-#: phase is matched by the state of the same name.
-PHASE_STATES = {"solution": {"liquid"}}
+#: The claim forms (and, for a free molecule, media) each band phase is
+#: consistent with. A gas-phase band is the free molecule in a gas, a vacuum or
+#: a matrix; a solution band is free or dissolved in a liquid; a surface band is
+#: a group or a lattice mode of the solid.
+PHASE_FORMS = {
+    "gas": ({"free"}, {"gas", "vacuum", "matrix", None}),
+    "solution": ({"free", "dissolved"}, {"liquid", None}),
+    "adsorbed": ({"adsorbed"}, None),
+    "surface": ({"surface", "lattice"}, None),
+}
 
 
 def check_phase(dataset: Dataset) -> list[str]:
@@ -965,7 +971,7 @@ def check_phase(dataset: Dataset) -> list[str]:
 
     The phase is not tagged on the band any more. A band has no sample of its
     own: every phase the atlas knows about was the state of some measurement,
-    so the chips come from the claims (tag_states) and bubble up to the band
+    so the chips come from the claims (tag_phases) and bubble up to the band
     in the frontend. That leaves Band.phase as an editorial statement about
     what the species is, which the sets filter on, and it can fall out of step
     with the measurements underneath it.
@@ -977,15 +983,22 @@ def check_phase(dataset: Dataset) -> list[str]:
     """
     warnings: list[str] = []
     for b in dataset.bands:
-        states = {
-            ref.state
-            for ref in b.references
-            if ref.technique != "computational" and ref.state
-        }
-        if b.phase and states and not (PHASE_STATES.get(b.phase, {b.phase}) & states):
+        claims = [
+            ref for ref in b.references
+            if ref.technique != "computational" and ref.form
+        ]
+        if not b.phase or not claims or b.phase not in PHASE_FORMS:
+            continue
+        forms, media = PHASE_FORMS[b.phase]
+        fits = [
+            ref for ref in claims
+            if ref.form in forms and (media is None or ref.medium in media)
+        ]
+        if not fits:
+            seen = sorted({f"{r.form} in {r.medium or '?'}" for r in claims})
             warnings.append(
-                f"band {b.id!r} has phase {b.phase!r} but every claim on it "
-                f"was measured {'/'.join(sorted(states))}"
+                f"band {b.id!r} has phase {b.phase!r} but its claims were measured "
+                + ", ".join(seen)
             )
     return warnings
 
@@ -1095,40 +1108,43 @@ def tag_techniques(dataset: Dataset) -> list[str]:
     return []
 
 
-def tag_states(dataset: Dataset) -> list[str]:
-    """Derive each claim's sample-state tag from Reference.state.
+def tag_phases(dataset: Dataset) -> list[str]:
+    """Derive each claim's two phase tags from Reference.medium and .form.
 
-    The state is what was in the beam, and it moves the number more than most
-    things do: methanol's O-H stretch is 3687 cm-1 as a vapour, near 3300 as a
-    hydrogen-bonded liquid and 3690 isolated in solid neon. Without the field
-    those three rows read as a disagreement rather than as three experiments,
-    and the only place it was ever written was prose the chart cannot see.
+    The medium becomes "in vacuum" / "in gas" / "in liquid" / "in matrix", the
+    form its own name ("free", "dissolved", "adsorbed", "surface", "lattice").
+    Two tags because one word could not say both: CO adsorbed on a metal in
+    UHV, under a gas and at an electrode is three experiments that the old
+    single "adsorbed" made look like one.
 
-    Returns one summary warning rather than one per claim, because every claim
-    should carry a state and the ones that do not are a backlog, not a fault
-    worth printing five hundred times.
+    Returns summary warnings rather than one per claim: the claims missing a
+    field are a backlog, not a fault worth printing hundreds of times. A
+    "dissolved" claim outside a liquid is reported, since a solute needs a
+    solvent.
     """
-    missing = 0
-    total = 0
+    warnings: list[str] = []
+    no_medium = no_form = total = 0
     for b in dataset.bands:
         for ref in b.references:
-            # A calculation has no sample in a beam, so it has no state to
-            # record and is not counted as a gap. Everything measured is.
+            # A calculation has no sample in a beam, so nothing to record.
             if ref.technique == "computational":
                 continue
             total += 1
-            if ref.state is None:
-                missing += 1
-                continue
-            if ref.state not in ref.tags:
-                ref.tags.append(ref.state)
-    if missing:
-        return [
-            f"{missing} of {total} claims record no sample state "
-            f"(state: gas | liquid | matrix | solid | adsorbed)"
-        ]
-    return []
-
+            if ref.medium is None:
+                no_medium += 1
+            elif MEDIUM_TAGS[ref.medium] not in ref.tags:
+                ref.tags.append(MEDIUM_TAGS[ref.medium])
+            if ref.form is None:
+                no_form += 1
+            elif ref.form not in ref.tags:
+                ref.tags.append(ref.form)
+            if ref.form == "dissolved" and ref.medium not in (None, "liquid"):
+                warnings.append(f"Band {b.id}, claim {ref.id}: form dissolved in medium {ref.medium}")
+    if no_medium:
+        warnings.append(f"{no_medium} of {total} claims record no medium (vacuum | gas | liquid | matrix)")
+    if no_form:
+        warnings.append(f"{no_form} of {total} claims record no form (free | dissolved | adsorbed | surface | lattice)")
+    return warnings
 
 def tag_lasers(dataset: Dataset) -> list[str]:
     """Derive each Raman claim's excitation-wavelength tag from laser_nm.
