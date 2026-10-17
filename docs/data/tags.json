@@ -74,6 +74,9 @@
   "in liquid": {
     "tip": "Auto-tagged from the claim's medium: measured in a liquid or an electrolyte, as at an electrode. Adsorbates there feel the solvent and the electrode potential, so their positions differ from the same species under a gas."
   },
+  "in supercritical": {
+    "tip": "Auto-tagged from the claim's medium: measured in a dense fluid above its critical point, such as a CO₂/H₂ feed at hundreds of bar and 230 °C. Neither gas nor liquid: the density is liquid-like, so solvation and adsorbate coverage differ from the same species under a gas."
+  },
   "in matrix": {
     "tip": "Auto-tagged from the claim's medium: isolated in a frozen noble gas (neon or argon) at a few K. Effectively the free molecule with its rotation quenched, but the host still shifts the position by a few to twenty cm⁻¹."
   },

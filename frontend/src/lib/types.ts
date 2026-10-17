@@ -20,7 +20,7 @@ export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';
 export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
 export type Phase = 'gas' | 'adsorbed' | 'surface' | 'solution';
-export type Medium = 'vacuum' | 'gas' | 'liquid' | 'matrix';
+export type Medium = 'vacuum' | 'gas' | 'liquid' | 'supercritical' | 'matrix';
 export type Form = 'free' | 'dissolved' | 'adsorbed' | 'surface' | 'lattice';
 export type Technique =
   | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'seiras' | 'emission'

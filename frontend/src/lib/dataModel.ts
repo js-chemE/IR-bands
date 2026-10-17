@@ -124,7 +124,7 @@ export const ENTITIES: EntitySpec[] = [
       { name: 'measured_on', type: 'surface key | surface key[]', req: 'opt', note: 'Into surfaces.jsonc, at whatever scale the paper stated. A paper naming both the site and the catalyst gets both keys; one naming only the catalyst gets one, and that is a complete record of what it said.' },
       { name: 'technique', type: 'enum', req: 'opt', note: 'How the spectrum was taken. Derives its own name as a tag on the claim, and its family (infrared, raman, computational) as an umbrella on the band, so the legend can ask "seen in the infrared at all" without ticking seven chips. The umbrella is a legend switch only: it is not drawn on the band or the claim, where the specific chip already says it.' },
       { name: 'laser_nm', type: 'number', req: 'opt', note: 'Raman excitation wavelength in nm, recorded only where the source names the line. Derives two chips, the colour family and the line itself ("green laser", "515 nm"), both coloured from the light rather than from a fixed table, since a wavelength is a number and no vocabulary can hold one. Only meaningful on a Raman technique, raman or srs; the build warns otherwise.' },
-      { name: 'medium', type: 'vacuum | gas | liquid | matrix', req: 'opt', note: 'What surrounded the sample for this claim: an evacuated or UHV cell, any gas atmosphere (a fraction of a mbar of dosed CO counts), a liquid or electrolyte, or a frozen noble-gas matrix. Derives the tag "in vacuum", "in gas", "in liquid" or "in matrix". Left out where the paper does not say, which is honest where a guess is not.' },
+      { name: 'medium', type: 'vacuum | gas | liquid | supercritical | matrix', req: 'opt', note: 'What surrounded the sample for this claim: an evacuated or UHV cell, any gas atmosphere (a fraction of a mbar of dosed CO counts), a liquid or electrolyte, a dense fluid above its critical point, or a frozen noble-gas matrix. A calculation records what its model contains: a slab or cluster in vacuum, unless the model adds a solvent. Derives the tag "in vacuum", "in gas", "in liquid" or "in matrix". Left out where the paper does not say, which is honest where a guess is not.' },
       { name: 'form', type: 'free | dissolved | adsorbed | surface | lattice', req: 'opt', note: 'Where the species was: on its own (a gas, the liquid itself, matrix-isolated), dissolved in a liquid, held on a surface, a group of the solid (a hydroxyl, a hydride), or a vibration or defect of the solid itself. Derives a tag of the same name. With medium it separates what one word could not: CO adsorbed in UHV, under a gas and at an electrode in an electrolyte. Not band.phase, which says what the band is wherever it appears.' },
       { name: 'note', type: 'string', req: 'opt', note: 'What this one paper reported, ≤150 words. Conditions still live here as prose.' },
       { name: 'tags[]', type: 'string[]', req: 'opt', note: 'Scoped to this claim, not the band.' },
@@ -539,7 +539,7 @@ export function isUmbrellaTag(tag: string, role: TagRole): boolean {
     what the species is, then what surrounded it. */
 export const PHASE_PART: Record<string, 'form' | 'medium'> = {
   free: 'form', dissolved: 'form', adsorbed: 'form', surface: 'form', lattice: 'form',
-  'in vacuum': 'medium', 'in gas': 'medium', 'in liquid': 'medium', 'in matrix': 'medium',
+  'in vacuum': 'medium', 'in gas': 'medium', 'in liquid': 'medium', 'in supercritical': 'medium', 'in matrix': 'medium',
 };
 
 export const TECHNIQUE_FAMILY_ORDER: Record<string, number> = {
@@ -627,6 +627,7 @@ export const TAG_ROLES: Record<string, TagRole> = {
   'in vacuum': 'phase',
   'in gas': 'phase',
   'in liquid': 'phase',
+  'in supercritical': 'phase',
   'in matrix': 'phase',
   // Selection rule.
   'ir-active': 'activity',
@@ -680,6 +681,7 @@ export const DERIVED_TAGS: Record<string, string> = {
   'in vacuum': 'assignment.medium',
   'in gas': 'assignment.medium',
   'in liquid': 'assignment.medium',
+  'in supercritical': 'assignment.medium',
   'in matrix': 'assignment.medium',
   fundamental: 'vibration.category + band.based_on',
   'fermi-resonance': 'band.fermi_partner',

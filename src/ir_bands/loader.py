@@ -959,7 +959,7 @@ def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
 #: a matrix; a solution band is free or dissolved in a liquid; a surface band is
 #: a group or a lattice mode of the solid.
 PHASE_FORMS = {
-    "gas": ({"free"}, {"gas", "vacuum", "matrix", None}),
+    "gas": ({"free"}, {"gas", "vacuum", "supercritical", "matrix", None}),
     "solution": ({"free", "dissolved"}, {"liquid", None}),
     "adsorbed": ({"adsorbed"}, None),
     "surface": ({"surface", "lattice"}, None),
@@ -1126,9 +1126,8 @@ def tag_phases(dataset: Dataset) -> list[str]:
     no_medium = no_form = total = 0
     for b in dataset.bands:
         for ref in b.references:
-            # A calculation has no sample in a beam, so nothing to record.
-            if ref.technique == "computational":
-                continue
+            # A calculation records what its model contains (a slab in vacuum,
+            # a free molecule), so it carries the two fields like any claim.
             total += 1
             if ref.medium is None:
                 no_medium += 1
@@ -1141,7 +1140,7 @@ def tag_phases(dataset: Dataset) -> list[str]:
             if ref.form == "dissolved" and ref.medium not in (None, "liquid"):
                 warnings.append(f"Band {b.id}, claim {ref.id}: form dissolved in medium {ref.medium}")
     if no_medium:
-        warnings.append(f"{no_medium} of {total} claims record no medium (vacuum | gas | liquid | matrix)")
+        warnings.append(f"{no_medium} of {total} claims record no medium (vacuum | gas | liquid | supercritical | matrix)")
     if no_form:
         warnings.append(f"{no_form} of {total} claims record no form (free | dissolved | adsorbed | surface | lattice)")
     return warnings

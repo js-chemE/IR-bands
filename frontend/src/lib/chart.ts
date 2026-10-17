@@ -274,6 +274,8 @@ export function getLegendCategories(
 // ---------------------------------------------------------------------------
 
 export interface TipRef {
+  /** Publication year from the BibTeX date, 0 where none: the card sorts on it. */
+  year: number;
   /** The assignment's number, shown beside the claim's links. */
   id: number | null;
   key: string;
@@ -520,7 +522,7 @@ const TECHNIQUE_SEQUENCE = [
 /** The phase tags in a fixed order, form then medium, rather than by count. */
 const PHASE_SEQUENCE = [
   'free', 'dissolved', 'adsorbed', 'surface', 'lattice',
-  'in vacuum', 'in gas', 'in liquid', 'in matrix',
+  'in vacuum', 'in gas', 'in liquid', 'in supercritical', 'in matrix',
 ];
 
 function withinRoleRank(key: string): number {
@@ -1234,20 +1236,28 @@ export function buildChart(
 
     const color = getColor(b, groups, colorDim);
 
+    const firstSeen = new Map<string, number>();
+    b.references.forEach((r, i) => { if (!firstSeen.has(r.key)) firstSeen.set(r.key, i); });
     const tipRefs: TipRef[] = b.references.length > 0 && refs
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
           const off = refOff(ref, filter);
+          const year = parseInt(String(r?.year || r?.date || '').slice(0, 4), 10) || 0;
           return {
+            year,
             id: ref.id ?? null, key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             href: (r && refHref(r as Record<string, string>)) || null,
             surfaces: sortedMeasuredOnBadges(ref),
             off,
           };
         })
-        // The claims that count first, the greyed ones after.
-        .sort((a, b) => Number(!!a.off) - Number(!!b.off))
+        // The claims that count first, the greyed ones after, and within each
+        // the newest paper on top. Papers of the same year stay in the order
+        // they first appear on the band, so one paper's claims sit together;
+        // the sort is stable, so those keep the order they are written in.
+        .sort((a, b) => Number(!!a.off) - Number(!!b.off) || b.year - a.year
+          || firstSeen.get(a.key)! - firstSeen.get(b.key)!)
       : [];
 
     if (x2 < xMin || x1 > xMax) continue; // outside visible domain

@@ -476,6 +476,30 @@
       "parts": ["cu_0", "cu_1p", "cu_2p", "ga_3p", "ga2o3", "sio2"],
       "note": "Ga₂O₃-promoted Cu on silica, published as a loading series written CuGa(x) where x is the Ga/(Cu+Ga) molar ratio. The family is recorded here and the member named in the note, because the distinction the spectra turn on is against the Ga-free cu_sio2 rather than between members: the Cu⁺ carbonyl is absent without Ga and its area grows with the loading."
     },
+    "cuzn_sio2": {
+      "label": "CuZn/SiO₂",
+      "level": "sample",
+      "composition": "CuZn/SiO₂",
+      "elements": ["Cu", "Zn", "Si", "O"],
+      "parts": ["cu_0", "zn_2p", "sio2"],
+      "note": "Cu nanoparticles on silica decorated with isolated Zn²⁺ sites, made by surface organometallic chemistry: 4.16 wt% Cu, 1.62 wt% Zn, Zn/Cu 0.40. There is no ZnO phase, which is the point of the material: the Zn is single cations at the Cu interface, partly alloyed after reduction and partly re-oxidised under reaction, so it is listed as Zn²⁺ and not as ZnO."
+    },
+    "cuga_sio2_somc": {
+      "label": "CuGa/SiO₂",
+      "level": "sample",
+      "composition": "CuGa/SiO₂",
+      "elements": ["Cu", "Ga", "Si", "O"],
+      "parts": ["cu_0", "ga_3p", "sio2"],
+      "note": "Cu nanoparticles on silica decorated with isolated Ga³⁺ sites, made by surface organometallic chemistry: 3.88 wt% Cu, 1.61 wt% Ga, Ga/Cu 0.40. A different material from cuga_sio2, which carries a Ga₂O₃ phase: here the gallium is single cations, fully re-oxidised under reaction, with no oxide phase."
+    },
+    "cuin_sio2": {
+      "label": "CuIn/SiO₂",
+      "level": "sample",
+      "composition": "CuIn/SiO₂",
+      "elements": ["Cu", "In", "Si", "O"],
+      "parts": ["cu_0", "in_3p", "sio2"],
+      "note": "Cu nanoparticles on silica decorated with isolated In³⁺ sites, made by surface organometallic chemistry: 3.81 wt% Cu, 1.82 wt% In, In/Cu 0.26. About a third of the In alloys with Cu after reduction and re-oxidises to In³⁺ under reaction; no In₂O₃ phase."
+    },
     "cu_zro2": {
       "label": "Cu/ZrO\u2082",
       "level": "sample",

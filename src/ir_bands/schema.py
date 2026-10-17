@@ -90,14 +90,16 @@ VALID_TECHNIQUES = {
 # medium: what surrounds the sample during the measurement. "vacuum" is an
 # evacuated or UHV cell with no gas let in; "gas" is any gas atmosphere, from a
 # fraction of a mbar of dosed CO to a flowing feed at 20 bar; "liquid" a liquid
-# or an electrolyte; "matrix" a frozen noble gas the molecule is isolated in.
+# or an electrolyte; "supercritical" a dense fluid above the critical point,
+# as a CO2/H2 feed at hundreds of bar and 230 °C is, neither gas nor liquid;
+# "matrix" a frozen noble gas the molecule is isolated in.
 #
 # form: where the species is. "free" is the molecule on its own (a gas, the
 # liquid itself, matrix-isolated); "dissolved" a solute in a liquid; "adsorbed"
 # held on a surface; "surface" a group belonging to the solid (a hydroxyl, a
 # hydride); "lattice" a vibration or a defect of the solid itself.
-Medium = Literal["vacuum", "gas", "liquid", "matrix"]
-VALID_MEDIA = {"vacuum", "gas", "liquid", "matrix"}
+Medium = Literal["vacuum", "gas", "liquid", "supercritical", "matrix"]
+VALID_MEDIA = {"vacuum", "gas", "liquid", "supercritical", "matrix"}
 Form = Literal["free", "dissolved", "adsorbed", "surface", "lattice"]
 VALID_FORMS = {"free", "dissolved", "adsorbed", "surface", "lattice"}
 #: The tag each medium derives. Spelled "in gas" rather than "gas" so a band
