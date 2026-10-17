@@ -376,6 +376,22 @@
       "elements": ["Fe", "O"],
       "note": "Magnetite with no termination stated. The two facet variants below point at it, and all three are the same compound: only the cut differs."
     },
+    "sno2": {
+      "label": "SnO₂",
+      "level": "phase",
+      "formula": "SnO₂",
+      "elements": ["Sn", "O"],
+      "note": "Tin dioxide, the classic oxide cathode for CO₂ reduction to formate. Under strongly cathodic potentials it is not stable: a Pourbaix analysis at pH 6.8 puts metallic Sn as the stable phase near −1.1 V vs. RHE, so the entry names what was put in the cell, not what the surface is during reduction."
+    },
+    "ag_111": {
+      "label": "Ag(111)",
+      "level": "phase",
+      "formula": "Ag",
+      "facet": "(111)",
+      "elements": ["Ag"],
+      "parts": ["ag_0"],
+      "note": "Metallic silver cut on its close-packed (111) plane, the slab a calculation reaches for when it models a silver electrode. A facet is a phase here like any other: (111) is a termination, not a composition, so the metal site it presents is plain Ag⁰."
+    },
     "fe3o4_001": {
       "label": "Fe₃O₄(001)",
       "level": "phase",
@@ -419,6 +435,38 @@
       "elements": ["Au", "Si", "O"],
       "parts": ["au_0", "sio2"],
       "note": "Gold nanoparticles under 11 nm at 1 wt % on silica, prepared alongside the Cu and Ag counterparts so the three coinage metals can be compared on one support."
+    },
+    "ag_au_film": {
+      "label": "Ag/Au film electrode",
+      "level": "sample",
+      "composition": "Ag/Au film on Si",
+      "elements": ["Ag", "Au"],
+      "parts": ["ag_0"],
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Ag electrodeposited over it. The silver is what faces the electrolyte, so it is the only site listed; the gold is an underlayer that carries the surface enhancement, and the silicon is the prism the beam comes through, which is optics rather than catalyst and is left out of the elements."
+    },
+    "au_film": {
+      "label": "Au film electrode",
+      "level": "sample",
+      "composition": "Au film on Si",
+      "elements": ["Au"],
+      "parts": ["au_0"],
+      "note": "A chemically deposited Au film of about 60 nm on a Si prism, the underlayer the Ag, Cu and SnO₂ SEIRAS electrodes are built on, measured bare as a control. The silicon prism is optics, not catalyst."
+    },
+    "sno2_au_film": {
+      "label": "SnO₂/Au film electrode",
+      "level": "sample",
+      "composition": "SnO₂/Au film on Si",
+      "elements": ["Sn", "O", "Au"],
+      "parts": ["sno2"],
+      "note": "A SEIRAS working electrode: commercial SnO₂ nanoparticles (50 to 70 nm) cast onto a chemically deposited Au film on a Si prism. The oxide faces the electrolyte; the gold underneath carries the enhancement. Whether the SnO₂ stays oxide or reduces to Sn under reaction is not settled by the spectra, so no site is listed."
+    },
+    "cu_au_film": {
+      "label": "Cu/Au film electrode",
+      "level": "sample",
+      "composition": "Cu/Au film on Si",
+      "elements": ["Cu", "Au"],
+      "parts": ["cu_0"],
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Cu electrodeposited over it, roughly 150 monolayers. The copper is what faces the electrolyte, so it is the only site listed; the gold underlayer carries the enhancement and should not be exposed, which a CO band above 2100 cm⁻¹ (CO on Au) would reveal. The silicon prism is optics, not catalyst."
     },
     "cuga_sio2": {
       "label": "Cu-Ga₂O₃/SiO₂",

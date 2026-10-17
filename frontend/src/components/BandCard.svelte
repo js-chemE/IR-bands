@@ -161,7 +161,7 @@
 
           <div class:tip-refs-scroll={useScroll}>
             {#each refsToShow as ref, i}
-              <!-- A claim whose technique is switched off, or one with no
+              <!-- A claim whose technique or phase is switched off, or one with no
                    technique recorded, folds even when it is the only one,
                    and is greyed out. -->
               {@const foldable = isCollapsible || ref.off}
@@ -176,6 +176,8 @@
                   ? `No technique recorded for this claim, so it is neither IR nor Raman yet. Click to ${expanded ? 'collapse' : 'expand'}`
                   : ref.off === 'excluded'
                     ? `Its technique is switched off under Techniques in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
+                    : ref.off === 'excluded-state'
+                    ? `Its phase is switched off under Phases in the sidebar, so this claim does not count. Click to ${expanded ? 'collapse' : 'expand'}`
                     : foldable ? (expanded ? 'Click to collapse' : 'Click to expand') : undefined}
               >
                 <!-- Two ways out, in one row: the atlas's own entry on the left,

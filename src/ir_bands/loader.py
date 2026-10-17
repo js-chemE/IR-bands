@@ -953,6 +953,13 @@ def branch_group_members_for(dataset: Dataset) -> dict[str, list[Band]]:
     return groups
 
 
+#: The claim states a band phase is consistent with, where the two
+#: vocabularies spell it differently. A band "in solution" (CO2(aq), the water
+#: at an electrode) is measured with the sample held as a liquid; every other
+#: phase is matched by the state of the same name.
+PHASE_STATES = {"solution": {"liquid"}}
+
+
 def check_phase(dataset: Dataset) -> list[str]:
     """Warn where Band.phase contradicts the states of its own claims.
 
@@ -975,7 +982,7 @@ def check_phase(dataset: Dataset) -> list[str]:
             for ref in b.references
             if ref.technique != "computational" and ref.state
         }
-        if b.phase and states and b.phase not in states:
+        if b.phase and states and not (PHASE_STATES.get(b.phase, {b.phase}) & states):
             warnings.append(
                 f"band {b.id!r} has phase {b.phase!r} but every claim on it "
                 f"was measured {'/'.join(sorted(states))}"
@@ -999,6 +1006,7 @@ TECHNIQUE_FAMILY = {
     "infrared": "infrared",
     "irras": "infrared",
     "pm_irras": "infrared",
+    "seiras": "infrared",
     "emission": "infrared",
     "mioirs": "infrared",
     "raman": "raman",

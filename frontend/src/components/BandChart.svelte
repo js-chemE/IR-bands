@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import type { Band, GroupMap, ColorDim, AxisProperty, RefMap, Vibrations, VibrationMode, Spectroscopy } from '../lib/types';
-  import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks } from '../lib/chart';
+  import { buildChart, buildAxisStrip, getBandTags, HATCH, HOLLOW_STROKE, fadedFill, fadedEdge, WN_LO, WN_HI, type BandLooks, type ClaimFilter } from '../lib/chart';
   import { cssZoom } from '../lib/zoom';
   import type { TipData, PlotBandHit, PlotRegion } from '../lib/chart';
   import { axisRange, valueToWn, wnToValue } from '../lib/units';
@@ -56,8 +56,8 @@
   export let spectroscopy: Spectroscopy = 'ir';
   /** Whether inactive bands are drawn hollow and unreferenced ones faded. */
   export let looks: BandLooks = { inactive: true, unreferenced: true };
-  /** The techniques whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
-  export let excludedTechniques: ReadonlySet<string> = new Set();
+  /** The techniques and phases whose claims do not count: greyed in the card, and a band left with none is unreferenced. */
+  export let claimFilter: ClaimFilter = { techniques: new Set(), states: new Set() };
   /** Whether the electromagnetic regions are marked: the strip of names, the borders and their fades. */
   export let showRegions = true;
   export let hoveredCat: string | null = null;
@@ -466,7 +466,7 @@
       spectroscopy,
       looks,
       showRegions,
-      excludedTechniques,
+      claimFilter,
     );
     container.replaceChildren(result.svg);
     hitBands = result.hitBands;

@@ -132,6 +132,7 @@
             "co2_asym_r",
             "co2_asym_q",
             "co2_asym_p",
+            "co2_aq_asym",
             "co2_combo_sym_asym_q",
             "co2_combo_sym_asym_r",
             "co2_combo_sym_asym_p",
@@ -780,13 +781,15 @@
           ],
           "category": "stretch",
           "subtype": "asymmetric",
-          "atoms": "C=O",
+          "atoms": "O-C-O",
           "topology": "monodentate",
           "herzberg_notation": "ν₂",
           "symmetry": "A′",
           "wn_start": 1657,
           "wn_end": 1758,
-          "bands": []
+          "bands": [
+            "formate_monodentate_asym"
+          ]
         },
         {
           "id": "formate_och_scissoring_monodentate",
@@ -2469,7 +2472,8 @@
           "wn_start": 1595,
           "wn_end": null,
           "bands": [
-            "h2og_bend"
+            "h2og_bend",
+            "h2o_interfacial_bend"
           ]
         },
         {

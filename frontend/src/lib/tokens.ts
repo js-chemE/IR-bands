@@ -409,6 +409,7 @@ export const TAG_STYLES: Record<string, { background: string; border: string; co
   atr:               TECHNIQUE_STYLE,
   irras:             TECHNIQUE_STYLE,
   pm_irras:          TECHNIQUE_STYLE,
+  seiras:            TECHNIQUE_STYLE,
   emission:          TECHNIQUE_STYLE,
   mioirs:            TECHNIQUE_STYLE,
   raman:             TECHNIQUE_STYLE,

@@ -357,6 +357,7 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
         ['atr', 'Attenuated total reflectance against an internal-reflection crystal'],
         ['irras', 'Grazing-incidence reflection off a flat single crystal, in vacuum'],
         ['pm_irras', 'IRRAS with the polarisation modulated, which cancels the gas background'],
+        ['seiras', 'Surface-enhanced IR on a metal-film electrode, nearly always through an ATR prism (Kretschmann). Not plain `atr`: the surface selection rule applies, and the spectra are differences against a reference potential, so a band pointing down is a species consumed'],
         ['emission', 'The hot sample is the source; no beam passes through it'],
         ['mioirs', 'Mixed Isotope Operando IR: the cell is fed a mixed isotopic stream (a little ¹³CO in ¹²CO) so neighbouring adsorbates stop sharing a frequency and the dipole coupling between them is detuned. It names what went into the cell rather than how the beam arrived, and it is a value of its own because a decoupled adlayer is a different measurement whatever geometry recorded it'],
         ['infrared', 'Placeholder: the paper says IR or FTIR and names no geometry'],
@@ -421,6 +422,13 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
       'saturated detector, a number read off a figure.',
     ],
     rules: [
+      'An electrochemical claim carries its potential the way a thermal one carries its temperature, ' +
+      'and the potential moves the band: CO on a metal electrode shifts by tens of cm⁻¹ per volt (the ' +
+      'Stark tuning slope, which belongs in the note when the paper gives it). Write the potential on ' +
+      'the paper’s own scale ("−1.1 V vs. RHE", never converted), then the electrolyte with its cation ' +
+      '(Cs⁺ and K⁺ move the same band), the iR compensation, and for pulsed or swept experiments the ' +
+      'protocol (E(c), E(a), the pulse lengths, the sweep rate). A band in a difference spectrum that ' +
+      'points down is a species consumed, and the note says so.',
       'Keep the paper’s own units and numbers. If it says 200 °C, write 200 °C; converting silently ' +
       'loses the fact that the paper chose that unit, and invites a rounding error for nothing.',
       'Unicode throughout: cm⁻¹, °C, mL min⁻¹, CO₂/H₂, ¹³CO. No markup, no LaTeX, no bare CO2.',

@@ -69,7 +69,7 @@ export function fadeColor(hex: string, strength = 1): string {
 
 /** The infrared sampling geometries. Raman and computational are not among them. */
 const IR_GEOMETRIES = new Set([
-  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'emission', 'mioirs',
+  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'seiras', 'emission', 'mioirs',
 ]);
 
 /**

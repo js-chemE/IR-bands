@@ -35,9 +35,12 @@ VALID_CONFIDENCES = {"confirmed", "likely", "tentative", "speculative"}
 # the band applies to both the free molecule and its adsorbed form, which is
 # genuinely the case for several methanol fundamentals. "surface" means a group
 # belonging to the solid itself (a support hydroxyl, a metal hydride) rather
-# than an adsorbate sitting on it.
-Phase = Literal["gas", "adsorbed", "surface"]
-VALID_PHASES = {"gas", "adsorbed", "surface"}
+# than an adsorbate sitting on it. "solution" means in a liquid, dissolved in
+# it or the liquid itself: CO2(aq), or the interfacial water an electrochemical
+# measurement sees against the electrode. Neither is the free molecule nor
+# bound to the surface, and both turn up in every electrochemical spectrum.
+Phase = Literal["gas", "adsorbed", "surface", "solution"]
+VALID_PHASES = {"gas", "adsorbed", "surface", "solution"}
 
 # How the spectrum was taken, per citation. DRIFTS, ATR and the rest are
 # sampling geometries; "computational" is not a geometry at all, it marks a
@@ -47,6 +50,10 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # recording as an open question rather than guessing. Reflection geometries are separate values because the surface
 # selection rule makes them a different experiment: on a flat conducting
 # sample IRRAS sees only dipoles with a component along the surface normal.
+# "seiras" is surface-enhanced IR absorption on a metal-film electrode, almost
+# always in the ATR (Kretschmann) geometry: the same surface selection rule,
+# a field enhanced within a few nm of the film, and difference spectra against
+# a reference potential, so a band can point down for a species consumed.
 #
 # "mioirs" is the odd one out of the infrared family: it names what is fed to
 # the cell rather than how the beam reaches the sample. A mixed isotopic
@@ -56,7 +63,7 @@ VALID_PHASES = {"gas", "adsorbed", "surface"}
 # enough to be worth its own value; Monai proposed it in 2024.
 Technique = Literal[
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "infrared", "raman", "srs", "computational",
+    "mioirs", "seiras", "infrared", "raman", "srs", "computational",
 ]
 # Which substitution an isotopologue band carries. Closed, because each value
 # derives a tag of its own and a stray spelling would quietly create a fourth
@@ -70,7 +77,7 @@ VALID_ISOTOPES = set(ISOTOPE_TAGS)
 # rejected, so a claim could not say IRRAS even though the type said it could.
 VALID_TECHNIQUES = {
     "drifts", "transmission", "atr", "irras", "pm_irras", "emission",
-    "mioirs", "infrared", "raman", "srs", "computational",
+    "mioirs", "seiras", "infrared", "raman", "srs", "computational",
 }
 
 # What was actually in the beam for one claim. Distinct from Band.phase above,
@@ -526,7 +533,7 @@ class Band:
     references: list[Reference] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
-    # gas | adsorbed | surface, or None when the band applies to both the free
+    # gas | adsorbed | surface | solution, or None when the band applies to both the free
     # molecule and its adsorbed form. No tag is derived from it: a band has no
     # sample of its own, so the phase chips come from each claim's own state
     # (tag_states) and the band shows the union of them. This field is the

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
-  import { getLegendCategories, getLegendTags, isReferenced, type BandStateMode } from './lib/chart';
+  import { getLegendCategories, getLegendTags, isReferenced, UNRECORDED_STATE, type BandStateMode, type ClaimFilter } from './lib/chart';
   import { installLookups } from './lib/labels';
   import { tagRole } from './lib/dataModel';
   import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
@@ -493,12 +493,25 @@
     if (tag === 'raman') return [...RAMAN_TECHNIQUES];
     return [tag];
   }
+  /* The phase chips the same way: a state chip (gas, liquid, matrix, solid,
+     adsorbed) is the Phases section by another way in, so a click stops the
+     claims made in that state counting rather than hiding every band that
+     has one. The other phase-role tags (undissociated, frustrated-mode) are
+     not states and stay ordinary band filters. */
+  const isStateTag = (tag: string) => (CLAIM_STATES as readonly string[]).includes(tag);
+
   function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
     const members = techniqueMembers(e.detail.tag);
     if (members) {
       const next = new Set(excludedTechniques);
       for (const t of members) if (e.detail.visible) next.delete(t); else next.add(t);
       excludedTechniques = next;
+      return;
+    }
+    if (isStateTag(e.detail.tag)) {
+      const next = new Set(excludedStates);
+      if (e.detail.visible) next.delete(e.detail.tag); else next.add(e.detail.tag);
+      excludedStates = next;
       return;
     }
     // A single click always exits isolate mode first and applies the
@@ -532,17 +545,25 @@
       excludedTechniques = isolated ? new Set() : new Set(others);
       return;
     }
+    if (isStateTag(e.detail.tag)) {
+      const others = PHASE_ROWS.map(r => r.key).filter(k => k !== e.detail.tag);
+      const isolated = others.every(k => excludedStates.has(k)) && !excludedStates.has(e.detail.tag);
+      excludedStates = isolated ? new Set() : new Set(others);
+      return;
+    }
     tagIsolate = tagIsolate === e.detail.tag ? null : e.detail.tag;
     hiddenTags = new Set();
   }
 
   /* What the legend draws as off: the band filter's own hidden tags, plus
-     every technique chip whose techniques are all switched off. */
+     every technique chip whose techniques are all switched off and every
+     phase chip whose state is. */
   $: legendHiddenTags = (() => {
     const off = new Set(hiddenTags);
     for (const t of legendTags) {
       const members = techniqueMembers(t.key);
       if (members?.every(m => excludedTechniques.has(m))) off.add(t.key);
+      if (isStateTag(t.key) && excludedStates.has(t.key)) off.add(t.key);
     }
     return off;
   })();
@@ -694,6 +715,29 @@
     members.filter(t => !excluded.has(t)).length;
   $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
   let showTechniques = false;
+
+  // The second half of "which claims count": the state the sample was held
+  // in for each claim (the Phases section). A set of the excluded, like the
+  // techniques, empty by default; claims that record no state are keyed
+  // under UNRECORDED_STATE so they can be switched off as a group too.
+  const CLAIM_STATES = ['gas', 'liquid', 'matrix', 'solid', 'adsorbed'] as const;
+  const PHASE_ROWS: { key: string; label: string; title: string }[] = [
+    { key: 'gas', label: 'Gas', title: 'Measured as a vapour, the free molecule rotating' },
+    { key: 'liquid', label: 'Liquid', title: 'Measured in a liquid: the bulk liquid, or a species in solution such as an electrolyte' },
+    { key: 'matrix', label: 'Matrix', title: 'Isolated in a frozen noble-gas matrix: the free molecule with its rotation quenched' },
+    { key: 'solid', label: 'Solid', title: 'The bulk solid substance itself' },
+    { key: 'adsorbed', label: 'Adsorbed', title: 'Held on a surface: a catalyst, a support, an electrode' },
+    { key: UNRECORDED_STATE, label: 'Not recorded', title: 'Claims that record no state, every calculation among them' },
+  ];
+  let excludedStates: ReadonlySet<string> = new Set();
+  let showPhases = false;
+  $: countedPhases = PHASE_ROWS.filter(r => !excludedStates.has(r.key)).length;
+  function toggleChartState(key: string) {
+    const next = new Set(excludedStates);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    excludedStates = next;
+  }
+  $: claimFilter = { techniques: excludedTechniques, states: excludedStates } as ClaimFilter;
   function toggleChartTechnique(key: string) {
     const next = new Set(excludedTechniques);
     if (next.has(key)) next.delete(key); else next.add(key);
@@ -738,7 +782,7 @@
   // band without a claim in the chosen spectroscopy.
   $: chartBands = baseBands
     .filter(b => inactiveMode !== 'hidden' || !b.tags.includes(inactiveTag))
-    .filter(b => unreferencedMode !== 'hidden' || isReferenced(b, excludedTechniques));
+    .filter(b => unreferencedMode !== 'hidden' || isReferenced(b, claimFilter));
   /** How many bands in the enabled groups each technique has a claim in. */
   $: techniqueCounts = (() => {
     const counts: Record<string, number> = {};
@@ -746,6 +790,17 @@
       if (!enabledGroups.has(b.group)) continue;
       for (const t of new Set(b.references.map(r => r.technique).filter(Boolean) as string[])) {
         counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    return counts;
+  })();
+  /** How many bands in the enabled groups have a claim in each state. */
+  $: stateCounts = (() => {
+    const counts: Record<string, number> = {};
+    for (const b of baseBands) {
+      if (!enabledGroups.has(b.group)) continue;
+      for (const st of new Set(b.references.map(r => r.state || UNRECORDED_STATE))) {
+        counts[st] = (counts[st] ?? 0) + 1;
       }
     }
     return counts;
@@ -934,9 +989,9 @@
               <button class="page-mini-btn ctl-btn" aria-label="Techniques and band states"
               ><Icon name="toggles" size={15} width={1.8} /></button>
               {#if flyOpen === 'endis'}
-                <!-- Techniques and Band States in one flyout, in the open
-                     sidebar's order: which claims count, then what a band
-                     with none left does. The techniques at their smallest,
+                <!-- Techniques, Phases and Band States in one flyout, in the
+                     open sidebar's order: which claims count, then what a
+                     band with none left does. The techniques at their smallest,
                      the two families and the calculations, not every
                      geometry. -->
                 <div class="fly">
@@ -950,6 +1005,13 @@
                   <button class="fly-item" class:fly-on={!excludedTechniques.has('computational')}
                     on:click={() => toggleChartTechnique('computational')}
                   ><span class="fly-box" class:on={!excludedTechniques.has('computational')}></span>computational</button>
+                  <div class="fly-rule"></div>
+                  <div class="fly-title">Phases</div>
+                  {#each PHASE_ROWS as ph (ph.key)}
+                    <button class="fly-item" class:fly-on={!excludedStates.has(ph.key)}
+                      on:click={() => toggleChartState(ph.key)}
+                    ><span class="fly-box" class:on={!excludedStates.has(ph.key)}></span>{ph.label.toLowerCase()}</button>
+                  {/each}
                   <div class="fly-rule"></div>
                   <div class="fly-title">Band States</div>
                   <button class="fly-item" class:fly-on={showIsotopes}
@@ -1119,6 +1181,43 @@
                 ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
                   <span class="count">{techniqueCounts.computational ?? 0}</span>
                 </button>
+              </div>
+            {/if}
+          </section>
+
+          <hr class="divider" />
+
+          <section>
+            <!-- The other half of which claims count: the state the sample
+                 was held in for each claim, the same field the legend's
+                 phase chips come from. Switched off, a phase's claims grey
+                 out in the card like an excluded technique's, and a band
+                 left with none counts as unreferenced. -->
+            <h3>Phases</h3>
+            <button
+              class="disclosure"
+              on:click={() => (showPhases = !showPhases)}
+              aria-expanded={showPhases}
+            >
+              <span class="caret">{showPhases ? '▾' : '▸'}</span>
+              Counted
+              <span class="count">{countedPhases} / {PHASE_ROWS.length}</span>
+            </button>
+            {#if showPhases}
+              <div class="tech-filter">
+                {#each PHASE_ROWS as ph (ph.key)}
+                  <button
+                    class="include-row tech-row"
+                    class:off={excludedStates.has(ph.key)}
+                    aria-pressed={!excludedStates.has(ph.key)}
+                    title={excludedStates.has(ph.key)
+                      ? `Count the claims in this phase again (${ph.title.toLowerCase()})`
+                      : `${ph.title}. Click to stop counting these claims: they grey out in the card, and a band left with no other claim is unreferenced`}
+                    on:click={() => toggleChartState(ph.key)}
+                  ><span class="inc-label">{ph.label}</span>
+                    <span class="count">{stateCounts[ph.key] ?? 0}</span>
+                  </button>
+                {/each}
               </div>
             {/if}
           </section>
@@ -1388,7 +1487,7 @@
             reversed={axisReversed}
             {spectroscopy}
             looks={{ inactive: inactiveMode === 'look', unreferenced: unreferencedMode === 'look' }}
-            {excludedTechniques}
+            {claimFilter}
             {showRegions}
             hoveredCat={legendHoveredCat}
             hoveredTag={legendHoveredTag}

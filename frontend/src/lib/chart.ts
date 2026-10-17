@@ -289,9 +289,11 @@ export interface TipRef {
   /**
    * Greyed out and folded: 'unknown' when the claim records no technique at
    * all, 'excluded' when its technique is one the sidebar's Techniques
-   * section has switched off; null when it stands as usual.
+   * section has switched off, 'excluded-state' when its phase (the state the
+   * sample was held in) is one the Phases section has switched off; null
+   * when it stands as usual.
    */
-  off: 'unknown' | 'excluded' | null;
+  off: 'unknown' | 'excluded' | 'excluded-state' | null;
 }
 
 /** Which band looks the chart draws: hollow for inactive, faded for unreferenced. */
@@ -309,7 +311,18 @@ export interface BandLooks {
  */
 export type BandStateMode = 'look' | 'plain' | 'hidden';
 
-const NO_TECHNIQUES: ReadonlySet<string> = new Set();
+/**
+ * Which claims count: the techniques and the phases switched off in the
+ * sidebar. Both are sets of the excluded, so a value the filter does not list
+ * is never silently dropped. A claim that records no state is keyed under
+ * UNRECORDED_STATE, so the Phases section can switch those off too.
+ */
+export interface ClaimFilter {
+  techniques: ReadonlySet<string>;
+  states: ReadonlySet<string>;
+}
+export const UNRECORDED_STATE = 'unrecorded';
+const NO_FILTER: ClaimFilter = { techniques: new Set(), states: new Set() };
 
 /** Technique → IR or Raman, from the Technique spec. */
 const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscopy]));
@@ -330,11 +343,12 @@ const TECHNIQUE_SPECTROSCOPY = new Map(TECHNIQUES.map(t => [t.key, t.spectroscop
  * technique counts until somebody says otherwise, the calculations included.
  */
 export function refOff(
-  technique: Technique | null | undefined,
-  excluded: ReadonlySet<string> = NO_TECHNIQUES,
+  ref: { technique?: Technique | null; state?: string | null },
+  filter: ClaimFilter = NO_FILTER,
 ): TipRef['off'] {
-  if (!technique) return 'unknown';
-  return excluded.has(technique) ? 'excluded' : null;
+  if (!ref.technique) return 'unknown';
+  if (filter.techniques.has(ref.technique)) return 'excluded';
+  return filter.states.has(ref.state || UNRECORDED_STATE) ? 'excluded-state' : null;
 }
 
 /**
@@ -347,9 +361,9 @@ export function refOff(
  */
 export function isReferenced(
   b: Band,
-  excluded: ReadonlySet<string> = NO_TECHNIQUES,
+  filter: ClaimFilter = NO_FILTER,
 ): boolean {
-  return b.references.some(r => !refOff(r.technique, excluded));
+  return b.references.some(r => !refOff(r, filter));
 }
 
 /**
@@ -487,7 +501,7 @@ export const UNTAGGED_KEY = '__untagged__';
  * and fall through to the count as before.
  */
 const TECHNIQUE_SEQUENCE = [
-  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'emission', 'mioirs',
+  'infrared', 'drifts', 'transmission', 'atr', 'irras', 'pm_irras', 'seiras', 'emission', 'mioirs',
   'raman', 'srs',
 ];
 
@@ -1106,8 +1120,9 @@ export function buildChart(
   looks: BandLooks = { inactive: true, unreferenced: true },
   // Whether the electromagnetic regions are marked at all (an Appearance pill).
   showRegions = true,
-  // The techniques whose claims do not count (the sidebar's Techniques).
-  excluded: ReadonlySet<string> = NO_TECHNIQUES,
+  // The techniques and phases whose claims do not count (the sidebar's
+  // Techniques and Phases).
+  filter: ClaimFilter = NO_FILTER,
 ): ChartResult {
   const { newLaneIdx, newNLanes } = computeLaneMetrics(bands, enabledGroups);
   const dynamicSubLane = computeSubLanes(bands, enabledGroups);
@@ -1209,7 +1224,7 @@ export function buildChart(
       ? b.references.map(ref => {
           const r = refs[ref.key];
           const short = r ? formatShortRef(r as Record<string, string>, ref.key) : ref.key;
-          const off = refOff(ref.technique, excluded);
+          const off = refOff(ref, filter);
           return {
             id: ref.id ?? null, key: ref.key, short, wn: ref.wn, note: ref.note, tags: ref.tags,
             href: (r && refHref(r as Record<string, string>)) || null,
@@ -1232,7 +1247,7 @@ export function buildChart(
       cy: (y0 + y1) / 2,
       color,
       inactive: looks.inactive && bandTags.includes(spectroscopy === 'raman' ? 'raman-inactive' : 'ir-inactive'),
-      unreferenced: looks.unreferenced && !isReferenced(b, excluded),
+      unreferenced: looks.unreferenced && !isReferenced(b, filter),
       isotopologue: !!b.isotopologue_of,
       tipData: {
         id:        b.id,
@@ -1244,7 +1259,7 @@ export function buildChart(
         noteLines: [
           !isReferenced(b)
             ? 'unreferenced: no claim records a technique'
-            : !isReferenced(b, excluded) && 'unreferenced: its techniques are switched off',
+            : !isReferenced(b, filter) && 'unreferenced: its techniques or phases are switched off',
           isCalculatedOnly(b) && 'calculated only: no measurement behind it',
           b.intensity  && `intensity: ${b.intensity}`,
           b.confidence && `confidence: ${b.confidence}`,
