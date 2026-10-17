@@ -19,9 +19,9 @@ export type Branch = 'O' | 'P' | 'Q' | 'R' | 'S';
 export type BandIntensity = 'vs' | 's' | 'm' | 'w' | 'vw';
 export type BandWidth = 'sharp' | 'medium' | 'broad' | 'very_broad';
 export type BandConfidence = 'confirmed' | 'likely' | 'tentative' | 'speculative';
-export type Phase = 'gas' | 'adsorbed' | 'surface';
+export type Phase = 'gas' | 'adsorbed' | 'surface' | 'solution';
 export type Technique =
-  | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'emission'
+  | 'drifts' | 'transmission' | 'atr' | 'irras' | 'pm_irras' | 'seiras' | 'emission'
   | 'mioirs' | 'infrared' | 'raman' | 'srs' | 'computational';
 export type SurfaceLevel = 'site' | 'phase' | 'sample';
 export type SiteKind = 'metal' | 'cation' | 'defect' | 'interface' | 'bronsted';

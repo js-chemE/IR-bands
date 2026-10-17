@@ -26,6 +26,9 @@
   "irras": {
     "tip": "Measured by infrared reflection absorption spectroscopy: grazing incidence off a flat, usually single-crystal sample in vacuum. The surface selection rule applies, so only dipole components along the surface normal absorb and a missing band may mean a mode lying flat rather than a species that is absent."
   },
+  "seiras": {
+    "tip": "Surface-enhanced infrared absorption on a metal-film electrode, nearly always through an ATR prism (Kretschmann geometry). Only dipoles normal to the metal are enhanced, and the spectra are differences against a reference potential, so a band pointing down is a species consumed."
+  },
   "pm_irras": {
     "tip": "IRRAS with the polarisation modulated between s and p, which subtracts the isotropic gas-phase and window background and lets reflection measurements work outside vacuum."
   },

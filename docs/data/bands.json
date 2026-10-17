@@ -4,7 +4,7 @@
     "wavenumber_unit": "cm^-1",
     "description": "Approximate band positions for surface and gas-phase species in CO₂ hydrogenation. Exact positions depend on support, coverage, and reaction conditions. The asterisk (*) denotes a surface-bound species.",
     "schema_version": 3,
-    "next_assignment_id": 392
+    "next_assignment_id": 417
   },
   "regions": {
     "very_high": {
@@ -235,9 +235,10 @@
         "methanol_product",
         "water"
       ],
-      "note": "The free molecules only: reactants and products as gas or fluid, no surface species. Their adsorbed bands are left out too.",
+      "note": "The free molecules only: reactants and products as gas or fluid, dissolved ones included, no surface species. Their adsorbed bands are left out too.",
       "phases": [
-        "gas"
+        "gas",
+        "solution"
       ]
     }
   },
@@ -1271,6 +1272,48 @@
         "O"
       ]
     },
+    "sno2": {
+      "key": "sno2",
+      "label": "SnO₂",
+      "level": "phase",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": "SnO₂",
+      "composition": null,
+      "elements": [
+        "Sn",
+        "O"
+      ],
+      "facet": null,
+      "parts": [],
+      "note": "Tin dioxide, the classic oxide cathode for CO₂ reduction to formate. Under strongly cathodic potentials it is not stable: a Pourbaix analysis at pH 6.8 puts metallic Sn as the stable phase near −1.1 V vs. RHE, so the entry names what was put in the cell, not what the surface is during reduction.",
+      "all_elements": [
+        "O",
+        "Sn"
+      ]
+    },
+    "ag_111": {
+      "key": "ag_111",
+      "label": "Ag(111)",
+      "level": "phase",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": "Ag",
+      "composition": null,
+      "elements": [
+        "Ag"
+      ],
+      "facet": "(111)",
+      "parts": [
+        "ag_0"
+      ],
+      "note": "Metallic silver cut on its close-packed (111) plane, the slab a calculation reaches for when it models a silver electrode. A facet is a phase here like any other: (111) is a termination, not a composition, so the metal site it presents is plain Ag⁰.",
+      "all_elements": [
+        "Ag"
+      ]
+    },
     "fe3o4_001": {
       "key": "fe3o4_001",
       "label": "Fe₃O₄(001)",
@@ -1394,6 +1437,98 @@
         "Au",
         "O",
         "Si"
+      ]
+    },
+    "ag_au_film": {
+      "key": "ag_au_film",
+      "label": "Ag/Au film electrode",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Ag/Au film on Si",
+      "elements": [
+        "Ag",
+        "Au"
+      ],
+      "facet": null,
+      "parts": [
+        "ag_0"
+      ],
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Ag electrodeposited over it. The silver is what faces the electrolyte, so it is the only site listed; the gold is an underlayer that carries the surface enhancement, and the silicon is the prism the beam comes through, which is optics rather than catalyst and is left out of the elements.",
+      "all_elements": [
+        "Ag",
+        "Au"
+      ]
+    },
+    "au_film": {
+      "key": "au_film",
+      "label": "Au film electrode",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Au film on Si",
+      "elements": [
+        "Au"
+      ],
+      "facet": null,
+      "parts": [
+        "au_0"
+      ],
+      "note": "A chemically deposited Au film of about 60 nm on a Si prism, the underlayer the Ag, Cu and SnO₂ SEIRAS electrodes are built on, measured bare as a control. The silicon prism is optics, not catalyst.",
+      "all_elements": [
+        "Au"
+      ]
+    },
+    "sno2_au_film": {
+      "key": "sno2_au_film",
+      "label": "SnO₂/Au film electrode",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "SnO₂/Au film on Si",
+      "elements": [
+        "Sn",
+        "O",
+        "Au"
+      ],
+      "facet": null,
+      "parts": [
+        "sno2"
+      ],
+      "note": "A SEIRAS working electrode: commercial SnO₂ nanoparticles (50 to 70 nm) cast onto a chemically deposited Au film on a Si prism. The oxide faces the electrolyte; the gold underneath carries the enhancement. Whether the SnO₂ stays oxide or reduces to Sn under reaction is not settled by the spectra, so no site is listed.",
+      "all_elements": [
+        "Au",
+        "O",
+        "Sn"
+      ]
+    },
+    "cu_au_film": {
+      "key": "cu_au_film",
+      "label": "Cu/Au film electrode",
+      "level": "sample",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": "Cu/Au film on Si",
+      "elements": [
+        "Cu",
+        "Au"
+      ],
+      "facet": null,
+      "parts": [
+        "cu_0"
+      ],
+      "note": "A SEIRAS working electrode: a chemically deposited Au film of about 60 nm on a Si prism, with Cu electrodeposited over it, roughly 150 monolayers. The copper is what faces the electrolyte, so it is the only site listed; the gold underlayer carries the enhancement and should not be exposed, which a CO band above 2100 cm⁻¹ (CO on Au) would reveal. The silicon prism is optics, not catalyst.",
+      "all_elements": [
+        "Au",
+        "Cu"
       ]
     },
     "cuga_sio2": {
@@ -4543,8 +4678,8 @@
         "j": null
       },
       "atoms": "C-O",
-      "wn_start": 2000,
-      "wn_end": 2120,
+      "wn_start": 1925,
+      "wn_end": 2125,
       "short": "ν(CO) linear (μ₁)",
       "description": "CO bonded end-on to a single metal atom, the commonest coordination and usually the strongest, sharpest band in a CO-probe spectrum. Its position follows metal to CO π-backdonation: more backdonation into the 2π* orbital weakens the C-O bond and pushes the band down, while electron-poor or oxidised sites push it up, so metal identity, oxidation state, coordination and coverage all move it. ¹³CO substitution shifts it by tens of cm⁻¹, the standard check that a band really is a CO stretch. Coverage moves it as far as the site does, partly by stiffening the bond and partly by coupling neighbouring oscillators, so the observed bands are collective modes of the adlayer rather than one band per kind of CO.",
       "based_on": [],
@@ -4752,6 +4887,120 @@
             "adsorbed"
           ],
           "uid": "co_linear_mu1::Davydov.MolecularSpectroscopyOxide.2003"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 392,
+          "wn": [
+            2010,
+            1950
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Figs. S16 and S17: Ag film electrode in CO-saturated 0.1 M Cs₂CO₃ (so the SI caption; the main text says CsHCO₃), one spectrum every 50 mV from +0.7 to −1.1 V vs. RHE, against a reference taken at open circuit in Ar-saturated 0.1 M CsHCO₃. Nothing adsorbs at positive potentials; linear CO appears near 0 V and redshifts from 2010 to 1950 cm⁻¹ with a Stark tuning slope of 57.7 cm⁻¹ V⁻¹, strongest near −0.35 V, then gives way to bridged CO. The two numbers are the ends of the sweep, not two species.",
+          "tags": [
+            "direct-dosing",
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 393,
+          "wn": [
+            1960,
+            1935,
+            1928
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 2b, c: Ag film in CO₂-saturated 0.1 M CsHCO₃, pulsed electrolysis at E(c) = −1.1 V with E(a) = −0.2 V (Fig. 2b) or +0.7 V (Fig. 2c) vs. RHE, 10 s each, 85 % iR compensation. Linear CO is labelled at 1960 cm⁻¹ under the −0.2 V pulses and at 1928 to 1935 under the +0.7 V ones. It interconverts with bridged CO on every switch and fades within the +0.7 V pulse as the CO is stripped oxidatively. Static electrolysis at −1.1 V shows bridged CO only. The positions are figure labels and depend on the potential; compare the CO-dosed sweep in the same paper.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024::2"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 399,
+          "wn": [
+            2049,
+            2077
+          ],
+          "measured_on": [
+            "cu_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. S31: Cu film electrode in CO₂-saturated 0.1 M CsHCO₃, one spectrum every 50 mV from −0.2 to −1.1 V vs. RHE, against open circuit in Ar-saturated CsHCO₃. Linear CO from CO₂ reduction appears near −0.4 V and sits between 2049 and 2077 cm⁻¹. Nothing shows near 2125 cm⁻¹, where CO on the bare Au underlayer lies (Fig. S32), so the authors take the Au as covered. Under pulses (Fig. 4, E(c) = −1.1 V, E(a) = −0.8 or +0.6 V) its decay at E(c) is fitted as first order: about 0.005 rising to 0.02 s⁻¹ over 100 s with +0.6 V pulses, 0.011 falling to 0.004 s⁻¹ with −0.8 V ones. The authors read that depletion rate, not the coverage, as what sets C₂₊ selectivity.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024::3"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 402,
+          "wn": 2005,
+          "measured_on": [
+            "ag_111"
+          ],
+          "technique": "computational",
+          "laser_nm": null,
+          "state": null,
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Linear CO calculated at 2005 cm⁻¹, against 2010 to 1928 measured.",
+          "tags": [
+            "computational"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024::4"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 410,
+          "wn": 2125,
+          "measured_on": [
+            "au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. S32: the bare Au film on the Si prism, the underlayer of the Ag and Cu electrodes, in CO-saturated 0.1 M CsHCO₃ at +0.4 V vs. RHE, against a reference taken before CO was let in. Linear CO on gold at 2125 cm⁻¹ is the control: neither the Ag nor the Cu overlayer shows a band there, which is the authors’ evidence that the gold is covered.",
+          "tags": [
+            "direct-dosing",
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024::5"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 411,
+          "wn": null,
+          "measured_on": [
+            "cu_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Supplementary Note 5, Figs. S36 and S39: CO reduction on the Cu film in CO-saturated 0.05 M Cs₂CO₃ (pH 10.6). In a sweep the linear CO band is strongest near −0.5 V and depletes below −0.8 V vs. RHE, unlike under CO₂. Under pulses with E(a) = −0.5 or +0.6 V it builds up during −0.5 V and is stripped during +0.6 V; its decay is fitted as 0.0051 falling to 0.0040 per s with −0.5 V pulses and 0.0026 rising to 0.0041 with +0.6 V ones. The text puts E(c) at −0.7 V, the caption of Fig. S39 at −1.1 V. No position is given, so none is recorded.",
+          "tags": [
+            "direct-dosing",
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Ye.MolecularLevelInsights.2024::6"
         }
       ],
       "tags": [
@@ -4773,9 +5022,9 @@
         "co_stretch_linear"
       ],
       "lane": 5,
-      "sub_lane": -1,
-      "wn_min": 2000,
-      "wn_max": 2120
+      "sub_lane": 1,
+      "wn_min": 1925,
+      "wn_max": 2125
     },
     {
       "id": "co_linear_13co",
@@ -4846,7 +5095,7 @@
         "co_stretch_linear"
       ],
       "lane": 5,
-      "sub_lane": 0,
+      "sub_lane": -1,
       "wn_min": 1955,
       "wn_max": 2075
     },
@@ -4861,7 +5110,7 @@
         "j": null
       },
       "atoms": "C-O",
-      "wn_start": 1820,
+      "wn_start": 1750,
       "wn_end": 2000,
       "short": "ν(CO) bridge (μ₂)",
       "description": "Bridging CO coordinated between two metal atoms. Lower frequency than linear CO due to increased metal→CO π-backdonation from the extra metal center, and typically broader/weaker than the linear band, often appearing as a shoulder below it rather than a fully separate peak. Usually emerges or grows in only at higher CO coverage, since it needs two adjacent free metal sites to form.",
@@ -4991,6 +5240,81 @@
             "adsorbed"
           ],
           "uid": "co_bridge_mu2::Davydov.MolecularSpectroscopyOxide.2003"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 394,
+          "wn": [
+            1848,
+            1774
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Figs. S16 and S17: Ag film electrode in CO-saturated 0.1 M Cs₂CO₃ (SI caption; the main text says CsHCO₃), swept from +0.7 to −1.1 V vs. RHE. Below about −0.35 V bridged CO takes over from linear CO, between 1848 and 1774 cm⁻¹, with a Stark tuning slope of 85.8 cm⁻¹ V⁻¹, steeper than the 57.7 of linear CO; its integrated intensity peaks near −0.7 V. The two numbers are the ends of the sweep. They lie low for a bridge because the potential is strongly cathodic.",
+          "tags": [
+            "direct-dosing",
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 395,
+          "wn": [
+            1760,
+            1757,
+            1765
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 2a, e, f: Ag film in CO₂-saturated 0.1 M CsHCO₃. Under static electrolysis at −1.1 V vs. RHE bridged CO is the only CO species, at 1760 cm⁻¹, its intensity levelling off after about 8 s. Deconvolved: 1757 under static conditions (Fig. 2e, 188.3 s) and 1765 under +0.7 V pulses (Fig. 2f, 526.7 s); the pulsed spectra of Fig. 2b label it across 1857 to 1760. It trades intensity with linear CO at every potential switch. The bridge assignment rests on the CO-dosed sweep and on a calculation on Ag(111).",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Ye.MolecularLevelInsights.2024::2"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 403,
+          "wn": 1867,
+          "measured_on": [
+            "ag_111"
+          ],
+          "technique": "computational",
+          "laser_nm": null,
+          "state": null,
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Bridged CO calculated at 1867 cm⁻¹, against 1848 to 1757 measured.",
+          "tags": [
+            "computational"
+          ],
+          "uid": "co_bridge_mu2::Ye.MolecularLevelInsights.2024::3"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 408,
+          "wn": 1800,
+          "measured_on": [
+            "cu_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. S31: Cu film electrode in CO₂-saturated 0.1 M CsHCO₃, one spectrum every 50 mV from −0.2 to −1.1 V vs. RHE. Bridged CO is labelled at 1800 cm⁻¹, weak and broad beside the *CHO band that spans 1700 to 1800; the main text calls the region \"likely CO(B) or *CHO\" and settles on *CHO from the pulsed data, so this row is the figure’s label rather than an argued assignment.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_bridge_mu2::Ye.MolecularLevelInsights.2024::4"
         }
       ],
       "tags": [
@@ -5011,8 +5335,8 @@
         "co_stretch_bridged"
       ],
       "lane": 5,
-      "sub_lane": 1,
-      "wn_min": 1820,
+      "sub_lane": 0,
+      "wn_min": 1750,
       "wn_max": 2000
     },
     {
@@ -5026,7 +5350,7 @@
         "j": null
       },
       "atoms": "C-O",
-      "wn_start": 1750,
+      "wn_start": 1700,
       "wn_end": 1870,
       "short": "ν(CO) 3-fold (μ₃)",
       "description": "Three-fold hollow CO coordinated to three metal atoms at once. Stronger multi-center π-backdonation shifts ν(CO) well below both bridge and linear adsorption. Generally needs a close-packed facet to offer this coordination geometry at all, and tends to appear or strengthen with increasing coverage as simpler one- and two-fold sites fill up first.",
@@ -5078,6 +5402,63 @@
             "adsorbed"
           ],
           "uid": "co_3fold_mu3::Davydov.MolecularSpectroscopyOxide.2003"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 396,
+          "wn": [
+            1704,
+            1719
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 2e, f: deconvolved spectra of the Ag film during CO₂ reduction, E(c) = −1.1 V vs. RHE, at 188.3 s and 526.7 s. A broad shoulder from about 1650 to 1730 cm⁻¹ under −0.2 V pulses is read as formate and hollow-site CO overlapping, and the CO part is fitted at 1704 and 1719. The main text hedges it (\"likely\"); the CO-dosed sweep labels the same species. Their calculation puts hollow CO far higher, which they put down to the large overpotential and the missing Stark slope. That \"hollow\" on Ag(111) means this three-fold band is this collection’s assumption; Fig. S20c draws the CO in a hollow.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_3fold_mu3::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 404,
+          "wn": 1882,
+          "measured_on": [
+            "ag_111"
+          ],
+          "technique": "computational",
+          "laser_nm": null,
+          "state": null,
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Hollow CO calculated at 1882 cm⁻¹, above the bridge value, against 1720 to 1704 measured; the authors attribute the gap to large overpotentials and the missing Stark slope.",
+          "tags": [
+            "computational"
+          ],
+          "uid": "co_3fold_mu3::Ye.MolecularLevelInsights.2024::2"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 406,
+          "wn": [
+            1720,
+            1710
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. S16a: Ag film electrode in CO-saturated 0.1 M Cs₂CO₃ (SI caption; the main text says CsHCO₃), swept from +0.7 to −1.1 V vs. RHE against open circuit in Ar-saturated CsHCO₃. Hollow-site CO is labelled from 1720 to 1710 cm⁻¹ at the cathodic end, below bridged CO; the main text does not discuss it for this experiment. The two numbers are the ends of the label, not two species.",
+          "tags": [
+            "direct-dosing",
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "co_3fold_mu3::Ye.MolecularLevelInsights.2024::3"
         }
       ],
       "tags": [
@@ -5098,8 +5479,8 @@
         "co_stretch_hollow"
       ],
       "lane": 5,
-      "sub_lane": 0,
-      "wn_min": 1750,
+      "sub_lane": 1,
+      "wn_min": 1700,
       "wn_max": 1870
     },
     {
@@ -5919,6 +6300,23 @@
             "adsorbed"
           ],
           "uid": "formyl_co_stretch::Fehr.RealisticOperandoDRIFTSStudies.2022"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 398,
+          "wn": null,
+          "measured_on": [
+            "cu_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. S31: Cu film electrode in CO₂-saturated 0.1 M CsHCO₃, one spectrum every 50 mV from −0.2 to −1.1 V vs. RHE, against open circuit in Ar-saturated CsHCO₃. The figure labels a broad *CHO band across 1700 to 1800 cm⁻¹ beside a separate bridged CO at 1800; the main text calls the feature \"likely CO(B) or *CHO\". Under pulsed electrolysis (Fig. 4) it shows only at −1.1 V and alternates with linear CO under −0.8 V pulses, and on that behaviour they assign it to the C=O stretch of *CHO, the next intermediate after *CO. No single position is given, so none is recorded.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "formyl_co_stretch::Ye.MolecularLevelInsights.2024"
         }
       ],
       "tags": [
@@ -7010,6 +7408,58 @@
       "sub_lane": 1,
       "wn_min": 1300,
       "wn_max": 1370
+    },
+    {
+      "id": "carbonate_aq_asym",
+      "species": "carbonate",
+      "group": "carbonate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null,
+        "j": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1380,
+      "wn_end": 1410,
+      "short": "νₐₛ(CO₃) CO₃²⁻(aq)",
+      "description": "Doubly degenerate asymmetric stretch of the free carbonate ion in solution. In the free D₃ₕ ion it is one band; binding to a surface lowers the symmetry and splits it into the two OCO stretches the adsorbed carbonate bands carry, so a single band here is the sign that the ion is not bound. At an electrode its intensity follows the local pH, rising as hydroxide from the reduction converts bicarbonate to carbonate.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 415,
+          "wn": 1397,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Supplementary Note 4, Figs. S24 and S25, Table S4: SnO₂ nanoparticles cast on the Au/Si prism, CO₂-saturated 0.1 M CsHCO₃, static at −1.1 V or pulsed with E(c) = −1.1 V and E(a) = −0.35 or −0.2 V vs. RHE; the reference is the single-beam spectrum at 0.65 V before electrolysis, and the deconvolutions are the 10th cycle (t(c) = 188.3 s, t(a) = 198.3 s). The strong peak near 1397 cm⁻¹ is assigned to dissolved carbonate. It vanishes during the anodic pulses, which the authors read as the local carbonate falling with the interfacial pH. No surface is recorded.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "carbonate_aq_asym::Ye.MolecularLevelInsights.2024"
+        }
+      ],
+      "tags": [
+        "fundamental"
+      ],
+      "phase": "solution",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [],
+      "lane": 8,
+      "sub_lane": 1,
+      "wn_min": 1380,
+      "wn_max": 1410
     },
     {
       "id": "carbonate_bidentate_co_stretch",
@@ -8859,6 +9309,206 @@
       "sub_lane": 0,
       "wn_min": 1515,
       "wn_max": 1650
+    },
+    {
+      "id": "formate_monodentate_asym",
+      "species": "formate",
+      "group": "formate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null,
+        "j": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1650,
+      "wn_end": 1690,
+      "short": "νₐₛ(OCO) m-HCOO*",
+      "description": "Asymmetric OCO stretch of formate bound through one oxygen. With the other oxygen free the mode is close to a C=O stretch, and papers often name it that. It lies above the 1515 to 1650 cm⁻¹ of bridging and chelating formate because the two C-O bonds no longer share the bond order equally, and that gap is what identifies the geometry. It overlaps carbonyls, hollow-site CO and the water bend, so a lone band here needs a second argument (the symmetric partner, a calculation, isotope substitution) before it is read as formate.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 397,
+          "wn": [
+            1674,
+            1671,
+            1669
+          ],
+          "measured_on": [
+            "ag_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Fig. 2e to g: Ag film in CO₂-saturated 0.1 M CsHCO₃, pulsed at E(c) = −1.1 V and E(a) = −0.2 V vs. RHE. A peak near 1674 cm⁻¹ appears throughout these pulses and is far stronger than under static or +0.7 V pulsed electrolysis: 1674 and 1671 in the deconvolved cathodic spectra (188.3 s, 526.7 s), about 1669 during the −0.2 V period itself (191.6 s), where it rivals bridged CO. The authors assign it to the C=O stretch of monodentate formate, *OCHO(M), from a calculation on Ag(111) and a grand canonical DFT estimate that formate is favoured over adsorbed H at −0.2 V, and tie it to the higher formate yield under −0.2 V pulses. It overlaps the hollow-CO shoulder.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "formate_monodentate_asym::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 405,
+          "wn": 1657,
+          "measured_on": [
+            "ag_111"
+          ],
+          "technique": "computational",
+          "laser_nm": null,
+          "state": null,
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Monodentate formate’s C=O stretch calculated at 1657 cm⁻¹, against 1680 to 1670 measured.",
+          "tags": [
+            "computational"
+          ],
+          "uid": "formate_monodentate_asym::Ye.MolecularLevelInsights.2024::2"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 412,
+          "wn": 1675,
+          "measured_on": [
+            "sno2_au_film"
+          ],
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "adsorbed",
+          "note": "Supplementary Note 4, Figs. S24 and S25, Table S4: SnO₂ nanoparticles cast on the Au/Si prism, CO₂-saturated 0.1 M CsHCO₃, static at −1.1 V or pulsed with E(c) = −1.1 V and E(a) = −0.35 or −0.2 V vs. RHE; the reference is the single-beam spectrum at 0.65 V before electrolysis, and the deconvolutions are the 10th cycle (t(c) = 188.3 s, t(a) = 198.3 s). An extra peak near 1675 cm⁻¹ appears only when the potential steps to either anodic value, as a shoulder on the water bend, and is assigned to the C=O stretch of monodentate formate, *OCHO(M), the intermediate to formate, matching the silver result.",
+          "tags": [
+            "seiras",
+            "adsorbed"
+          ],
+          "uid": "formate_monodentate_asym::Ye.MolecularLevelInsights.2024::3"
+        }
+      ],
+      "tags": [
+        "misassignment-warning",
+        "fundamental"
+      ],
+      "phase": "adsorbed",
+      "topology": "monodentate",
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "formate_stretch_asymmetric_monodentate"
+      ],
+      "lane": 10,
+      "sub_lane": 1,
+      "wn_min": 1650,
+      "wn_max": 1690
+    },
+    {
+      "id": "formate_aq_asym",
+      "species": "formate",
+      "group": "formate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null,
+        "j": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1575,
+      "wn_end": 1595,
+      "short": "νₐₛ(OCO) HCOO⁻(aq)",
+      "description": "Asymmetric OCO stretch of the free formate anion in solution, the product rather than the intermediate when CO₂ is reduced to formate in an aqueous electrolyte. With neither oxygen bound, the two C-O bonds are equal and the band sits inside the range of bridging formate, so position alone cannot separate dissolved from adsorbed formate; how it behaves with potential and time can. It also lies under the water bend and adsorbed carbonate, which is why it is usually read from a deconvolution.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 414,
+          "wn": 1585,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Supplementary Note 4, Figs. S24 and S25, Table S4: SnO₂ nanoparticles cast on the Au/Si prism, CO₂-saturated 0.1 M CsHCO₃, static at −1.1 V or pulsed with E(c) = −1.1 V and E(a) = −0.35 or −0.2 V vs. RHE; the reference is the single-beam spectrum at 0.65 V before electrolysis, and the deconvolutions are the 10th cycle (t(c) = 188.3 s, t(a) = 198.3 s). Dissolved formate made at −1.1 V is identified by the peak near 1585 cm⁻¹, stronger under pulsed than under static electrolysis, in line with the higher formate Faradaic efficiency (72.9 % against 57.8 % static). No surface is recorded: the anion is in the electrolyte.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "formate_aq_asym::Ye.MolecularLevelInsights.2024"
+        }
+      ],
+      "tags": [
+        "misassignment-warning",
+        "fundamental"
+      ],
+      "phase": "solution",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [],
+      "lane": 10,
+      "sub_lane": -1,
+      "wn_min": 1575,
+      "wn_max": 1595
+    },
+    {
+      "id": "formate_aq_sym",
+      "species": "formate",
+      "group": "formate",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "symmetric",
+        "branch": null,
+        "j": null
+      },
+      "atoms": "O-C-O",
+      "wn_start": 1340,
+      "wn_end": 1360,
+      "short": "νₛ(OCO) HCOO⁻(aq)",
+      "description": "Symmetric OCO stretch of the free formate anion in solution, the partner of the band near 1585 cm⁻¹. It coincides with the symmetric stretch of bridging formate on a surface, so on its own it does not say whether the formate is dissolved or adsorbed.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 416,
+          "wn": 1345,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Supplementary Note 4, Figs. S24 and S25, Table S4: SnO₂ nanoparticles cast on the Au/Si prism, CO₂-saturated 0.1 M CsHCO₃, static at −1.1 V or pulsed with E(c) = −1.1 V and E(a) = −0.35 or −0.2 V vs. RHE; the reference is the single-beam spectrum at 0.65 V before electrolysis, and the deconvolutions are the 10th cycle (t(c) = 188.3 s, t(a) = 198.3 s). Table S4 assigns the peak near 1345 cm⁻¹ to \"dissolved HCOO⁻ / *OCHO(B)\": dissolved formate or bridging formate, without choosing. It is recorded here, on the dissolved band the table names first, and it is equally a candidate for the adsorbed symmetric stretch.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "formate_aq_sym::Ye.MolecularLevelInsights.2024"
+        }
+      ],
+      "tags": [
+        "misassignment-warning",
+        "fundamental"
+      ],
+      "phase": "solution",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "tentative",
+      "vibration_modes": [],
+      "lane": 10,
+      "sub_lane": 2,
+      "wn_min": 1340,
+      "wn_max": 1360
     },
     {
       "id": "formate_sym",
@@ -13200,6 +13850,94 @@
       "wn_max": 1600
     },
     {
+      "id": "h2o_interfacial_bend",
+      "species": "water",
+      "group": "water",
+      "vibration": {
+        "category": "bend",
+        "subtype": null,
+        "branch": null,
+        "j": null
+      },
+      "atoms": "H-O-H",
+      "wn_start": 1600,
+      "wn_end": 1650,
+      "short": "δ(HOH) H₂O (interfacial)",
+      "description": "H-O-H bend of liquid water, here the water in the first nanometres of electrolyte against an electrode, which is what a surface-enhanced measurement sees. Hydrogen bonding moves the bend up from the gas origin near 1595 cm⁻¹ to about 1640 in bulk water; interfacial water lies between and moves with the potential and the cation as the double layer reorders. It overlaps the carbonyl and formate region, so a potential-dependent feature near 1600 to 1650 cm⁻¹ has to be ruled out as water before it is read as an adsorbate.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 401,
+          "wn": [
+            1610,
+            1607
+          ],
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Fig. S16: Ag film electrode in CO-saturated 0.1 M Cs₂CO₃ (SI caption; the main text says CsHCO₃), swept from +0.7 to −1.1 V vs. RHE against open circuit in Ar-saturated CsHCO₃. The interfacial water bend appears at about 0 V, the potential at which linear CO first shows, and is labelled 1610 to 1607 cm⁻¹ across the sweep. It lies under the formate and hollow-CO region the paper deconvolves. No surface is recorded: the water is the electrolyte against the electrode, not an adsorbate on it.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "h2o_interfacial_bend::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 409,
+          "wn": 1610,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Fig. S31: Cu film electrode in CO₂-saturated 0.1 M CsHCO₃, swept from −0.2 to −1.1 V vs. RHE against open circuit in Ar-saturated CsHCO₃. Labelled at 1610 cm⁻¹, as on silver. No surface is recorded.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "h2o_interfacial_bend::Ye.MolecularLevelInsights.2024::2"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 413,
+          "wn": 1620,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Supplementary Note 4, Figs. S24 and S25, Table S4: SnO₂ nanoparticles cast on the Au/Si prism, CO₂-saturated 0.1 M CsHCO₃, static at −1.1 V or pulsed with E(c) = −1.1 V and E(a) = −0.35 or −0.2 V vs. RHE; the reference is the single-beam spectrum at 0.65 V before electrolysis, and the deconvolutions are the 10th cycle (t(c) = 188.3 s, t(a) = 198.3 s). The water bend is fitted near 1620 cm⁻¹, and the monodentate formate band appears as its shoulder during the anodic pulses. Table S4 gives no reference for it.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "h2o_interfacial_bend::Ye.MolecularLevelInsights.2024::3"
+        }
+      ],
+      "tags": [
+        "misassignment-warning",
+        "fundamental"
+      ],
+      "phase": "solution",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "h2o_bend"
+      ],
+      "lane": 14,
+      "sub_lane": 1,
+      "wn_min": 1600,
+      "wn_max": 1650
+    },
+    {
       "id": "h2og_asym",
       "species": "water",
       "group": "water",
@@ -15013,6 +15751,76 @@
       "sub_lane": 1,
       "wn_min": 2330,
       "wn_max": 2350
+    },
+    {
+      "id": "co2_aq_asym",
+      "species": "co2",
+      "group": "co2",
+      "vibration": {
+        "category": "stretch",
+        "subtype": "asymmetric",
+        "branch": null,
+        "j": null
+      },
+      "atoms": "O=C=O",
+      "wn_start": 2335,
+      "wn_end": 2345,
+      "short": "νₐₛ(OCO) CO₂(aq)",
+      "description": "Asymmetric stretch of CO₂ dissolved in a liquid. In solution the molecule no longer rotates freely, so the P and R envelopes of the gas collapse into a single band a little below the gas origin at 2349 cm⁻¹. In electrochemical difference spectra taken during CO₂ reduction it usually points down: the electrode consumes CO₂ from the thin layer of electrolyte the beam samples, so the band reports interfacial depletion, not an adsorbate. Gas-phase CO₂ in the optical path sits at nearly the same place and is told apart by its rotational envelope.",
+      "based_on": [],
+      "references": [
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 400,
+          "wn": 2340,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Fig. 2a to c: Ag film electrode in CO₂-saturated 0.1 M CsHCO₃, static and pulsed electrolysis alike. A downward band near 2340 cm⁻¹ marks dissolved CO₂ consumed from the electrolyte next to the electrode; the spectra are differences against a reference spectrum, so down means less. No surface is recorded because the molecule is in the electrolyte, not on the silver. The paper’s diffusion model and mass spectrometry say the same from the other side: interfacial CO₂ is replenished during the anodic pulse.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "co2_aq_asym::Ye.MolecularLevelInsights.2024"
+        },
+        {
+          "key": "Ye.MolecularLevelInsights.2024",
+          "id": 407,
+          "wn": 2345,
+          "measured_on": null,
+          "technique": "seiras",
+          "laser_nm": null,
+          "state": "liquid",
+          "note": "Fig. S31: Cu film electrode in CO₂-saturated 0.1 M CsHCO₃, swept from −0.2 to −1.1 V vs. RHE against open circuit in Ar-saturated CsHCO₃, so the dissolved CO₂ shows against an electrolyte that had none. The label sits at 2345 cm⁻¹. No surface is recorded: the molecule is in the electrolyte.",
+          "tags": [
+            "seiras",
+            "liquid"
+          ],
+          "uid": "co2_aq_asym::Ye.MolecularLevelInsights.2024::2"
+        }
+      ],
+      "tags": [
+        "raman-inactive",
+        "fundamental"
+      ],
+      "phase": "solution",
+      "topology": null,
+      "fermi_partner": null,
+      "fermi_partner_group": null,
+      "branch_group": null,
+      "isotopologue_of": null,
+      "isotope": null,
+      "intensity": null,
+      "width": null,
+      "confidence": "likely",
+      "vibration_modes": [
+        "co2_stretch_asymmetric"
+      ],
+      "lane": 2,
+      "sub_lane": -1,
+      "wn_min": 2335,
+      "wn_max": 2345
     },
     {
       "id": "ch4g_asym_o",
