@@ -496,6 +496,13 @@
   // ---------------------------------------------------------------------------
   // Chemical groups: the default colour scheme and the lane labels.
   // The color is the 'family color'; bands inherit it via b.group.
+  // Since 2026-10-18 the species groups take their colours from the phd_ui
+  // species scheme (phd_ui.colors), so a molecule has one colour in the atlas,
+  // the DRIFTS figures and the MS traces: gas CO2 dark blue, CO amber, CH4
+  // red, H2 blue, H2O ocean; the target family green (methoxy the darker
+  // tone, methanol the line tone); formate pink, the carbonates the scheme's
+  // two browns, hydride purple. CO* variants are the amber ladder. The
+  // specimen lanes keep their own muted colours.
   // `of` says what vibrates. "species" (the default, left out) is a molecule
   // or an adsorbate, a hydride included; "specimen" is the solid itself: its
   // hydroxyls and its lattice. The chart draws every specimen lane below every
@@ -510,59 +517,59 @@
     },
     "water": {
       "label": "Water",
-      "color": "#9DCAC4"
+      "color": "#0077BE"
     },
     "formate": {
       "label": "Formate*",
-      "color": "#C73E3A"
+      "color": "#C93F76"
     },
     "carbonyl": {
       "label": "Carbonyl*",
-      "color": "#E07856"
+      "color": "#7D6128"
     },
     "carbonate": {
       "label": "Carbonate*",
-      "color": "#7E4A30"
+      "color": "#5A1B00"
     },
     "bicarbonate": {
       "label": "Bicarbonate*",
-      "color": "#A86B4A"
+      "color": "#827359"
     },
     "methoxy": {
       "label": "Methoxy*",
-      "color": "#3D8B3D"
+      "color": "#184E37"
     },
     "methanol_product": {
       "label": "MeOH",
-      "color": "#3DAEC9"
+      "color": "#02985F"
     },
     "co2": {
       "label": "CO₂",
-      "color": "#E89B3C"
+      "color": "#1E485C"
     },
     "co": {
       "label": "CO",
-      "color": "#F4B468"
+      "color": "#BA8904"
     },
     "ch4": {
       "label": "CH₄",
-      "color": "#F4C56F"
+      "color": "#C44036"
     },
     "h2": {
       "label": "H₂",
-      "color": "#FAD896"
+      "color": "#0186AE"
     },
     "n2": {
       "label": "N₂",
-      "color": "#A3B8D4"
+      "color": "#3F4245"
     },
     "co_metal": {
       "label": "CO* on M⁰",
-      "color": "#C99A2E"
+      "color": "#624915"
     },
     "co_cation": {
       "label": "CO* on Mⁿ⁺",
-      "color": "#E6B85C"
+      "color": "#CFA44B"
     },
     "support": {
       "label": "Oxide",
@@ -591,7 +598,7 @@
     },
     "hydride": {
       "label": "Hydride*",
-      "color": "#D946A8"
+      "color": "#6353C5"
     }
   },
 

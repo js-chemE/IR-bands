@@ -54,85 +54,85 @@
     "water": {
       "key": "water",
       "label": "Water",
-      "color": "#9DCAC4",
+      "color": "#0077BE",
       "of": "species"
     },
     "formate": {
       "key": "formate",
       "label": "Formate*",
-      "color": "#C73E3A",
+      "color": "#C93F76",
       "of": "species"
     },
     "carbonyl": {
       "key": "carbonyl",
       "label": "Carbonyl*",
-      "color": "#E07856",
+      "color": "#7D6128",
       "of": "species"
     },
     "carbonate": {
       "key": "carbonate",
       "label": "Carbonate*",
-      "color": "#7E4A30",
+      "color": "#5A1B00",
       "of": "species"
     },
     "bicarbonate": {
       "key": "bicarbonate",
       "label": "Bicarbonate*",
-      "color": "#A86B4A",
+      "color": "#827359",
       "of": "species"
     },
     "methoxy": {
       "key": "methoxy",
       "label": "Methoxy*",
-      "color": "#3D8B3D",
+      "color": "#184E37",
       "of": "species"
     },
     "methanol_product": {
       "key": "methanol_product",
       "label": "MeOH",
-      "color": "#3DAEC9",
+      "color": "#02985F",
       "of": "species"
     },
     "co2": {
       "key": "co2",
       "label": "CO₂",
-      "color": "#E89B3C",
+      "color": "#1E485C",
       "of": "species"
     },
     "co": {
       "key": "co",
       "label": "CO",
-      "color": "#F4B468",
+      "color": "#BA8904",
       "of": "species"
     },
     "ch4": {
       "key": "ch4",
       "label": "CH₄",
-      "color": "#F4C56F",
+      "color": "#C44036",
       "of": "species"
     },
     "h2": {
       "key": "h2",
       "label": "H₂",
-      "color": "#FAD896",
+      "color": "#0186AE",
       "of": "species"
     },
     "n2": {
       "key": "n2",
       "label": "N₂",
-      "color": "#A3B8D4",
+      "color": "#3F4245",
       "of": "species"
     },
     "co_metal": {
       "key": "co_metal",
       "label": "CO* on M⁰",
-      "color": "#C99A2E",
+      "color": "#624915",
       "of": "species"
     },
     "co_cation": {
       "key": "co_cation",
       "label": "CO* on Mⁿ⁺",
-      "color": "#E6B85C",
+      "color": "#CFA44B",
       "of": "species"
     },
     "support": {
@@ -168,7 +168,7 @@
     "hydride": {
       "key": "hydride",
       "label": "Hydride*",
-      "color": "#D946A8",
+      "color": "#6353C5",
       "of": "species"
     }
   },
