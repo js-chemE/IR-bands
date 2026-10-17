@@ -369,8 +369,9 @@ GaZrOₓ           0 wt% Cu, 48 wt% Ga, 25 wt% Zr`,
     rules: [
       'Every claim also says how the sample was held, on two axes. `medium` is what surrounded it: ' +
       '`vacuum` (an evacuated or UHV cell, no gas let in), `gas` (any gas atmosphere, a fraction of ' +
-      'a mbar of dosed CO included), `liquid` (a liquid or an electrolyte) or `matrix` (a frozen ' +
-      'noble gas). `form` is where the species was: `free` (on its own: a gas, the liquid itself, ' +
+      'a mbar of dosed CO included), `liquid` (a liquid or an electrolyte), `supercritical` (a dense ' +
+      'fluid above its critical point) or `matrix` (a frozen noble gas). A calculation records what ' +
+      'its model contains: a slab or a cluster in vacuum, unless the model adds a solvent. `form` is where the species was: `free` (on its own: a gas, the liquid itself, ' +
       'matrix-isolated), `dissolved` (a solute), `adsorbed`, `surface` (a group of the solid, such ' +
       'as a hydroxyl or a hydride) or `lattice` (a mode or a defect of the solid itself).',
       'Both move the number, and one word could not say both. Methanol’s O-H stretch is 3687 cm⁻¹ ' +

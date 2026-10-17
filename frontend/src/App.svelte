@@ -766,14 +766,15 @@
       { key: 'adsorbed', tag: 'adsorbed', label: 'Adsorbed', title: 'Held on a surface.' },
       { key: 'surface', tag: 'surface', label: 'Surface group', title: 'A group belonging to the solid, such as a hydroxyl or a hydride.' },
       { key: 'lattice', tag: 'lattice', label: 'Lattice', title: 'A vibration or a defect of the solid itself.' },
-      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No form recorded, which is true of every calculation.' },
+      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No form recorded.' },
     ] },
     { key: 'medium', label: 'Medium', rows: [
       { key: 'vacuum', tag: 'in vacuum', label: 'Vacuum', title: 'An evacuated or ultra-high-vacuum cell with no gas let in.' },
       { key: 'gas', tag: 'in gas', label: 'Gas', title: 'A gas atmosphere, from a fraction of a mbar of dosed gas to a flowing feed at pressure.' },
       { key: 'liquid', tag: 'in liquid', label: 'Liquid', title: 'A liquid or an electrolyte.' },
+      { key: 'supercritical', tag: 'in supercritical', label: 'Supercritical', title: 'A dense fluid above its critical point, neither gas nor liquid.' },
       { key: 'matrix', tag: 'in matrix', label: 'Matrix', title: 'A frozen noble gas the molecule is isolated in.' },
-      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No medium recorded, which is true of every calculation and of papers that do not say.' },
+      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No medium recorded.' },
     ] },
   ];
   let excludedPhase: Record<PhasePart, ReadonlySet<string>> = { form: new Set(), medium: new Set() };

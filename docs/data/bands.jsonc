@@ -259,7 +259,10 @@
 //                          evacuated or UHV cell, no gas let in) | gas (any
 //                          gas atmosphere, a fraction of a mbar of dosed CO
 //                          included) | liquid (a liquid or an electrolyte) |
-//                          matrix (a frozen noble gas). form is where the
+//                          supercritical (a dense fluid above its critical
+//                          point) | matrix (a frozen noble gas). A
+//                          calculation records what its model contains: a
+//                          slab or cluster in vacuum, unless it adds a solvent. form is where the
 //                          species was: free (on its own: a gas, the liquid
 //                          itself, matrix-isolated) | dissolved (a solute) |
 //                          adsorbed (on a surface) | surface (a group of the
@@ -387,7 +390,7 @@
     // number (see the preamble); a new claim takes this one and the mark goes
     // up by one. It never goes down, so a deleted claim's number is never
     // handed out again.
-    "next_assignment_id": 417
+    "next_assignment_id": 451
   },
 
   // ---------------------------------------------------------------------------
@@ -1608,13 +1611,66 @@
         },
         {
           "id": 23,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
           "medium": "gas",
           "form": "free",
-          "key": "Urakawa.OnchipRamanAnalysis.2008",
-          "laser_nm": 785,
+          "wn": [
+            1386.9,
+            1386.5,
+            1388.5,
+            1387.7,
+            1388.7,
+            1388.4
+          ],
           "technique": "raman",
-          "wn": 1387,
-          "note": "Text and Fig. 2: the upper Fermi dyad band at ca. 1387 cm⁻¹, neat CO₂ flowed through a Si/glass microreactor chip, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, so across the gas, liquid and supercritical states. The position depends on pressure and temperature: read off Fig. 2, it runs from about 1389 cm⁻¹ (5 MPa, 323 K) down to about 1386 cm⁻¹ in the dense fluid, stepping abruptly at the gas–liquid (298 K, 6–7 MPa) and gas–supercritical (307 K, 7–8 MPa) transitions and falling smoothly at 323 K. The paper calls the pair the Fermi dyad without saying which component is ν₁; the split follows the atlas. With 5 % each of cyclohexene and H₂ (10 MPa, 305–318 K) the dyad sits at or below the liquid value at 305 K, which the paper reads as phase segregation."
+          "laser_nm": 785,
+          "note": "Fig. 2, gaseous CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 298 K, 1386.9 cm⁻¹ at 5 MPa and 1386.5 at 6 MPa, below the gas–liquid transition the paper places at 6–7 MPa; at 307 K, 1388.5 at 5 MPa to 1387.7 at 7 MPa, below the transition at 7–8 MPa; at 323 K, 1388.7 at 5 MPa to 1388.4 at 7 MPa, below the critical pressure of 7.4 MPa. The band falls as the gas densifies, and the higher the temperature the higher it sits. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 443,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "liquid",
+          "form": "free",
+          "wn": [
+            1386.2,
+            1386.1
+          ],
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2, liquid CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 298 K, above the gas–liquid transition at 6–7 MPa, the band drops abruptly and then holds at 1386.2 cm⁻¹ from 7 to 9 MPa and 1386.1 from 10 to 14 MPa, flat because a liquid barely compresses. The relative intensity, read by the authors as density, steps at the same pressure. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 444,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "supercritical",
+          "form": "free",
+          "wn": [
+            1387.0,
+            1386.2,
+            1388.2,
+            1386.5
+          ],
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2, supercritical CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 307 K, just above the critical temperature (304 K), the band steps down across the transition at 7–8 MPa and then falls from 1387.0 cm⁻¹ at 8 MPa to 1386.2 at 14 MPa; at 323 K, well above it, it falls smoothly with no step, from 1388.2 at 8 MPa to 1386.5 at 14 MPa, the continuous gas–supercritical transition the paper describes. Values above 7.4 MPa are filed here. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 445,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "liquid",
+          "form": "free",
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2: Cyclohexene and H₂, 5 % each in CO₂, 10 MPa total, before the Pd/Al₂O₃ bed (Fig. 2, inverted triangles). At 305 K the dyad sits at or below the value of neat liquid CO₂ at 298 K, which the authors read as phase segregation between CO₂ and the reactants: the CO₂ behaves as a liquid. The mixture points overlap at 10 MPa, so no position is recorded."
+        },
+        {
+          "id": 446,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "supercritical",
+          "form": "free",
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2: Cyclohexene and H₂, 5 % each in CO₂, 10 MPa total, before the Pd/Al₂O₃ bed (Fig. 2, inverted triangles). Warming from 305 to 318 K moves the dyad up to close to neat CO₂ at 307 K, which the authors read as the CO₂ acting as a supercritical solvent at 318 K, and the cyclohexene conversion rises with it (27 to 33 % by Raman). The mixture points overlap at 10 MPa, so no position is recorded."
         }
       ],
       "confidence": "confirmed",
@@ -1667,13 +1723,66 @@
         },
         {
           "id": 26,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
           "medium": "gas",
           "form": "free",
-          "key": "Urakawa.OnchipRamanAnalysis.2008",
-          "laser_nm": 785,
+          "wn": [
+            1283.7,
+            1282.7,
+            1285.4,
+            1284.5,
+            1285.5,
+            1284.7
+          ],
           "technique": "raman",
-          "wn": 1284,
-          "note": "Text and Fig. 2: the lower Fermi dyad band at ca. 1284 cm⁻¹, the same on-chip measurement as its partner at 1387 cm⁻¹ (neat CO₂ in a Si/glass microreactor, 785 nm excitation, 5–14 MPa at 298, 307 and 323 K, through gas, liquid and supercritical CO₂). The position depends on pressure and temperature: read off Fig. 2, it runs from about 1285 cm⁻¹ (5 MPa, 323 K) down to about 1281.5 cm⁻¹ in the dense liquid, with the same abrupt steps at the phase transitions as the upper band and a smooth trend at 323 K. The paper does not say which component is 2ν₂; the split follows the atlas."
+          "laser_nm": 785,
+          "note": "Fig. 2, gaseous CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 298 K, 1283.7 cm⁻¹ at 5 MPa and 1282.7 at 6 MPa, below the gas–liquid transition at 6–7 MPa; at 307 K, 1285.4 at 5 MPa to 1284.5 at 7 MPa; at 323 K, 1285.5 at 5 MPa to 1284.7 at 7 MPa, below the critical pressure of 7.4 MPa. The same measurement as the upper band. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 447,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "liquid",
+          "form": "free",
+          "wn": [
+            1282.3,
+            1281.6
+          ],
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2, liquid CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 298 K, above the gas–liquid transition at 6–7 MPa, the band drifts down slowly from 1282.3 cm⁻¹ at 7 MPa to 1281.6 at 14 MPa, the lowest position in the series. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 448,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "supercritical",
+          "form": "free",
+          "wn": [
+            1282.8,
+            1282.0,
+            1284.3,
+            1282.7
+          ],
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2, supercritical CO₂: Neat CO₂ flowed at 100 mL min⁻¹ (at 291 K) through a Si/glass microreactor, 785 nm excitation, 10 s spectra. At 307 K the band drops abruptly across the transition at 7–8 MPa, from 1284.5 cm⁻¹ at 7 MPa to 1282.8 at 8 MPa, then falls to 1282.0 at 14 MPa; at 323 K it falls smoothly from 1284.3 at 8 MPa to 1282.7 at 14 MPa. Values above 7.4 MPa are filed here. Positions read off Fig. 2 to about ±0.1 cm⁻¹: the paper tabulates none and quotes only \"ca. 1284 and 1387 cm⁻¹\" for the Fermi dyad. Which component is ν₁ and which 2ν₂ follows the atlas."
+        },
+        {
+          "id": 449,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "liquid",
+          "form": "free",
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2: Cyclohexene and H₂, 5 % each in CO₂, 10 MPa total, before the Pd/Al₂O₃ bed (Fig. 2, inverted triangles). At 305 K the dyad sits at or below neat liquid CO₂ at 298 K, read by the authors as phase segregation, the CO₂ behaving as a liquid. The mixture points overlap at 10 MPa, so no position is recorded."
+        },
+        {
+          "id": 450,
+          "key": "Urakawa.OnchipRamanAnalysis.2008",
+          "medium": "supercritical",
+          "form": "free",
+          "technique": "raman",
+          "laser_nm": 785,
+          "note": "Fig. 2: Cyclohexene and H₂, 5 % each in CO₂, 10 MPa total, before the Pd/Al₂O₃ bed (Fig. 2, inverted triangles). By 318 K the dyad has risen close to neat CO₂ at 307 K, read by the authors as the CO₂ acting as a supercritical solvent. The mixture points overlap at 10 MPa, so no position is recorded."
         }
       ],
       "confidence": "confirmed",
@@ -2138,9 +2247,11 @@
         {
           "id": 46,
           "key": "Nishimura.VibrationalExcitationsCH4.2002",
-          "technique": "computational",
+          "medium": "gas",
+          "form": "free",
           "wn": 2920,
-          "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table. Two caveats. The paper is a close-coupling calculation of electron-impact vibrational excitation and reports no infrared spectrum of its own: the mode energies are inputs it adopts from the literature, so it is a secondary source for this position. And no copy is on file and the article is paywalled, so this row could not be checked against the paper on the pass that added the compilation value above."
+          "technique": "computational",
+          "note": "Recommended experimental value 0.362 eV (≈2920 cm⁻¹) for ν₁, A₁ symmetric stretch, Raman-active/IR-inactive; calculated value 0.390 eV (≈3146 cm⁻¹) given alongside it in the same table. Two caveats. The paper is a close-coupling calculation of electron-impact vibrational excitation and reports no infrared spectrum of its own: the mode energies are inputs it adopts from the literature, so it is a secondary source for this position. And no copy is on file and the article is paywalled, so this row could not be checked against the paper on the pass that added the compilation value above. Recorded as the free molecule in a gas, the state the compiled value refers to."
         },
         {
           "id": 47,
@@ -2350,22 +2461,28 @@
         {
           "id": 57,
           "key": "Yudanov.COAdsorptionPd.2026",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2085,
           "measured_on": "pd_0",
-          "note": "On-top (linear, μ₁) CO on Pd nanoparticles typically observed at 2080–2090 cm⁻¹ (Introduction, citing prior SFG work), distinct from this same paper's own focus on bridge-site coverage dependence (see co_bridge_mu2).",
           "technique": "computational",
-          "tags": ["direct-dosing"]
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "On-top (linear, μ₁) CO on Pd nanoparticles typically observed at 2080–2090 cm⁻¹ (Introduction, citing prior SFG work), distinct from this same paper's own focus on bridge-site coverage dependence (see co_bridge_mu2). The cited work spans ultrahigh vacuum to atmospheric pressure; vacuum follows the paper’s own calculations and is this collection’s choice."
         },
         {
           "id": 58,
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2113, 2115, 2108],
-          "measured_on": "cu_0",
-          "note": "Fig. 7a, and Figs. S18/S19 in the SI (MCR-resolved, He+CO₂ vs H₂+He switching, 230 °C, 20 bar): CO* on metallic Cu at 2113 cm⁻¹ (Cu–Zn/SiO₂), 2115 cm⁻¹ (Cu/SiO₂) and 2108 cm⁻¹ (Cu–In/SiO₂), produced in situ by decomposition of κ²-HCOO*(Cu) rather than dosed — its rise mirrors the formate component's decay, making it the spectroscopic signature of the unselective RWGS branch. Invisible at steady state on every catalyst (it is hydrogenated away as fast as it forms); only the alternating CO₂/H₂ transient exposes it. Notably absent from Fig. S20 (Cu–Ga/SiO₂): no CO* is detectable on the Ga-promoted catalyst at all, which the authors take as the direct cause of its 94% methanol selectivity — formate spillover to Ga³⁺ outruns formate decomposition on Cu, so the RWGS branch never opens.",
+          "wn": 2113,
+          "measured_on": [
+            "cu_0",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Fig. 7a (He+CO₂ against H₂+He, 20 bar): MCR-resolved component spectra of CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Linear CO* on metallic Cu at 2113 cm⁻¹, made in situ when the H₂ comes back rather than dosed: its rise mirrors the decay of the Cu-bound formate, which the authors read as formate decomposing to CO, the RWGS route. Invisible at steady state on every catalyst, being hydrogenated as fast as it forms; only the alternating feed shows it."
         },
         {
           "id": 59,
@@ -2389,6 +2506,8 @@
         {
           "id": 60,
           "key": "Monai.NewLookCatalyst.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": [
             2077,
             2088,
@@ -2399,18 +2518,18 @@
             "cu_0"
           ],
           "technique": "irras",
-          "form": "adsorbed",
           "tags": [
             "direct-dosing"
           ],
-          "note": "Sections 2.1 to 2.3 of a perspective; the numbers are from the RAIRS studies it reviews rather than from its own measurements. The singleton of atop CO on Pt(100), one molecule with no neighbours to couple to, is 2077 cm⁻¹, and coupling alone puts a line of five coupled CO 9 cm⁻¹ above it and a nine-molecule patch 16 above. Atop CO on Cu(110) moves only from 2088 to 2094 across the whole coverage range, a chemical redshift near −44 cm⁻¹ almost exactly cancelling a coupling blueshift near +50. The perspective's conclusion is that no observed band corresponds one-to-one to a kind of site: the bands are collective modes of the whole adlayer."
+          "note": "Sections 2.1 to 2.3 of a perspective; the numbers are from the RAIRS studies it reviews rather than from its own measurements. The singleton of atop CO on Pt(100), one molecule with no neighbours to couple to, is 2077 cm⁻¹, and coupling alone puts a line of five coupled CO 9 cm⁻¹ above it and a nine-molecule patch 16 above. Atop CO on Cu(110) moves only from 2088 to 2094 across the whole coverage range, a chemical redshift near −44 cm⁻¹ almost exactly cancelling a coupling blueshift near +50. The perspective's conclusion is that no observed band corresponds one-to-one to a kind of site: the bands are collective modes of the whole adlayer. Single-crystal RAIRS is a vacuum measurement; the perspective does not state the pressure, so vacuum is this collection’s assumption."
         },
         {
           "id": 61,
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "medium": "gas",
           "form": "adsorbed",
           "tags": [],
-          "note": "Section 2.3.2, p. 96 of a monograph summarising infrared work on oxide surfaces rather than reporting one measurement, which is why no position, surface or sampling geometry is recorded here. Where the metal has d electrons to donate into CO's 2π*, a genuine carbonyl forms and ν(CO) falls below the gas-phase value: linear CO between 2100 and 1900 cm⁻¹, bridged below 1900, three-coordinated below 1800. The book's point is that one probe molecule reports two opposite things depending on the site, because a σ-only bond to a cation pushes the same band the other way instead."
+          "note": "Section 2.3.2, p. 96 of a monograph summarising infrared work on oxide surfaces rather than reporting one measurement, which is why no position, surface or sampling geometry is recorded here. Where the metal has d electrons to donate into CO's 2π*, a genuine carbonyl forms and ν(CO) falls below the gas-phase value: linear CO between 2100 and 1900 cm⁻¹, bridged below 1900, three-coordinated below 1800. The book's point is that one probe molecule reports two opposite things depending on the site, because a σ-only bond to a cation pushes the same band the other way instead. A summary rather than one measurement; the experiments it draws on adsorb CO on samples held under the probe gas, so gas is this collection’s reading."
         },
         {
           "id": 392,
@@ -2464,12 +2583,14 @@
         {
           "id": 402,
           "key": "Ye.MolecularLevelInsights.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2005,
           "measured_on": [
             "ag_111"
           ],
           "technique": "computational",
-          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Linear CO calculated at 2005 cm⁻¹, against 2010 to 1928 measured."
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Linear CO calculated at 2005 cm⁻¹, against 2010 to 1928 measured. The slab carries 15 Å of vacuum and the frequency calculation no solvent."
         },
         {
           "id": 410,
@@ -2499,6 +2620,32 @@
             "direct-dosing"
           ],
           "note": "Supplementary Note 5, Figs. S36 and S39: CO reduction on the Cu film in CO-saturated 0.05 M Cs₂CO₃ (pH 10.6). In a sweep the linear CO band is strongest near −0.5 V and depletes below −0.8 V vs. RHE, unlike under CO₂. Under pulses with E(a) = −0.5 or +0.6 V it builds up during −0.5 V and is stripped during +0.6 V; its decay is fitted as 0.0051 falling to 0.0040 per s with −0.5 V pulses and 0.0026 rising to 0.0041 with +0.6 V ones. The text puts E(c) at −0.7 V, the caption of Fig. S39 at −1.1 V. No position is given, so none is recorded."
+        },
+        {
+          "id": 423,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2115,
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S18 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of the unpromoted Cu/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Linear CO* on Cu at 2115 cm⁻¹, rising as the Cu-bound formate decays."
+        },
+        {
+          "id": 424,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2108,
+          "measured_on": [
+            "cu_0",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Linear CO* on Cu at 2108 cm⁻¹, the lowest of the three catalysts that show it. None forms on CuGa/SiO₂ (Fig. S20), which the authors take as the reason for its selectivity: spillover of formate to Ga³⁺ outruns its decomposition on Cu."
         }
       ],
       "intensity": "s",
@@ -2541,14 +2688,15 @@
         {
           "id": 63,
           "key": "Monai.NewLookCatalyst.2024",
+          "medium": "gas",
+          "form": "adsorbed",
           "measured_on": [
             "pt_0"
           ],
-          "form": "adsorbed",
           "tags": [
             "isotope-labeling"
           ],
-          "note": "Section 3 of a perspective, on the isotope-dilution method rather than on one spectrum, which is why no position and no sampling geometry are recorded here. The ¹³CO and ¹²CO singletons lie about 50 cm⁻¹ apart, enough to cut the coupling between a molecule and its neighbours by roughly an order of magnitude once one is diluted in the other; ¹³C¹⁸O against ¹²C¹⁶O gives 100 cm⁻¹ and cuts it further. Diluting at a fixed coverage separates the chemical and coupling halves of a coverage shift, and recovers bands that intensity transfer had hidden, such as CO on copper terraces. The perspective proposes running it under reaction conditions and names that MIOIRS."
+          "note": "Section 3 of a perspective, on the isotope-dilution method rather than on one spectrum, which is why no position and no sampling geometry are recorded here. The ¹³CO and ¹²CO singletons lie about 50 cm⁻¹ apart, enough to cut the coupling between a molecule and its neighbours by roughly an order of magnitude once one is diluted in the other; ¹³C¹⁸O against ¹²C¹⁶O gives 100 cm⁻¹ and cuts it further. Diluting at a fixed coverage separates the chemical and coupling halves of a coverage shift, and recovers bands that intensity transfer had hidden, such as CO on copper terraces. The perspective proposes running it under reaction conditions and names that MIOIRS. No measurement of its own; gas is recorded because the method is proposed for catalysts under reaction, this collection’s reading."
         }
       ],
       "intensity": "s",
@@ -2598,11 +2746,15 @@
         {
           "id": 66,
           "key": "Yudanov.COAdsorptionPd.2026",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1989,
           "measured_on": "pd_0",
-          "note": "DFT-calculated (scaled) frequency of bridge-bound CO at the edges of Pd nanoparticles, growing from ~1886 cm⁻¹ for an isolated bridge CO up to ~1989 cm⁻¹ once the edge bridge sites are fully occupied by coadsorbed CO (Table 1) — matching the experimentally observed 1980–1990 cm⁻¹ band and implying particles ≥3 nm to host the necessary 10–12-CO edge ensemble.",
           "technique": "computational",
-          "tags": ["direct-dosing"]
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "DFT-calculated (scaled) frequency of bridge-bound CO at the edges of Pd nanoparticles, growing from ~1886 cm⁻¹ for an isolated bridge CO up to ~1989 cm⁻¹ once the edge bridge sites are fully occupied by coadsorbed CO (Table 1) — matching the experimentally observed 1980–1990 cm⁻¹ band and implying particles ≥3 nm to host the necessary 10–12-CO edge ensemble. Calculated on Pd nanoparticle models in vacuum."
         },
         {
           "id": 67,
@@ -2637,6 +2789,8 @@
         {
           "id": 69,
           "key": "Monai.NewLookCatalyst.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": [
             1895,
             1997
@@ -2645,18 +2799,18 @@
             "pd_0"
           ],
           "technique": "irras",
-          "form": "adsorbed",
           "tags": [
             "direct-dosing"
           ],
-          "note": "Fig. 3A of a perspective, reviewing RAIRS of CO on Pd(100) from Ortega and co-workers: a single band moving from 1895 to 1997 cm⁻¹ as the coverage goes from about zero to 0.8, almost 100 cm⁻¹ in all, of which roughly 60 is a chemical shift and the rest dipole coupling. The perspective labels the band atop CO; the positions are the bridged range for palladium, and it is recorded on the bridged band here for that reason. The integrated area levels off near half a monolayer, so area stops tracking coverage well before saturation."
+          "note": "Fig. 3A of a perspective, reviewing RAIRS of CO on Pd(100) from Ortega and co-workers: a single band moving from 1895 to 1997 cm⁻¹ as the coverage goes from about zero to 0.8, almost 100 cm⁻¹ in all, of which roughly 60 is a chemical shift and the rest dipole coupling. The perspective labels the band atop CO; the positions are the bridged range for palladium, and it is recorded on the bridged band here for that reason. The integrated area levels off near half a monolayer, so area stops tracking coverage well before saturation. Single-crystal RAIRS is a vacuum measurement; the perspective does not state the pressure, so vacuum is this collection’s assumption."
         },
         {
           "id": 70,
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "medium": "gas",
           "form": "adsorbed",
           "tags": [],
-          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: bridged carbonyls lie below 1900 cm⁻¹ and three-coordinated ones below 1800. The book adds a constraint the position alone does not give: a carbonyl on a cation can only be linear, because in an M–O–M arrangement the cations are too far apart for one CO molecule to bond to two of them at once. A bridged band is therefore evidence of an ensemble of reduced metal atoms rather than of a cation, whatever else is on the surface. Where a cation has two free coordination places it forms a dicarbonyl instead."
+          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: bridged carbonyls lie below 1900 cm⁻¹ and three-coordinated ones below 1800. The book adds a constraint the position alone does not give: a carbonyl on a cation can only be linear, because in an M–O–M arrangement the cations are too far apart for one CO molecule to bond to two of them at once. A bridged band is therefore evidence of an ensemble of reduced metal atoms rather than of a cation, whatever else is on the surface. Where a cation has two free coordination places it forms a dicarbonyl instead. A summary rather than one measurement; the experiments it draws on adsorb CO on samples held under the probe gas, so gas is this collection’s reading."
         },
         {
           "id": 394,
@@ -2695,12 +2849,14 @@
         {
           "id": 403,
           "key": "Ye.MolecularLevelInsights.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1867,
           "measured_on": [
             "ag_111"
           ],
           "technique": "computational",
-          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Bridged CO calculated at 1867 cm⁻¹, against 1848 to 1757 measured."
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Bridged CO calculated at 1867 cm⁻¹, against 1848 to 1757 measured. The slab carries 15 Å of vacuum and the frequency calculation no solvent."
         },
         {
           "id": 408,
@@ -2742,11 +2898,15 @@
         {
           "id": 71,
           "key": "Yudanov.COAdsorptionPd.2026",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1810,
           "measured_on": "pd_0",
-          "note": "DFT-calculated (scaled) frequencies of 3-fold hollow CO on Pd(111)-type facets/nanoparticles range from ~1802–1815 cm⁻¹ at low coverage up to ~1902 cm⁻¹ at the high-coverage (2×2)-3CO structure (0.75 ML), tracking the same coverage-dependent blue shift seen for bridge-bound CO.",
           "technique": "computational",
-          "tags": ["direct-dosing"]
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "DFT-calculated (scaled) frequencies of 3-fold hollow CO on Pd(111)-type facets/nanoparticles range from ~1802–1815 cm⁻¹ at low coverage up to ~1902 cm⁻¹ at the high-coverage (2×2)-3CO structure (0.75 ML), tracking the same coverage-dependent blue shift seen for bridge-bound CO. Calculated on Pd nanoparticle models in vacuum."
         },
         {
           "id": 72,
@@ -2765,9 +2925,10 @@
         {
           "id": 73,
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "medium": "gas",
           "form": "adsorbed",
           "tags": [],
-          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: three-coordinated bridged carbonyls lie below 1800 cm⁻¹, the lowest of the three coordination ranges the book sets out, because the more metal atoms share the CO the more they donate into its 2π* and the weaker the C–O bond becomes."
+          "note": "Section 2.3.2, p. 96 of a monograph, not one measurement: three-coordinated bridged carbonyls lie below 1800 cm⁻¹, the lowest of the three coordination ranges the book sets out, because the more metal atoms share the CO the more they donate into its 2π* and the weaker the C–O bond becomes. A summary rather than one measurement; the experiments it draws on adsorb CO on samples held under the probe gas, so gas is this collection’s reading."
         },
         {
           "id": 396,
@@ -2787,12 +2948,14 @@
         {
           "id": 404,
           "key": "Ye.MolecularLevelInsights.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1882,
           "measured_on": [
             "ag_111"
           ],
           "technique": "computational",
-          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Hollow CO calculated at 1882 cm⁻¹, above the bridge value, against 1720 to 1704 measured; the authors attribute the gap to large overpotentials and the missing Stark slope."
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Hollow CO calculated at 1882 cm⁻¹, above the bridge value, against 1720 to 1704 measured; the authors attribute the gap to large overpotentials and the missing Stark slope. The slab carries 15 Å of vacuum and the frequency calculation no solvent."
         },
         {
           "id": 406,
@@ -2931,47 +3094,72 @@
         {
           "id": 80,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2317,
-          "measured_on": ["li_1p", "zsm5"],
+          "measured_on": [
+            "li_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Li⁺ cation: ν(CO) of the C-bonded adduct at 2317 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Li⁺ cation: ν(CO) of the C-bonded adduct at 2317 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 81,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2296,
-          "measured_on": ["na_1p", "zsm5"],
+          "measured_on": [
+            "na_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Na⁺ cation: ν(CO) of the C-bonded adduct at 2296 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Na⁺ cation: ν(CO) of the C-bonded adduct at 2296 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 82,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2275,
-          "measured_on": ["k_1p", "zsm5"],
+          "measured_on": [
+            "k_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked K⁺ cation: ν(CO) of the C-bonded adduct at 2275 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked K⁺ cation: ν(CO) of the C-bonded adduct at 2275 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 83,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2268,
-          "measured_on": ["rb_1p", "zsm5"],
+          "measured_on": [
+            "rb_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Rb⁺ cation: ν(CO) of the C-bonded adduct at 2268 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Rb⁺ cation: ν(CO) of the C-bonded adduct at 2268 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 84,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2261,
-          "measured_on": ["cs_1p", "zsm5"],
+          "measured_on": [
+            "cs_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Cs⁺ cation: ν(CO) of the C-bonded adduct at 2261 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Cs⁺ cation: ν(CO) of the C-bonded adduct at 2261 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. The naked-cation shift is far larger than the measured one because the zeolite framework is left out; embedding the cation in an Al(OH)₃H⁻ cluster cuts it to about a third. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 85,
@@ -3031,12 +3219,15 @@
         {
           "id": 90,
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
-          "technique": "transmission",
+          "medium": "gas",
           "form": "adsorbed",
           "wn": 2158,
           "measured_on": "cu_1p",
-          "note": "Monocarbonyl Cu⁺-CO in a Cu-exchanged zeolite, resolved by self-supporting-pellet transmission FTIR (100 K) into 4 distinct Cu⁺ site sub-families: 2166 cm⁻¹ (most electrophilic cationic site, preferentially covered by co-adsorbed H₂O), 2158 cm⁻¹ (principal/dominant cationic site), 2141 cm⁻¹ (a more highly-coordinated, oxide-like Cu⁺ site), and 2139 cm⁻¹ (Cu⁺(H₂O)(CO) mixed-ligand complex, nearly coincident with the oxide-like site). Site assignment supported by selective monocarbonyl→dicarbonyl→tricarbonyl conversion as CO coverage increases/temperature decreases — see co_gemdi_asym/co_gemdi_sym for the dicarbonyl stage.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Monocarbonyl Cu⁺-CO in a Cu-exchanged zeolite, resolved by self-supporting-pellet transmission FTIR (100 K) into 4 distinct Cu⁺ site sub-families: 2166 cm⁻¹ (most electrophilic cationic site, preferentially covered by co-adsorbed H₂O), 2158 cm⁻¹ (principal/dominant cationic site), 2141 cm⁻¹ (a more highly-coordinated, oxide-like Cu⁺ site), and 2139 cm⁻¹ (Cu⁺(H₂O)(CO) mixed-ligand complex, nearly coincident with the oxide-like site). Site assignment supported by selective monocarbonyl→dicarbonyl→tricarbonyl conversion as CO coverage increases/temperature decreases — see co_gemdi_asym/co_gemdi_sym for the dicarbonyl stage. CO was dosed in increasing amounts at 100 K into a cell on a vacuum-adsorption line, and the spectra were taken with the gas present."
         },
         {
           "id": 91,
@@ -3061,14 +3252,15 @@
         {
           "id": 92,
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "medium": "gas",
+          "form": "adsorbed",
           "wn": 2190,
           "measured_on": [
             "zn_2p",
             "zno"
           ],
-          "form": "adsorbed",
           "tags": [],
-          "note": "Section 2.3.2, pp. 95–96 and Table 2.11, p. 99 (a monograph; the sampling geometry behind the number is not stated). One band at 2190 cm⁻¹ after CO adsorption on ZnO at 293 K, with photoelectron work on the same system showing the bond is made through the carbon and the 5σ orbital. On a coordinatively unsaturated cation the bond is essentially σ only, so ν(CO) sits above the 2143 cm⁻¹ of the free molecule, and the shift upward grows with the cation's ratio of charge to radius. Such complexes are relatively unstable and are usually removed by degassing at room temperature, which is one way to tell them from the far more stable M⁺ and M⁰ carbonyls (p. 274)."
+          "note": "Section 2.3.2, pp. 95–96 and Table 2.11, p. 99 (a monograph; the sampling geometry behind the number is not stated). One band at 2190 cm⁻¹ after CO adsorption on ZnO at 293 K, with photoelectron work on the same system showing the bond is made through the carbon and the 5σ orbital. On a coordinatively unsaturated cation the bond is essentially σ only, so ν(CO) sits above the 2143 cm⁻¹ of the free molecule, and the shift upward grows with the cation's ratio of charge to radius. Such complexes are relatively unstable and are usually removed by degassing at room temperature, which is one way to tell them from the far more stable M⁺ and M⁰ carbonyls (p. 274). Measured under CO: the complex is removed by degassing at room temperature."
         }
       ],
       "intensity": "s",
@@ -3163,54 +3355,80 @@
         {
           "id": 99,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2126,
-          "measured_on": ["li_1p", "zsm5"],
+          "measured_on": [
+            "li_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Li⁺ cation: ν(CO) of the O-bonded adduct at 2126 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Li⁺ cation: ν(CO) of the O-bonded adduct at 2126 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 100,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2148,
-          "measured_on": ["na_1p", "zsm5"],
+          "measured_on": [
+            "na_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Na⁺ cation: ν(CO) of the O-bonded adduct at 2148 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Na⁺ cation: ν(CO) of the O-bonded adduct at 2148 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 101,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2166,
-          "measured_on": ["k_1p", "zsm5"],
+          "measured_on": [
+            "k_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked K⁺ cation: ν(CO) of the O-bonded adduct at 2166 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked K⁺ cation: ν(CO) of the O-bonded adduct at 2166 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 102,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2172,
-          "measured_on": ["rb_1p", "zsm5"],
+          "measured_on": [
+            "rb_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Rb⁺ cation: ν(CO) of the O-bonded adduct at 2172 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Rb⁺ cation: ν(CO) of the O-bonded adduct at 2172 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 103,
           "key": "Ugliengo.QuantumChemicalCalculations.1999",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 2178,
-          "measured_on": ["cs_1p", "zsm5"],
+          "measured_on": [
+            "cs_1p",
+            "zsm5"
+          ],
           "technique": "computational",
-          "note": "Table 2, B3-LYP on a single naked Cs⁺ cation: ν(CO) of the O-bonded adduct at 2178 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all.",
-          "tags": []
+          "tags": [],
+          "note": "Table 2, B3-LYP on a single naked Cs⁺ cation: ν(CO) of the O-bonded adduct at 2178 cm⁻¹, against 2218 cm⁻¹ computed for free CO at the same level. O-bonding comes out only slightly less stable than C-bonding, and the gap narrows from Li to Cs, which is why the O-bonded form is populated at all. An isolated cation-CO complex, so the model is in vacuum."
         },
         {
           "id": 104,
           "key": "Davydov.MolecularSpectroscopyOxide.2003",
+          "medium": "gas",
           "form": "adsorbed",
           "tags": [],
-          "note": "Section 2.3.2, p. 95 of a monograph, with no single measurement behind it, so no position is recorded here. A low-frequency band between 2100 and 2130 cm⁻¹ has been assigned by several authors to Mⁿ⁺···OC adducts, CO bound through the oxygen lone pair rather than the carbon, which shifts the stretch down where the ordinary orientation shifts it up. The book records an isomerisation equilibrium between the two orientations on NaZSM-5, Z-Na···CO against Z-Na⁺···OC, with an enthalpy of 3.8 kJ mol⁻¹, so on an alkali cation the two coexist rather than one of them winning."
+          "note": "Section 2.3.2, p. 95 of a monograph, with no single measurement behind it, so no position is recorded here. A low-frequency band between 2100 and 2130 cm⁻¹ has been assigned by several authors to Mⁿ⁺···OC adducts, CO bound through the oxygen lone pair rather than the carbon, which shifts the stretch down where the ordinary orientation shifts it up. The book records an isomerisation equilibrium between the two orientations on NaZSM-5, Z-Na···CO against Z-Na⁺···OC, with an enthalpy of 3.8 kJ mol⁻¹, so on an alkali cation the two coexist rather than one of them winning. A summary rather than one measurement; the experiments it draws on adsorb CO on samples held under the probe gas, so gas is this collection’s reading."
         }
       ],
       "intensity": "w",
@@ -3239,12 +3457,16 @@
         {
           "id": 105,
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
-          "technique": "transmission",
+          "medium": "gas",
           "form": "adsorbed",
           "wn": 2151,
           "measured_on": "cu_1p",
-          "note": "νₐₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2151 cm⁻¹ (paired with νₛ at 2180, see co_gemdi_sym), forming from the monocarbonyl with increasing CO coverage. The geminal (one-cation-two-CO) assignment was proven unambiguously by adsorbing a 1:1 ¹²CO+¹³CO isotopic mixture: a force-field calculation from the pure-¹²CO dicarbonyl frequencies predicted mixed-isotope Cu⁺(¹²CO)(¹³CO) bands at 2169/2113 cm⁻¹ and Cu⁺(¹³CO)₂ bands at 2131/2103 cm⁻¹, and both were observed exactly as calculated — only explainable if two CO ligands genuinely share one cation and vibrationally couple, ruling out two coincidentally-overlapping monocarbonyl bands from different sites.",
-          "tags": ["isotope-labeling", "direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "isotope-labeling",
+            "direct-dosing"
+          ],
+          "note": "νₐₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2151 cm⁻¹ (paired with νₛ at 2180, see co_gemdi_sym), forming from the monocarbonyl with increasing CO coverage. The geminal (one-cation-two-CO) assignment was proven unambiguously by adsorbing a 1:1 ¹²CO+¹³CO isotopic mixture: a force-field calculation from the pure-¹²CO dicarbonyl frequencies predicted mixed-isotope Cu⁺(¹²CO)(¹³CO) bands at 2169/2113 cm⁻¹ and Cu⁺(¹³CO)₂ bands at 2131/2103 cm⁻¹, and both were observed exactly as calculated — only explainable if two CO ligands genuinely share one cation and vibrationally couple, ruling out two coincidentally-overlapping monocarbonyl bands from different sites. CO was dosed in increasing amounts at 100 K into a cell on a vacuum-adsorption line, and the spectra were taken with the gas present."
         }
       ],
       "tags": ["site-sensitive", "to-be-revised"],
@@ -3271,12 +3493,16 @@
         {
           "id": 106,
           "key": "Zdravkova.SurprisingCoordinationChemistry.2015",
-          "technique": "transmission",
+          "medium": "gas",
           "form": "adsorbed",
           "wn": 2180,
           "measured_on": "cu_1p",
-          "note": "νₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2180 cm⁻¹ (paired with νₐₛ at 2151, see co_gemdi_asym for the ¹²CO/¹³CO isotopic-mixture proof of the geminal assignment). At low temperature, a further conversion to Cu⁺(CO)₃ tricarbonyl was observed (bands at 2190/2164/2140 cm⁻¹, not separately modeled in this dataset).",
-          "tags": ["isotope-labeling", "direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "isotope-labeling",
+            "direct-dosing"
+          ],
+          "note": "νₛ(CO) of Cu⁺(CO)₂ geminal dicarbonyl in a Cu-exchanged zeolite at 2180 cm⁻¹ (paired with νₐₛ at 2151, see co_gemdi_asym for the ¹²CO/¹³CO isotopic-mixture proof of the geminal assignment). At low temperature, a further conversion to Cu⁺(CO)₃ tricarbonyl was observed (bands at 2190/2164/2140 cm⁻¹, not separately modeled in this dataset). CO was dosed in increasing amounts at 100 K into a cell on a vacuum-adsorption line, and the spectra were taken with the gas present."
         }
       ],
       "tags": ["site-sensitive", "to-be-revised"],
@@ -4933,11 +5159,16 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2856, 2850, 2860, 2858, 2854, 2852, 2848, 2896, 2883, 2877],
-          "measured_on": ["cu_0", "zn_2p", "ga_3p", "in_3p"],
-          "note": "Operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. MCR-ALS resolves two kinetically distinct κ²-HCOO* components. The Cu-bound one runs 2848 to 2860 cm⁻¹ across Figs. 4a/4c, 5b and 7a and the per-catalyst SI figures S15 to S20. It is the first and most abundant surface species on all four catalysts, and it exchanges to κ²-DCOO* within the 10 s acquisition limit under D₂, so formate formation and exchange are not rate-limiting; on Cu it is also the RWGS intermediate, its decay tracking the rise of CO* at 2108 to 2115 cm⁻¹. The promoter-bound component runs 2877 to 2896 cm⁻¹ and is clean only on Zn²⁺ (2896); on Ga³⁺ and In³⁺ it cannot be separated from Cu-bound formate and methoxy. Formate reaches the promoter by spillover from Cu, not by CO₂ activation on it: isolated M/SiO₂ without Cu converts no CO₂ at all.",
+          "wn": [
+            2856,
+            2850
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 4a and 4c (steady state, 10 bar), 5b (H₂/D₂ switching, 10 bar) and 7a (He+CO₂ against H₂+He, 20 bar): operando DRIFTS of CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on Cu at 2856 cm⁻¹ in the steady-state spectra, the first and most abundant surface species, appearing together with the Zn²⁺-bound formate; 2850 in the MCR-resolved component spectra of both transients. It exchanges to κ²-DCOO* at 2167 cm⁻¹ within the 10 s time resolution, so formate formation is not rate-limiting, and in the transient it falls as CO* at 2113 cm⁻¹ rises, which the authors read as formate decomposing to CO on Cu. The 2850 is an MCR component maximum, not a raw peak."
         },
         {
           "id": 176,
@@ -5031,6 +5262,99 @@
           "form": "adsorbed",
           "tags": [],
           "note": "Fig. 3b and Table 1: ν(CH) of a copper-bound formate at 2840 cm⁻¹, visible only in the difference spectrum taken 9 s after CO₂ was cut from the feed and magnified 20 times, with the carboxylate stretch at 1644 and a third band at 1307. The methoxy and zirconia-formate contributions were subtracted first (Figs. S3A and S3C). The trio is assigned from formic acid adsorbed on Cu(100) rather than argued from this spectrum. It is only about 7 % of the surface formate, but it decays with k = 2.3 min⁻¹, one and three orders of magnitude faster than the two zirconia formates, at a rate matching methanol formation: the paper's case that this is the intermediate that matters."
+        },
+        {
+          "id": 417,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2860,
+            2852
+          ],
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S15 (H₂/D₂ switching, 10 bar) and S18 (He+CO₂ against H₂+He, 20 bar): MCR-resolved component spectra of the unpromoted Cu/SiO₂ made by surface organometallic chemistry (4.19 wt% Cu), 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on Cu at 2860 and 2852 cm⁻¹, with its combination band at 2929 and 2931. It exchanges to κ²-DCOO* at 2161 cm⁻¹ under D₂, and in the transient its decay tracks the rise of CO* at 2115 cm⁻¹. The reference catalyst: no promoter-bound formate is resolved on it."
+        },
+        {
+          "id": 418,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2850,
+            2848
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S16 (H₂/D₂ switching, 10 bar) and S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂ made by surface organometallic chemistry, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on Cu at 2850 and 2848 cm⁻¹, exchanging to κ²-DCOO* at 2176 cm⁻¹ under D₂. In the transient it is one of four species MCR cannot separate (with Ga³⁺ formate, Ga³⁺ methoxy and adsorbed methanol), all consumed quickly under H₂, which the authors read as fast spillover from Cu to Ga³⁺; no CO* forms on this catalyst. The 2848 comes from that mixed component."
+        },
+        {
+          "id": 419,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2858,
+            2854
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S17 (H₂/D₂ switching, 10 bar) and S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂ made by surface organometallic chemistry, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on Cu at 2858 and 2854 cm⁻¹; it exchanges to κ²-DCOO* at 2169 cm⁻¹ under D₂, and in the transient its decay tracks CO* at 2108 cm⁻¹."
+        },
+        {
+          "id": 420,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2896,
+            2886
+          ],
+          "measured_on": [
+            "zn_2p",
+            "cuzn_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. 4a, 4c, 5b (10 bar) and 7a (He+CO₂ against H₂+He, 20 bar): operando DRIFTS of CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on the isolated Zn²⁺ sites at 2896 cm⁻¹, the one promoter-bound formate the steady-state spectra show clearly, appearing at the same time as the Cu-bound one; 2886 in the MCR component of Fig. 7a, where the same component carries ν(C-O) at 1590. It exchanges to κ²-DCOO* at 2184 cm⁻¹ as fast as the Cu-bound formate. The authors place it there by spillover from Cu: Zn/SiO₂ without Cu converts CO₂ below the detection limit. The Zn is single cations, not a ZnO phase."
+        },
+        {
+          "id": 421,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2883,
+            2881
+          ],
+          "measured_on": [
+            "ga_3p",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S16 (H₂/D₂ switching, 10 bar) and S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on the isolated Ga³⁺ sites, marked at 2883 and 2881 cm⁻¹. The steady-state spectra alone cannot confirm it (main text, Section 2.3); it rests on the transients, and in S20 it sits in one component with Cu-bound formate, Ga³⁺ methoxy and adsorbed methanol, so the position is a marked band inside a mixed component, not a separate species spectrum."
+        },
+        {
+          "id": 422,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2877,
+          "measured_on": [
+            "in_3p",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Bidentate formate on the isolated In³⁺ sites, marked at 2877 cm⁻¹ in a component MCR cannot separate from In³⁺ methoxy. Unlike on Ga³⁺ it is not consumed under H₂ but grows to a plateau, which the authors read as formate held too strongly on In³⁺ to hydrogenate, the reason for the low methanol rate. The steady-state spectra alone cannot confirm it."
         }
       ],
       "intensity": "s",
@@ -5059,13 +5383,17 @@
         {
           "id": 184,
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "medium": "supercritical",
+          "form": "adsorbed",
           "wn": 1580,
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
           "technique": "raman",
           "laser_nm": 532,
-          "form": "adsorbed",
-          "measured_on": ["cu_0", "cu_sio2"],
           "tags": [],
-          "note": "Fig. 2 right (in situ Raman, 1 wt % Cu/SiO₂ at 230 °C, 200 and 400 bar; Renishaw InVia, 532 nm Nd:YAG, 60 mW, 600 s accumulation through a micro-view-cell, SI p. S34). The second of the two Raman formate bands, with 1330 cm⁻¹. A separate row from this paper's own DRIFTS claim on this band, because it is a different measurement by a different technique, and the two positions differ by 20 cm⁻¹."
+          "note": "Fig. 2 right (in situ Raman, 1 wt % Cu/SiO₂ at 230 °C, 200 and 400 bar; Renishaw InVia, 532 nm Nd:YAG, 60 mW, 600 s accumulation through a micro-view-cell, SI p. S34). The second of the two Raman formate bands, with 1330 cm⁻¹. A separate row from this paper's own DRIFTS claim on this band, because it is a different measurement by a different technique, and the two positions differ by 20 cm⁻¹. The reactant mixture at 200 to 400 bar and 230 °C is above the critical point of both gases, a dense fluid (the paper speaks of fluid density), recorded as supercritical."
         },
         {
           "id": 185,
@@ -5159,11 +5487,13 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [1590, 1544],
-          "measured_on": "cu_0",
-          "note": "Fig. 7a (MCR-resolved, He+CO₂ vs H₂+He switching, 230 °C, 20 bar, Cu–Zn/SiO₂): νₐₛ(C–O) of κ²-HCOO* at 1590 cm⁻¹, resolved alongside the same component's ν(C–H) at 2850 cm⁻¹ so the C–H and C–O regions can be cross-checked against one MCR component rather than assigned separately. Fig. S19 in the SI gives 1544 cm⁻¹ for the same species on Cu–In/SiO₂ — some 46 cm⁻¹ lower, the same direction the promoter shifts every other formate band here. Fig. 6a plots this frequency (for the deuterated κ²-DCOO* form) against intrinsic CH₃OH formation rate as a Sabatier volcano spanning roughly 1530–1600 cm⁻¹ across the four catalysts, weaker C–O binding on the right; the per-catalyst values behind that plot are not tabulated.",
+          "wn": 1590,
+          "measured_on": [
+            "zn_2p",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Fig. 7a (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(OCO) at 1590 cm⁻¹ in the component of the Zn²⁺-bound formate (its ν(CH) at 2886 in the same component), so the C-H and C-O regions are read off one species rather than assigned separately. Fig. 6a plots the ν(C-O) of the deuterated formate per catalyst as a Sabatier volcano against the methanol rate, without number labels."
         },
         {
           "id": 194,
@@ -5239,6 +5569,19 @@
           "form": "adsorbed",
           "tags": [],
           "note": "Table 1, given as 1639 cm⁻¹ in the text (Fig. 3b, difference spectrum 9 s after CO₂ removal, magnified 20 times, zirconia-formate contribution subtracted, Figs. S3B and S3D): the carboxylate stretch of copper-bound formate, some 65 cm⁻¹ above the zirconia formate on the same sample. Integration region 1 runs 1900 to 1644 cm⁻¹ (Table S1) and was chosen because it gives the cleanest signal for this species. It is the highest νₐₛ(OCO) recorded in the atlas and it is what widened this band's window; the assignment comes from formic acid on Cu(100)."
+        },
+        {
+          "id": 425,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 1544,
+          "measured_on": [
+            "cu_0",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(OCO) at 1544 cm⁻¹, tracked with the Cu-bound formate component (its C-O region drawn dashed beside the C-H one), some 46 cm⁻¹ below the Zn²⁺ formate on CuZn/SiO₂. The authors read the low ν(C-O) as formate bound too strongly, the In³⁺ end of their Sabatier volcano (Fig. 6a)."
         }
       ],
       "intensity": "s",
@@ -5290,12 +5633,14 @@
         {
           "id": 405,
           "key": "Ye.MolecularLevelInsights.2024",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1657,
           "measured_on": [
             "ag_111"
           ],
           "technique": "computational",
-          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Monodentate formate’s C=O stretch calculated at 1657 cm⁻¹, against 1680 to 1670 measured."
+          "note": "Fig. 2d, with coordinates in Supplementary Data 1 (not read): spin-polarised DFT, RPBE with D3 dispersion in VASP, a three-layer 3 × 3 Ag(111) slab, frequencies by finite differences in ASE (±0.005 Å). The applied potential is left out of the frequency calculation, which the authors do for simplicity, so this is a zero-field value set against Stark-shifted measurements. Monodentate formate’s C=O stretch calculated at 1657 cm⁻¹, against 1680 to 1670 measured. The slab carries 15 Å of vacuum and the frequency calculation no solvent."
         },
         {
           "id": 412,
@@ -5396,13 +5741,17 @@
         {
           "id": 200,
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "medium": "supercritical",
+          "form": "adsorbed",
           "wn": 1330,
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
           "technique": "raman",
           "laser_nm": 532,
-          "form": "adsorbed",
-          "measured_on": ["cu_0", "cu_sio2"],
           "tags": [],
-          "note": "Fig. 2 right (in situ Raman, 1 wt % Cu/SiO₂ at 230 °C, 200 and 400 bar; Renishaw InVia, 532 nm Nd:YAG, 60 mW, 600 s accumulation through a micro-view-cell, SI p. S34). Assigned there to surface formate, citing Wang et al. on methanol oxidation over silver. It grows strongly between 200 and 400 bar, which the paper reads as pressure driving up the formate coverage."
+          "note": "Fig. 2 right (in situ Raman, 1 wt % Cu/SiO₂ at 230 °C, 200 and 400 bar; Renishaw InVia, 532 nm Nd:YAG, 60 mW, 600 s accumulation through a micro-view-cell, SI p. S34). Assigned there to surface formate, citing Wang et al. on methanol oxidation over silver. It grows strongly between 200 and 400 bar, which the paper reads as pressure driving up the formate coverage. The reactant mixture at 200 to 400 bar and 230 °C is above the critical point of both gases, a dense fluid (the paper speaks of fluid density), recorded as supercritical."
         },
         {
           "id": 201,
@@ -5706,11 +6055,16 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2931, 2929, 2923, 2937, 2933],
-          "measured_on": "cu_0",
-          "note": "Fig. 4a/4c and Fig. 7a (operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC): explicitly assigned as ν(C–O)+δ(C–H) of κ²-HCOO* on Cu⁰ and paired with ν(CH) at 2850–2856 cm⁻¹. MCR-resolved per catalyst in the SI: Fig. S15 2929 cm⁻¹ (Cu/SiO₂), Fig. S16 2923 cm⁻¹ (Cu–Ga/SiO₂), Fig. S17 2937 cm⁻¹ (Cu–In/SiO₂), Fig. S19 2933 cm⁻¹, Fig. S18 2931 cm⁻¹, Fig. S20 2929 cm⁻¹ — a ~14 cm⁻¹ spread tracking the promoter's electron-withdrawing effect on the formate C–O bond. Deuteration is what proves the combination character: under D₂ this feature leaves the C–H region entirely, while the genuine ν(C–D) fundamental appears at 2161–2184 cm⁻¹, which is precisely why the SSITKA C–D window is the clean one for reading out formate bond strengths.",
+          "wn": [
+            2931,
+            2929
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 4a and 4c (steady state, 10 bar), 5b (H₂/D₂ switching, 10 bar) and 7a (He+CO₂ against H₂+He, 20 bar): CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Assigned as ν(C-O)+δ(C-H) of the Cu-bound bidentate formate, 2931 cm⁻¹ at steady state and in the switching experiment, 2929 in the transient, paired with ν(CH) at 2856/2850. Under D₂ it leaves the C-H region entirely, which is what shows it is a combination, and why the C-D window is the clean one for reading formate bond strengths."
         },
         {
           "id": 223,
@@ -5744,6 +6098,54 @@
           "technique": "drifts",
           "tags": [],
           "note": "Fig. 6a (30ZnHfOₓ, H₂ step, 320 °C, 20 bar): the weaker partner of the 2887 cm⁻¹ band, assigned in the paper as νₐₛ(C–H) of formate against νₛ(C–H) at 2887 cm⁻¹. Formate has a single C–H bond and so no symmetric and asymmetric pair; the atlas files this band as the δ(CH)+νₐₛ(OCO) combination its position matches, and the νₐₛ(C–H) label is the paper's."
+        },
+        {
+          "id": 426,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2929,
+            2931
+          ],
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S15 (H₂/D₂ switching, 10 bar) and S18 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of Cu/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. ν(C-O)+δ(C-H) of the Cu-bound formate at 2929 and 2931 cm⁻¹, in the same component as its ν(CH)."
+        },
+        {
+          "id": 427,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2923,
+            2929
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S16 (H₂/D₂ switching, 10 bar) and S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. ν(C-O)+δ(C-H) of the Cu-bound formate at 2923 cm⁻¹ in the switching experiment, the lowest of the four catalysts, and 2929 in the transient, where it sits in a component shared with the Ga³⁺ species."
+        },
+        {
+          "id": 428,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2937,
+            2933
+          ],
+          "measured_on": [
+            "cu_0",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S17 (H₂/D₂ switching, 10 bar) and S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. ν(C-O)+δ(C-H) of the Cu-bound formate at 2937 and 2933 cm⁻¹, the highest of the four catalysts."
         }
       ],
       "tags": []
@@ -5843,11 +6245,13 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2167, 2173, 2161, 2176, 2169],
-          "measured_on": "cu_0",
-          "note": "Fig. 5b (MCR-resolved, Cu–Zn/SiO₂ SSITKA, CO₂+D₂ ⇄ CO₂+H₂, 230 °C, 10 bar, D₂ or H₂/CO₂ = 3): κ²-DCOO*(Cu) at 2167 cm⁻¹. Per catalyst in the SI: Fig. S15 2161 cm⁻¹ (Cu/SiO₂), Fig. S16 2176 cm⁻¹ (Cu–Ga/SiO₂), Fig. S17 2169 cm⁻¹ (Cu–In/SiO₂). Fig. 6b plots those four points and uses 2173 cm⁻¹ for Cu–Zn/SiO₂ — the Gaussian-fitted centre of the overlapping Cu⁰ and Zn²⁺ components, not a separate species; across Cu/SiO₂ → Cu–In → Cu–Zn → Cu–Ga the ν(C–D) frequency rises monotonically and intrinsic CH₃OH selectivity rises linearly with it (R² > 0.99), making the position a quantitative selectivity descriptor. SI section 1.5.5 derives the expected ν(C–D)/ν(C–H) ratio of ≈0.734 from the harmonic-oscillator reduced masses and uses it to assign this region; Fig. S14 shows the exchange with κ²-HCOO* completes in under 1 min at both switches, so the kinetic isotope effect on formate hydrogenation is negligible.",
+          "wn": 2167,
+          "measured_on": [
+            "cu_0",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Fig. 5b (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C, under D₂/CO₂. κ²-DCOO* on Cu at 2167 cm⁻¹, beside the Zn²⁺-bound one at 2184. Fig. 6b uses 2173 for this catalyst, the Gaussian-fitted centre of the two overlapping components rather than either species. Across the four catalysts the authors find the ν(CD) rising with the intrinsic methanol selectivity, linearly (R² > 0.99), and use it as a selectivity descriptor; the exchange with κ²-HCOO* completes in under a minute."
         },
         {
           "id": 230,
@@ -5855,10 +6259,52 @@
           "medium": "gas",
           "form": "adsorbed",
           "wn": 2184,
-          "measured_on": "zn_2p",
+          "measured_on": [
+            "zn_2p",
+            "cuzn_sio2"
+          ],
           "note": "Fig. 5b (same MCR-resolved Cu–Zn/SiO₂ SSITKA experiment, 230 °C, 10 bar): κ²-DCOO*(Zn²⁺) at 2184 cm⁻¹, kinetically indistinguishable from κ²-DCOO*(Cu) at 2167 cm⁻¹ but spectrally separate — direct evidence that Zn²⁺ supplies a second, distinct Lewis-acid site for formate and simultaneously perturbs the formate on the adjacent Cu. Not resolved for Ga³⁺ or In³⁺ in this region (Figs. S16/S17), where the promoter-bound component overlaps κ²-DCOO*(Cu) or is too dilute at steady state.",
           "technique": "drifts",
           "tags": []
+        },
+        {
+          "id": 429,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2161,
+          "measured_on": [
+            "cu_0",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S15 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of Cu/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C, under D₂/CO₂. κ²-DCOO* on Cu at 2161 cm⁻¹, the lowest of the four catalysts and the low end of the selectivity line in Fig. 6b."
+        },
+        {
+          "id": 430,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2176,
+          "measured_on": [
+            "cu_0",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S16 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C, under D₂/CO₂. κ²-DCOO* on Cu at 2176 cm⁻¹, the highest of the four, matching the highest methanol selectivity. A Ga³⁺-bound formate is not resolved here and may lie under this band (main text, Section 2.5)."
+        },
+        {
+          "id": 431,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2169,
+          "measured_on": [
+            "cu_0",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S17 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C, under D₂/CO₂. κ²-DCOO* on Cu at 2169 cm⁻¹. No In³⁺-bound formate is resolved in this region."
         }
       ],
       "intensity": "s",
@@ -5978,12 +6424,15 @@
         {
           "id": 233,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 2929,
           "measured_on": "tio2",
-          "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Monodentate CH₃O* from CH₃OH dosing on anatase TiO₂. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 234,
@@ -6034,11 +6483,16 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2958, 2956, 2952],
-          "measured_on": "sio2",
-          "note": "Fig. 4a/4c (2958 cm⁻¹) and Fig. 7a (2956 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC; MCR-resolved per catalyst in the SI at Fig. S15 2956, Fig. S16 2958, Fig. S18 2952, Fig. S20 2958 cm⁻¹. Methoxy grafted to the silica support (Si-O-CH₃), not to Cu or to the promoter: it builds up slowly (visible only after ~90 min) and, unlike formate, exchanges on the minute-to-hour timescale under D₂. Fig. S14 splits it into a fast, reactive pool near the Cu/promoter interface and a slow (τ ≈ 1 h) spectator pool on remote silica sites — one band, two kinetically distinct populations. The reactive pool's hydrogenation/desorption is the rate-limiting step of the whole cycle (KIE = 2.78), which makes this band a rate proxy rather than a spectator.",
+          "wn": [
+            2958,
+            2956
+          ],
+          "measured_on": [
+            "sio2",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 4a and 4c (steady state, 10 bar), 5b (H₂/D₂ switching, 10 bar) and 7a (He+CO₂ against H₂+He, 20 bar): CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(CH₃) of methoxy on the silica at 2958 cm⁻¹, 2956 in the transient. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂. Fig. S14 splits it into a reactive pool near the Cu/Zn²⁺ interface and a slow spectator pool on remote silica; hydrogenating or desorbing the reactive pool is the rate-limiting step (KIE 2.78)."
         },
         {
           "id": 239,
@@ -6075,6 +6529,74 @@
           "form": "adsorbed",
           "tags": [],
           "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): νₐₛ(CH₃) of methoxy at 2927 cm⁻¹. The paper distinguishes two methoxy types that share this band and the 2822 cm⁻¹ one and differ only in the C–O stretch, 1150 for type I and 1049 for type II. Most of the methoxy is read as a spectator formed by methanol re-adsorbing on the zirconia, removed by hydrolysis with water rather than by reductive elimination."
+        },
+        {
+          "id": 432,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2956,
+            2952
+          ],
+          "measured_on": [
+            "sio2",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S15 (H₂/D₂ switching, 10 bar) and S18 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of Cu/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(CH₃) of methoxy on the silica at 2956 and 2952 cm⁻¹. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 433,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2958,
+          "measured_on": [
+            "sio2",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S16 (H₂/D₂ switching, 10 bar) and S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(CH₃) of methoxy on the silica at 2958 cm⁻¹ in both. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 434,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2956,
+          "measured_on": [
+            "sio2",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S17 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₐₛ(CH₃) of methoxy on the silica at 2956 cm⁻¹. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 440,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2919,
+          "measured_on": [
+            "ga_3p",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Methoxy on the Ga³⁺ sites, marked at 2919 cm⁻¹ inside a component MCR cannot separate from Cu- and Ga³⁺-bound formate and adsorbed methanol, all consumed quickly under H₂. The figure names the species but not the mode; filing it as the antisymmetric CH₃ stretch is this collection’s reading of the position."
+        },
+        {
+          "id": 441,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2935,
+          "measured_on": [
+            "in_3p",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Methoxy on the In³⁺ sites, marked at 2935 cm⁻¹ (with 2849) in the component shared with In³⁺-bound formate; unlike on Ga³⁺ it grows to a plateau under H₂ instead of being consumed. Filing 2935 as the antisymmetric CH₃ stretch is this collection’s reading of the position."
         }
       ],
       "intensity": "m",
@@ -6103,11 +6625,15 @@
         {
           "id": 242,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 2828,
           "measured_on": "tio2",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Methoxy CH₃ symmetric stretch on anatase TiO₂ from methanol dosing. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 243,
@@ -6158,11 +6684,16 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "wn": [2858, 2854, 2856, 2859],
-          "measured_on": "sio2",
-          "note": "Fig. 4a/4c (2858 cm⁻¹) and Fig. 7a (2854 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC; MCR-resolved per catalyst in the SI at Fig. S15 2856, Fig. S16 2858, Fig. S17 2856, Fig. S18 2859, Fig. S20 2858 cm⁻¹. Paired with νₐₛ(CH₃) at 2952–2958 cm⁻¹ in the same MCR component. Under D₂ this fundamental shifts cleanly to 2080 cm⁻¹ (CD₃O*), which is what allows methoxy to be separated from the formate combination band it otherwise overlaps in the C-H region.",
+          "wn": [
+            2858,
+            2854
+          ],
+          "measured_on": [
+            "sio2",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 4a and 4c (steady state, 10 bar), 5b (H₂/D₂ switching, 10 bar) and 7a (He+CO₂ against H₂+He, 20 bar): CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₛ(CH₃) of methoxy on the silica at 2858 cm⁻¹, 2854 in the transient, paired with νₐₛ at 2958/2956. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂. Under D₂ it moves to 2080 cm⁻¹ (CD₃O*), which separates it from the formate bands it otherwise overlaps."
         },
         {
           "id": 248,
@@ -6220,6 +6751,61 @@
           "form": "adsorbed",
           "tags": [],
           "note": "Fig. 1A and Table 1 (conditions as on the formate C–H stretch): νₛ(CH₃) of methoxy at 2822 cm⁻¹, shared by both methoxy types the paper distinguishes, which differ only in the C–O stretch. It sits 18 cm⁻¹ below the 2840 cm⁻¹ C–H stretch of the copper-bound formate, which is why the methoxy contribution had to be subtracted before that formate could be integrated (Figs. S3A and S3C)."
+        },
+        {
+          "id": 435,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": [
+            2856,
+            2859
+          ],
+          "measured_on": [
+            "sio2",
+            "cu_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S15 (H₂/D₂ switching, 10 bar) and S18 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of Cu/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₛ(CH₃) of methoxy on the silica at 2856 and 2859 cm⁻¹. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 436,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2858,
+          "measured_on": [
+            "sio2",
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Figs. S16 (H₂/D₂ switching, 10 bar) and S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₛ(CH₃) of methoxy on the silica at 2858 cm⁻¹ in both. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 437,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2856,
+          "measured_on": [
+            "sio2",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S17 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. νₛ(CH₃) of methoxy on the silica at 2856 cm⁻¹. Methoxy grafted to the silica (Si-O-CH₃), not to Cu or the promoter: it builds up slowly and exchanges over minutes to hours under D₂."
+        },
+        {
+          "id": 442,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2849,
+          "measured_on": [
+            "in_3p",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S19 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Methoxy on the In³⁺ sites, marked at 2849 cm⁻¹ (with 2935) in the component shared with In³⁺-bound formate. Filing 2849 as the symmetric CH₃ stretch is this collection’s reading of the position."
         }
       ],
       "intensity": "m",
@@ -6248,12 +6834,15 @@
         {
           "id": 253,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 1441,
           "measured_on": "tio2",
-          "note": "Table 1, methanol dosed on TiO₂ (Degussa P25, 70% anatase and 30% rutile, ~50 m² g⁻¹) as a powder film on a tungsten mesh, measured in transmission through CaF₂ windows. Labelled δa(CH₃) there, an antisymmetric deformation, where this atlas carries the 1430–1458 cm⁻¹ region as the symmetric one; filed here on position, since the paper's own asymmetric-deformation band for methoxy would sit far lower. The disagreement is over the label, not the number.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Table 1, methanol dosed on TiO₂ (Degussa P25, 70% anatase and 30% rutile, ~50 m² g⁻¹) as a powder film on a tungsten mesh, measured in transmission through CaF₂ windows. Labelled δa(CH₃) there, an antisymmetric deformation, where this atlas carries the 1430–1458 cm⁻¹ region as the symmetric one; filed here on position, since the paper's own asymmetric-deformation band for methoxy would sit far lower. The disagreement is over the label, not the number. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 254,
@@ -6332,12 +6921,15 @@
         {
           "id": 256,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 1126,
           "measured_on": "tio2",
-          "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Sub-components at 1100/1126/1156 cm⁻¹ reflecting a distribution of monodentate sites; dominates over bidentate ~3:1 by integrated area; ~1.5× higher photoreactivity toward HCOO* than bidentate. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 257,
@@ -6417,12 +7009,15 @@
         {
           "id": 261,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 1045,
           "measured_on": "tio2",
-          "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Similar thermal stability to monodentate (no interconversion ≤ 300 °C); ~1.5× lower photoreactivity toward HCOO* than monodentate. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 262,
@@ -6497,10 +7092,15 @@
           "medium": "gas",
           "form": "adsorbed",
           "wn": 2080,
-          "measured_on": "sio2",
-          "note": "Fig. 5b/5c (MCR-resolved, Cu–Zn/SiO₂ SSITKA, CO₂+D₂ ⇄ CO₂+H₂, 230 °C, 10 bar): CD₃O* on silica at 2080 cm⁻¹, and at exactly the same position on the other three catalysts (SI Figs. S15/S16/S17) — unshifted by the promoter, consistent with methoxy sitting on the silica support rather than at the Cu–promoter interface. Unlike formate, this exchanges slowly, and its concentration profile — not the formate's — tracks the delayed appearance of gas-phase methanol, which is the observation that identifies methoxy hydrogenation/desorption as the rate-limiting step. Fig. S14c/d resolves the decay into a fast reactive pool (τ ≈ 1–6 min) and a slow spectator pool (τ ≈ 55–98 min); Fig. S12 is the linearised fit behind the KIE of 2.78. The asymmetric νₐₛ(C–D) partner is expected near 2160 cm⁻¹ and is not resolved, being buried under κ²-DCOO*.",
+          "measured_on": [
+            "sio2",
+            "cu_sio2",
+            "cuzn_sio2",
+            "cuga_sio2_somc",
+            "cuin_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 5b and 5c and S15 to S17 (H₂/D₂ switching, 10 bar), 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C, under D₂/CO₂: CD₃O* on the silica at 2080 cm⁻¹ on all four catalysts, unshifted by the promoter, which is one row because the position is the same on every sample. Its concentration profile, not the formate’s, tracks the delayed methanol, the observation that makes methoxy hydrogenation or desorption rate-limiting (KIE 2.78, Fig. S12). The νₐₛ(CD) partner, expected near 2160, is hidden under κ²-DCOO*."
         }
       ],
       "intensity": "m",
@@ -7195,11 +7795,41 @@
           "key": "Phongprueksathat.KeyDriversActivity.2026",
           "medium": "gas",
           "form": "adsorbed",
-          "measured_on": "sio2",
-          "wn": [2985, 2994, 2996],
-          "note": "Fig. 4a/4c (2985 cm⁻¹; the main text quotes 2981 cm⁻¹ for the same feature) and Fig. 5b (2994 cm⁻¹) — operando DRIFTS, 230 °C, 10–20 bar, H₂/CO₂ = 3, Cu–M/SiO₂ from SOMC. In the SI, Fig. S17 gives 2996 cm⁻¹ (Cu–In/SiO₂) and Fig. S20 2994 cm⁻¹ (Cu–Ga/SiO₂, labelled explicitly as adsorbed methanol inside a component non-separable from κ²-HCOO*(Ga³⁺) and CH₃O*(Ga³⁺)); Table S1 quotes 2996 cm⁻¹. Assigned there as νₐₛ(C–H) of molecularly adsorbed CH₃OH*, filed under this band on position rather than on that label, since gas-phase methanol's own ν₂/ν₉ assignment in this region is resonance-mixed (see νₐₛ(CH₂) MeOH below). Builds up only after ~90 min, and its delay relative to the mass-spectrometer CH₃OH signal is read as product methanol being re-adsorbed on silica rather than desorbing straight out.",
+          "wn": [
+            2985,
+            2994
+          ],
+          "measured_on": [
+            "sio2",
+            "cuzn_sio2"
+          ],
           "technique": "drifts",
-          "tags": []
+          "note": "Figs. 4a and 4c (steady state, 10 bar; the main text quotes 2981) and 5b (H₂/D₂ switching, 10 bar): CuZn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Molecularly adsorbed methanol at 2985 and 2994 cm⁻¹, building up after about 90 min; its delay behind the gas-phase methanol signal is read as product methanol re-adsorbing on the silica. Filed on this band on position, since methanol’s own assignment in this region is resonance-mixed."
+        },
+        {
+          "id": 438,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2994,
+          "measured_on": [
+            "cuga_sio2_somc"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S20 (He+CO₂ against H₂+He, 20 bar): MCR-resolved spectra of CuGa/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Adsorbed methanol, labelled as such, at 2994 cm⁻¹ inside the component MCR cannot separate from Cu- and Ga³⁺-bound formate and Ga³⁺ methoxy. The paper names no site for it, so only the catalyst is recorded."
+        },
+        {
+          "id": 439,
+          "key": "Phongprueksathat.KeyDriversActivity.2026",
+          "medium": "gas",
+          "form": "adsorbed",
+          "wn": 2996,
+          "measured_on": [
+            "sio2",
+            "cuin_sio2"
+          ],
+          "technique": "drifts",
+          "note": "Fig. S17 (H₂/D₂ switching, 10 bar): MCR-resolved spectra of CuIn/SiO₂, 230 °C, H₂/CO₂ = 3, 10 NmL min⁻¹, after H₂ at 300 °C. Adsorbed methanol at 2996 cm⁻¹ (Table S1 gives the same value), in the component of methoxy on the silica."
         }
       ],
       "intensity": "w",
@@ -7227,12 +7857,15 @@
         {
           "id": 294,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 2948,
           "measured_on": "tio2",
-          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with its νₛ(CH₃) partner, leaving methoxy on the surface. It sits inside the free molecule's own multiplet for this mode, which is why the two are carried as one band here.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with its νₛ(CH₃) partner, leaving methoxy on the surface. It sits inside the free molecule's own multiplet for this mode, which is why the two are carried as one band here. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 295,
@@ -7292,12 +7925,15 @@
         {
           "id": 298,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "wn": 2844,
           "measured_on": "tio2",
-          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with the νₐₛ(CH₂) partner, leaving methoxy on the surface. The position falls inside the gas-phase Q branch of the same mode, which is why the two are carried as one band here.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Methanol dosed on TiO₂, so this is the adsorbed molecule and not the gas: it is removed by evacuation at 200 °C together with the νₐₛ(CH₂) partner, leaving methoxy on the surface. The position falls inside the gas-phase Q branch of the same mode, which is why the two are carried as one band here. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 299,
@@ -7806,11 +8442,14 @@
         {
           "id": 324,
           "key": "Wu.BondingGeometryReactivity.2000",
+          "medium": "vacuum",
           "form": "adsorbed",
-          "technique": "transmission",
           "measured_on": "tio2",
-          "note": "Methanol dosed on TiO₂ at 35 °C, where CH₃OH* and CH₃O* coexist. The paper places both species' C-O stretches in the 1000–1200 cm⁻¹ region but resolves a position only for the methoxy pair (1045 and 1126 cm⁻¹), so no wavenumber is recorded for methanol here. Kept as a claim because the coexistence is the paper's own argument for why this region cannot be read as one species.",
-          "tags": ["direct-dosing"]
+          "technique": "transmission",
+          "tags": [
+            "direct-dosing"
+          ],
+          "note": "Methanol dosed on TiO₂ at 35 °C, where CH₃OH* and CH₃O* coexist. The paper places both species' C-O stretches in the 1000–1200 cm⁻¹ region but resolves a position only for the methoxy pair (1045 and 1126 cm⁻¹), so no wavenumber is recorded for methanol here. Kept as a claim because the coexistence is the paper's own argument for why this region cannot be read as one species. Measured after dosing 2 Torr of methanol and evacuating the cell (base pressure 1 × 10⁻⁷ Torr), the spectrum recorded at 35 °C."
         },
         {
           "id": 325,
@@ -7998,13 +8637,14 @@
         },
         {
           "id": 332,
-          "form": "surface",
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "medium": "gas",
+          "form": "surface",
           "wn": 3450,
           "measured_on": "ga2o3",
           "technique": "transmission",
           "tags": [],
-          "note": "Fig. S4 (as-prepared precipitated Ga₂O₃, captioned “FTIR spectrum of Ga₂O₃ sample referenced to KBr”, so a transmission measurement, unlike the in-situ work of the paper, which is DRIFTS in a Harrick chamber reported in Kubelka-Munk units): a broad hydroxyl envelope centred near 3450 cm⁻¹, with an OH bend marked near 1640 cm⁻¹. This is the oxide before any H₂ treatment, and the paper uses it to argue that the surface already carries a substantial hydroxyl coverage, so the sharp 3685 and 3532 cm⁻¹ pair grown under H₂ at 450 °C is a small addition to an already hydroxylated surface. Both numbers are approximate in the figure's own labels."
+          "note": "Fig. S4 (as-prepared precipitated Ga₂O₃, captioned “FTIR spectrum of Ga₂O₃ sample referenced to KBr”, so a transmission measurement, unlike the in-situ work of the paper, which is DRIFTS in a Harrick chamber reported in Kubelka-Munk units): a broad hydroxyl envelope centred near 3450 cm⁻¹, with an OH bend marked near 1640 cm⁻¹. This is the oxide before any H₂ treatment, and the paper uses it to argue that the surface already carries a substantial hydroxyl coverage, so the sharp 3685 and 3532 cm⁻¹ pair grown under H₂ at 450 °C is a small addition to an already hydroxylated surface. Both numbers are approximate in the figure's own labels. The paper does not state the atmosphere; an ex-situ spectrum of the as-prepared powder is taken in air, which is this collection’s assumption."
         },
         {
           "id": 333,
@@ -8534,13 +9174,21 @@
         {
           "id": 353,
           "key": "Feng.GenerationSurfaceGaH.2024",
+          "medium": "gas",
           "form": "lattice",
-          "wn": [213, 283, 325, 426, 573, 685],
+          "wn": [
+            213,
+            283,
+            325,
+            426,
+            573,
+            685
+          ],
           "measured_on": "ga2o3",
           "technique": "raman",
           "laser_nm": 320,
           "tags": [],
-          "note": "Fig. S2 (as-prepared precipitated Ga₂O₃, home-assembled Raman spectrograph, 320 nm excitation): six lines at 213, 283, 325, 426, 573 and 685 cm⁻¹, read from the figure's own labels. The paper assigns none of them individually. Raman is used only alongside XRD (Fig. S1) to confirm the structure of the precipitated solid before any H₂ treatment, so what is recorded here is the pattern as a whole rather than six mode assignments. It is worth carrying because it fixes the identity of the support whose hydroxyls and Ga-H hydrides appear elsewhere in the atlas, measured on this same material."
+          "note": "Fig. S2 (as-prepared precipitated Ga₂O₃, home-assembled Raman spectrograph, 320 nm excitation): six lines at 213, 283, 325, 426, 573 and 685 cm⁻¹, read from the figure's own labels. The paper assigns none of them individually. Raman is used only alongside XRD (Fig. S1) to confirm the structure of the precipitated solid before any H₂ treatment, so what is recorded here is the pattern as a whole rather than six mode assignments. It is worth carrying because it fixes the identity of the support whose hydroxyls and Ga-H hydrides appear elsewhere in the atlas, measured on this same material. The paper does not state the atmosphere; an ex-situ spectrum of the as-prepared powder is taken in air, which is this collection’s assumption."
         }
       ],
       "intensity": "s",
@@ -9269,9 +9917,11 @@
         {
           "id": 374,
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "medium": "gas",
+          "form": "free",
           "technique": "computational",
-          "note": "Fig. 8, a simulated 30 atm spectrum rather than a measurement: the measured spectrum in Fig. 6 is labelled only S(2) to S(9), so this line is carried on the calculation alone. It is the line the paper says is completely overwhelmed by the N₂ Q branch, and an intensity-ratio correction is proposed for exactly that; the integration window given is 602.3 to 609.2 nm. The line separation across the branch is about 180 cm⁻¹.",
-          "tags": []
+          "tags": [],
+          "note": "Fig. 8, a simulated 30 atm spectrum rather than a measurement: the measured spectrum in Fig. 6 is labelled only S(2) to S(9), so this line is carried on the calculation alone. It is the line the paper says is completely overwhelmed by the N₂ Q branch, and an intensity-ratio correction is proposed for exactly that; the integration window given is 602.3 to 609.2 nm. The line separation across the branch is about 180 cm⁻¹. The simulation is of the gas mixture at 30 atm."
         }
       ],
       "intensity": "w",
@@ -9301,9 +9951,11 @@
         {
           "id": 375,
           "key": "Kojima.QuantitativeAnalysisSpectral.2005",
+          "medium": "gas",
+          "form": "free",
           "technique": "computational",
-          "note": "Fig. 8, a simulated 30 atm spectrum rather than a measurement: the measured spectrum in Fig. 6 is labelled only S(2) to S(9), so this line is carried on the calculation alone. It overlaps the red-side tail of the N₂ S branch. The line separation across the branch is about 180 cm⁻¹.",
-          "tags": []
+          "tags": [],
+          "note": "Fig. 8, a simulated 30 atm spectrum rather than a measurement: the measured spectrum in Fig. 6 is labelled only S(2) to S(9), so this line is carried on the calculation alone. It overlaps the red-side tail of the N₂ S branch. The line separation across the branch is about 180 cm⁻¹. The simulation is of the gas mixture at 30 atm."
         }
       ],
       "intensity": "w",
@@ -9340,10 +9992,12 @@
         {
           "id": 377,
           "key": "Corral-Perez.DecisiveRolePerimeter.2018",
+          "medium": "vacuum",
+          "form": "adsorbed",
           "wn": 1669,
           "technique": "computational",
           "tags": [],
-          "note": "Table S5 (PBE-D″/plane-wave, PHONON package): ν₅, the C=O stretch of H₂CO₃ adsorbed as O(top)+H(bridge) on Ag(111), calculated at 1669 cm⁻¹ against the 1688 cm⁻¹ observed. The same table puts free H₂CO₃ at 1748 cm⁻¹, so adsorption is calculated to pull the stretch down by about 80 cm⁻¹. A caveat on the comparison: the frequency is computed on the metal, while the band is assigned to carbonic acid on the silica, whose stabilisation the paper treats separately in Table S3."
+          "note": "Table S5 (PBE-D″/plane-wave, PHONON package): ν₅, the C=O stretch of H₂CO₃ adsorbed as O(top)+H(bridge) on Ag(111), calculated at 1669 cm⁻¹ against the 1688 cm⁻¹ observed. The same table puts free H₂CO₃ at 1748 cm⁻¹, so adsorption is calculated to pull the stretch down by about 80 cm⁻¹. A caveat on the comparison: the frequency is computed on the metal, while the band is assigned to carbonic acid on the silica, whose stabilisation the paper treats separately in Table S3. A periodic Ag(111) slab in vacuum."
         }
       ],
       "intensity": "m",
