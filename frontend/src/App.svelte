@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import type { Dataset, ColorDim, AxisProperty, RefMap, Vibrations, Spectroscopy } from './lib/types';
   import { AXES, DEFAULT_LASER_WN } from './lib/units';
-  import { getLegendCategories, getLegendTags, isReferenced, UNRECORDED_STATE, type BandStateMode, type ClaimFilter } from './lib/chart';
+  import { getLegendCategories, getLegendTags, isReferenced, UNRECORDED, type BandStateMode, type ClaimFilter } from './lib/chart';
   import { installLookups } from './lib/labels';
   import { tagRole } from './lib/dataModel';
   import { widthClass, PRESENTATION, type WidthClass } from './lib/tokens';
@@ -493,12 +493,19 @@
     if (tag === 'raman') return [...RAMAN_TECHNIQUES];
     return [tag];
   }
-  /* The phase chips the same way: a state chip (gas, liquid, matrix, solid,
-     adsorbed) is the Phases section by another way in, so a click stops the
-     claims made in that state counting rather than hiding every band that
-     has one. The other phase-role tags (undissociated, frustrated-mode) are
-     not states and stay ordinary band filters. */
-  const isStateTag = (tag: string) => (CLAIM_STATES as readonly string[]).includes(tag);
+  /* The phase chips the same way: a form chip (free, dissolved, adsorbed,
+     surface, lattice) or a medium chip (in vacuum, in gas, in liquid, in
+     matrix) is the Phases section by another way in, so a click stops those
+     claims counting rather than hiding every band that has one. The other
+     phase-role tags (undissociated, frustrated-mode) describe the band, not
+     a claim, and stay ordinary band filters. */
+  function phaseOfTag(tag: string): { part: PhasePart; key: string } | null {
+    for (const part of PHASE_PARTS) {
+      const row = part.rows.find(r => r.tag === tag);
+      if (row) return { part: part.key, key: row.key };
+    }
+    return null;
+  }
 
   function handleTagToggle(e: CustomEvent<{ tag: string; visible: boolean }>) {
     const members = techniqueMembers(e.detail.tag);
@@ -508,10 +515,11 @@
       excludedTechniques = next;
       return;
     }
-    if (isStateTag(e.detail.tag)) {
-      const next = new Set(excludedStates);
-      if (e.detail.visible) next.delete(e.detail.tag); else next.add(e.detail.tag);
-      excludedStates = next;
+    const ph = phaseOfTag(e.detail.tag);
+    if (ph) {
+      const next = new Set(excludedPhase[ph.part]);
+      if (e.detail.visible) next.delete(ph.key); else next.add(ph.key);
+      excludedPhase = { ...excludedPhase, [ph.part]: next };
       return;
     }
     // A single click always exits isolate mode first and applies the
@@ -538,17 +546,12 @@
   function handleTagDblClick(e: CustomEvent<{ tag: string }>) {
     const members = techniqueMembers(e.detail.tag);
     if (members) {
-      // Count only this one; a second double-click counts everything again.
-      const others = ALL_TECHNIQUES.filter(t => !members.includes(t));
-      const isolated = others.every(t => excludedTechniques.has(t))
-        && members.every(t => !excludedTechniques.has(t));
-      excludedTechniques = isolated ? new Set() : new Set(others);
+      onlyTechniques(members);
       return;
     }
-    if (isStateTag(e.detail.tag)) {
-      const others = PHASE_ROWS.map(r => r.key).filter(k => k !== e.detail.tag);
-      const isolated = others.every(k => excludedStates.has(k)) && !excludedStates.has(e.detail.tag);
-      excludedStates = isolated ? new Set() : new Set(others);
+    const ph = phaseOfTag(e.detail.tag);
+    if (ph) {
+      onlyPhase(ph.part, [ph.key]);
       return;
     }
     tagIsolate = tagIsolate === e.detail.tag ? null : e.detail.tag;
@@ -557,13 +560,14 @@
 
   /* What the legend draws as off: the band filter's own hidden tags, plus
      every technique chip whose techniques are all switched off and every
-     phase chip whose state is. */
+     form or medium chip that is. */
   $: legendHiddenTags = (() => {
     const off = new Set(hiddenTags);
     for (const t of legendTags) {
       const members = techniqueMembers(t.key);
       if (members?.every(m => excludedTechniques.has(m))) off.add(t.key);
-      if (isStateTag(t.key) && excludedStates.has(t.key)) off.add(t.key);
+      const ph = phaseOfTag(t.key);
+      if (ph && excludedPhase[ph.part].has(ph.key)) off.add(t.key);
     }
     return off;
   })();
@@ -708,36 +712,90 @@
   /* Both families are offered in either view, each under a switch of its
      own, and the calculations after them, in the References page's order. */
   const CHART_FAMILIES: { key: string; label: string; title: string; members: readonly string[] }[] = [
-    { key: 'infrared', label: 'IR', title: 'Infrared, every sampling geometry at once', members: IR_TECHNIQUES },
-    { key: 'raman', label: 'Raman', title: 'Raman, every kind at once', members: RAMAN_TECHNIQUES },
+    { key: 'infrared', label: 'IR', title: 'Absorption of infrared light by vibrations that change the dipole moment.', members: IR_TECHNIQUES },
+    { key: 'raman', label: 'Raman', title: 'Inelastic scattering of laser light by vibrations that change the polarizability.', members: RAMAN_TECHNIQUES },
   ];
+  /* What each technique is, in one sentence: the tooltip on its row. */
+  const TECHNIQUE_TIP: Record<string, string> = {
+    infrared: 'An infrared measurement whose sampling geometry the source does not name.',
+    drifts: 'Infrared light scattered back from a powder bed (diffuse reflectance).',
+    transmission: 'Infrared light passed straight through a thin wafer or a gas cell.',
+    atr: 'Infrared light totally reflected inside a crystal, probing the sample pressed against it.',
+    irras: 'Infrared light reflected at grazing incidence off a flat, usually metal, surface.',
+    pm_irras: 'Grazing-incidence reflection with the polarisation switched to cancel the gas background.',
+    seiras: 'Infrared absorption enhanced by a thin metal-film electrode, read through an ATR prism.',
+    emission: 'Infrared light emitted by the hot sample itself.',
+    raman: 'Raman scattering whose kind the source does not name.',
+    srs: 'Laser light scattered inelastically by the sample on its own (spontaneous Raman).',
+    computational: 'A frequency calculated rather than measured.',
+  };
   const familyOn = (members: readonly string[], excluded: ReadonlySet<string>) =>
     members.filter(t => !excluded.has(t)).length;
   $: countedTechniques = ALL_TECHNIQUES.filter(t => !excludedTechniques.has(t)).length;
   let showTechniques = false;
 
-  // The second half of "which claims count": the state the sample was held
-  // in for each claim (the Phases section). A set of the excluded, like the
-  // techniques, empty by default; claims that record no state are keyed
-  // under UNRECORDED_STATE so they can be switched off as a group too.
-  const CLAIM_STATES = ['gas', 'liquid', 'matrix', 'solid', 'adsorbed'] as const;
-  const PHASE_ROWS: { key: string; label: string; title: string }[] = [
-    { key: 'gas', label: 'Gas', title: 'Measured as a vapour, the free molecule rotating' },
-    { key: 'liquid', label: 'Liquid', title: 'Measured in a liquid: the bulk liquid, or a species in solution such as an electrolyte' },
-    { key: 'matrix', label: 'Matrix', title: 'Isolated in a frozen noble-gas matrix: the free molecule with its rotation quenched' },
-    { key: 'solid', label: 'Solid', title: 'The bulk solid substance itself' },
-    { key: 'adsorbed', label: 'Adsorbed', title: 'Held on a surface: a catalyst, a support, an electrode' },
-    { key: UNRECORDED_STATE, label: 'Not recorded', title: 'Claims that record no state, every calculation among them' },
+  // The second half of "which claims count": how the sample was held for
+  // each claim (the Phases section), in two parts that combine. The form is
+  // where the species was, the medium what surrounded it, so "adsorbed" with
+  // only "liquid" left on is the electrochemistry. Sets of the excluded, like
+  // the techniques, empty by default; a claim that records neither is keyed
+  // under UNRECORDED so it can be switched off as a group too.
+  type PhasePart = 'form' | 'medium';
+  type PhaseRow = { key: string; label: string; title: string; tag: string | null };
+  const PHASE_PARTS: { key: PhasePart; label: string; rows: PhaseRow[] }[] = [
+    { key: 'form', label: 'Form', rows: [
+      { key: 'free', tag: 'free', label: 'Free', title: 'The molecule on its own: a gas, the liquid itself, or isolated in a matrix.' },
+      { key: 'dissolved', tag: 'dissolved', label: 'Dissolved', title: 'A solute in a liquid.' },
+      { key: 'adsorbed', tag: 'adsorbed', label: 'Adsorbed', title: 'Held on a surface.' },
+      { key: 'surface', tag: 'surface', label: 'Surface group', title: 'A group belonging to the solid, such as a hydroxyl or a hydride.' },
+      { key: 'lattice', tag: 'lattice', label: 'Lattice', title: 'A vibration or a defect of the solid itself.' },
+      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No form recorded, which is true of every calculation.' },
+    ] },
+    { key: 'medium', label: 'Medium', rows: [
+      { key: 'vacuum', tag: 'in vacuum', label: 'Vacuum', title: 'An evacuated or ultra-high-vacuum cell with no gas let in.' },
+      { key: 'gas', tag: 'in gas', label: 'Gas', title: 'A gas atmosphere, from a fraction of a mbar of dosed gas to a flowing feed at pressure.' },
+      { key: 'liquid', tag: 'in liquid', label: 'Liquid', title: 'A liquid or an electrolyte.' },
+      { key: 'matrix', tag: 'in matrix', label: 'Matrix', title: 'A frozen noble gas the molecule is isolated in.' },
+      { key: UNRECORDED, tag: null, label: 'Not recorded', title: 'No medium recorded, which is true of every calculation and of papers that do not say.' },
+    ] },
   ];
-  let excludedStates: ReadonlySet<string> = new Set();
+  let excludedPhase: Record<PhasePart, ReadonlySet<string>> = { form: new Set(), medium: new Set() };
   let showPhases = false;
-  $: countedPhases = PHASE_ROWS.filter(r => !excludedStates.has(r.key)).length;
-  function toggleChartState(key: string) {
-    const next = new Set(excludedStates);
+  $: countedPhases = PHASE_PARTS.reduce((n, part) => n + part.rows.filter(r => !excludedPhase[part.key].has(r.key)).length, 0);
+  const PHASE_ROW_COUNT = PHASE_PARTS.reduce((n, part) => n + part.rows.length, 0);
+  function togglePhase(part: PhasePart, key: string) {
+    const next = new Set(excludedPhase[part]);
     if (next.has(key)) next.delete(key); else next.add(key);
-    excludedStates = next;
+    excludedPhase = { ...excludedPhase, [part]: next };
   }
-  $: claimFilter = { techniques: excludedTechniques, states: excludedStates } as ClaimFilter;
+  /* Double-click a row, a family or a legend chip to count only that, the
+     way a double-click isolates a tag in the legend; a second double-click
+     on the same thing counts everything again. */
+  function isolate(all: readonly string[], keep: readonly string[], excluded: ReadonlySet<string>): ReadonlySet<string> {
+    const others = all.filter(k => !keep.includes(k));
+    const already = others.every(k => excluded.has(k)) && keep.every(k => !excluded.has(k));
+    return already ? new Set() : new Set(others);
+  }
+  function onlyTechniques(keep: readonly string[]) {
+    excludedTechniques = isolate(ALL_TECHNIQUES, keep, excludedTechniques);
+  }
+  function onlyPhase(part: PhasePart, keep: readonly string[]) {
+    const all = PHASE_PARTS.find(p => p.key === part)!.rows.map(r => r.key);
+    excludedPhase = { ...excludedPhase, [part]: isolate(all, keep, excludedPhase[part]) };
+  }
+  /* A native button fires click, click, then dblclick for one double-click,
+     so the single click is held back long enough to be cancelled, as the tag
+     legend does (TagLegend.svelte). */
+  let pendingRowClick: ReturnType<typeof setTimeout> | null = null;
+  function rowClick(fn: () => void) {
+    if (pendingRowClick) clearTimeout(pendingRowClick);
+    pendingRowClick = setTimeout(() => { pendingRowClick = null; fn(); }, 280);
+  }
+  function rowDblClick(fn: () => void) {
+    if (pendingRowClick) { clearTimeout(pendingRowClick); pendingRowClick = null; }
+    fn();
+  }
+  $: claimFilter = { techniques: excludedTechniques, forms: excludedPhase.form, media: excludedPhase.medium } as ClaimFilter;
   function toggleChartTechnique(key: string) {
     const next = new Set(excludedTechniques);
     if (next.has(key)) next.delete(key); else next.add(key);
@@ -794,14 +852,13 @@
     }
     return counts;
   })();
-  /** How many bands in the enabled groups have a claim in each state. */
-  $: stateCounts = (() => {
-    const counts: Record<string, number> = {};
+  /** How many bands in the enabled groups have a claim in each form and medium. */
+  $: phaseCounts = (() => {
+    const counts: Record<PhasePart, Record<string, number>> = { form: {}, medium: {} };
     for (const b of baseBands) {
       if (!enabledGroups.has(b.group)) continue;
-      for (const st of new Set(b.references.map(r => r.state || UNRECORDED_STATE))) {
-        counts[st] = (counts[st] ?? 0) + 1;
-      }
+      for (const f of new Set(b.references.map(r => r.form || UNRECORDED))) counts.form[f] = (counts.form[f] ?? 0) + 1;
+      for (const m of new Set(b.references.map(r => r.medium || UNRECORDED))) counts.medium[m] = (counts.medium[m] ?? 0) + 1;
     }
     return counts;
   })();
@@ -999,18 +1056,25 @@
                   {#each CHART_FAMILIES as fam (fam.key)}
                     {@const on = familyOn(fam.members, excludedTechniques)}
                     <button class="fly-item" class:fly-on={on > 0}
-                      on:click={() => toggleChartFamily(fam.members)}
+                      on:click={() => rowClick(() => toggleChartFamily(fam.members))}
+                      on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
                     ><span class="fly-box" class:on={on > 0}></span>{fam.label} ({on} / {fam.members.length})</button>
                   {/each}
                   <button class="fly-item" class:fly-on={!excludedTechniques.has('computational')}
-                    on:click={() => toggleChartTechnique('computational')}
+                    on:click={() => rowClick(() => toggleChartTechnique('computational'))}
+                    on:dblclick={() => rowDblClick(() => onlyTechniques(['computational']))}
                   ><span class="fly-box" class:on={!excludedTechniques.has('computational')}></span>computational</button>
                   <div class="fly-rule"></div>
                   <div class="fly-title">Phases</div>
-                  {#each PHASE_ROWS as ph (ph.key)}
-                    <button class="fly-item" class:fly-on={!excludedStates.has(ph.key)}
-                      on:click={() => toggleChartState(ph.key)}
-                    ><span class="fly-box" class:on={!excludedStates.has(ph.key)}></span>{ph.label.toLowerCase()}</button>
+                  {#each PHASE_PARTS as part (part.key)}
+                    <div class="fly-note">{part.label.toLowerCase()}</div>
+                    {#each part.rows as ph (ph.key)}
+                      <button class="fly-item" class:fly-on={!excludedPhase[part.key].has(ph.key)}
+                        title={ph.title}
+                        on:click={() => rowClick(() => togglePhase(part.key, ph.key))}
+                        on:dblclick={() => rowDblClick(() => onlyPhase(part.key, [ph.key]))}
+                      ><span class="fly-box" class:on={!excludedPhase[part.key].has(ph.key)}></span>{ph.label.toLowerCase()}</button>
+                    {/each}
                   {/each}
                   <div class="fly-rule"></div>
                   <div class="fly-title">Band States</div>
@@ -1151,7 +1215,8 @@
                   class:off={on === 0}
                   aria-pressed={on > 0}
                   title={fam.title}
-                  on:click={() => toggleChartFamily(fam.members)}
+                  on:click={() => rowClick(() => toggleChartFamily(fam.members))}
+                      on:dblclick={() => rowDblClick(() => onlyTechniques(fam.members))}
                 >
                   <span class="inc-label">{fam.label}</span>
                   <span class="count">{on} / {fam.members.length}</span>
@@ -1161,10 +1226,9 @@
                     class="include-row tech-row tech-child"
                     class:off={excludedTechniques.has(t)}
                     aria-pressed={!excludedTechniques.has(t)}
-                    title={excludedTechniques.has(t)
-                      ? `Count the ${TECHNIQUE_LABEL[t]} claims again`
-                      : `Stop counting the ${TECHNIQUE_LABEL[t]} claims: they grey out in the card, and a band left with no other claim is unreferenced`}
-                    on:click={() => toggleChartTechnique(t)}
+                    title={TECHNIQUE_TIP[t] ?? TECHNIQUE_LABEL[t]}
+                    on:click={() => rowClick(() => toggleChartTechnique(t))}
+                    on:dblclick={() => rowDblClick(() => onlyTechniques([t]))}
                   ><span class="inc-label">{TECHNIQUE_LABEL[t]}</span>
                     <span class="count">{techniqueCounts[t] ?? 0}</span>
                   </button>
@@ -1174,10 +1238,9 @@
                   class="include-row tech-row"
                   class:off={excludedTechniques.has('computational')}
                   aria-pressed={!excludedTechniques.has('computational')}
-                  title={excludedTechniques.has('computational')
-                    ? 'Count calculations as evidence again'
-                    : 'Stop counting calculations: only what came off an instrument stands, and a band resting on a calculation alone is unreferenced'}
-                  on:click={() => toggleChartTechnique('computational')}
+                  title={TECHNIQUE_TIP.computational}
+                  on:click={() => rowClick(() => toggleChartTechnique('computational'))}
+                    on:dblclick={() => rowDblClick(() => onlyTechniques(['computational']))}
                 ><span class="inc-label">{TECHNIQUE_LABEL.computational}</span>
                   <span class="count">{techniqueCounts.computational ?? 0}</span>
                 </button>
@@ -1188,11 +1251,12 @@
           <hr class="divider" />
 
           <section>
-            <!-- The other half of which claims count: the state the sample
-                 was held in for each claim, the same field the legend's
-                 phase chips come from. Switched off, a phase's claims grey
-                 out in the card like an excluded technique's, and a band
-                 left with none counts as unreferenced. -->
+            <!-- The other half of which claims count: how the sample was
+                 held for each claim, as two lists that combine. Form is where
+                 the species was, medium what surrounded it, the same two
+                 fields the legend's phase chips come from. Switched off, a
+                 claim greys out in the card like an excluded technique's, and
+                 a band left with none counts as unreferenced. -->
             <h3>Phases</h3>
             <button
               class="disclosure"
@@ -1201,22 +1265,24 @@
             >
               <span class="caret">{showPhases ? '▾' : '▸'}</span>
               Counted
-              <span class="count">{countedPhases} / {PHASE_ROWS.length}</span>
+              <span class="count">{countedPhases} / {PHASE_ROW_COUNT}</span>
             </button>
             {#if showPhases}
               <div class="tech-filter">
-                {#each PHASE_ROWS as ph (ph.key)}
-                  <button
-                    class="include-row tech-row"
-                    class:off={excludedStates.has(ph.key)}
-                    aria-pressed={!excludedStates.has(ph.key)}
-                    title={excludedStates.has(ph.key)
-                      ? `Count the claims in this phase again (${ph.title.toLowerCase()})`
-                      : `${ph.title}. Click to stop counting these claims: they grey out in the card, and a band left with no other claim is unreferenced`}
-                    on:click={() => toggleChartState(ph.key)}
-                  ><span class="inc-label">{ph.label}</span>
-                    <span class="count">{stateCounts[ph.key] ?? 0}</span>
-                  </button>
+                {#each PHASE_PARTS as part (part.key)}
+                  <div class="phase-part">{part.label}</div>
+                  {#each part.rows as ph (ph.key)}
+                    <button
+                      class="include-row tech-row tech-child"
+                      class:off={excludedPhase[part.key].has(ph.key)}
+                      aria-pressed={!excludedPhase[part.key].has(ph.key)}
+                      title={ph.title}
+                      on:click={() => rowClick(() => togglePhase(part.key, ph.key))}
+                      on:dblclick={() => rowDblClick(() => onlyPhase(part.key, [ph.key]))}
+                    ><span class="inc-label">{ph.label}</span>
+                      <span class="count">{phaseCounts[part.key][ph.key] ?? 0}</span>
+                    </button>
+                  {/each}
                 {/each}
               </div>
             {/if}
@@ -2131,6 +2197,14 @@
      against a hairline so it reads as belonging to the row above rather than
      as a fourth Include option, and collapsed by default: it is an escape
      hatch, the same idiom as the chart sidebar's per-group list. */
+  /* The two halves of the Phases list, Form and Medium: a label, not a
+     switch, since the two combine rather than nest. */
+  .phase-part {
+    padding: 4px 0 1px;
+    font-size: var(--t-nav-size);
+    color: var(--ink-300);
+  }
+
   .tech-filter {
     margin: 2px 0 2px 7px;
     padding-left: 9px;

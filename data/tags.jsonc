@@ -77,20 +77,32 @@
     "transmission": {
       "tip": "Measured in transmission through a self-supporting wafer, rather than by diffuse reflectance."
     },
-    "gas": {
-      "tip": "Auto-tagged from the claim's state: this measurement was made on the free molecule in a cell. A band shows it when at least one claim on it was, which is why a band can carry both this and \"adsorbed\": the free molecule and the bound one were both measured there."
+    "free": {
+      "tip": "Auto-tagged from the claim's form: the molecule on its own, as a gas, as the liquid itself or isolated in a matrix, rather than held by anything."
     },
-    "liquid": {
-      "tip": "Auto-tagged from the claim's state: measured on the neat liquid or a solution. Hydrogen-bonded positions shift by tens of cm⁻¹ from the vapour, and there is no rotational structure, so a liquid value is not a free-molecule value."
-    },
-    "matrix": {
-      "tip": "Auto-tagged from the claim's state: the molecule isolated in a frozen noble gas (neon or argon) at a few K. Effectively the free molecule with its rotation quenched, but the host still shifts the position by a few to twenty cm⁻¹, and neon and argon disagree with each other."
-    },
-    "solid": {
-      "tip": "Auto-tagged from the claim's state: measured on the bulk solid substance itself, crystalline or amorphous, rather than on isolated molecules."
+    "dissolved": {
+      "tip": "Auto-tagged from the claim's form: a solute in a liquid, such as CO₂ or formate in an electrolyte. Solvation moves the band and removes the rotational structure, so this is not a free-molecule value."
     },
     "adsorbed": {
-      "tip": "Auto-tagged from the claim's state: this measurement was made on the species bound to a surface rather than free; which surface is in its own site badge. It does not say whether the species adsorbed intact or as a fragment: that is the band-level \"undissociated\"."
+      "tip": "Auto-tagged from the claim's form: the species held on a surface; which surface is in its own site badge. It does not say whether the species adsorbed intact or as a fragment: that is the band-level \"undissociated\"."
+    },
+    "surface": {
+      "tip": "Auto-tagged from the claim's form: a group belonging to the solid itself, such as a surface hydroxyl or a metal hydride, rather than something adsorbed on it."
+    },
+    "lattice": {
+      "tip": "Auto-tagged from the claim's form: a vibration or a defect of the solid itself, such as a lattice overtone or a vacancy absorption."
+    },
+    "in vacuum": {
+      "tip": "Auto-tagged from the claim's medium: measured in an evacuated or ultra-high-vacuum cell with no gas let in, as for single-crystal reflection work."
+    },
+    "in gas": {
+      "tip": "Auto-tagged from the claim's medium: measured under a gas atmosphere, from a fraction of a mbar of dosed gas to a flowing feed at pressure. On an adsorbed band it describes the surroundings, not the species."
+    },
+    "in liquid": {
+      "tip": "Auto-tagged from the claim's medium: measured in a liquid or an electrolyte, as at an electrode. Adsorbates there feel the solvent and the electrode potential, so their positions differ from the same species under a gas."
+    },
+    "in matrix": {
+      "tip": "Auto-tagged from the claim's medium: isolated in a frozen noble gas (neon or argon) at a few K. Effectively the free molecule with its rotation quenched, but the host still shifts the position by a few to twenty cm⁻¹."
     },
     "ir-active": {
       "tip": "This vibrational mode is IR-allowed."
