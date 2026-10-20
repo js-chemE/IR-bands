@@ -499,7 +499,7 @@
   // Since 2026-10-18 the species groups take their colours from the phd_ui
   // species scheme (phd_ui.colors), so a molecule has one colour in the atlas,
   // the DRIFTS figures and the MS traces: gas CO2 dark blue, CO amber, CH4
-  // red, H2 blue, H2O ocean; the target family green (methoxy the darker
+  // deep red, H2 light red (lighter than CH4), H2O ocean; the target family green (methoxy the darker
   // tone, methanol the line tone); formate pink, the carbonates the scheme's
   // two browns, hydride purple. CO* variants are the amber ladder. The
   // specimen lanes keep their own muted colours.
@@ -553,11 +553,11 @@
     },
     "ch4": {
       "label": "CH₄",
-      "color": "#C44036"
+      "color": "#991801"
     },
     "h2": {
       "label": "H₂",
-      "color": "#0186AE"
+      "color": "#CF7D75"
     },
     "n2": {
       "label": "N₂",

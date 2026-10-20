@@ -108,13 +108,13 @@
     "ch4": {
       "key": "ch4",
       "label": "CH₄",
-      "color": "#C44036",
+      "color": "#991801",
       "of": "species"
     },
     "h2": {
       "key": "h2",
       "label": "H₂",
-      "color": "#0186AE",
+      "color": "#CF7D75",
       "of": "species"
     },
     "n2": {

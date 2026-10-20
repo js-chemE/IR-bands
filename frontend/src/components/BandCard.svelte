@@ -147,6 +147,8 @@
                 <VibrationMiniCard
                   mode={lm.mode}
                   geometry={lm.geometry}
+                  moleculeId={lm.moleculeId}
+                  topologyId={lm.topologyId}
                   triggerNonce={playNonce}
                   interactive={true}
                   diagramSize={104}

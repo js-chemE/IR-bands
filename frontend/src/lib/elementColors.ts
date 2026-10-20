@@ -1,12 +1,16 @@
-// CPK-style element colors for the vibration-theory molecule diagrams. Kept
+// CPK-style element colors for the vibration-theory molecule diagrams.
+// The values are those of phd_ui.colors.ATOMS (the PhD reference for atoms in
+// every figure, animation and Illustrator drawing): CPK hues toned to the
+// phd_ui scheme, carbon a dark grey rather than black. Change them there
+// first and copy them here. Kept
 // consistent across every molecule regardless of bonding context — distinct
 // from ATOMS_PALETTE in colors.ts, which colors whole bond-environments
 // (e.g. 'O=C=O') for the band chart's legend, a different concern.
 export const ELEMENT_COLORS: Record<string, string> = {
-  C: '#3A3A3A',
-  O: '#D9453D',
-  H: '#E8E8E8',
-  N: '#3A6FD8',
+  C: '#3F4245',
+  O: '#C44036',
+  H: '#F4F3F1',
+  N: '#4160C4',
   // The halogens, in the usual CPK sequence: pale green up to deep violet as
   // the atom gets heavier, which is also the order their stretches run down
   // the spectrum (F₂ near 894 cm⁻¹, I₂ near 213).
@@ -16,14 +20,24 @@ export const ELEMENT_COLORS: Record<string, string> = {
   I: '#940094',
   // The metals the atlas names by element rather than leaving generic. Both
   // are CPK: zinc's blue-grey, gallium's pink-brown.
-  Zn: '#7D80B0',
-  Ga: '#C28F8F',
+  Zn: '#797CAA',
+  Ga: '#BE7E7F',
   // Generic metal center (Lewis-acidic cation, isolated surface atom, etc.)
   // — for diagrams that need a real bonded/pivot atom drawn, but where the
   // underlying mode is deliberately metal-generic rather than tied to one
   // specific element. Use it where the source did not say which metal; where
   // it did, name the element, or the band cannot be reasoned about.
-  M: '#8C8C94',
+  M: '#9AA1AC',
+  // The rest of phd_ui.colors.ATOMS, for diagrams that need them.
+  P: '#DB551A',
+  S: '#D8D958',
+  Al: '#BD9B9B',
+  Si: '#D9B795',
+  Ni: '#6CA26A',
+  Cu: '#BB731E',
+  Pd: '#2B738B',
+  In: '#A06A68',
+  Pt: '#A9A9BA',
 };
 
 const DEFAULT_ELEMENT_COLOR = '#9B6B3D';
@@ -59,7 +73,7 @@ export function radiusForElement(element: string): number {
 
 // Label text needs to stay legible against both light (H and the two lighter
 // halogens) and dark/saturated (C, O, N, Br, I) atom fills.
-const LIGHT_FILL_ELEMENTS = new Set(['H', 'F', 'Cl']);
+const LIGHT_FILL_ELEMENTS = new Set(['H', 'F', 'Cl', 'S', 'Al', 'Si', 'Ga', 'Pt', 'M']);
 
 export function textColorForElement(element: string): string {
   return LIGHT_FILL_ELEMENTS.has(element) ? '#2A2A2A' : '#FFFFFF';

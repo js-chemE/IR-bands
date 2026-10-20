@@ -4,7 +4,7 @@
   import type { VibrationMode } from '../../lib/types';
   import type { MoleculeGeometry } from '../../lib/moleculeGeometry';
   import { VIBRATION_PALETTE, ATOMS_PALETTE, TAG_STYLES } from '../../lib/colors';
-  import MoleculeViewer from './MoleculeViewer.svelte';
+  import MoleculeView from './MoleculeView.svelte';
 
   const dispatch = createEventDispatcher<{ navigate: void }>();
 
@@ -25,6 +25,10 @@
   /** Diagram edge in px. Smaller where the card rides in a header rather
       than standing on its own in a list. */
   export let diagramSize = 132;
+  /** Which molecule and topology this is, so MoleculeView can use the 3D
+      model where one exists. Without them the hand-drawn viewer is used. */
+  export let moleculeId: string | undefined = undefined;
+  export let topologyId: string | undefined = undefined;
 
   const GREY = C['data-grey'];
   $: vibKey = mode.subtype ? `${mode.category}.${mode.subtype}` : mode.category;
@@ -87,7 +91,14 @@
       on:mouseenter={() => { if (interactive) hovered = true; }}
       on:mouseleave={() => { hovered = false; }}
     >
-      <MoleculeViewer {geometry} {activeVectors} size={diagramSize} />
+      <MoleculeView
+        {geometry}
+        {activeVectors}
+        {moleculeId}
+        {topologyId}
+        modeId={autoPlaying || hovered ? mode.id : null}
+        size={diagramSize}
+      />
     </div>
   {/if}
 </div>

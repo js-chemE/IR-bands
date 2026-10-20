@@ -1,0 +1,399 @@
+// 3D molecules for the vibration animations.
+//
+// What this file is
+// -----------------
+// The configuration that turns the raw CCCBDB tables in data/molecules3d/cccbdb/
+// into docs/data/molecules3d.json, which the frontend's MoleculeViewer3D draws:
+// real 3D geometry, real normal-mode displacement vectors, a chosen default
+// view, and a mapping from each VibrationMode.id in vibrations.jsonc to the
+// CCCBDB mode that is the same vibration.
+//
+// Build:   python src/ir_bands/molecules3d.py      (stdlib only)
+//          (build.py calls it too)
+//
+// Sources
+// -------
+//   Polyatomics: NIST CCCBDB, SRD 101, B3LYP/aug-cc-pVTZ geometry and
+//   harmonic normal modes (the "eigenvectors" page). One file per species in
+//   data/molecules3d/cccbdb/<formula>.json, copied verbatim with the date.
+//   Diatomics: CCCBDB experimental r_e (diatomics.json, with CCCBDB's own
+//   source key per value). CCCBDB gives no eigenvectors for a diatomic; the
+//   stretch is built from the masses so the centre of mass stays put.
+//
+// Coordinates
+// -----------
+// CCCBDB's standard orientation is turned into the drawing frame by `frame`:
+//   up      the molecular direction that should point up on screen
+//   toward  the direction that should point at the viewer (made orthogonal
+//           to `up`); right = up x toward, so the frame stays right-handed
+// The drawing is centred on the middle of its rest outline in this view (not
+// on the centroid, which three H atoms pull off to one side). Then `view` applies, in this order and in degrees, with the same meaning as
+// phd_ui.structure: rotate (in the screen plane, counter-clockwise), turn
+// (about the vertical, positive brings the right side toward the viewer),
+// tip (about the horizontal, positive brings the top toward the viewer).
+// Vectors may be given as [x, y, z] or as an atom reference "atom:3", meaning
+// the direction from the molecule's centroid to that atom (CCCBDB index).
+//
+// Modes
+// -----
+//   modes: { "<VibrationMode.id>": <CCCBDB mode index> }
+// The index is CCCBDB's "mode index" column (one row per component), not its
+// "mode number". For a degenerate mode the index picks which component is
+// drawn; the choice is made for readability in the default view and says so
+// in a comment. The build checks every mapped mode's symmetry species against
+// vibrations.jsonc and refuses a mismatch, and lists any gas-phase mode of a
+// configured molecule that has no mapping.
+//
+// CCCBDB numbers modes by species then falling frequency, which is Herzberg's
+// convention, so ν_n = mode number n for all of these except CO2, where
+// Herzberg's ν2 (bend, Πu) and ν3 (antisymmetric stretch, Σu+) are CCCBDB's
+// 3 and 2.
+//
+// Bonds
+// -----
+// Perceived from covalent radii (Cordero et al. 2008) with a 1.25 tolerance,
+// order 1 unless `bond_orders` says otherwise ([i, j, order], CCCBDB indices).
+//
+// How to add a molecule
+// ---------------------
+//   1. On cccbdb.nist.gov pick the species, then Calculated > Vibrations >
+//      eigenvectors at B3LYP/aug-cc-pVTZ. Copy the frequency table, the
+//      Cartesian table and the eigenvector table into a new
+//      data/molecules3d/cccbdb/<formula>.json with the same keys as the
+//      existing ones, and the retrieval date.
+//   2. Add an entry below: the vibrations.jsonc molecule id, topology "gas",
+//      `cccbdb`, `frame`, `view`, `modes`, and `bond_orders` if needed.
+//   3. Run the build. It prints the mapping table with calculated vs listed
+//      wavenumbers; read it.
+//   4. Look at it on the Normal modes page and adjust `view` or the
+//      degenerate component.
+//
+// Adsorbed species
+// ----------------
+// An entry with "adsorbate" is built by src/ir_bands/adsorbates.py, not from
+// CCCBDB: `adsorbate` names the builder, `geometry` gives its bond lengths
+// (Å) and angles (°) with the source of each in the comment above the entry
+// (ASSUMED where none was found), `bonds` are [i, j, order] in the atom order
+// of the old hand drawing (moleculeGeometry.ts), and `modes` give one
+// operation per atom (documented at the top of adsorbates.py). The modes
+// are the hand-drawn animations translated into these operations: a
+// displacement along or across a bond follows the bond when the geometry
+// changes, a bend or rock is a real rotation, and the old size pulse that
+// stood for out-of-plane motion is real motion along z. Frame: x along the
+// surface, y the surface normal, z toward the viewer, surface at y = 0.
+// `view` is the default turn and tip, straight from the front (0, 0) unless
+// there is a reason; the viewer lets you turn about the normal only.
+{
+  "settings": {
+    // Atoms closer to the viewer are drawn larger, by up to this fraction at
+    // the molecule's full reach (normalised per molecule, so a spinning or
+    // vibrating molecule never pulses). phd_ui uses 0.2.
+    "depth_cue": 0.2
+  },
+  "molecules": {
+    "co2": {
+      "gas": {
+        "cccbdb": "CO2",
+        // Axis along CCCBDB z, drawn horizontal. In-plane bend = the y
+        // component (index 3), out-of-plane = the x component (index 4).
+        "frame": { "up": [0, 1, 0], "toward": [1, 0, 0] },
+        "view": { "rotate": 0, "turn": 0, "tip": 0 },
+        "bond_orders": [[1, 2, 2], [1, 3, 2]],
+        "modes": {
+          "co2_stretch_symmetric": 1,
+          "co2_stretch_asymmetric": 2,
+          "co2_bend": 3,
+          "co2_bend_wagging": 4
+        }
+      }
+    },
+    "ch4": {
+      "gas": {
+        "cccbdb": "CH4",
+        // One C-H straight up, as the old drawing had it, and the other three
+        // spread below it so none hides behind C.
+        "frame": { "up": "atom:2", "toward": "atom:5" },
+        "view": { "rotate": 0, "turn": 15, "tip": 30 },
+        "modes": {
+          "ch4_stretch_symmetric": 1,
+          // E: component 1 of 2.
+          "ch4_bend_e": 2,
+          // T2: component 1 of 3, the one where the upright H (atom 2) carries
+          // most of the motion, so it reads as one bond stretching against
+          // the other three.
+          "ch4_stretch_asymmetric": 4,
+          // T2: component 1 of 3.
+          "ch4_bend_t2": 7
+        }
+      }
+    },
+    "nh3": {
+      "gas": {
+        "cccbdb": "NH3",
+        // N on top, the H3 umbrella below, seen from above so all three H show.
+        "frame": { "up": [0, 0, 1], "toward": [0, 1, 0] },
+        "view": { "rotate": 0, "turn": 30, "tip": 45 },
+        "modes": {
+          "nh3_stretch_symmetric": 1,
+          "nh3_bend_symmetric": 2,
+          // E: component 1 of 2.
+          "nh3_stretch_asymmetric": 3,
+          // E: component 2 of 2. Either component is the same vibration; one is drawn.
+          "nh3_bend_asymmetric": 6
+        }
+      }
+    },
+    "water": {
+      "gas": {
+        "cccbdb": "H2O",
+        // O on top, both H below, molecule in the screen plane.
+        "frame": { "up": [0, 0, 1], "toward": [1, 0, 0] },
+        "view": { "rotate": 0, "turn": 0, "tip": 0 },
+        "modes": {
+          "h2o_stretch_symmetric": 1,
+          "h2o_bend": 2,
+          "h2o_stretch_asymmetric": 3
+        }
+      }
+    },
+    "methanol": {
+      "gas": {
+        "cccbdb": "CH3OH",
+        // C left, O right; the in-plane H on C points down and the H on O
+        // up (trans), as in the old drawing. The two out-of-plane methyl H
+        // would sit on top of each other face-on, so the view tips the top
+        // forward and turns a little: one of them then sits left of C in
+        // front, the other up and behind.
+        "frame": { "up": [1, 0, 0], "toward": [0, 0, 1] },
+        "view": { "rotate": 0, "turn": 15, "tip": 25 },
+        "modes": {
+          "methanol_oh_stretch": 1,
+          "methanol_stretch_a": 2,
+          "methanol_stretch_symmetric": 3,
+          "methanol_ch_scissor": 4,
+          "methanol_bend_symmetric": 5,
+          "methanol_oh_bend": 6,
+          "methanol_co_scaffold": 7,
+          "methanol_co_stretch": 8,
+          "methanol_stretch_antisym": 9,
+          "methanol_ch_rock": 10,
+          "methanol_twist": 11,
+          "methanol_torsion": 12
+        }
+      }
+    },
+    "co": {
+      "gas": { "diatomic": "CO", "elements": ["C", "O"], "bond_order": 3, "modes": ["co_stretch"] },
+      // CO atop on Cu(111). Cu-C 1.91 Å: ARPEFS, Moler et al., PRB 54 (1996) 10862, abstract/Table I.
+      // C-O 1.156 Å: DFT PW91, Gajdoš & Hafner, Surf. Sci. 590 (2005) 117, Table 1 (atop, 1/4 ML); not measured by Moler.
+      "linear": {
+        "adsorbate": "co_linear",
+        "geometry": {"M-C": 1.91, "C-O": 1.156},
+        "bonds": [[0, 1, 3]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "co_stretch_linear": [null, {"bond": 0, "along": 1, "across": 0}],
+          "co_mstretch_linear": [{"bond": 1, "along": -1, "across": 0}, {"bond": 0, "along": 1, "across": 0}],
+          "co_frustrated_tilt_linear": [null, {"rotate": {"pivot": 0, "deg": -25}}],
+          "co_frustrated_translate_linear": [{"bond": 1, "along": 0, "across": 1}, {"bond": 0, "along": 0, "across": -1}]
+        }
+      },
+      // CO bridge on Cu(111). Cu-C 1.99, C-O 1.173 Å: DFT PW91, Gajdoš & Hafner, Surf. Sci. 590 (2005) 117, Table 1.
+      // Cu-Cu 2.556 Å: bulk nearest neighbour from a = 3.615 Å, as in Chutia et al., Surf. Sci. 653 (2016) 45, Table 1.
+      "bridged": {
+        "adsorbate": "co_bridged",
+        "geometry": {"M-C": 1.99, "C-O": 1.173, "M-M": 2.556},
+        "bonds": [[0, 1, 2]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "co_stretch_bridged": [null, {"bond": 0, "along": 1, "across": 0}],
+          "co_mstretch_bridged": [{"bond": 1, "along": -1, "across": 0}, {"bond": 0, "along": 1, "across": 0}],
+          "co_mstretch_asym_bridged": [{"bond": 1, "along": 0, "across": 1}, {"bond": 0, "along": 0, "across": -1}]
+        }
+      },
+      // CO fcc hollow on Cu(111). Cu-C 2.05, C-O 1.180 Å: DFT PW91, Gajdoš & Hafner, Surf. Sci. 590 (2005) 117, Table 1.
+      // Cu-Cu 2.556 Å: bulk nearest neighbour from a = 3.615 Å, as in Chutia et al., Surf. Sci. 653 (2016) 45, Table 1.
+      "hollow": {
+        "adsorbate": "co_hollow",
+        "geometry": {"M-C": 2.05, "C-O": 1.18, "M-M": 2.556},
+        "bonds": [[0, 1, 2]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "co_stretch_hollow": [null, {"bond": 0, "along": 1, "across": 0}]
+        }
+      },
+      // [Cu(CO)2]+ in ZSM-5. Cu-C 1.88, C-O 1.12 Å, Cu-C-O 170±10° (drawn linear): EXAFS, Prestipino et al., PCCP 7 (2005) 1743, abstract.
+      // C-M-C 90°: ASSUMED, no source found (C2v only). The site is a generic cation, M.
+      // Motion: M-C stretches as real M-C bond stretches (the drawing used fixed directions).
+      "geminal": {
+        "adsorbate": "co_geminal",
+        "geometry": {"M-C": 1.88, "C-O": 1.12, "C-M-C": 90},
+        "bonds": [[0, 1, 1], [1, 2, 3], [0, 3, 1], [3, 4, 3]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "co_geminal_stretch_symmetric": [null, null, {"bond": 1, "along": 1, "across": 0}, null, {"bond": 3, "along": 1, "across": 0}],
+          "co_geminal_stretch_asymmetric": [null, null, {"bond": 1, "along": 1, "across": 0}, null, {"bond": 3, "along": -1, "across": 0}],
+          "co_geminal_mstretch_symmetric": [null, {"bond": 0, "along": 1}, {"bond": 1, "along": 1}, {"bond": 0, "along": 1}, {"bond": 3, "along": 1}],
+          "co_geminal_mstretch_asymmetric": [null, {"bond": 0, "along": 1}, {"bond": 1, "along": 1}, {"bond": 0, "along": -1}, {"bond": 3, "along": -1}],
+          "co_geminal_scissoring": [null, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}, {"rotate": {"pivot": 0, "deg": 15}}],
+          "co_geminal_rocking": [null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}]
+        }
+      },
+      // O-bound CO on Na+ in NaY. Na-O 2.545, C-O 1.1435 Å: DFT PBE, Rybakov, Larin, Vercauteren, PCCP (2017), doi:10.1039/C7CP03043F, SI Table S2.
+      "isocarbonyl": {
+        "adsorbate": "co_isocarbonyl",
+        "geometry": {"M-O": 2.545, "C-O": 1.1435},
+        "bonds": [[0, 1, 3]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "co_iso_stretch": [null, {"bond": 0, "along": 1, "across": 0}]
+        }
+      }
+    },
+    "h2": { "gas": { "diatomic": "H2", "elements": ["H", "H"], "bond_order": 1, "modes": ["h2_stretch"] } },
+    "n2": { "gas": { "diatomic": "N2", "elements": ["N", "N"], "bond_order": 3, "modes": ["n2_stretch"] } },
+    "o2": { "gas": { "diatomic": "O2", "elements": ["O", "O"], "bond_order": 2, "modes": ["o2_stretch"] } },
+    "f2": { "gas": { "diatomic": "F2", "elements": ["F", "F"], "bond_order": 1, "modes": ["f2_stretch"] } },
+    "cl2": { "gas": { "diatomic": "Cl2", "elements": ["Cl", "Cl"], "bond_order": 1, "modes": ["cl2_stretch"] } },
+    "br2": { "gas": { "diatomic": "Br2", "elements": ["Br", "Br"], "bond_order": 1, "modes": ["br2_stretch"] } },
+    "i2": { "gas": { "diatomic": "I2", "elements": ["I", "I"], "bond_order": 1, "modes": ["i2_stretch"] } },
+    // ----- adsorbed species (src/ir_bands/adsorbates.py) -----
+
+    "formate": {
+      // Bridging formate on Cu(111). Cu-O 1.99 Å: photoelectron diffraction, Kreikemeyer-Lorenzo et al., PRL 107 (2011) 046102.
+      // C-O 1.270, C-H 1.108 Å: DFT PBE, Chutia et al., Surf. Sci. 653 (2016) 45, Table 1.
+      // O-C-O 126.9°: DFT PBE, Mei, Xu, Henkelman, J. Catal. 258 (2008) 44, Sec. 3.1 (127.8° B3LYP cluster, Gomes & Gomes 1999, agrees).
+      // Cu-Cu 2.556 Å: bulk nearest neighbour from a = 3.615 Å, as in Chutia et al., Surf. Sci. 653 (2016) 45, Table 1.
+      "bidentate": {
+        "adsorbate": "formate_bidentate",
+        "geometry": {"M-O": 1.99, "C-O": 1.27, "C-top": 1.108, "O-C-O": 126.9, "M-M": 2.556},
+        "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "formate_ch_stretch_bidentate": [{"dir": [0, -0.15, 0]}, null, null, {"bond": 0, "along": 1, "across": 0}],
+          "formate_stretch_symmetric_bidentate": [{"dir": [0, -1, 0]}, {"bond": 0, "along": 0.349, "across": -0.003}, {"bond": 0, "along": 0.349, "across": 0.003}, {"bond": 0, "along": -1, "across": 0}],
+          "formate_bend_bidentate": [{"dir": [0, 0.5, 0]}, {"bond": 0, "along": -0.265, "across": 0.14}, {"bond": 0, "along": -0.265, "across": -0.14}, {"bond": 0, "along": 0.5, "across": 0}],
+          "formate_stretch_asymmetric_bidentate": [{"dir": [-1, 0, 0]}, {"bond": 0, "along": -0.304, "across": 0.002}, {"bond": 0, "along": 0.304, "across": 0.002}, {"bond": 0, "along": 0, "across": -0.3}],
+          "formate_och_scissoring_bidentate": [{"dir": [-0.15, 0, 0]}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": -20}}],
+          "formate_ch_wagging_bidentate": [{"dir": [0, 0, -1]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.75]}]
+        }
+      },
+      // Monodentate formate on Cu. C-O(bound) 1.286, C=O 1.246, C-H 1.105 Å, O-C-O 126.7°: DFT B3LYP Cu7 cluster, Gomes & Gomes, Surf. Sci. 432 (1999) 279, Table 7 (their 'cross-bridge' form).
+      // Cu-O 2.10 Å: middle of 2.08-2.13 Å, DFT PBE, Mei, Xu, Henkelman, J. Catal. 258 (2008) 44, Sec. 3.2.
+      // M-O-C 120° and O-C-H = (360 - O-C-O)/2: ASSUMED (no source found; planar sp2 C).
+      "monodentate": {
+        "adsorbate": "formate_monodentate",
+        "geometry": {"M-O": 2.1, "M-O-C": 120, "C-Ob": 1.286, "C-left": 1.246, "C-right": 1.105, "Ob-C-left": 126.7, "Ob-C-right": 116.65},
+        "bonds": [[0, 1, 1], [0, 2, 2], [0, 3, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "formate_ch_stretch_monodentate": [{"dir": [-0.15, -0.09, 0]}, null, null, {"bond": 0, "along": 1, "across": 0}],
+          "formate_stretch_asymmetric_monodentate": [{"dir": [0.26, -0.15, 0]}, {"bond": 0, "along": -0.05, "across": 0.05}, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 0.028, "across": -0.051}],
+          "formate_och_scissoring_monodentate": [{"dir": [-0.15, 0, 0]}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": -20}}],
+          "formate_stretch_symmetric_monodentate": [{"dir": [0, 1, 0]}, {"bond": 0, "along": 0.3, "across": 0}, {"bond": 0, "along": 0.501, "across": -0.865}, {"bond": 0, "along": 0.501, "across": 0.865}],
+          "formate_bend_monodentate": [{"dir": [0.26, 0.15, 0]}, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}, {"bond": 0, "along": 0.3, "across": 0}],
+          "formate_ch_wagging_monodentate": [{"dir": [0, 0, -1]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.75]}]
+        }
+      }
+    },
+    "carbonate": {
+      // No Cu(111) carbonate found. Bound C-O 1.30 Å, O-C-O 119.2°, Cu-O 1.85 Å: the CO3-like species on Cu2O(111), DFT PBE+U, Mishra, Roldan, de Leeuw, J. Chem. Phys. 145 (2016) 044709, Table IV.
+      // Free C=O 1.25 Å: ASSUMED, no source found.
+      // Cu-Cu 2.556 Å: bulk nearest neighbour from a = 3.615 Å, as in Chutia et al., Surf. Sci. 653 (2016) 45, Table 1.
+      "bidentate": {
+        "adsorbate": "carbonate_bidentate",
+        "geometry": {"M-O": 1.85, "C-O": 1.3, "O-C-O": 119.2, "M-M": 2.556, "C-top": 1.25},
+        "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 2]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "carbonate_stretch_symmetric_bidentate": [{"dir": [0, -1, 0]}, null, null, {"bond": 0, "along": 0.3, "across": 0}],
+          "carbonate_stretch_asymmetric_bidentate": [{"dir": [1, 0, 0]}, null, null, {"bond": 0, "along": 0, "across": 0.3}],
+          "carbonate_scissoring_bidentate": [{"dir": [0, -0.5, 0]}, null, null, {"bond": 0, "along": 0.5, "across": 0}],
+          "carbonate_stretch_anchor_bidentate": [{"dir": [0, -0.3, 0]}, null, null, {"bond": 0, "along": 1, "across": 0}],
+          "carbonate_rocking_bidentate": [{"dir": [0.4, 0, 0]}, null, null, {"bond": 0, "along": 0, "across": -1}],
+          "carbonate_wagging_bidentate": [{"dir": [0, 0, -1]}, null, null, {"dir": [0, 0, 0.75]}]
+        }
+      },
+      // C-O 1.32 (bound) and 1.30 Å, Cu-O 1.85 Å: by analogy with the CO3-like species on Cu2O(111), Mishra, Roldan, de Leeuw, J. Chem. Phys. 145 (2016) 044709, Table IV.
+      // M-O-C 120° and O-C-O 120°: ASSUMED (planar sp2 C; Mishra give 119.2°).
+      "monodentate": {
+        "adsorbate": "carbonate_monodentate",
+        "geometry": {"M-O": 1.85, "M-O-C": 120, "C-Ob": 1.32, "C-left": 1.3, "C-right": 1.3, "Ob-C-left": 120, "Ob-C-right": 120},
+        "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "carbonate_stretch_symmetric_monodentate": [{"dir": [0, -0.3, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 1, "across": 0}],
+          "carbonate_stretch_asymmetric_monodentate": [{"dir": [0.3, 0, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": -1, "across": 0}],
+          "carbonate_scissoring_monodentate": [{"dir": [0, -0.3, 0]}, null, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}],
+          "carbonate_stretch_anchor_monodentate": [{"dir": [0, 1, 0]}, null, {"bond": 0, "along": -0.046, "across": -0.72}, {"bond": 0, "along": -0.046, "across": 0.72}],
+          "carbonate_rocking_monodentate": [{"dir": [-0.6, 0, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "carbonate_wagging_monodentate": [{"dir": [0, 0, -1]}, null, {"dir": [0, 0, 0.75]}, {"dir": [0, 0, 0.75]}]
+        }
+      }
+    },
+    "bicarbonate": {
+      // No adsorbed bicarbonate geometry found. The CO2 part follows bidentate carbonate (Mishra et al. 2016, see there).
+      // C-OH 1.35, O-H 0.97 Å, C-O-H 107°: ASSUMED, typical of a carboxylic C-OH; no source.
+      "bidentate": {
+        "adsorbate": "bicarbonate_bidentate",
+        "geometry": {"M-O": 1.85, "C-O": 1.3, "O-C-O": 119.2, "M-M": 2.556, "C-top": 1.35, "O-H": 0.97, "C-O-H": 107},
+        "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [3, 4, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "bicarbonate_stretch_symmetric_bidentate": [{"dir": [0, -1, 0]}, null, null, {"dir": [0, 0.3, 0]}, {"bond": 3, "along": 0.151, "across": 0.259}],
+          "bicarbonate_stretch_asymmetric_bidentate": [{"dir": [1, 0, 0]}, null, null, {"dir": [-0.3, 0, 0]}, {"bond": 3, "along": -0.259, "across": 0.151}],
+          "bicarbonate_bend_coh_bidentate": [null, null, null, null, {"rotate": {"pivot": 3, "deg": -15}}],
+          "bicarbonate_stretch_oh_bidentate": [null, null, null, {"dir": [-0.05, -0.03, 0]}, {"bond": 3, "along": 1, "across": -0.004}],
+          "bicarbonate_stretch_coh_bidentate": [{"dir": [0, -0.2, 0]}, null, null, {"dir": [0, 1, 0]}, {"bond": 3, "along": 0.504, "across": 0.864}],
+          "bicarbonate_bend_oco_bidentate": [{"dir": [0, -0.5, 0]}, {"bond": 0, "along": 0.103, "across": -0.109}, {"bond": 0, "along": 0.103, "across": 0.109}, {"dir": [0, -0.5, 0]}, {"bond": 3, "along": -0.252, "across": -0.432}],
+          "bicarbonate_rock_coh_bidentate": [{"dir": [0.4, 0, 0]}, null, null, {"dir": [1, 0, 0]}, {"bond": 3, "along": 0.864, "across": -0.504}],
+          "bicarbonate_wagging_bidentate": [{"dir": [0, 0, -1]}, null, null, {"dir": [0, 0, 0.75]}, {"dir": [0, 0, 0.75]}],
+          "bicarbonate_torsion_bidentate": [null, null, null, null, {"bond": 3, "along": -0.15, "across": 0.001, "dir": [0, 0, 1]}]
+        }
+      },
+      // No adsorbed bicarbonate geometry found: every length and angle here is ASSUMED (carbonate-like C-O, C=O 1.25, C-OH 1.35, O-H 0.97 Å, C-O-H 107°, planar sp2 C).
+      "monodentate": {
+        "adsorbate": "bicarbonate_monodentate",
+        "geometry": {"M-O": 1.85, "M-O-C": 120, "C-Ob": 1.3, "C-left": 1.25, "C-right": 1.35, "Ob-C-left": 120, "Ob-C-right": 120, "O-H": 0.97, "C-O-H": 107},
+        "bonds": [[0, 1, 1], [0, 2, 2], [0, 3, 1], [3, 4, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "bicarbonate_stretch_symmetric_monodentate": [{"dir": [0.15, 0.5, 0]}, null, {"bond": 0, "along": 0.851, "across": -0.432}, {"dir": [0, 0.5, 0]}, {"bond": 3, "along": 0.499, "across": 0.036}],
+          "bicarbonate_stretch_asymmetric_monodentate": [{"dir": [0.2, -0.35, 0]}, null, {"bond": 0, "along": 0.6, "across": 0.001}, null, null],
+          "bicarbonate_bend_coh_monodentate": [null, null, null, null, {"rotate": {"pivot": 3, "deg": -15}}],
+          "bicarbonate_stretch_oh_monodentate": [null, null, null, {"dir": [0, -0.06, 0]}, {"bond": 3, "along": 1.002, "across": 0.001}],
+          "bicarbonate_stretch_coh_monodentate": [{"dir": [-0.2, -0.12, 0]}, null, null, {"dir": [0.866, 0.5, 0]}, {"bond": 3, "along": 0.56, "across": -0.828}],
+          "bicarbonate_bend_oco_monodentate": [{"dir": [-0.2, 0, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "bicarbonate_rock_coh_monodentate": [{"dir": [-0.13, 0.22, 0]}, null, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "bicarbonate_wagging_monodentate": [{"dir": [0, 0, -1]}, {"dir": [0, 0, 0.75]}, {"dir": [0, 0, 0.75]}, null, null],
+          "bicarbonate_torsion_monodentate": [null, null, null, null, {"bond": 3, "along": -0.149, "across": -0.301, "dir": [0, 0, 1]}]
+        }
+      }
+    },
+    "methoxy": {
+      // Methoxy on Cu(111): fcc hollow, C-O 1.42 Å, C-O upright: photoelectron diffraction, Hofmann et al., Surf. Sci. 304 (1994) 74, abstract.
+      // Cu-O 1.98 Å (Hofmann 1994, as cited by Gomes & Gomes, J. Mol. Struct. Theochem 503 (2000) 189, Table 1); with Cu-Cu 2.556 Å it puts O 1.32 Å above the Cu plane, Hofmann's measured height.
+      // C-H 1.099 Å: DFT B3LYP, Gomes & Gomes 2000, Sec. 2. H-C-O 110.3°: mean of the three in CCCBDB CH3OH (B3LYP/aug-cc-pVTZ), as for the gas molecule.
+      // The topology is called monodentate; on Cu(111) the O sits in a 3-fold hollow, so three surface bonds are drawn.
+      // Motion: All modes written for real 3D: the CH3 is a tripod, torsion turns it about C-O, deformations close H-C-O or H-C-H angles.
+      "monodentate": {
+        "adsorbate": "methoxy",
+        "geometry": {"site": "hollow", "M-O": 1.98, "M-M": 2.556, "C-O": 1.42, "tilt": 0, "C-H": 1.099, "H-C-O": 110.3},
+        "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]],
+        "view": {"turn": 0, "tip": 0},
+        "modes": {
+          "methoxy_stretch_symmetric": [{"bond": 1, "along": -0.1}, null, {"bond": 0, "along": 1}, {"bond": 0, "along": 1}, {"bond": 0, "along": 1}],
+          "methoxy_bend_symmetric": [{"bond": 1, "along": -0.15}, null, {"toward": 1, "bond": 0, "a": 0.6}, {"toward": 1, "bond": 0, "a": 0.6}, {"toward": 1, "bond": 0, "a": 0.6}],
+          "methoxy_co_stretch": [{"along_atoms": [1, 0], "a": 1}, null, {"along_atoms": [1, 0], "a": 1}, {"along_atoms": [1, 0], "a": 1}, {"along_atoms": [1, 0], "a": 1}],
+          "methoxy_mo_stretch": [{"dir": [0, 1, 0]}, {"dir": [0, 1, 0]}, {"dir": [0, 1, 0]}, {"dir": [0, 1, 0]}, {"dir": [0, 1, 0]}],
+          "methoxy_torsion": [null, null, {"rotate": {"pivot": 0, "axis_atoms": [1, 0], "deg": 20}}, {"rotate": {"pivot": 0, "axis_atoms": [1, 0], "deg": 20}}, {"rotate": {"pivot": 0, "axis_atoms": [1, 0], "deg": 20}}],
+          "methoxy_stretch_asymmetric": [null, null, {"bond": 0, "along": 1}, {"bond": 0, "along": -0.5}, {"bond": 0, "along": -0.5}],
+          "methoxy_bend_asymmetric": [null, null, {"toward": 3, "bond": 0, "a": 0.5}, {"toward": 2, "bond": 0, "a": 0.5}, {"toward": [2, 3], "bond": 0, "a": -0.5}],
+          "methoxy_rock": [{"rotate": {"pivot": 1, "axis": [0, 0, 1], "deg": -10}}, null, {"rotate": {"pivot": 1, "axis": [0, 0, 1], "deg": -10}}, {"rotate": {"pivot": 1, "axis": [0, 0, 1], "deg": -10}}, {"rotate": {"pivot": 1, "axis": [0, 0, 1], "deg": -10}}],
+          "methoxy_frustrated_rotation": [{"rotate": {"pivot_point": [0, 0, 0], "axis": [0, 0, 1], "deg": -12}}, {"rotate": {"pivot_point": [0, 0, 0], "axis": [0, 0, 1], "deg": -12}}, {"rotate": {"pivot_point": [0, 0, 0], "axis": [0, 0, 1], "deg": -12}}, {"rotate": {"pivot_point": [0, 0, 0], "axis": [0, 0, 1], "deg": -12}}, {"rotate": {"pivot_point": [0, 0, 0], "axis": [0, 0, 1], "deg": -12}}],
+          "methoxy_frustrated_translation": [{"dir": [1, 0, 0]}, {"dir": [1, 0, 0]}, {"dir": [1, 0, 0]}, {"dir": [1, 0, 0]}, {"dir": [1, 0, 0]}]
+        }
+      }
+    }
+  }
+}

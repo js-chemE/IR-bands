@@ -1287,6 +1287,8 @@
           <VibrationMiniCard
             mode={lm.mode}
             geometry={lm.geometry}
+            moleculeId={lm.moleculeId}
+            topologyId={lm.topologyId}
             triggerNonce={playNonce}
             interactive={false}
             on:navigate={() => dispatch('navigateMode', { moleculeId: lm.moleculeId, topologyId: lm.topologyId, modeId: lm.mode.id })}
