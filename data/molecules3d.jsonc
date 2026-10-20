@@ -381,12 +381,12 @@
       // Methoxy on Cu(111): fcc hollow, C-O 1.42 Å, C-O upright: photoelectron diffraction, Hofmann et al., Surf. Sci. 304 (1994) 74, abstract.
       // Cu-O 1.98 Å (Hofmann 1994, as cited by Gomes & Gomes, J. Mol. Struct. Theochem 503 (2000) 189, Table 1); with Cu-Cu 2.556 Å it puts O 1.32 Å above the Cu plane, Hofmann's measured height.
       // C-H 1.099 Å: DFT B3LYP, Gomes & Gomes 2000, Sec. 2. H-C-O 110.3°: mean of the three in CCCBDB CH3OH (B3LYP/aug-cc-pVTZ), as for the gas molecule.
-      // The topology is called monodentate; on Cu(111) the O sits in a 3-fold hollow, so three surface bonds are drawn.
+      // The topology is called monodentate, so one surface bond is drawn (site "atop"), although on Cu(111) the O sits in a 3-fold hollow (Hofmann 1994). "site": "hollow" with "M-M": 2.556 draws the three.
       // azimuth 15°: the methyl turned slightly about C-O so that no H hides behind C (or behind another H) in the front view. A drawing choice; the paper does not fix it.
       // Motion: All modes written for real 3D: the CH3 is a tripod, torsion turns it about C-O, deformations close H-C-O or H-C-H angles.
       "monodentate": {
         "adsorbate": "methoxy",
-        "geometry": {"site": "hollow", "M-O": 1.98, "M-M": 2.556, "C-O": 1.42, "tilt": 0, "azimuth": 15, "C-H": 1.099, "H-C-O": 110.3},
+        "geometry": {"site": "atop", "M-O": 1.98, "C-O": 1.42, "tilt": 0, "azimuth": 15, "C-H": 1.099, "H-C-O": 110.3},
         "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]],
         "view": {"turn": 0, "tip": 0},
         "modes": {
