@@ -17,6 +17,8 @@ python build.py
 
 # Build the frontend (outputs docs/index.html + docs/assets/)
 cd frontend && npm run build
+# (postbuild runs scripts/prune-assets.mjs: deletes the old hashed bundles
+#  in docs/assets that index.html no longer uses; --dry-run to only list)
 
 # Outputs:
 #   docs/data/bands.json      — clean JSON for the frontend
