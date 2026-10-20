@@ -243,7 +243,8 @@ def build() -> dict:
             vib_modes = {m["id"]: m for m in by_id[mol_id]["modes"]
                          if m.get("topology") in (None, topo_id)}
             if "adsorbate" in cfg:
-                entry = build_adsorbate(mol_id, topo_id, cfg, vib_modes)
+                entry = build_adsorbate(mol_id, topo_id, cfg, vib_modes,
+                                        config.get("settings", {}).get("surface_gap", 1.0))
             elif "diatomic" in cfg:
                 entry = build_diatomic(mol_id, cfg, vib_modes, diatomics, report)
             else:

@@ -83,12 +83,19 @@
 // surface, y the surface normal, z toward the viewer, surface at y = 0.
 // `view` is the default turn and tip, straight from the front (0, 0) unless
 // there is a reason; the viewer lets you turn about the normal only.
+// The height above the surface is drawn shortened (settings.surface_gap):
+// the bound atom is lowered to that fraction of its real height, the
+// molecule keeps its shape, and only the dotted surface bonds come out short.
 {
   "settings": {
     // Atoms closer to the viewer are drawn larger, by up to this fraction at
     // the molecule's full reach (normalised per molecule, so a spinning or
     // vibrating molecule never pulses). phd_ui uses 0.2.
-    "depth_cue": 0.2
+    "depth_cue": 0.2,
+    // Adsorbates: the bound atom is drawn at this fraction of its real
+    // height above the surface, to save space. A drawing choice, not data:
+    // the geometry entries keep the literature M-X lengths.
+    "surface_gap": 0.5
   },
   "molecules": {
     "co2": {
@@ -375,10 +382,11 @@
       // Cu-O 1.98 Å (Hofmann 1994, as cited by Gomes & Gomes, J. Mol. Struct. Theochem 503 (2000) 189, Table 1); with Cu-Cu 2.556 Å it puts O 1.32 Å above the Cu plane, Hofmann's measured height.
       // C-H 1.099 Å: DFT B3LYP, Gomes & Gomes 2000, Sec. 2. H-C-O 110.3°: mean of the three in CCCBDB CH3OH (B3LYP/aug-cc-pVTZ), as for the gas molecule.
       // The topology is called monodentate; on Cu(111) the O sits in a 3-fold hollow, so three surface bonds are drawn.
+      // azimuth 15°: the methyl turned slightly about C-O so that no H hides behind C (or behind another H) in the front view. A drawing choice; the paper does not fix it.
       // Motion: All modes written for real 3D: the CH3 is a tripod, torsion turns it about C-O, deformations close H-C-O or H-C-H angles.
       "monodentate": {
         "adsorbate": "methoxy",
-        "geometry": {"site": "hollow", "M-O": 1.98, "M-M": 2.556, "C-O": 1.42, "tilt": 0, "C-H": 1.099, "H-C-O": 110.3},
+        "geometry": {"site": "hollow", "M-O": 1.98, "M-M": 2.556, "C-O": 1.42, "tilt": 0, "azimuth": 15, "C-H": 1.099, "H-C-O": 110.3},
         "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]],
         "view": {"turn": 0, "tip": 0},
         "modes": {

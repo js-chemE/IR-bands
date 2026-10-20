@@ -151,7 +151,8 @@ def _add_oh(built, o_index, g):
 
 def _methoxy(g):
     """CH3O on a hollow (three anchors) or atop (one) site. Atoms: C, O,
-    H, H, H. The C-O axis tilts by `tilt` toward +x."""
+    H, H, H. The C-O axis tilts by `tilt` toward +x; `azimuth` turns the
+    methyl about it (0 puts one H straight behind C in the front view)."""
     if g.get("site", "hollow") == "hollow":
         r = g["M-M"] / math.sqrt(3)
         h = math.sqrt(g["M-O"] ** 2 - r ** 2)
@@ -168,7 +169,7 @@ def _methoxy(g):
     t = math.radians(180 - g["H-C-O"])
     hs = []
     for k in range(3):
-        f = math.radians(90 + 120 * k)
+        f = math.radians(90 + g.get("azimuth", 0) + 120 * k)
         d = _add(_mul(axis, math.cos(t)),
                  _mul(_add(_mul(side, math.cos(f)), _mul(side2, math.sin(f))), math.sin(t)))
         hs.append(("H", _add(c, _mul(d, g["C-H"]))))
@@ -246,10 +247,17 @@ def resolve_mode(ops, xyz, anchors):
     return disp, (rots if any(rots) else None)
 
 
-def build_adsorbate(mol_id, topo_id, cfg, vib_modes):
+def build_adsorbate(mol_id, topo_id, cfg, vib_modes, surface_gap=1.0):
     atoms, anchors = build_geometry(cfg["adsorbate"], cfg["geometry"])
     xyz = [_mul(p, 100.0) for _, p in atoms]                 # Å -> pm
     anchors = [(a, _mul(p, 100.0)) for a, p in anchors]
+    # Drawn, not measured: lower the molecule toward the surface so the bound
+    # atom sits at `surface_gap` of its real height. The molecule keeps its
+    # shape; only the surface bonds are shortened. Before the modes, so their
+    # pivots move with it.
+    if anchors and surface_gap != 1.0:
+        drop = (1 - surface_gap) * min(xyz[a][1] for a, _ in anchors)
+        xyz = [[p[0], p[1] - drop, p[2]] for p in xyz]
     elements = [e for e, _ in atoms]
     bonds = [[i, j, o] for i, j, o in cfg["bonds"]]
     modes = {}
