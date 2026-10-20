@@ -86,9 +86,8 @@
 // The height above the surface is drawn shortened (settings.surface_gap):
 // the bound atom is lowered to that fraction of its real height, the
 // molecule keeps its shape, and only the dotted surface bonds come out short.
-// Monodentate formate, carbonate and bicarbonate are drawn with the bound
-// O-C along the surface normal at rest and the M-O bond leaning, so M-O-C
-// keeps its value (adsorbates.py, UPRIGHT).
+// Monodentate formate, carbonate and bicarbonate take M-O-C = 180°: no
+// source gives the angle, so M, O and C are drawn on the surface normal.
 {
   "settings": {
     // Atoms closer to the viewer are drawn larger, by up to this fraction at
@@ -290,18 +289,18 @@
       },
       // Monodentate formate on Cu. C-O(bound) 1.286, C=O 1.246, C-H 1.105 Å, O-C-O 126.7°: DFT B3LYP Cu7 cluster, Gomes & Gomes, Surf. Sci. 432 (1999) 279, Table 7 (their 'cross-bridge' form).
       // Cu-O 2.10 Å: middle of 2.08-2.13 Å, DFT PBE, Mei, Xu, Henkelman, J. Catal. 258 (2008) 44, Sec. 3.2.
-      // M-O-C 120° and O-C-H = (360 - O-C-O)/2: ASSUMED (no source found; planar sp2 C).
+      // M-O-C: no source found, drawn straight (180°, M, O and C on the surface normal). O-C-H = (360 - O-C-O)/2: ASSUMED (planar sp2 C).
       "monodentate": {
         "adsorbate": "formate_monodentate",
-        "geometry": {"M-O": 2.1, "M-O-C": 120, "C-Ob": 1.286, "C-left": 1.246, "C-right": 1.105, "Ob-C-left": 126.7, "Ob-C-right": 116.65},
+        "geometry": {"M-O": 2.1, "M-O-C": 180, "C-Ob": 1.286, "C-left": 1.246, "C-right": 1.105, "Ob-C-left": 126.7, "Ob-C-right": 116.65},
         "bonds": [[0, 1, 1], [0, 2, 2], [0, 3, 1]],
         "view": {"turn": 0, "tip": 0},
         "modes": {
-          "formate_ch_stretch_monodentate": [{"dir": [-0.15, -0.09, 0]}, null, null, {"bond": 0, "along": 1, "across": 0}],
-          "formate_stretch_asymmetric_monodentate": [{"dir": [0.26, -0.15, 0]}, {"bond": 0, "along": -0.05, "across": 0.05}, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 0.028, "across": -0.051}],
-          "formate_och_scissoring_monodentate": [{"dir": [-0.15, 0, 0]}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": -20}}],
-          "formate_stretch_symmetric_monodentate": [{"dir": [0, 1, 0]}, {"bond": 0, "along": 0.3, "across": 0}, {"bond": 0, "along": 0.501, "across": -0.865}, {"bond": 0, "along": 0.501, "across": 0.865}],
-          "formate_bend_monodentate": [{"dir": [0.26, 0.15, 0]}, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}, {"bond": 0, "along": 0.3, "across": 0}],
+          "formate_ch_stretch_monodentate": [{"dir": [0.003, -0.175, 0]}, null, null, {"bond": 0, "along": 1, "across": 0}],
+          "formate_stretch_asymmetric_monodentate": [{"dir": [0.26, 0.15, 0]}, {"bond": 0, "along": -0.05, "across": 0.05}, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 0.028, "across": -0.051}],
+          "formate_och_scissoring_monodentate": [{"dir": [-0.075, -0.13, 0]}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": 3}}, {"rotate": {"pivot": 0, "deg": -20}}],
+          "formate_stretch_symmetric_monodentate": [{"dir": [-0.866, 0.5, 0]}, {"bond": 0, "along": 0.3, "across": 0}, {"bond": 0, "along": 0.501, "across": -0.865}, {"bond": 0, "along": 0.501, "across": 0.865}],
+          "formate_bend_monodentate": [{"dir": [0, 0.3, 0]}, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}, {"bond": 0, "along": 0.3, "across": 0}],
           "formate_ch_wagging_monodentate": [{"dir": [0, 0, -1]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.375]}, {"dir": [0, 0, 0.75]}]
         }
       }
@@ -325,18 +324,18 @@
         }
       },
       // C-O 1.32 (bound) and 1.30 Å, Cu-O 1.85 Å: by analogy with the CO3-like species on Cu2O(111), Mishra, Roldan, de Leeuw, J. Chem. Phys. 145 (2016) 044709, Table IV.
-      // M-O-C 120° and O-C-O 120°: ASSUMED (planar sp2 C; Mishra give 119.2°).
+      // M-O-C: no source found, drawn straight (180°). O-C-O 120°: ASSUMED (planar sp2 C; Mishra give 119.2°).
       "monodentate": {
         "adsorbate": "carbonate_monodentate",
-        "geometry": {"M-O": 1.85, "M-O-C": 120, "C-Ob": 1.32, "C-left": 1.3, "C-right": 1.3, "Ob-C-left": 120, "Ob-C-right": 120},
+        "geometry": {"M-O": 1.85, "M-O-C": 180, "C-Ob": 1.32, "C-left": 1.3, "C-right": 1.3, "Ob-C-left": 120, "Ob-C-right": 120},
         "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]],
         "view": {"turn": 0, "tip": 0},
         "modes": {
-          "carbonate_stretch_symmetric_monodentate": [{"dir": [0, -0.3, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 1, "across": 0}],
-          "carbonate_stretch_asymmetric_monodentate": [{"dir": [0.3, 0, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": -1, "across": 0}],
-          "carbonate_scissoring_monodentate": [{"dir": [0, -0.3, 0]}, null, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}],
-          "carbonate_stretch_anchor_monodentate": [{"dir": [0, 1, 0]}, null, {"bond": 0, "along": -0.046, "across": -0.72}, {"bond": 0, "along": -0.046, "across": 0.72}],
-          "carbonate_rocking_monodentate": [{"dir": [-0.6, 0, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "carbonate_stretch_symmetric_monodentate": [{"dir": [0.26, -0.15, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": 1, "across": 0}],
+          "carbonate_stretch_asymmetric_monodentate": [{"dir": [0.15, 0.26, 0]}, null, {"bond": 0, "along": 1, "across": 0}, {"bond": 0, "along": -1, "across": 0}],
+          "carbonate_scissoring_monodentate": [{"dir": [0.26, -0.15, 0]}, null, {"rotate": {"pivot": 0, "deg": -15}}, {"rotate": {"pivot": 0, "deg": 15}}],
+          "carbonate_stretch_anchor_monodentate": [{"dir": [-0.866, 0.5, 0]}, null, {"bond": 0, "along": -0.046, "across": -0.72}, {"bond": 0, "along": -0.046, "across": 0.72}],
+          "carbonate_rocking_monodentate": [{"dir": [-0.3, -0.52, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
           "carbonate_wagging_monodentate": [{"dir": [0, 0, -1]}, null, {"dir": [0, 0, 0.75]}, {"dir": [0, 0, 0.75]}]
         }
       }
@@ -361,20 +360,20 @@
           "bicarbonate_torsion_bidentate": [null, null, null, null, {"bond": 3, "along": -0.15, "across": 0.001, "dir": [0, 0, 1]}]
         }
       },
-      // No adsorbed bicarbonate geometry found: every length and angle here is ASSUMED (carbonate-like C-O, C=O 1.25, C-OH 1.35, O-H 0.97 Å, C-O-H 107°, planar sp2 C).
+      // No adsorbed bicarbonate geometry found: every length and angle here is ASSUMED (carbonate-like C-O, C=O 1.25, C-OH 1.35, O-H 0.97 Å, C-O-H 107°, planar sp2 C); M-O-C drawn straight (180°).
       "monodentate": {
         "adsorbate": "bicarbonate_monodentate",
-        "geometry": {"M-O": 1.85, "M-O-C": 120, "C-Ob": 1.3, "C-left": 1.25, "C-right": 1.35, "Ob-C-left": 120, "Ob-C-right": 120, "O-H": 0.97, "C-O-H": 107},
+        "geometry": {"M-O": 1.85, "M-O-C": 180, "C-Ob": 1.3, "C-left": 1.25, "C-right": 1.35, "Ob-C-left": 120, "Ob-C-right": 120, "O-H": 0.97, "C-O-H": 107},
         "bonds": [[0, 1, 1], [0, 2, 2], [0, 3, 1], [3, 4, 1]],
         "view": {"turn": 0, "tip": 0},
         "modes": {
-          "bicarbonate_stretch_symmetric_monodentate": [{"dir": [0.15, 0.5, 0]}, null, {"bond": 0, "along": 0.851, "across": -0.432}, {"dir": [0, 0.5, 0]}, {"bond": 3, "along": 0.499, "across": 0.036}],
-          "bicarbonate_stretch_asymmetric_monodentate": [{"dir": [0.2, -0.35, 0]}, null, {"bond": 0, "along": 0.6, "across": 0.001}, null, null],
+          "bicarbonate_stretch_symmetric_monodentate": [{"dir": [-0.358, 0.38, 0]}, null, {"bond": 0, "along": 0.851, "across": -0.432}, {"dir": [-0.433, 0.25, 0]}, {"bond": 3, "along": 0.499, "across": 0.036}],
+          "bicarbonate_stretch_asymmetric_monodentate": [{"dir": [0.403, -0.002, 0]}, null, {"bond": 0, "along": 0.6, "across": 0.001}, null, null],
           "bicarbonate_bend_coh_monodentate": [null, null, null, null, {"rotate": {"pivot": 3, "deg": -15}}],
-          "bicarbonate_stretch_oh_monodentate": [null, null, null, {"dir": [0, -0.06, 0]}, {"bond": 3, "along": 1.002, "across": 0.001}],
-          "bicarbonate_stretch_coh_monodentate": [{"dir": [-0.2, -0.12, 0]}, null, null, {"dir": [0.866, 0.5, 0]}, {"bond": 3, "along": 0.56, "across": -0.828}],
-          "bicarbonate_bend_oco_monodentate": [{"dir": [-0.2, 0, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
-          "bicarbonate_rock_coh_monodentate": [{"dir": [-0.13, 0.22, 0]}, null, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "bicarbonate_stretch_oh_monodentate": [null, null, null, {"dir": [0.052, -0.03, 0]}, {"bond": 3, "along": 1.002, "across": 0.001}],
+          "bicarbonate_stretch_coh_monodentate": [{"dir": [0.004, -0.233, 0]}, null, null, {"dir": [0, 1, 0]}, {"bond": 3, "along": 0.56, "across": -0.828}],
+          "bicarbonate_bend_oco_monodentate": [{"dir": [-0.1, -0.173, 0]}, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
+          "bicarbonate_rock_coh_monodentate": [{"dir": [-0.256, -0.003, 0]}, null, null, {"rotate": {"pivot": 0, "deg": -12}}, {"rotate": {"pivot": 0, "deg": -12}}],
           "bicarbonate_wagging_monodentate": [{"dir": [0, 0, -1]}, {"dir": [0, 0, 0.75]}, {"dir": [0, 0, 0.75]}, null, null],
           "bicarbonate_torsion_monodentate": [null, null, null, null, {"bond": 3, "along": -0.149, "across": -0.301, "dir": [0, 0, 1]}]
         }
