@@ -788,6 +788,12 @@ def main() -> int:
         shutil.copy(src, dst)
         print(f"✓ Copied {src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
 
+    # The 3D molecules for the vibration animations (CCCBDB geometry and
+    # normal modes); see data/molecules3d.jsonc. Standalone too:
+    #   python src/ir_bands/molecules3d.py
+    from ir_bands import molecules3d
+    molecules3d.main()
+
     print("→ Run  cd frontend && npm run build  to generate docs/index.html")
 
     return 0

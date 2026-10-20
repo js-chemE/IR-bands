@@ -1,0 +1,330 @@
+{
+ "_about": "Raw table copied verbatim from NIST CCCBDB. Do not edit by hand; refetch instead. Read by src/ir_bands/molecules3d.py, configured in data/molecules3d.jsonc.",
+ "source": {
+  "database": "NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB), NIST Standard Reference Database 101",
+  "release": "Release 22 (May 2022), as served on the retrieval date",
+  "editor": "Russell D. Johnson III",
+  "url": "https://cccbdb.nist.gov/",
+  "page": "Calculated > Vibrations > Vibrational eigenvectors (anivib3x.asp?method=8&basis=18), after selecting the species by formula",
+  "retrieved": "2026-10-20"
+ },
+ "species": {
+  "formula": "NH3",
+  "name": "Ammonia"
+ },
+ "method": "B3LYP",
+ "basis": "aug-cc-pVTZ",
+ "heading": "Vibrational Eigenvectors for NH3 (Ammonia) calculated at B3LYP/aug-cc-pVTZ",
+ "units": {
+  "coordinates": "angstrom (CCCBDB standard orientation)",
+  "frequency": "cm-1 (harmonic, unscaled)",
+  "ir_intensity": "km/mol",
+  "reduced_mass": "amu",
+  "eigenvectors": "normalised Cartesian displacements, two decimals as printed"
+ },
+ "atoms": [
+  {
+   "index": 1,
+   "Z": 7,
+   "x": "0.00000",
+   "y": "0.00000",
+   "z": "0.11204"
+  },
+  {
+   "index": 2,
+   "Z": 1,
+   "x": "0.00000",
+   "y": "0.94181",
+   "z": "-0.26143"
+  },
+  {
+   "index": 3,
+   "Z": 1,
+   "x": "0.81563",
+   "y": "-0.47090",
+   "z": "-0.26143"
+  },
+  {
+   "index": 4,
+   "Z": 1,
+   "x": "-0.81563",
+   "y": "-0.47090",
+   "z": "-0.26143"
+  }
+ ],
+ "modes": [
+  {
+   "index": 1,
+   "number": 1,
+   "symmetry": "A1",
+   "frequency": "3473",
+   "ir_intensity": "4.0",
+   "reduced_mass": "1.0254",
+   "description": "bend"
+  },
+  {
+   "index": 2,
+   "number": 2,
+   "symmetry": "A1",
+   "frequency": "1019",
+   "ir_intensity": "143.1",
+   "reduced_mass": "1.1824",
+   "description": "NH stretch"
+  },
+  {
+   "index": 3,
+   "number": 3,
+   "symmetry": "E",
+   "frequency": "3592",
+   "ir_intensity": "4.6",
+   "reduced_mass": "1.0901",
+   "description": "bend"
+  },
+  {
+   "index": 4,
+   "number": 3,
+   "symmetry": "E",
+   "frequency": "3592",
+   "ir_intensity": "4.6",
+   "reduced_mass": "1.0901",
+   "description": "bend"
+  },
+  {
+   "index": 5,
+   "number": 4,
+   "symmetry": "E",
+   "frequency": "1663",
+   "ir_intensity": "15.8",
+   "reduced_mass": "1.0673",
+   "description": "NH stretch"
+  },
+  {
+   "index": 6,
+   "number": 4,
+   "symmetry": "E",
+   "frequency": "1663",
+   "ir_intensity": "15.8",
+   "reduced_mass": "1.0673",
+   "description": "NH stretch"
+  }
+ ],
+ "eigenvectors": [
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3472.564",
+   "atom": "N1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.12"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3472.564",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "-0.20",
+   "evz": "-0.54"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3472.564",
+   "atom": "H3",
+   "evx": "-0.17",
+   "evy": "0.10",
+   "evz": "-0.54"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3472.564",
+   "atom": "H4",
+   "evx": "0.17",
+   "evy": "0.10",
+   "evz": "-0.54"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1018.51",
+   "atom": "N1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.04"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1018.51",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "0.55",
+   "evz": "-0.17"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1018.51",
+   "atom": "H3",
+   "evx": "0.48",
+   "evy": "-0.28",
+   "evz": "-0.17"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1018.51",
+   "atom": "H4",
+   "evx": "-0.48",
+   "evy": "-0.28",
+   "evz": "-0.17"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "N1",
+   "evx": "-0.07",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H2",
+   "evx": "0.76",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H3",
+   "evx": "0.09",
+   "evy": "0.39",
+   "evz": "-0.21"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H4",
+   "evx": "0.09",
+   "evy": "-0.39",
+   "evz": "0.21"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "N1",
+   "evx": "0.00",
+   "evy": "0.07",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "0.14",
+   "evz": "0.25"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H3",
+   "evx": "-0.39",
+   "evy": "-0.54",
+   "evz": "-0.12"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "3592.471",
+   "atom": "H4",
+   "evx": "0.39",
+   "evy": "-0.54",
+   "evz": "-0.12"
+  },
+  {
+   "mode index": "5",
+   "mode number": "4",
+   "frequency": "1662.985",
+   "atom": "N1",
+   "evx": "0.08",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "4",
+   "frequency": "1662.985",
+   "atom": "H2",
+   "evx": "0.02",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "4",
+   "frequency": "1662.985",
+   "atom": "H3",
+   "evx": "-0.56",
+   "evy": "0.34",
+   "evz": "0.25"
+  },
+  {
+   "mode index": "5",
+   "mode number": "4",
+   "frequency": "1662.985",
+   "atom": "H4",
+   "evx": "-0.56",
+   "evy": "-0.34",
+   "evz": "-0.25"
+  },
+  {
+   "mode index": "6",
+   "mode number": "4",
+   "frequency": "1662.984",
+   "atom": "N1",
+   "evx": "0.00",
+   "evy": "0.08",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "6",
+   "mode number": "4",
+   "frequency": "1662.984",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "-0.76",
+   "evz": "0.29"
+  },
+  {
+   "mode index": "6",
+   "mode number": "4",
+   "frequency": "1662.984",
+   "atom": "H3",
+   "evx": "0.34",
+   "evy": "-0.17",
+   "evz": "-0.15"
+  },
+  {
+   "mode index": "6",
+   "mode number": "4",
+   "frequency": "1662.984",
+   "atom": "H4",
+   "evx": "-0.34",
+   "evy": "-0.17",
+   "evz": "-0.15"
+  }
+ ],
+ "note": "The 'description' column is reproduced as CCCBDB printed it; it is wrong for NH3 (mode 1 at 3473 cm-1 is the symmetric N-H stretch, not a bend). Not used by the build."
+}

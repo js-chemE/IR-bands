@@ -1,0 +1,56 @@
+{
+ "_about": "Equilibrium bond lengths r_e of the diatomics, copied from NIST CCCBDB (Experimental > Geometry > Experimental geometries, expgeom2x.asp). The 'source' column is CCCBDB's own citation key for the value. CCCBDB lists no vibrational eigenvectors for diatomics; the build derives the stretch vector from the masses (see molecules3d.py).",
+ "source": {
+  "database": "NIST CCCBDB, NIST Standard Reference Database 101",
+  "release": "Release 22 (May 2022)",
+  "url": "https://cccbdb.nist.gov/expgeom2x.asp",
+  "retrieved": "2026-10-20"
+ },
+ "units": {
+  "r_e": "angstrom"
+ },
+ "molecules": [
+  {
+   "formula": "H2",
+   "r_e": 0.741,
+   "cccbdb_value": "0.7414",
+   "cccbdb_source": "1979HUB/HER"
+  },
+  {
+   "formula": "N2",
+   "r_e": 1.098,
+   "cccbdb_source": "1979HUB/HER"
+  },
+  {
+   "formula": "O2",
+   "r_e": 1.208,
+   "cccbdb_source": "1979HUB/HER"
+  },
+  {
+   "formula": "F2",
+   "r_e": 1.412,
+   "cccbdb_source": "1979HUB/HER"
+  },
+  {
+   "formula": "Cl2",
+   "r_e": 1.988,
+   "cccbdb_source": "1979HUB/HER"
+  },
+  {
+   "formula": "Br2",
+   "r_e": 2.281,
+   "cccbdb_source": "webbook"
+  },
+  {
+   "formula": "I2",
+   "r_e": 2.665,
+   "cccbdb_source": "Gurvich"
+  },
+  {
+   "formula": "CO",
+   "r_e": 1.128,
+   "cccbdb_value": "1.128323 (NIST WebBook)",
+   "cccbdb_source": "NISTdiatomic"
+  }
+ ]
+}

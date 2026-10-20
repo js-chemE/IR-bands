@@ -1,0 +1,829 @@
+{
+ "_about": "Raw table copied verbatim from NIST CCCBDB. Do not edit by hand; refetch instead. Read by src/ir_bands/molecules3d.py, configured in data/molecules3d.jsonc.",
+ "source": {
+  "database": "NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB), NIST Standard Reference Database 101",
+  "release": "Release 22 (May 2022), as served on the retrieval date",
+  "editor": "Russell D. Johnson III",
+  "url": "https://cccbdb.nist.gov/",
+  "page": "Calculated > Vibrations > Vibrational eigenvectors (anivib3x.asp?method=8&basis=18), after selecting the species by formula",
+  "retrieved": "2026-10-20"
+ },
+ "species": {
+  "formula": "CH3OH",
+  "name": "Methyl alcohol"
+ },
+ "method": "B3LYP",
+ "basis": "aug-cc-pVTZ",
+ "heading": "Vibrational Eigenvectors for CH3OH (Methyl alcohol) calculated at B3LYP/aug-cc-pVTZ",
+ "units": {
+  "coordinates": "angstrom (CCCBDB standard orientation)",
+  "frequency": "cm-1 (harmonic, unscaled)",
+  "ir_intensity": "km/mol",
+  "reduced_mass": "amu",
+  "eigenvectors": "normalised Cartesian displacements, two decimals as printed"
+ },
+ "atoms": [
+  {
+   "index": 1,
+   "Z": 6,
+   "x": "-0.04643",
+   "y": "0.66568",
+   "z": "0.00000"
+  },
+  {
+   "index": 2,
+   "Z": 8,
+   "x": "-0.04643",
+   "y": "-0.75701",
+   "z": "0.00000"
+  },
+  {
+   "index": 3,
+   "Z": 1,
+   "x": "-1.08844",
+   "y": "0.97905",
+   "z": "0.00000"
+  },
+  {
+   "index": 4,
+   "Z": 1,
+   "x": "0.43831",
+   "y": "1.07651",
+   "z": "0.89083"
+  },
+  {
+   "index": 5,
+   "Z": 1,
+   "x": "0.43831",
+   "y": "1.07651",
+   "z": "-0.89083"
+  },
+  {
+   "index": 6,
+   "Z": 1,
+   "x": "0.86185",
+   "y": "-1.07012",
+   "z": "0.00000"
+  }
+ ],
+ "modes": [
+  {
+   "index": 1,
+   "number": 1,
+   "symmetry": "A'",
+   "frequency": "3829",
+   "ir_intensity": "31.0",
+   "reduced_mass": "1.0666",
+   "description": "description"
+  },
+  {
+   "index": 2,
+   "number": 2,
+   "symmetry": "A'",
+   "frequency": "3108",
+   "ir_intensity": "24.4",
+   "reduced_mass": "1.0973",
+   "description": "description"
+  },
+  {
+   "index": 3,
+   "number": 3,
+   "symmetry": "A'",
+   "frequency": "2993",
+   "ir_intensity": "63.2",
+   "reduced_mass": "1.0356",
+   "description": "description"
+  },
+  {
+   "index": 4,
+   "number": 4,
+   "symmetry": "A'",
+   "frequency": "1509",
+   "ir_intensity": "5.4",
+   "reduced_mass": "1.0415",
+   "description": "description"
+  },
+  {
+   "index": 5,
+   "number": 5,
+   "symmetry": "A'",
+   "frequency": "1478",
+   "ir_intensity": "3.2",
+   "reduced_mass": "1.1348",
+   "description": "description"
+  },
+  {
+   "index": 6,
+   "number": 6,
+   "symmetry": "A'",
+   "frequency": "1365",
+   "ir_intensity": "24.4",
+   "reduced_mass": "1.2912",
+   "description": "description"
+  },
+  {
+   "index": 7,
+   "number": 7,
+   "symmetry": "A'",
+   "frequency": "1077",
+   "ir_intensity": "1.1",
+   "reduced_mass": "1.3128",
+   "description": "description"
+  },
+  {
+   "index": 8,
+   "number": 8,
+   "symmetry": "A'",
+   "frequency": "1041",
+   "ir_intensity": "121.5",
+   "reduced_mass": "3.4434",
+   "description": "description"
+  },
+  {
+   "index": 9,
+   "number": 9,
+   "symmetry": "A\"",
+   "frequency": "3038",
+   "ir_intensity": "53.5",
+   "reduced_mass": "1.1055",
+   "description": "description"
+  },
+  {
+   "index": 10,
+   "number": 10,
+   "symmetry": "A\"",
+   "frequency": "1498",
+   "ir_intensity": "3.0",
+   "reduced_mass": "1.0483",
+   "description": "description"
+  },
+  {
+   "index": 11,
+   "number": 11,
+   "symmetry": "A\"",
+   "frequency": "1171",
+   "ir_intensity": "0.4",
+   "reduced_mass": "1.2649",
+   "description": "description"
+  },
+  {
+   "index": 12,
+   "number": 12,
+   "symmetry": "A\"",
+   "frequency": "290",
+   "ir_intensity": "105.4",
+   "reduced_mass": "1.0717",
+   "description": "description"
+  }
+ ],
+ "eigenvectors": [
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "O2",
+   "evx": "0.06",
+   "evy": "-0.02",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "H3",
+   "evx": "-0.01",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "H4",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "H5",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3829.241",
+   "atom": "H6",
+   "evx": "-0.94",
+   "evy": "0.34",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "C1",
+   "evx": "-0.09",
+   "evy": "0.01",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "H3",
+   "evx": "0.92",
+   "evy": "-0.26",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "H4",
+   "evx": "0.07",
+   "evy": "0.06",
+   "evz": "0.16"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "H5",
+   "evx": "0.07",
+   "evy": "0.06",
+   "evz": "-0.16"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "3107.864",
+   "atom": "H6",
+   "evx": "-0.02",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "C1",
+   "evx": "-0.03",
+   "evy": "-0.04",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "H3",
+   "evx": "-0.27",
+   "evy": "0.07",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "H4",
+   "evx": "0.30",
+   "evy": "0.24",
+   "evz": "0.56"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "H5",
+   "evx": "0.30",
+   "evy": "0.24",
+   "evz": "-0.56"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "2993.327",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "C1",
+   "evx": "0.04",
+   "evy": "0.02",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "O2",
+   "evx": "0.02",
+   "evy": "0.01",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "H3",
+   "evx": "0.10",
+   "evy": "0.30",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "H4",
+   "evx": "-0.45",
+   "evy": "-0.30",
+   "evz": "0.39"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "H5",
+   "evx": "-0.45",
+   "evy": "-0.30",
+   "evz": "-0.39"
+  },
+  {
+   "mode index": "4",
+   "mode number": "4",
+   "frequency": "1509.043",
+   "atom": "H6",
+   "evx": "-0.02",
+   "evy": "-0.10",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "C1",
+   "evx": "-0.02",
+   "evy": "0.10",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.02",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "H3",
+   "evx": "-0.21",
+   "evy": "-0.60",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "H4",
+   "evx": "0.22",
+   "evy": "-0.48",
+   "evz": "0.12"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "H5",
+   "evx": "0.22",
+   "evy": "-0.48",
+   "evz": "-0.12"
+  },
+  {
+   "mode index": "5",
+   "mode number": "5",
+   "frequency": "1477.871",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.02",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "C1",
+   "evx": "0.12",
+   "evy": "-0.02",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "O2",
+   "evx": "-0.08",
+   "evy": "-0.03",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "H3",
+   "evx": "0.01",
+   "evy": "-0.42",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "H4",
+   "evx": "-0.21",
+   "evy": "0.15",
+   "evz": "0.11"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "H5",
+   "evx": "-0.21",
+   "evy": "0.15",
+   "evz": "-0.11"
+  },
+  {
+   "mode index": "6",
+   "mode number": "6",
+   "frequency": "1365.337",
+   "atom": "H6",
+   "evx": "0.21",
+   "evy": "0.77",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "C1",
+   "evx": "-0.07",
+   "evy": "-0.13",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "O2",
+   "evx": "0.01",
+   "evy": "0.07",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "H3",
+   "evx": "0.11",
+   "evy": "0.47",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "H4",
+   "evx": "0.22",
+   "evy": "-0.35",
+   "evz": "-0.05"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "H5",
+   "evx": "0.22",
+   "evy": "-0.35",
+   "evz": "0.05"
+  },
+  {
+   "mode index": "7",
+   "mode number": "7",
+   "frequency": "1076.687",
+   "atom": "H6",
+   "evx": "0.19",
+   "evy": "0.61",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "C1",
+   "evx": "-0.06",
+   "evy": "0.31",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "-0.30",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "H3",
+   "evx": "0.06",
+   "evy": "0.66",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "H4",
+   "evx": "0.20",
+   "evy": "-0.02",
+   "evz": "-0.02"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "H5",
+   "evx": "0.20",
+   "evy": "-0.02",
+   "evz": "0.02"
+  },
+  {
+   "mode index": "8",
+   "mode number": "8",
+   "frequency": "1040.703",
+   "atom": "H6",
+   "evx": "0.28",
+   "evy": "0.46",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.09"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.03"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "H4",
+   "evx": "-0.33",
+   "evy": "-0.25",
+   "evz": "-0.57"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "H5",
+   "evx": "0.33",
+   "evy": "0.25",
+   "evz": "-0.57"
+  },
+  {
+   "mode index": "9",
+   "mode number": "9",
+   "frequency": "3038.321",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.06"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.01"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.73"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "H4",
+   "evx": "-0.39",
+   "evy": "0.27",
+   "evz": "0.07"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "H5",
+   "evx": "0.39",
+   "evy": "-0.27",
+   "evz": "0.07"
+  },
+  {
+   "mode index": "10",
+   "mode number": "10",
+   "frequency": "1498.213",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.01"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.14"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.06"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.27"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "H4",
+   "evx": "0.05",
+   "evy": "0.64",
+   "evz": "-0.19"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "H5",
+   "evx": "-0.05",
+   "evy": "-0.64",
+   "evz": "-0.19"
+  },
+  {
+   "mode index": "11",
+   "mode number": "11",
+   "frequency": "1170.91",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.01"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.01"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.07"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.29"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "H4",
+   "evx": "-0.22",
+   "evy": "0.03",
+   "evz": "0.10"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "H5",
+   "evx": "0.22",
+   "evy": "-0.03",
+   "evz": "0.10"
+  },
+  {
+   "mode index": "12",
+   "mode number": "12",
+   "frequency": "289.6438",
+   "atom": "H6",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.89"
+  }
+ ]
+}

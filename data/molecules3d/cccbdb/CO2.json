@@ -1,0 +1,196 @@
+{
+ "_about": "Raw table copied verbatim from NIST CCCBDB. Do not edit by hand; refetch instead. Read by src/ir_bands/molecules3d.py, configured in data/molecules3d.jsonc.",
+ "source": {
+  "database": "NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB), NIST Standard Reference Database 101",
+  "release": "Release 22 (May 2022), as served on the retrieval date",
+  "editor": "Russell D. Johnson III",
+  "url": "https://cccbdb.nist.gov/",
+  "page": "Calculated > Vibrations > Vibrational eigenvectors (anivib3x.asp?method=8&basis=18), after selecting the species by formula",
+  "retrieved": "2026-10-20"
+ },
+ "species": {
+  "formula": "CO2",
+  "name": "Carbon dioxide"
+ },
+ "method": "B3LYP",
+ "basis": "aug-cc-pVTZ",
+ "heading": "Vibrational Eigenvectors for CO2 (Carbon dioxide) calculated at B3LYP/aug-cc-pVTZ",
+ "units": {
+  "coordinates": "angstrom (CCCBDB standard orientation)",
+  "frequency": "cm-1 (harmonic, unscaled)",
+  "ir_intensity": "km/mol",
+  "reduced_mass": "amu",
+  "eigenvectors": "normalised Cartesian displacements, two decimals as printed"
+ },
+ "atoms": [
+  {
+   "index": 1,
+   "Z": 6,
+   "x": "0.00000",
+   "y": "0.00000",
+   "z": "0.00000"
+  },
+  {
+   "index": 2,
+   "Z": 8,
+   "x": "0.00000",
+   "y": "0.00000",
+   "z": "1.16047"
+  },
+  {
+   "index": 3,
+   "Z": 8,
+   "x": "0.00000",
+   "y": "0.00000",
+   "z": "-1.16047"
+  }
+ ],
+ "modes": [
+  {
+   "index": 1,
+   "number": 1,
+   "symmetry": "Σg",
+   "frequency": "1369",
+   "ir_intensity": "0.0",
+   "reduced_mass": "15.9949",
+   "description": "description"
+  },
+  {
+   "index": 2,
+   "number": 2,
+   "symmetry": "Σu",
+   "frequency": "2400",
+   "ir_intensity": "675.8",
+   "reduced_mass": "12.8774",
+   "description": "description"
+  },
+  {
+   "index": 3,
+   "number": 3,
+   "symmetry": "Πu",
+   "frequency": "674",
+   "ir_intensity": "30.3",
+   "reduced_mass": "12.8774",
+   "description": "description"
+  },
+  {
+   "index": 4,
+   "number": 3,
+   "symmetry": "Πu",
+   "frequency": "674",
+   "ir_intensity": "30.3",
+   "reduced_mass": "12.8774",
+   "description": "description"
+  }
+ ],
+ "eigenvectors": [
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "1369.205",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "1369.205",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.71"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "1369.205",
+   "atom": "O3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.71"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "2400.474",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.88"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "2400.474",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.33"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "2400.474",
+   "atom": "O3",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.33"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "C1",
+   "evx": "0.00",
+   "evy": "0.88",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "O2",
+   "evx": "0.00",
+   "evy": "-0.33",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "O3",
+   "evx": "0.00",
+   "evy": "-0.33",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "C1",
+   "evx": "0.88",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "O2",
+   "evx": "-0.33",
+   "evy": "0.00",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "4",
+   "mode number": "3",
+   "frequency": "673.6587",
+   "atom": "O3",
+   "evx": "-0.33",
+   "evy": "0.00",
+   "evz": "0.00"
+  }
+ ]
+}

@@ -1,0 +1,160 @@
+{
+ "_about": "Raw table copied verbatim from NIST CCCBDB. Do not edit by hand; refetch instead. Read by src/ir_bands/molecules3d.py, configured in data/molecules3d.jsonc.",
+ "source": {
+  "database": "NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB), NIST Standard Reference Database 101",
+  "release": "Release 22 (May 2022), as served on the retrieval date",
+  "editor": "Russell D. Johnson III",
+  "url": "https://cccbdb.nist.gov/",
+  "page": "Calculated > Vibrations > Vibrational eigenvectors (anivib3x.asp?method=8&basis=18), after selecting the species by formula",
+  "retrieved": "2026-10-20"
+ },
+ "species": {
+  "formula": "H2O",
+  "name": "Water"
+ },
+ "method": "B3LYP",
+ "basis": "aug-cc-pVTZ",
+ "heading": "Vibrational Eigenvectors for H2O (Water) calculated at B3LYP/aug-cc-pVTZ",
+ "units": {
+  "coordinates": "angstrom (CCCBDB standard orientation)",
+  "frequency": "cm-1 (harmonic, unscaled)",
+  "ir_intensity": "km/mol",
+  "reduced_mass": "amu",
+  "eigenvectors": "normalised Cartesian displacements, two decimals as printed"
+ },
+ "atoms": [
+  {
+   "index": 1,
+   "Z": 8,
+   "x": "0.00000",
+   "y": "0.00000",
+   "z": "0.11702"
+  },
+  {
+   "index": 2,
+   "Z": 1,
+   "x": "0.00000",
+   "y": "0.76349",
+   "z": "-0.46806"
+  },
+  {
+   "index": 3,
+   "Z": 1,
+   "x": "0.00000",
+   "y": "-0.76349",
+   "z": "-0.46806"
+  }
+ ],
+ "modes": [
+  {
+   "index": 1,
+   "number": 1,
+   "symmetry": "A1",
+   "frequency": "3796",
+   "ir_intensity": "4.6",
+   "reduced_mass": "1.0445",
+   "description": "description"
+  },
+  {
+   "index": 2,
+   "number": 2,
+   "symmetry": "A1",
+   "frequency": "1628",
+   "ir_intensity": "75.7",
+   "reduced_mass": "1.0834",
+   "description": "description"
+  },
+  {
+   "index": 3,
+   "number": 3,
+   "symmetry": "B2",
+   "frequency": "3899",
+   "ir_intensity": "63.0",
+   "reduced_mass": "1.0824",
+   "description": "description"
+  }
+ ],
+ "eigenvectors": [
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3796.075",
+   "atom": "O1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "0.05"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3796.075",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "0.59",
+   "evz": "-0.39"
+  },
+  {
+   "mode index": "1",
+   "mode number": "1",
+   "frequency": "3796.075",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "-0.59",
+   "evz": "-0.39"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1627.617",
+   "atom": "O1",
+   "evx": "0.00",
+   "evy": "0.00",
+   "evz": "-0.07"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1627.617",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "0.42",
+   "evz": "0.56"
+  },
+  {
+   "mode index": "2",
+   "mode number": "2",
+   "frequency": "1627.617",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "-0.42",
+   "evz": "0.56"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3898.605",
+   "atom": "O1",
+   "evx": "0.00",
+   "evy": "-0.07",
+   "evz": "0.00"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3898.605",
+   "atom": "H2",
+   "evx": "0.00",
+   "evy": "0.56",
+   "evz": "-0.43"
+  },
+  {
+   "mode index": "3",
+   "mode number": "3",
+   "frequency": "3898.605",
+   "atom": "H3",
+   "evx": "0.00",
+   "evy": "0.56",
+   "evz": "0.43"
+  }
+ ]
+}

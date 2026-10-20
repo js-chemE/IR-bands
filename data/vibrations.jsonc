@@ -31,6 +31,11 @@
 //                 (the same keys bands.jsonc's own `group` field uses) — not
 //                 validated against any one band.
 //   modes[].reference → citekeys, resolved against references.bib.
+//   molecules[].id, topologies[].id, modes[].id and modes[].symmetry are read
+//                 by data/molecules3d.jsonc, which maps each gas-phase mode
+//                 to its NIST CCCBDB normal mode for the 3D animation. The
+//                 build refuses a symmetry mismatch, so renaming a mode id
+//                 or changing a symmetry here means updating that file too.
 //
 // IMPORTANT — this file does NOT point at bands.jsonc at all; the link runs
 // the other way. A Band in bands.jsonc optionally lists its own

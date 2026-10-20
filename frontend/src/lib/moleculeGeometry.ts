@@ -1,3 +1,9 @@
+// Where docs/data/molecules3d.json has a molecule and topology (today: all of
+// them, gas and adsorbed), MoleculeView draws the computed 3D model instead
+// and the entry below is only the fallback. The adsorbate animations in
+// data/molecules3d.jsonc were translated from the vectors here, so this file
+// is also their original. See lib/molecule3d.ts and src/ir_bands/adsorbates.py.
+//
 // Explicit, hand-authored geometry + displacement vectors for the vibration-
 // modes molecule diagrams, keyed by Molecule.id + Topology.id, then by
 // VibrationMode.id, from vibrations.json. Deliberately not inferred from a

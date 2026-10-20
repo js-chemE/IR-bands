@@ -3,7 +3,7 @@
   import { geometryFor, VIBRATIONAL_SYMMETRY, mullikenDegeneracy, vibrationalModeTotal } from '../lib/moleculeGeometry';
   import MoleculeSelector from './vibration/MoleculeSelector.svelte';
   import TopologySelector from './vibration/TopologySelector.svelte';
-  import MoleculeViewer from './vibration/MoleculeViewer.svelte';
+  import MoleculeView from './vibration/MoleculeView.svelte';
   import ModeList from './vibration/ModeList.svelte';
   import ModeDetailPanel from './vibration/ModeDetailPanel.svelte';
 
@@ -280,7 +280,14 @@
             {/if}
             <div class="viewer-inner">
               <div class="diagram-col">
-                <MoleculeViewer {geometry} {activeVectors} />
+                <MoleculeView
+                  {geometry}
+                  {activeVectors}
+                  moleculeId={molecule.id}
+                  topologyId={selectedTopologyId}
+                  modeId={activeMode?.id ?? null}
+                  interactive
+                />
               </div>
               <ModeList
                 modes={filteredModes}

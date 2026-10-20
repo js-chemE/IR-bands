@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { MoleculeGeometry, ModeVector } from '../../lib/moleculeGeometry';
-  import { colorForElement, textColorForElement, radiusForElement } from '../../lib/elementColors';
+  import { radiusForElement } from '../../lib/elementColors';
+  // Colours, edges and bonds in phd_ui's look, shared with MoleculeViewer3D.
+  // Sizes and positions stay hand-authored here (moleculeGeometry.ts).
+  import { atomStyle, ATOM_EDGE_WIDTH, BOND_COLOR } from '../../lib/molecule3d';
 
   export let geometry: MoleculeGeometry;
   export let activeVectors: ModeVector[] | null = null;
@@ -87,6 +90,7 @@
 
 <svg
   class="molecule-viewer"
+  style:--bond-color={BOND_COLOR}
   viewBox="-50 -52 100 104"
   style="width:{size}px; height:{size * 1.04}px;"
   role="img"
@@ -113,12 +117,17 @@
     />
   {/each}
   {#each positions as p}
-    <circle cx={p.x} cy={p.y} r={p.r} fill={colorForElement(p.element)} class="atom" />
+    <circle
+      cx={p.x} cy={p.y} r={p.r}
+      fill={atomStyle(p.element).fill}
+      stroke={atomStyle(p.element).edge}
+      stroke-width={ATOM_EDGE_WIDTH}
+    />
     <text
       x={p.x} y={p.y}
       class="atom-label"
       style="font-size: {7 * (p.r / p.restR)}px"
-      fill={textColorForElement(p.element)}
+      fill={atomStyle(p.element).text}
     >{p.element}</text>
   {/each}
   {#if geometry.surface && geometry.surface.buriedAtoms?.length}
@@ -138,7 +147,7 @@
   }
 
   .bond {
-    stroke: var(--ink-100);
+    stroke: var(--bond-color);
     stroke-width: 2;
   }
 
@@ -158,11 +167,6 @@
      a visible colored block. */
   .surface-slab {
     fill: var(--surface-sunken);
-  }
-
-  .atom {
-    stroke: rgba(0, 0, 0, 0.25);
-    stroke-width: 1;
   }
 
   .atom-label {

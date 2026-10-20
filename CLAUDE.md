@@ -38,6 +38,9 @@ data/techniques.jsonc     ← the techniques as records: label, family, spectros
                             parent, tip, note; references[].technique points here
 data/vibrations.jsonc     ← source of truth for the vibration-modes page (JSONC with comments)
 data/references.bib       ← BibTeX references
+data/molecules3d.jsonc    ← 3D molecules for the vibration animations: frame, view and
+                            the mode mapping vibrations.jsonc → NIST CCCBDB normal mode
+data/molecules3d/cccbdb/  ← raw CCCBDB tables (geometry, modes, eigenvectors), verbatim
 build.py                  ← data build: validates, assigns lanes, emits JSON
 src/ir_bands/
   schema.py               ← dataclasses: Band, Vibration, BasedOn, Region, Group, Dataset,
@@ -106,6 +109,8 @@ frontend/src/
     VibrationModesPage.svelte← molecule selector + mode list/detail panel; no longer a
                               page of its own, embedded in Dataset → Contents
     vibration/               ← MoleculeViewer, MoleculeSelector, ModeList, ModeDetailPanel
+                              MoleculeView picks MoleculeViewer3D (computed, CCCBDB) where
+                              molecules3d.json has the molecule, else MoleculeViewer
   lib/
     tokens.ts             ← DESIGN TOKENS: every color, type role, radius, shadow,
                               chart dimension, shell width step, presentation
@@ -149,6 +154,9 @@ frontend/src/
     colors.ts             ← color-dimension helpers; palettes re-exported from tokens.ts
     citations.ts           ← shared IEEE-style citation formatting (chart tooltip + both pages)
     moleculeGeometry.ts    ← pixel atom geometry/displacement vectors for the vibration diagrams
+                              (now the fallback, and the original of the adsorbate motions)
+    molecule3d.ts          ← loads molecules3d.json; projection, painter order, bond
+                              trimming, depth cue for MoleculeViewer3D
     claimFilter.ts        ← CLAIM FILTER: the technique vocabulary (with
                               TECHNIQUE_PARENT refinements), the phase rows,
                               the element scopes, claimExcluded/refOff and
@@ -486,6 +494,52 @@ caveat rather than for what the individual tag means: a warning has to read as
 one at a glance.
 
 **Data flow:** `bands.jsonc` → `build.py` → `docs/data/bands.json` → loaded by frontend at runtime → Observable Plot chart. `vibrations.jsonc` follows the same path to `docs/data/vibrations.json`, validated against the *already-loaded* `bands.jsonc` dataset (see `validate_vibrations` in `loader.py`) so the two never drift apart silently.
+
+## 3D molecules (vibration animations)
+
+The gas-phase molecules on the Normal modes page and in the band cards' mini
+cards are drawn from real 3D data, not hand-placed points:
+
+- **Source.** NIST CCCBDB (SRD 101), B3LYP/aug-cc-pVTZ geometry and harmonic
+  normal modes, copied verbatim into `data/molecules3d/cccbdb/<formula>.json`
+  with the retrieval date. Diatomics: CCCBDB experimental r_e
+  (`diatomics.json`, with CCCBDB's own source key per value); their stretch
+  vector comes from the masses (centre of mass fixed).
+- **Config.** `data/molecules3d.jsonc` orients each molecule (`frame`,
+  `view`) and maps each `VibrationMode.id` to a CCCBDB mode index. Its
+  preamble documents the conventions and how to add a molecule.
+- **Build.** `python src/ir_bands/molecules3d.py` (stdlib only; build.py
+  calls it too) writes `docs/data/molecules3d.json` and prints the mapping
+  with calculated vs listed wavenumbers. It refuses a symmetry mismatch
+  and lists unmapped gas-phase modes.
+- **Frontend.** `lib/molecule3d.ts` does one frame: orthographic
+  projection, depth cue normalised by the molecule's reach, painter order
+  (each bond drawn just before its nearer atom), bonds starting at the far
+  atom's 3D surface and ending under the near atom, element symbol drawn
+  with its atom. `MoleculeViewer3D.svelte` animates (same period and
+  amplitude as the old viewer; amplitude capped at a fifth of the shortest
+  bond) and, on the Normal modes page, turns on drag (double-click
+  resets). `MoleculeView.svelte` chooses between it and the hand-drawn
+  `MoleculeViewer`.
+- **Same rules as phd_ui.structure**, re-implemented here on purpose:
+  IR-bands does not depend on phd_ui.
+- **Motion is linear** along the normal-mode vector, as the harmonic
+  picture is, so bends stretch bonds slightly at the turning points.
+  Degenerate modes draw one component, chosen in the config.
+- **Adsorbed species** (formate, carbonate, bicarbonate, methoxy, CO on
+  sites) are built by `src/ir_bands/adsorbates.py` from bond lengths and
+  angles in the config, each with its literature source in a comment, or
+  marked ASSUMED where none was found. Their modes are the old hand-drawn
+  animations translated into per-atom operations (along/across a bond,
+  toward an atom, a fixed direction, or a rotation about a pivot), so they
+  follow the real geometry. The viewer draws a surface slab and dotted
+  surface bonds, and on drag turns them about the surface normal only.
+  `moleculeGeometry.ts` is now the fallback and the original of those
+  motions.
+- **Default view is straight from the front** (adsorbates and CO₂; only
+  methanol, CH₄ and NH₃ are turned, because face-on some H would hide behind
+  C or N). Motion toward the viewer also scales the atom, up to ±35% at full
+  travel, the same cue the hand-drawn diagrams used for out-of-plane motion.
 
 ## Editing the JSONC data files
 
