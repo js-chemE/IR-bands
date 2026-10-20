@@ -86,6 +86,9 @@
 // The height above the surface is drawn shortened (settings.surface_gap):
 // the bound atom is lowered to that fraction of its real height, the
 // molecule keeps its shape, and only the dotted surface bonds come out short.
+// Monodentate formate, carbonate and bicarbonate are drawn with the bound
+// O-C along the surface normal at rest and the M-O bond leaning, so M-O-C
+// keeps its value (adsorbates.py, UPRIGHT).
 {
   "settings": {
     // Atoms closer to the viewer are drawn larger, by up to this fraction at

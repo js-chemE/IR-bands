@@ -192,8 +192,37 @@ BUILDERS = {
 }
 
 
+# Bound through one O, these are drawn with that O-C bond along the normal
+# at rest and the M-O bond leaning instead, keeping the M-O-C angle.
+UPRIGHT = {"formate_monodentate", "carbonate_monodentate", "bicarbonate_monodentate"}
+
+
+def _turn_z(p, deg):
+    t = math.radians(deg)
+    return [p[0] * math.cos(t) - p[1] * math.sin(t), p[0] * math.sin(t) + p[1] * math.cos(t), p[2]]
+
+
+def _stand_upright(atoms, anchors):
+    """Turn about z through the bound O so its O-C bond points up, then put
+    the surface point back on y = 0. Returns the turn, for the modes' fixed
+    directions."""
+    o_idx, at = anchors[0]
+    o, c = atoms[o_idx][1], atoms[0][1]
+    v = _sub(c, o)
+    deg = math.degrees(math.atan2(v[0], v[1]))
+    move = lambda p: _add(o, _turn_z(_sub(p, o), deg))
+    atoms = [(e, move(p)) for e, p in atoms]
+    anchors = [(a, move(p)) for a, p in anchors]
+    shift = [-anchors[0][1][0], -anchors[0][1][1], 0]
+    return ([(e, _add(p, shift)) for e, p in atoms],
+            [(a, _add(p, shift)) for a, p in anchors], deg)
+
+
 def build_geometry(kind, g):
-    return BUILDERS[kind](g)
+    atoms, anchors = BUILDERS[kind](g)
+    if kind in UPRIGHT:
+        return _stand_upright(atoms, anchors)
+    return atoms, anchors, 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +235,7 @@ def _in_plane_across(u):
     return _unit(w) if _norm(w) > 1e-6 else [1, 0, 0]
 
 
-def resolve_mode(ops, xyz, anchors):
+def resolve_mode(ops, xyz, anchors, turn=0.0):
     """Per-atom displacement vectors (amplitude units) and rotations (pm)."""
     disp, rots = [], []
     for i, op in enumerate(ops):
@@ -226,7 +255,7 @@ def resolve_mode(ops, xyz, anchors):
                 p_, q_ = op["along_atoms"]
                 d = _add(d, _mul(_unit(_sub(xyz[q_], xyz[p_])), op["a"]))
             if "dir" in op:
-                d = _add(d, [float(x) for x in op["dir"]])
+                d = _add(d, _turn_z([float(x) for x in op["dir"]], turn))
             if "rotate" in op:
                 ro = op["rotate"]
                 if "pivot" in ro:
@@ -248,7 +277,7 @@ def resolve_mode(ops, xyz, anchors):
 
 
 def build_adsorbate(mol_id, topo_id, cfg, vib_modes, surface_gap=1.0):
-    atoms, anchors = build_geometry(cfg["adsorbate"], cfg["geometry"])
+    atoms, anchors, turn = build_geometry(cfg["adsorbate"], cfg["geometry"])
     xyz = [_mul(p, 100.0) for _, p in atoms]                 # Å -> pm
     anchors = [(a, _mul(p, 100.0)) for a, p in anchors]
     # Drawn, not measured: lower the molecule toward the surface so the bound
@@ -266,7 +295,7 @@ def build_adsorbate(mol_id, topo_id, cfg, vib_modes, surface_gap=1.0):
             raise ValueError(f"{mol_id}/{topo_id}: mode {mode_id!r} is not in vibrations.jsonc")
         if len(ops) != len(xyz):
             raise ValueError(f"{mol_id}/{topo_id}: {mode_id} has {len(ops)} entries for {len(xyz)} atoms")
-        disp, rots = resolve_mode(ops, xyz, anchors)
+        disp, rots = resolve_mode(ops, xyz, anchors, turn)
         m = {"cccbdb_index": None, "symmetry": None, "harmonic_cm": None, "ir_intensity": None,
              "displacement": disp}
         if rots:
