@@ -593,6 +593,15 @@ Rules when touching the frontend:
   right, the visual sticky where one spans several subsections. A spread never
   crosses a part boundary, so the cut between parts stays clean.
 
+**To do (noted 2026-10-21): typography.** `FONTS` in `tokens.ts` is still the
+system stack (system-ui, ui-monospace, Cambria Math). Consider switching to the
+families used everywhere else (phd_ui's figures, the Box 2 control GUI):
+**Source Sans 3** for all text, **Source Serif 4** for formulas (the role the
+maths face plays now), and **Source Code Pro** for wavenumbers, ids and code,
+all three open (OFL) and bundled as web fonts so no CDN is needed. Check after
+the switch: the half-pixel sizes of the tooltip roles, line heights, and the
+first-measure-after-web-font layout note further down. Not decided yet.
+
 ### The shell adapts, the chart does not
 
 The shell measures itself and stamps the step on the document element:
