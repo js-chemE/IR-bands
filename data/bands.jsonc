@@ -4948,6 +4948,7 @@
       "phase": "adsorbed",
       "topology": "monodentate",
       "group": "carbonate",
+      "vibration_modes": ["carbonate_stretch_anchor_monodentate"],
       "vibration": {
         "category": "stretch",
         "subtype": "symmetric",
@@ -5375,6 +5376,7 @@
       "phase": "adsorbed",
       "topology": "bidentate",
       "group": "bicarbonate",
+      "vibration_modes": ["bicarbonate_stretch_oh_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -5437,6 +5439,7 @@
       "phase": "adsorbed",
       "topology": "bidentate",
       "group": "bicarbonate",
+      "vibration_modes": ["bicarbonate_stretch_coh_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -5473,6 +5476,7 @@
       "phase": "adsorbed",
       "topology": "bidentate",
       "group": "bicarbonate",
+      "vibration_modes": ["bicarbonate_wagging_bidentate"],
       "vibration": {
         "category": "bend",
         "subtype": "wagging",
@@ -5511,6 +5515,7 @@
       "group": "bicarbonate",
       "isotopologue_of": "bicarbonate_oh_stretch",
       "isotope": "D",
+      "vibration_modes": ["bicarbonate_stretch_oh_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": null,
@@ -5587,6 +5592,7 @@
       "group": "bicarbonate",
       "isotopologue_of": "bicarbonate_oh_stretch",
       "isotope": "¹⁸O",
+      "vibration_modes": ["bicarbonate_stretch_oh_bidentate"],
       "vibration": {
         "category": "stretch",
         "subtype": null,

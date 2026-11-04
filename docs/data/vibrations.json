@@ -1129,14 +1129,16 @@
             "Solis.InitialStagesCO2.2017"
           ],
           "category": "stretch",
-          "subtype": null,
+          "subtype": "symmetric",
           "atoms": "C-O",
           "topology": "monodentate",
           "herzberg_notation": "ν₃",
           "symmetry": "A′",
           "wn_start": 1050,
           "wn_end": 1070,
-          "bands": []
+          "bands": [
+            "carbonate_monodentate_co_stretch"
+          ]
         },
         {
           "id": "carbonate_wagging_monodentate",
@@ -1475,7 +1477,11 @@
           "symmetry": "A′",
           "wn_start": 3600,
           "wn_end": 3627,
-          "bands": []
+          "bands": [
+            "bicarbonate_oh_stretch",
+            "bicarbonate_od_stretch",
+            "bicarbonate_18o_oh_stretch"
+          ]
         },
         {
           "id": "bicarbonate_stretch_coh_bidentate",
@@ -1498,7 +1504,9 @@
           "symmetry": "A′",
           "wn_start": 1010,
           "wn_end": null,
-          "bands": []
+          "bands": [
+            "bicarbonate_coh_stretch"
+          ]
         },
         {
           "id": "bicarbonate_bend_oco_bidentate",
@@ -1567,7 +1575,9 @@
           "symmetry": "A″",
           "wn_start": 820,
           "wn_end": null,
-          "bands": []
+          "bands": [
+            "bicarbonate_oop_bend"
+          ]
         },
         {
           "id": "bicarbonate_torsion_bidentate",
