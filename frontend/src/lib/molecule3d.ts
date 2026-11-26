@@ -171,7 +171,7 @@ export const ATOM_STYLE: Record<string, AtomStyle> = {
   Br: { fill: '#A62929', edge: '#641919', text: WHITE,    radiusPm: 120 },
   I:  { fill: '#940094', edge: '#590059', text: WHITE,    radiusPm: 139 },
   Zn: { fill: '#797caa', edge: '#3d3f60', text: WHITE,    radiusPm: 122 },
-  Ga: { fill: '#be7e7f', edge: '#724445', text: INK_BASE, radiusPm: 122 },
+  Ga: { fill: '#69c5ff', edge: '#387faa', text: INK_BASE, radiusPm: 122 },
   Cu: { fill: '#bb731e', edge: '#683b02', text: WHITE,    radiusPm: 132 },
   M:  { fill: '#9aa1ac', edge: '#5e6570', text: INK_BASE, radiusPm: 135 },
 };

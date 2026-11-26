@@ -4,7 +4,7 @@
     "wavenumber_unit": "cm^-1",
     "description": "Approximate band positions for surface and gas-phase species in CO₂ hydrogenation. Exact positions depend on support, coverage, and reaction conditions. The asterisk (*) denotes a surface-bound species.",
     "schema_version": 3,
-    "next_claim_id": 559
+    "next_claim_id": 582
   },
   "regions": {
     "very_high": {
@@ -879,6 +879,131 @@
       "note": "",
       "all_elements": [
         "Ru"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "os_0": {
+      "key": "os_0",
+      "label": "Os⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Os",
+      "oxidation_state": 0,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [],
+      "note": "",
+      "all_elements": [
+        "Os"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "rh_0": {
+      "key": "rh_0",
+      "label": "Rh⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Rh",
+      "oxidation_state": 0,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [],
+      "note": "",
+      "all_elements": [
+        "Rh"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ir_0": {
+      "key": "ir_0",
+      "label": "Ir⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ir",
+      "oxidation_state": 0,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [],
+      "note": "",
+      "all_elements": [
+        "Ir"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ni_0": {
+      "key": "ni_0",
+      "label": "Ni⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ni",
+      "oxidation_state": 0,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [],
+      "note": "",
+      "all_elements": [
+        "Ni"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ga_0": {
+      "key": "ga_0",
+      "label": "Ga⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ga",
+      "oxidation_state": 0,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [],
+      "note": "Gallium reduced into a bimetallic alloy (MGa nanoparticles made by surface organometallic chemistry and reduced in H₂), as the Ga K-edge XAS of those catalysts shows. The oxidised Ga next to it is ga_3p.",
+      "all_elements": [
+        "Ga"
       ],
       "lineage": [],
       "compound": false
@@ -1842,6 +1967,134 @@
       "all_elements": [
         "Hf",
         "Zn"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ruga_gaox_interface": {
+      "key": "ruga_gaox_interface",
+      "label": "RuGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ru_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the RuGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface.",
+      "all_elements": [
+        "Ga",
+        "O",
+        "Ru"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "osga_gaox_interface": {
+      "key": "osga_gaox_interface",
+      "label": "OsGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "os_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the OsGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface.",
+      "all_elements": [
+        "Ga",
+        "O",
+        "Os"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "rhga_gaox_interface": {
+      "key": "rhga_gaox_interface",
+      "label": "RhGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "rh_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the RhGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface.",
+      "all_elements": [
+        "Ga",
+        "O",
+        "Rh"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "irga_gaox_interface": {
+      "key": "irga_gaox_interface",
+      "label": "IrGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ir_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the IrGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface.",
+      "all_elements": [
+        "Ga",
+        "Ir",
+        "O"
       ],
       "lineage": [],
       "compound": false
@@ -3309,6 +3562,211 @@
         "Cu",
         "O",
         "Zr"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ruga_sio2": {
+      "key": "ruga_sio2",
+      "label": "RuGa@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ru_0",
+        "ga_0",
+        "ga_3p",
+        "ruga_gaox_interface",
+        "sio2"
+      ],
+      "note": "RuGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Ru grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms.",
+      "all_elements": [
+        "Ga",
+        "H",
+        "O",
+        "Ru",
+        "Si"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "osga_sio2": {
+      "key": "osga_sio2",
+      "label": "OsGa@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "os_0",
+        "ga_0",
+        "ga_3p",
+        "osga_gaox_interface",
+        "sio2"
+      ],
+      "note": "OsGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Os grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms.",
+      "all_elements": [
+        "Ga",
+        "H",
+        "O",
+        "Os",
+        "Si"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "rhga_sio2": {
+      "key": "rhga_sio2",
+      "label": "RhGa@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "rh_0",
+        "ga_0",
+        "ga_3p",
+        "rhga_gaox_interface",
+        "sio2"
+      ],
+      "note": "RhGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Rh grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms.",
+      "all_elements": [
+        "Ga",
+        "H",
+        "O",
+        "Rh",
+        "Si"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "irga_sio2": {
+      "key": "irga_sio2",
+      "label": "IrGa@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ir_0",
+        "ga_0",
+        "ga_3p",
+        "irga_gaox_interface",
+        "sio2"
+      ],
+      "note": "IrGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Ir grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms.",
+      "all_elements": [
+        "Ga",
+        "H",
+        "Ir",
+        "O",
+        "Si"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "ir_sio2": {
+      "key": "ir_sio2",
+      "label": "Ir@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ir_0",
+        "sio2"
+      ],
+      "note": "Ir nanoparticles on silica made by the same surface organometallic route as IrGa@SiO₂ but without Ga: the monometallic reference, a methanation catalyst (Zhou et al. 2025).",
+      "all_elements": [
+        "H",
+        "Ir",
+        "O",
+        "Si"
+      ],
+      "lineage": [],
+      "compound": false
+    },
+    "niga_sio2": {
+      "key": "niga_sio2",
+      "label": "NiGa@SiO₂",
+      "level": "material",
+      "kind": null,
+      "element": null,
+      "oxidation_state": null,
+      "formula": null,
+      "composition": null,
+      "elements": [],
+      "refines": null,
+      "charge": null,
+      "coordination": null,
+      "polymorph": null,
+      "facet": null,
+      "form": null,
+      "stoichiometry": null,
+      "parts": [
+        "ni_0",
+        "ga_0",
+        "ga_3p",
+        "sio2"
+      ],
+      "note": "NiGa alloy nanoparticles (about 2 nm) on silica from surface organometallic chemistry, published as a series NiₓGa₁₀₀₋ₓ@SiO₂; the member is named in each note. Ni₆₅Ga₃₅ forms a random fcc Ni₃Ga alloy whose bulk stays under CO₂ hydrogenation while part of the surface Ga oxidises (as summarised by Hansen et al. 2025).",
+      "all_elements": [
+        "Ga",
+        "H",
+        "Ni",
+        "O",
+        "Si"
       ],
       "lineage": [],
       "compound": false
@@ -6861,6 +7319,29 @@
           "specimen_elements": [],
           "specimens": [],
           "placement": null
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 577,
+          "wn": 2170,
+          "measured_on": null,
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "free",
+          "note": "In situ DRIFTS section (MGa@SiO₂, M = Ru, Os, Rh, Ir; H₂/CO₂/Ar = 3:1:1, 20 bar): a band at 2170 cm⁻¹ named gaseous CO, the only by-product beside methanol and DME over these catalysts. No P branch is quoted.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "free"
+          ],
+          "uid": "co_stretch_r::Zhou.GalliumUniversalPromoter.2025",
+          "site_elements": [],
+          "specimen_elements": [],
+          "specimens": [],
+          "placement": null
         }
       ],
       "tags": [
@@ -7314,6 +7795,29 @@
             "free"
           ],
           "uid": "ch4g_asym::Jourdanneau.MethaneRamanSpectrum.2005",
+          "site_elements": [],
+          "specimen_elements": [],
+          "specimens": [],
+          "placement": null
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 578,
+          "wn": 3015,
+          "measured_on": null,
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "free",
+          "note": "In situ DRIFTS section (H₂/CO₂/Ar = 3:1:1, 20 bar): gas CH₄ in the cell, weak over the MGa@SiO₂ catalysts and of high intensity over Ru@SiO₂ and Rh@SiO₂, where weak rotational lines between 2600 and 3200 cm⁻¹ come with it. Matches the > 97 % methane selectivity of the Ga-free catalysts.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "free"
+          ],
+          "uid": "ch4g_asym::Zhou.GalliumUniversalPromoter.2025",
           "site_elements": [],
           "specimen_elements": [],
           "specimens": [],
@@ -8900,6 +9404,313 @@
             "cuga_sio2"
           ],
           "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 559,
+          "wn": null,
+          "measured_on": "ruga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RuGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the upper of two CO* bands on all four MGa@SiO₂ catalysts, given only as a range for the set, 2040–2070 cm⁻¹. Following an earlier PtGa report, the paper places it on the MGa alloy and the lower band (1930–2000 cm⁻¹) at MGa-GaOₓ interfaces. It speaks of two families of CO sites and names no topology; filing both as linear is the author’s reading.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Ru",
+            "Si"
+          ],
+          "specimens": [
+            "ruga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 560,
+          "wn": null,
+          "measured_on": [
+            "ruga_gaox_interface",
+            "ruga_sio2"
+          ],
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RuGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the lower of two CO* bands, given only as a range for the four MGa@SiO₂, 1930–2000 cm⁻¹, placed (“likely”) at MGa-GaOₓ interfaces after an earlier PtGa report. XAS does not see these interfaces, so the paper takes their amount to be small and links them to methanol formation. No topology named; filing it as linear is the author’s reading, and the range overlaps bridged CO.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::2",
+          "site_elements": [
+            "Ga",
+            "O",
+            "Ru"
+          ],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Ru",
+            "Si"
+          ],
+          "specimens": [
+            "ruga_sio2"
+          ],
+          "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 563,
+          "wn": null,
+          "measured_on": "osga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, OsGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the upper of two CO* bands on all four MGa@SiO₂ catalysts, given only as a range for the set, 2040–2070 cm⁻¹. Following an earlier PtGa report, the paper places it on the MGa alloy and the lower band (1930–2000 cm⁻¹) at MGa-GaOₓ interfaces. It speaks of two families of CO sites and names no topology; filing both as linear is the author’s reading.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::3",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Os",
+            "Si"
+          ],
+          "specimens": [
+            "osga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 564,
+          "wn": null,
+          "measured_on": [
+            "osga_gaox_interface",
+            "osga_sio2"
+          ],
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, OsGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the lower of two CO* bands, given only as a range for the four MGa@SiO₂, 1930–2000 cm⁻¹, placed (“likely”) at MGa-GaOₓ interfaces after an earlier PtGa report. XAS does not see these interfaces, so the paper takes their amount to be small and links them to methanol formation. No topology named; filing it as linear is the author’s reading, and the range overlaps bridged CO.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::4",
+          "site_elements": [
+            "Ga",
+            "O",
+            "Os"
+          ],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Os",
+            "Si"
+          ],
+          "specimens": [
+            "osga_sio2"
+          ],
+          "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 567,
+          "wn": null,
+          "measured_on": "rhga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RhGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the upper of two CO* bands on all four MGa@SiO₂ catalysts, given only as a range for the set, 2040–2070 cm⁻¹. Following an earlier PtGa report, the paper places it on the MGa alloy and the lower band (1930–2000 cm⁻¹) at MGa-GaOₓ interfaces. It speaks of two families of CO sites and names no topology; filing both as linear is the author’s reading.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::5",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Rh",
+            "Si"
+          ],
+          "specimens": [
+            "rhga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 568,
+          "wn": null,
+          "measured_on": [
+            "rhga_gaox_interface",
+            "rhga_sio2"
+          ],
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RhGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the lower of two CO* bands, given only as a range for the four MGa@SiO₂, 1930–2000 cm⁻¹, placed (“likely”) at MGa-GaOₓ interfaces after an earlier PtGa report. XAS does not see these interfaces, so the paper takes their amount to be small and links them to methanol formation. No topology named; filing it as linear is the author’s reading, and the range overlaps bridged CO.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::6",
+          "site_elements": [
+            "Ga",
+            "O",
+            "Rh"
+          ],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Rh",
+            "Si"
+          ],
+          "specimens": [
+            "rhga_sio2"
+          ],
+          "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 571,
+          "wn": null,
+          "measured_on": "irga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, IrGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the upper of two CO* bands on all four MGa@SiO₂ catalysts, given only as a range for the set, 2040–2070 cm⁻¹. Following an earlier PtGa report, the paper places it on the MGa alloy and the lower band (1930–2000 cm⁻¹) at MGa-GaOₓ interfaces. It speaks of two families of CO sites and names no topology; filing both as linear is the author’s reading.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::7",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "irga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 572,
+          "wn": null,
+          "measured_on": [
+            "irga_gaox_interface",
+            "irga_sio2"
+          ],
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, IrGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): the lower of two CO* bands, given only as a range for the four MGa@SiO₂, 1930–2000 cm⁻¹, placed (“likely”) at MGa-GaOₓ interfaces after an earlier PtGa report. XAS does not see these interfaces, so the paper takes their amount to be small and links them to methanol formation. No topology named; filing it as linear is the author’s reading, and the range overlaps bridged CO.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Zhou.GalliumUniversalPromoter.2025::8",
+          "site_elements": [
+            "Ga",
+            "Ir",
+            "O"
+          ],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "irga_sio2"
+          ],
+          "placement": "site"
+        },
+        {
+          "key": "Hansen.UniversalRoleGallium.2025",
+          "id": 579,
+          "wn": 2054,
+          "measured_on": "niga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "Fig. 6a of the Account, adapted from Zimmerli et al. (its ref. 42, the original not read): operando DRIFTS of Ni₆₅Ga₃₅@SiO₂ (Ni₃Ga alloy, pre-activated in H₂ at 300 °C) at 230 °C, 20 bar, CO₂/H₂/N₂ = 1:3:1, GHSV 60 L g⁻¹ h⁻¹: adsorbed CO* as an intense peak at 2054 cm⁻¹, with methoxy at 2962 and 2860 cm⁻¹. The Account reads this as the same mechanism as over Cu, Pd and Pt: the bulk alloy stays while part of the surface Ga oxidises. Topology not named; linear is the author’s reading. The Account quotes M-CO* at 2037–2063 cm⁻¹ for the Ru, Os, Rh and Ir analogues of Zhou et al. 2025, recorded there.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "co_linear_mu1::Hansen.UniversalRoleGallium.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ni",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "niga_sio2"
+          ],
+          "placement": "specimen"
         }
       ],
       "tags": [
@@ -19463,6 +20274,191 @@
             "cuin_sio2"
           ],
           "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 561,
+          "wn": 2960,
+          "measured_on": "ruga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RuGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2960” cm⁻¹, one value for all four MGa@SiO₂, with νₛ(CH₃) at 2858 cm⁻¹, assigned to surface methoxy, the key methanol intermediate. Absent over Ru@SiO₂ and Rh@SiO₂, which show only gas CH₄; DFT in the same paper has Ga making C-O cleavage of methoxy less favourable. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Zhou.GalliumUniversalPromoter.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Ru",
+            "Si"
+          ],
+          "specimens": [
+            "ruga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 565,
+          "wn": 2960,
+          "measured_on": "osga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, OsGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2960” cm⁻¹, one value for all four MGa@SiO₂, with νₛ(CH₃) at 2858 cm⁻¹, assigned to surface methoxy, the key methanol intermediate. Absent over Ru@SiO₂ and Rh@SiO₂, which show only gas CH₄; DFT in the same paper has Ga making C-O cleavage of methoxy less favourable. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Zhou.GalliumUniversalPromoter.2025::2",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Os",
+            "Si"
+          ],
+          "specimens": [
+            "osga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 569,
+          "wn": 2960,
+          "measured_on": "rhga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RhGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2960” cm⁻¹, one value for all four MGa@SiO₂, with νₛ(CH₃) at 2858 cm⁻¹, assigned to surface methoxy, the key methanol intermediate. Absent over Ru@SiO₂ and Rh@SiO₂, which show only gas CH₄; DFT in the same paper has Ga making C-O cleavage of methoxy less favourable. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Zhou.GalliumUniversalPromoter.2025::3",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Rh",
+            "Si"
+          ],
+          "specimens": [
+            "rhga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 573,
+          "wn": 2960,
+          "measured_on": "irga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, IrGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2960” cm⁻¹, one value for all four MGa@SiO₂, with νₛ(CH₃) at 2858 cm⁻¹, assigned to surface methoxy, the key methanol intermediate. Absent over Ru@SiO₂ and Rh@SiO₂, which show only gas CH₄; DFT in the same paper has Ga making C-O cleavage of methoxy less favourable. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Zhou.GalliumUniversalPromoter.2025::4",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "irga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 575,
+          "wn": null,
+          "measured_on": "ir_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, Ir@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): slight methoxy bands after 30 min, no position given. The paper matches this with the 7 % intrinsic methanol selectivity of Ir@SiO₂, the only monometallic catalyst of the set making measurable methanol.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Zhou.GalliumUniversalPromoter.2025::5",
+          "site_elements": [],
+          "specimen_elements": [
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "ir_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Hansen.UniversalRoleGallium.2025",
+          "id": 580,
+          "wn": 2962,
+          "measured_on": "niga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "Fig. 6a of the Account, adapted from Zimmerli et al. (its ref. 42, the original not read): operando DRIFTS of Ni₆₅Ga₃₅@SiO₂ (Ni₃Ga alloy, pre-activated in H₂ at 300 °C) at 230 °C, 20 bar, CO₂/H₂/N₂ = 1:3:1, GHSV 60 L g⁻¹ h⁻¹: minor peak at 2962 cm⁻¹, with 2860 cm⁻¹, assigned to methoxy; the Account ties its growth to the methanol formation rate (Fig. 6b). Ni₆₅Ga₃₅ makes methanol at 54 % selectivity and no methane, against about 88 % CH₄ over Ni without Ga.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_asym::Hansen.UniversalRoleGallium.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ni",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "niga_sio2"
+          ],
+          "placement": "specimen"
         }
       ],
       "tags": [
@@ -20102,6 +21098,191 @@
             "znhfox"
           ],
           "placement": "site"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 562,
+          "wn": 2858,
+          "measured_on": "ruga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RuGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2858” cm⁻¹, one value for all four MGa@SiO₂, the partner of νₐₛ(CH₃) at 2960 cm⁻¹, assigned to surface methoxy. Not seen over Ru@SiO₂ or Rh@SiO₂. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Zhou.GalliumUniversalPromoter.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Ru",
+            "Si"
+          ],
+          "specimens": [
+            "ruga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 566,
+          "wn": 2858,
+          "measured_on": "osga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, OsGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2858” cm⁻¹, one value for all four MGa@SiO₂, the partner of νₐₛ(CH₃) at 2960 cm⁻¹, assigned to surface methoxy. Not seen over Ru@SiO₂ or Rh@SiO₂. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Zhou.GalliumUniversalPromoter.2025::2",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Os",
+            "Si"
+          ],
+          "specimens": [
+            "osga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 570,
+          "wn": 2858,
+          "measured_on": "rhga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, RhGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2858” cm⁻¹, one value for all four MGa@SiO₂, the partner of νₐₛ(CH₃) at 2960 cm⁻¹, assigned to surface methoxy. Not seen over Ru@SiO₂ or Rh@SiO₂. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Zhou.GalliumUniversalPromoter.2025::3",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "O",
+            "Rh",
+            "Si"
+          ],
+          "specimens": [
+            "rhga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 574,
+          "wn": 2858,
+          "measured_on": "irga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, IrGa@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): “around 2858” cm⁻¹, one value for all four MGa@SiO₂, the partner of νₐₛ(CH₃) at 2960 cm⁻¹, assigned to surface methoxy. Not seen over Ru@SiO₂ or Rh@SiO₂. The paper does not say on which part of the catalyst the methoxy sits.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Zhou.GalliumUniversalPromoter.2025::4",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "irga_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Zhou.GalliumUniversalPromoter.2025",
+          "id": 576,
+          "wn": null,
+          "measured_on": "ir_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "In situ DRIFTS section, Ir@SiO₂ (made by surface organometallic chemistry, reduced in H₂ at 400 °C; in situ DRIFTS under H₂/CO₂/Ar = 3:1:1 at 20 bar; the main text gives no temperature for the DRIFTS and the SI was not read): slight methoxy bands after 30 min, no position given; see the νₐₛ(CH₃) claim of the same paper.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Zhou.GalliumUniversalPromoter.2025::5",
+          "site_elements": [],
+          "specimen_elements": [
+            "H",
+            "Ir",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "ir_sio2"
+          ],
+          "placement": "specimen"
+        },
+        {
+          "key": "Hansen.UniversalRoleGallium.2025",
+          "id": 581,
+          "wn": 2860,
+          "measured_on": "niga_sio2",
+          "diluent": [],
+          "technique": "drifts",
+          "laser_nm": null,
+          "scattering": null,
+          "medium": "gas",
+          "form": "adsorbed",
+          "note": "Fig. 6a of the Account, adapted from Zimmerli et al. (its ref. 42, the original not read): operando DRIFTS of Ni₆₅Ga₃₅@SiO₂ (Ni₃Ga alloy, pre-activated in H₂ at 300 °C) at 230 °C, 20 bar, CO₂/H₂/N₂ = 1:3:1, GHSV 60 L g⁻¹ h⁻¹: minor peak at 2860 cm⁻¹, the partner of 2962 cm⁻¹, assigned to methoxy.",
+          "tags": [
+            "drifts",
+            "in gas",
+            "adsorbed"
+          ],
+          "uid": "methoxy_sym::Hansen.UniversalRoleGallium.2025",
+          "site_elements": [],
+          "specimen_elements": [
+            "Ga",
+            "H",
+            "Ni",
+            "O",
+            "Si"
+          ],
+          "specimens": [
+            "niga_sio2"
+          ],
+          "placement": "specimen"
         }
       ],
       "tags": [

@@ -189,6 +189,42 @@
       "element": "Ru",
       "oxidation_state": 0
     },
+    "os_0": {
+      "label": "Os⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Os",
+      "oxidation_state": 0
+    },
+    "rh_0": {
+      "label": "Rh⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Rh",
+      "oxidation_state": 0
+    },
+    "ir_0": {
+      "label": "Ir⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ir",
+      "oxidation_state": 0
+    },
+    "ni_0": {
+      "label": "Ni⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ni",
+      "oxidation_state": 0
+    },
+    "ga_0": {
+      "label": "Ga⁰",
+      "level": "site",
+      "kind": "metal",
+      "element": "Ga",
+      "oxidation_state": 0,
+      "note": "Gallium reduced into a bimetallic alloy (MGa nanoparticles made by surface organometallic chemistry and reduced in H₂), as the Ga K-edge XAS of those catalysts shows. The oxidised Ga next to it is ga_3p."
+    },
     "si_0": {
       "label": "Si⁰",
       "level": "site",
@@ -475,6 +511,54 @@
       "kind": "defect",
       "parts": ["zn_2p", "o_vac", "hf_4p"],
       "note": "An oxygen vacancy flanked by Zn and Hf: the two cations and the vacancy act as one site."
+    },
+    "ruga_gaox_interface": {
+      "label": "RuGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "parts": [
+        "ru_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the RuGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface."
+    },
+    "osga_gaox_interface": {
+      "label": "OsGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "parts": [
+        "os_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the OsGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface."
+    },
+    "rhga_gaox_interface": {
+      "label": "RhGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "parts": [
+        "rh_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the RhGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface."
+    },
+    "irga_gaox_interface": {
+      "label": "IrGa-GaOₓ interface",
+      "level": "site",
+      "kind": "interface",
+      "parts": [
+        "ir_0",
+        "ga_0",
+        "ga_3p",
+        "o_2m"
+      ],
+      "note": "Where the IrGa alloy particle meets surface GaOₓ formed from it under CO₂ hydrogenation. Zhou et al. place the lower of two CO* bands here, citing an earlier PtGa study; XAS does not resolve it, so they read it as a small fraction of the surface."
     },
     "ag_sio2_interface": {
       "label": "Ag⁰-SiO₂ perimeter",
@@ -836,6 +920,74 @@
       "level": "material",
       "parts": ["cu_0", "zro2"],
       "note": "Copper on monoclinic zirconia by incipient wetness, 6 wt% Cu, calcined at 450 °C and reduced in situ at 350 °C. The zirconia carries about 93 % of the surface area, which is why almost every band on it is a zirconia band and why the copper-bound formate had to be dug out of a difference spectrum."
+    },
+    "ruga_sio2": {
+      "label": "RuGa@SiO₂",
+      "level": "material",
+      "parts": [
+        "ru_0",
+        "ga_0",
+        "ga_3p",
+        "ruga_gaox_interface",
+        "sio2"
+      ],
+      "note": "RuGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Ru grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms."
+    },
+    "osga_sio2": {
+      "label": "OsGa@SiO₂",
+      "level": "material",
+      "parts": [
+        "os_0",
+        "ga_0",
+        "ga_3p",
+        "osga_gaox_interface",
+        "sio2"
+      ],
+      "note": "OsGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Os grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms."
+    },
+    "rhga_sio2": {
+      "label": "RhGa@SiO₂",
+      "level": "material",
+      "parts": [
+        "rh_0",
+        "ga_0",
+        "ga_3p",
+        "rhga_gaox_interface",
+        "sio2"
+      ],
+      "note": "RhGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Rh grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms."
+    },
+    "irga_sio2": {
+      "label": "IrGa@SiO₂",
+      "level": "material",
+      "parts": [
+        "ir_0",
+        "ga_0",
+        "ga_3p",
+        "irga_gaox_interface",
+        "sio2"
+      ],
+      "note": "IrGa alloy nanoparticles (about 1.6-1.8 nm, M/Ga about 1) on silica, made by surface organometallic chemistry: Ir grafted onto isolated Ga³⁺ sites on SiO₂-700, then reduced in H₂ at 400 °C (Zhou et al. 2025). The bulk alloy persists under CO₂ hydrogenation; a small fraction of surface GaOₓ forms."
+    },
+    "ir_sio2": {
+      "label": "Ir@SiO₂",
+      "level": "material",
+      "parts": [
+        "ir_0",
+        "sio2"
+      ],
+      "note": "Ir nanoparticles on silica made by the same surface organometallic route as IrGa@SiO₂ but without Ga: the monometallic reference, a methanation catalyst (Zhou et al. 2025)."
+    },
+    "niga_sio2": {
+      "label": "NiGa@SiO₂",
+      "level": "material",
+      "parts": [
+        "ni_0",
+        "ga_0",
+        "ga_3p",
+        "sio2"
+      ],
+      "note": "NiGa alloy nanoparticles (about 2 nm) on silica from surface organometallic chemistry, published as a series NiₓGa₁₀₀₋ₓ@SiO₂; the member is named in each note. Ni₆₅Ga₃₅ forms a random fcc Ni₃Ga alloy whose bulk stays under CO₂ hydrogenation while part of the surface Ga oxidises (as summarised by Hansen et al. 2025)."
     },
     "cuga_sio2_somc": {
       "label": "CuGa/SiO₂",

@@ -17,8 +17,11 @@ python build.py
 
 # Build the frontend (outputs docs/index.html + docs/assets/)
 cd frontend && npm run build
-# (postbuild runs scripts/prune-assets.mjs: deletes the old hashed bundles
-#  in docs/assets that index.html no longer uses; --dry-run to only list)
+# (postbuild runs scripts/clean-build.mjs: cuts KaTeX's font lists to woff2,
+#  deletes everything in docs/assets that index.html no longer reaches (old
+#  hashed bundles, the woff/ttf fallbacks), and removes dev leftovers from
+#  frontend/ (*.png screenshots, test-results/); --dry-run to only list.
+#  Screenshots taken while working go outside the repo, never into frontend/.)
 
 # Outputs:
 #   docs/data/bands.json      — clean JSON for the frontend
@@ -1347,3 +1350,7 @@ Writing rules (the full version is on the style guide page):
   (max 150 words). Wavenumbers go in `wn`, the surface goes in `site`,
   conditions go in `note`.
 - `short` is a label, not a sentence: a few words, no full stop.
+
+## Commit attribution
+
+No `Co-Authored-By: Claude` trailer, `Claude-Session` link or "Generated with Claude Code" line in commit messages or pull request descriptions. Julius credits AI use in acknowledgements and READMEs, not in the GitHub contributor list.

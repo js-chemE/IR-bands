@@ -18,10 +18,11 @@ export const ELEMENT_COLORS: Record<string, string> = {
   Cl: '#1FF01F',
   Br: '#A62929',
   I: '#940094',
-  // The metals the atlas names by element rather than leaving generic. Both
-  // are CPK: zinc's blue-grey, gallium's pink-brown.
+  // The metals the atlas names by element rather than leaving generic: zinc
+  // in its CPK blue-grey, gallium in sky blue instead of the CPK pink, as in
+  // phd_ui since 2026-11-04 (pink Ga next to red O read as one colour).
   Zn: '#797CAA',
-  Ga: '#BE7E7F',
+  Ga: '#69C5FF',
   // Generic metal center (Lewis-acidic cation, isolated surface atom, etc.)
   // — for diagrams that need a real bonded/pivot atom drawn, but where the
   // underlying mode is deliberately metal-generic rather than tied to one

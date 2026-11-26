@@ -219,3 +219,8 @@ __marimo__/
 
 # Streamlit
 frontend/node_modules/
+
+# Frontend dev leftovers; frontend/scripts/clean-build.mjs deletes them after every build
+frontend/test-results/
+frontend/playwright-report/
+frontend/*.png
