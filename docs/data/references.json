@@ -10,6 +10,7 @@
     "publisher": "Springer international publishing",
     "author": "Wachs, Israel E. and Bañares, Miguel A.",
     "date": "2023",
+    "langid": "english",
     "keywords": "useful, big-deal, review, reproduced/used-some-number/results",
     "file": "Wachs-Bañares_2023_Springer handbook of advanced catalyst characterization.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Wachs-Bañares_2023_Springer handbook of advanced catalyst characterization.pdf:application/pdf"
   },
@@ -41,9 +42,10 @@
     "pages": "13884–13891",
     "number": "42",
     "journaltitle": "Journal of the American Chemical Society",
-    "shortjournal": "J Am Chem Soc",
+    "shortjournal": "J. Am. Chem. Soc.",
     "author": "Corral-Pérez, Juan José and Bansode, Atul and Praveen, C. S. and Kokalj, Anton and Reymond, Helena and Comas-Vives, Aleix and VandeVondele, Joost and Copéret, Christophe and von Rohr, Philipp Rudolf and Urakawa, Atsushi",
     "date": "2018-10-24",
+    "langid": "english",
     "file": "Corral-Pérez et al_2018_Decisive Role of Perimeter Sites in Silica-Supported Ag Nanoparticles in Selective Hydrogenation of.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Corral-Pérez et al_2018_Decisive Role of Perimeter Sites in Silica-Supported Ag Nanoparticles in Selective Hydrogenation of.pdf:application/pdf"
   },
   "Monai.NewLookCatalyst.2024": {
@@ -78,6 +80,24 @@
     "date": "2019-09-06",
     "keywords": "useful, reproduced/used-some-number/results",
     "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Toyao et al._2019_Heterogeneous Pt and MoOx Co-Loaded TiO2 Catalysts for Low-Temperature CO2 Hydrogenation To Form CH3.pdf:application/pdf"
+  },
+  "Zhou.GalliumUniversalPromoter.2025": {
+    "_type": "article",
+    "title": "Gallium: A Universal Promoter Switching CO2 Methanation Catalysts to Produce Methanol",
+    "volume": "5",
+    "url": "https://doi.org/10.1021/jacsau.4c00893",
+    "doi": "10.1021/jacsau.4c00893",
+    "shorttitle": "Gallium",
+    "abstract": "Hydrogenation of CO2 to methanol is foreseen as a key step to close the carbon cycle. In this study, we show that introducing Ga into silica-supported nanoparticles based on group 8–9 transition noble metals (M = Ru, Os, Rh, and Ir – MGa@SiO2) switches their reactivity from producing mostly methane (sel. \\textgreater 97%) to producing methanol (\\textgreater50% CH3OH/DME sel.) alongside CO as the only byproduct. These silica-supported catalysts, prepared via a surface organometallic chemistry (SOMC) approach, consist of small, alloyed, and narrowly distributed MGa nanoparticles, as evidenced by X-ray absorption spectroscopy (XAS) and CO adsorption studies. Notably, detailed in situ XAS and diffuse reflectance Fourier transform infrared spectroscopy (DRIFTS) studies complemented with density functional theory (DFT) calculations indicate that Ga generates stable bulk MGa alloys. The bulk MGa alloys persist during CO2 hydrogenation according to XAS, resulting in suppressed methanation. Meanwhile, a small fraction of surface GaOx and thereby MGa–GaOx interfaces are formed, as evidenced by IR spectroscopy, likely responsible for stabilizing methoxy intermediates and favoring methanol formation.",
+    "pages": "217–224",
+    "number": "1",
+    "journaltitle": "JACS Au",
+    "shortjournal": "JACS Au",
+    "publisher": "American Chemical Society",
+    "author": "Zhou, Wei and Hansen, Colin and Cao, Weicheng and Brack, Enzo and Docherty, Scott R. and Ehinger, Christian and Wang, Yuhao and Wang, Chunliang and Copéret, Christophe",
+    "urldate": "2025-03-25",
+    "date": "2025-01-27",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Zhou et al._2025_Gallium A Universal Promoter Switching CO2 Methanation Catalysts to Produce Methanol.pdf:application/pdf"
   },
   "Urakawa.OnchipRamanAnalysis.2008": {
     "_type": "article",
@@ -132,7 +152,7 @@
     "pages": "2081–2087",
     "number": "13",
     "journaltitle": "Spectrochimica Acta Part A: Molecular Spectroscopy",
-    "shortjournal": "Spectrochim. Acta A Mol. Spectrosc.",
+    "shortjournal": "Spectrochim. Acta A: Mol. Spectrosc.",
     "author": "Furić, Krešimir and Mohaček, Vlasta and Mamić, Miro",
     "urldate": "2026-01-10",
     "date": "1993-11",
@@ -151,12 +171,12 @@
     "abstract": "CO2 hydrogenation to methanol has attracted increasing attention. Previous theoretical study suggested that Pd/In2O3 has a high activity for CO2 hydrogenation to methanol with the Pd-In2O3 interfacial sites being the active ones. However, the strong interaction between Pd and In2O3 during the catalyst preparation leads to the formation of Pd-In bimetallic species and, consequently, reduces methanol yield. In this work, the Pd/In2O3 catalyst was prepared by firstly mixing In2O3 powder with Pd/peptide composite, which was followed by thermal treatment to remove the peptide. The resulting Pd/In2O3 catalyst is In2O3 supported highly-dispersed Pd-nanoparticles exposing predominately the (111) facets with particle sizes of 3.6nm. Such Pd nanoparticles have a better ability to dissociatively adsorb hydrogen, thereby supplying hydrogen for the hydrogenation steps and facilitating oxygen vacancy creation. The interfacial sites are also active for enhanced CO2 adsorption and hydrogenation. All these factors contribute to a superior performance of the Pd/In2O3 catalyst for CO2 hydrogenation to methanol with a CO2 conversion \\textgreater20% and methanol selectivity \\textgreater70%, corresponding to a STY up to 0.89gMeOHh−1gcat−1 at 300°C and 5MPa.",
     "pages": "488–497",
     "journaltitle": "Applied Catalysis B: Environmental",
-    "shortjournal": "Applied Catalysis B: Environmental",
+    "shortjournal": "Appl. Catal. B: Environ.",
     "author": "Rui, Ning and Wang, Zongyuan and Sun, Kaihang and Ye, Jingyun and Ge, Qingfeng and Liu, Chang-jun",
     "urldate": "2026-01-11",
     "date": "2017-12-05",
     "keywords": "big-deal",
-    "file": "Rui et al._2017_CO2 hydrogenation to methanol over PdIn2O3 effects of Pd and oxygen vacancy.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Rui et al._2017_CO2 hydrogenation to methanol over PdIn2O3 effects of Pd and oxygen vacancy.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Rui et al._2017_CO2 hydrogenation to methanol over PdIn2O3 effects of Pd and oxygen vacancy.pdf:application/pdf"
   },
   "Shen.CO2HydrogenationMethanol.2022": {
     "_type": "article",
@@ -194,6 +214,25 @@
     "date": "2024-10-18",
     "keywords": "useful, well-written, reproduced/used-some-number/results",
     "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Gómez et al._2024_Interdependence Between the Extent of Ga Promotion, the Nature of Active Sites, and the Reaction Mec.pdf:application/pdf"
+  },
+  "Hansen.UniversalRoleGallium.2025": {
+    "_type": "article",
+    "title": "The Universal Role of Gallium in Promoting Methanol Formation across CO2 Hydrogenation Catalysts",
+    "volume": "58",
+    "issn": "0001-4842",
+    "url": "https://doi.org/10.1021/acs.accounts.5c00581",
+    "doi": "10.1021/acs.accounts.5c00581",
+    "abstract": "ConspectusThe production of value-added chemicals from CO2 has been a thriving topic of research for the past few decades because of its contribution to a circular carbon economy. Combined with CO2 capture and storage, thermocatalytic hydrogenation of CO2 to CH3OH with green or blue hydrogen, offers an attractive route to mitigate CO2 emissions and to decarbonize the chemical industry. Numerous studies have been focused on catalysts based on supported metallic nanoparticles; these catalysts consist of at least one transition or coinage metal and a promoter element combined with an oxide support to disperse the active phase. Besides Zn-promoters used in Cu-based hydrogenation catalysts, numerous reports point to Ga as a promoter for methanol synthesis. In recent years, Ga has been shown to convert almost all transition metals toward selective methanol synthesis, but its specific role remains a topic of discussions.In this Account, we summarize how surface organometallic chemistry (SOMC) has enabled the discovery of novel catalysts and the development of detailed structure–activity relationships. Particularly, we show that Ga uniquely generates alloys with transition and coinage (Cu) metal elements across groups 8–11 and converts them into selective methanol synthesis catalysts. Specifically, we highlight the role of M–Ga alloy formation, alloy stability, and the formation of M(Ga)–GaOx interfaces under reaction conditions. This has been possible thanks to the combination of SOMC, which enables the formation of supported nanoparticles with tailored compositions and interfaces, and state-of-the-art characterization including operando techniques along with computational modeling, including ab initio molecular dynamic calculations. Dynamic alloying–dealloying behaviors under reaction conditions and the formation of M/MGa–GaOx interfaces are identified as key drivers for efficient methanol formation.",
+    "pages": "3392–3401",
+    "number": "22",
+    "journaltitle": "Accounts of Chemical Research",
+    "shortjournal": "Acc. Chem. Res.",
+    "publisher": "American Chemical Society",
+    "author": "Hansen, Colin and Zhou, Wei and Copéret, Christophe",
+    "urldate": "2026-03-18",
+    "date": "2025-11-18",
+    "keywords": "useful, well-written",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Hansen et al._2025_The Universal Role of Gallium in Promoting Methanol Formation across CO2 Hydrogenation Catalysts.pdf:application/pdf"
   },
   "Proano.InsituDRIFTSStudy.2019": {
     "_type": "article",
@@ -243,7 +282,7 @@
     "abstract": "Diffuse reflectance FT-IR spectroscopy (DRIFTS) is commonly used to investigate catalytic reactions. CO is a reagent of many reactions of interest for environmental catalysis and fuel and chemical synthesis, as well as being a surface probe to investigate the structure and oxidation state of metal-based particles by in situ and operando FT-IR spectroscopy. It is crucial to avoid IR signal distortion that may affect the IR spectrum in the region corresponding to adsorbed CO, which spans from ca. 2250cm−1 down to 1600cm−1. Such bands can appear in the DRIFTS spectra of silica-based solids when the temperature and/or the hydration level of the sample are modified. These bands are merely due to variations in the vibrations modes of the silica solids and are not related to adsorbed CO. Accurate correction of gas-phase CO signal during DRIFTS analyses can be obtained by collecting a subtrahend spectrum under identical reaction conditions over an inert material such as SiC. Spurious bands may otherwise arise if a subtrahend is collected at a different temperature.",
     "pages": "17–22",
     "journaltitle": "Applied Catalysis A: General",
-    "shortjournal": "Appl. Catal. A",
+    "shortjournal": "Appl. Catal. A: Gen.",
     "author": "Paredes-Nunez, Anaëlle and Jbir, Imen and Bianchi, Daniel and Meunier, Frederic C.",
     "urldate": "2026-05-10",
     "date": "2015-04-05",
@@ -472,7 +511,7 @@
     "pages": "e202500338",
     "number": "4",
     "journaltitle": "ChemistryEurope",
-    "shortjournal": "Chem. Eur.",
+    "shortjournal": "ChemistryEurope",
     "author": "Sterk, Ellen B. and Kappé, Bram T. and Monai, Matteo and Louwen, Jaap N. and Vogt, Eelco T. C. and Filot, Ivo A. W. and Weckhuysen, Bert M.",
     "urldate": "2026-06-23",
     "date": "2026",
@@ -493,12 +532,12 @@
     "pages": "141–149",
     "number": "1",
     "journaltitle": "Surface Science",
-    "shortjournal": "Surface Science",
+    "shortjournal": "Surf. Sci.",
     "author": "Uvdal, P. and MacKerell, A. D.",
     "urldate": "2026-06-23",
     "date": "1997-12-10",
     "keywords": "reproduced/used-some-number/results",
-    "file": "ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\5RNAD5RZ\\\\S0039602897005797.html:text/html;Uvdal and MacKerell_1997_Vibrational spectrum of methoxy adsorbed on metal surfaces ab initio calculations and experiments.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Uvdal and MacKerell_1997_Vibrational spectrum of methoxy adsorbed on metal surfaces ab initio calculations and experiments.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Uvdal and MacKerell_1997_Vibrational spectrum of methoxy adsorbed on metal surfaces ab initio calculations and experiments.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\5RNAD5RZ\\\\S0039602897005797.html:text/html"
   },
   "Baltrusaitis.FTIRSpectroscopyCombined.2006": {
     "_type": "article",
@@ -564,6 +603,7 @@
   "Shimanouchi.TablesMolecularVibrational.1972": {
     "_type": "book",
     "location": "Gaithersburg, MD",
+    "edition": "0",
     "title": "Tables of molecular vibrational frequencies, consolidated volume I",
     "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds39.pdf",
     "doi": "10.6028/NBS.NSRDS.39",
@@ -572,7 +612,6 @@
     "urldate": "2026-06-26",
     "date": "1972",
     "langid": "english",
-    "note": "Edition: 0",
     "keywords": "reproduced/used-some-number/results",
     "file": "Shimanouchi_1972_Tables of molecular vibrational frequencies, consolidated volume i 1.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Shimanouchi_1972_Tables of molecular vibrational frequencies, consolidated volume i 1.pdf:application/pdf;Shimanouchi_1972_Tables of molecular vibrational frequencies, consolidated volume i.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Shimanouchi_1972_Tables of molecular vibrational frequencies, consolidated volume i.pdf:application/pdf"
   },
@@ -600,13 +639,13 @@
     "pages": "679–695",
     "number": "6",
     "journaltitle": "ACS Physical Chemistry Au",
-    "shortjournal": "ACS Phys. Chem Au",
+    "shortjournal": "ACS Phys. Chem. Au",
     "publisher": "American Chemical Society",
     "author": "Dinu, Dennis F. and Oenen, Kemal and Schlagin, Jonas and Podewitz, Maren and Grothe, Hinrich and Loerting, Thomas and Liedl, Klaus R.",
     "urldate": "2026-06-26",
     "date": "2024-11-27",
     "keywords": "useful, well-written, review, reproduced/used-some-number/results",
-    "file": "Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Dinu et al._2024_How Vibrational Notations Can Spoil Infrared Spectroscopy A Case Study on Isolated Methanol.pdf:application/pdf"
   },
   "Fehr.RealisticOperandoDRIFTSStudies.2022": {
     "_type": "article",
@@ -734,11 +773,11 @@
     "pages": "107–192",
     "number": "2",
     "journaltitle": "Surface Science Reports",
-    "shortjournal": "Surface Science Reports",
+    "shortjournal": "Surf. Sci. Rep.",
     "author": "Hoffmann, Friedrich M.",
     "urldate": "2026-09-11",
     "date": "1983-01-01",
-    "file": "Hoffmann_1983_Infrared reflection-absorption spectroscopy of adsorbed molecules.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Hoffmann_1983_Infrared reflection-absorption spectroscopy of adsorbed molecules.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\TLVCNXCC\\\\0167572983900018.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Hoffmann_1983_Infrared reflection-absorption spectroscopy of adsorbed molecules.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\TLVCNXCC\\\\0167572983900018.html:text/html"
   },
   "Jourdanneau.MethaneRamanSpectrum.2005": {
     "_type": "article",
@@ -752,12 +791,12 @@
     "pages": "219–230",
     "number": "2",
     "journaltitle": "Journal of Molecular Spectroscopy",
-    "shortjournal": "Journal of Molecular Spectroscopy",
+    "shortjournal": "J. Mol. Spectrosc.",
     "author": "Jourdanneau, Eric and Chaussard, Frederic and Saint-Loup, Robert and Gabard, Tony and Berger, Hubert",
     "urldate": "2026-09-11",
     "date": "2005-10-01",
     "keywords": "reproduced/used-some-number/results",
-    "file": "Jourdanneau et al._2005_The methane Raman spectrum from 1200 to 5500   cm−1 A first step toward temperature diagnostic usin.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Jourdanneau et al._2005_The methane Raman spectrum from 1200 to 5500   cm−1 A first step toward temperature diagnostic usin.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\WYH5Y46N\\\\S0022285205001542.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Jourdanneau et al._2005_The methane Raman spectrum from 1200 to 5500   cm−1 A first step toward temperature diagnostic usin.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\WYH5Y46N\\\\S0022285205001542.html:text/html"
   },
   "Armaroli.DiffuseReflectionInfrared.2004": {
     "_type": "article",
@@ -792,12 +831,12 @@
     "pages": "439–466",
     "number": "3",
     "journaltitle": "Journal of Quantitative Spectroscopy and Radiative Transfer",
-    "shortjournal": "Journal of Quantitative Spectroscopy and Radiative Transfer",
+    "shortjournal": "J. Quant. Spectrosc. Radiat. Transf.",
     "author": "Kojima, Jun and Nguyen, Quang-Viet",
     "urldate": "2026-09-13",
     "date": "2005-09-01",
     "keywords": "reproduced/used-some-number/results",
-    "file": "Kojima and Nguyen_2005_Quantitative analysis of spectral interference of spontaneous Raman scattering in high-pressure fuel.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Kojima and Nguyen_2005_Quantitative analysis of spectral interference of spontaneous Raman scattering in high-pressure fuel.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\ZHJ8Q3S5\\\\S0022407304004388.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Kojima and Nguyen_2005_Quantitative analysis of spectral interference of spontaneous Raman scattering in high-pressure fuel.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\ZHJ8Q3S5\\\\S0022407304004388.html:text/html"
   },
   "PurdueUniversity.VibrationalModesSmall.2026": {
     "_type": "online",
@@ -822,7 +861,8 @@
     "publisher": "Wiley",
     "author": "Long, Derek Albert",
     "date": "2002",
-    "file": "Long_2002_The Raman effect a unified treatment of the theory of Raman scattering by molecules.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Long_2002_The Raman effect a unified treatment of the theory of Raman scattering by molecules.pdf:application/pdf"
+    "langid": "english",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Long_2002_The Raman effect a unified treatment of the theory of Raman scattering by molecules.pdf:application/pdf"
   },
   "Shepherd.RamanSpectrumMethaned4.1957": {
     "_type": "article",
@@ -835,11 +875,11 @@
     "pages": "277–287",
     "number": "1",
     "journaltitle": "Journal of Molecular Spectroscopy",
-    "shortjournal": "Journal of Molecular Spectroscopy",
+    "shortjournal": "J. Mol. Spectrosc.",
     "author": "Shepherd, G. G. and Welsh, H. L.",
     "urldate": "2026-09-13",
     "date": "1957-01-01",
-    "file": "ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\4LLGF42X\\\\0022285257900309.html:text/html;Shepherd and Welsh_1957_The Raman spectrum of methane-d4.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Shepherd and Welsh_1957_The Raman spectrum of methane-d4.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Shepherd and Welsh_1957_The Raman spectrum of methane-d4.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\4LLGF42X\\\\0022285257900309.html:text/html"
   },
   "Meunier.CuBoundFormatesAre.2023": {
     "_type": "article",
@@ -853,11 +893,12 @@
     "pages": "e202303939",
     "number": "29",
     "journaltitle": "Angewandte Chemie International Edition",
+    "shortjournal": "Angew. Chem. Int. Ed.",
     "author": "Meunier, Frederic C. and Dansette, Isaac and Paredes-Nunez, Anaelle and Schuurman, Yves",
     "urldate": "2026-09-14",
     "date": "2023",
     "langid": "english",
-    "file": "Meunier et al._2023_Cu-Bound Formates are Main Reaction Intermediates during CO2 Hydrogenation to Methanol over CuZrO2.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Meunier et al._2023_Cu-Bound Formates are Main Reaction Intermediates during CO2 Hydrogenation to Methanol over CuZrO2.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\IB7WAVDT\\\\anie.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Meunier et al._2023_Cu-Bound Formates are Main Reaction Intermediates during CO2 Hydrogenation to Methanol over CuZrO2.pdf:application/pdf;Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\IB7WAVDT\\\\anie.html:text/html"
   },
   "Elgayyar.ContributionsLimitationsIR.2021": {
     "_type": "article",
@@ -870,11 +911,11 @@
     "abstract": "This contribution reviews some of the structural features of supported bimetallic catalysts that could be unravelled using IR spectroscopy of CO adsorption. The few examples presented are focussed on active metals such as Au, Pd, Pt and Co and modifications by inert elements such as Sn or Zn. The difficulty in interpreting the IR spectra during CO adsorption over Au-Pt and Au-Pd is underlined, because of Au restructuring that leads to bands typically in the range associated with Pt and Pd carbonyls. Crucial aspects of metal dispersion and surface segregation can yet be obtained, such as active metal site isolation by the disappearance of bridged or multi-bonded CO. The use of IR spectroscopy of CO adsorption to investigate the surface of bimetallics or alloys remains yet challenging and not conclusive in many instances. Firstly, this results from the complexity of the spectra obtained (even over single metals) that depends on many parameters. Secondly, CO adsorption often results in modifications of both surface structure and composition of nanoalloys via reconstruction, as in the case of monometallic surfaces, or surface segregation when one of the metals exhibits a greater affinity for CO. CO dissociation near room temperature has also been documented on many metals, including cobalt and more surprisingly Pt, Ag and Au-based materials.",
     "pages": "59–68",
     "journaltitle": "Catalysis Today",
-    "shortjournal": "Catalysis Today",
+    "shortjournal": "Catal. Today",
     "author": "Elgayyar, Taha and Atwi, Ranin and Tuel, Alain and Meunier, Frederic C.",
     "urldate": "2026-09-14",
     "date": "2021-08-01",
-    "file": "Elgayyar et al._2021_Contributions and limitations of IR spectroscopy of CO adsorption to the characterization of bimetal.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Elgayyar et al._2021_Contributions and limitations of IR spectroscopy of CO adsorption to the characterization of bimetal.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\RI3AFJME\\\\S0920586121000390.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Elgayyar et al._2021_Contributions and limitations of IR spectroscopy of CO adsorption to the characterization of bimetal.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\RI3AFJME\\\\S0920586121000390.html:text/html"
   },
   "Davydov.MolecularSpectroscopyOxide.2003": {
     "_type": "book",
@@ -898,6 +939,7 @@
     "publisher": "Wiley",
     "author": "Nakamoto, Kazuo",
     "date": "2009",
+    "langid": "english",
     "note": "Num Pages: 419",
     "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Nakamoto_2009_Infrared and Raman spectra of inorganic and coordination compounds. Part A Theory and applications.pdf:application/pdf"
   },
@@ -941,13 +983,13 @@
     "pages": "9781",
     "number": "1",
     "journaltitle": "Nature Communications",
-    "shortjournal": "Nat Commun",
+    "shortjournal": "Nat. Commun.",
     "publisher": "Nature Publishing Group",
     "author": "Ye, Ke and Jiang, Tian-Wen and Jung, Hyun Dong and Shen, Peng and Jang, So Min and Weng, Zhe and Back, Seoin and Cai, Wen-Bin and Jiang, Kun",
     "urldate": "2026-10-17",
     "date": "2024-11-12",
     "langid": "english",
-    "file": "Ye et al._2024_Molecular level insights on the pulsed electrochemical CO2 reduction.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Ye et al._2024_Molecular level insights on the pulsed electrochemical CO2 reduction.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Ye et al._2024_Molecular level insights on the pulsed electrochemical CO2 reduction.pdf:application/pdf"
   },
   "Thapa.RamanScatteringSinglecrystal.2017": {
     "_type": "article",
@@ -956,12 +998,14 @@
     "url": "https://opg.optica.org/ao/abstract.cfm?uri=ao-56-31-8598",
     "doi": "10.1364/AO.56.008598",
     "abstract": "Sapphire is a widely used high-temperature material, and this work presents thorough characterization of all the measurable Raman scattering modes in sapphire and their temperature dependencies. Here, Raman scattering in bulk sapphire rods is measured from room temperature to 1081&#x00B0;C and is illustrated as a method of noncontact temperature measurement. A single-line argon ion laser at 488&#x00A0;nm was used to excite the sapphire rods inside a cylindrical furnace. All the anti-Stokes peaks (or lines) were observable through the entire temperature range of interest, while Stokes peaks were observable until they were obscured by background thermal emission. Temperature measurements were found to be most reliable for A1g and Eg modes using the peaks at &#x00B1;418, &#x00B1;379, +578, +645, and +750&#x2009;&#x2009;cm&#x2212;1 (+ and &#x2212; are designated for Stokes and anti-Stokes peaks, respectively). The 418&#x2009;&#x2009;cm&#x2212;1 peak was found to be the most intense peak. The temperature dependence of peak position, peak width, and peak area of the &#x00B1;418 and &#x00B1;379 peaks is presented. For +578, +645, and +750, the temperature dependence of peak position is presented. The peaks&#x2019; spectral positions provide the most precise temperature information within the experimental temperature range. The resultant temperature calibration curves are given, which indicate that sapphire can be used in high-temperature Raman thermometry with an accuracy of about 1.38&#x00B0;C average standard deviation over the entire &gt;1000&#x00B0;C temperature range.",
-    "journaltitle": "Applied Optics, Vol. 56, Issue 31, pp. 8598-8606",
+    "journaltitle": "Applied Optics",
+    "shortjournal": "Appl. Opt.",
     "publisher": "Optica Publishing Group",
     "author": "Thapa, Juddha and Liu, Bo and Woodruff, Steven D. and Chorpening, Benjamin T. and Buric, Michael P.",
     "urldate": "2026-10-17",
     "date": "2017-11-01",
-    "file": "Thapa et al._2017_Raman scattering in single-crystal sapphire at elevated temperatures.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Thapa et al._2017_Raman scattering in single-crystal sapphire at elevated temperatures.pdf:application/pdf"
+    "langid": "english",
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Thapa et al._2017_Raman scattering in single-crystal sapphire at elevated temperatures.pdf:application/pdf"
   },
   "Kadleikova.RamanSpectraSynthetic.2001": {
     "_type": "article",
@@ -974,11 +1018,11 @@
     "pages": "955–958",
     "number": "12",
     "journaltitle": "Microelectronics Journal",
-    "shortjournal": "Microelectronics Journal",
+    "shortjournal": "Microelectron. J.",
     "author": "Kadleı́ková, M. and Breza, J. and Veselý, M.",
     "urldate": "2026-10-17",
     "date": "2001-12-01",
-    "file": "Kadleı́ková et al._2001_Raman spectra of synthetic sapphire.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Kadleı́ková et al._2001_Raman spectra of synthetic sapphire.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\CQ5P2IZS\\\\S0026269201000878.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Kadleı́ková et al._2001_Raman spectra of synthetic sapphire.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\CQ5P2IZS\\\\S0026269201000878.html:text/html"
   },
   "Lee.SituRamanSpectroscopy.2008": {
     "_type": "article",
@@ -1010,11 +1054,11 @@
     "pages": "46–52",
     "number": "1",
     "journaltitle": "Journal of Non-Crystalline Solids",
-    "shortjournal": "Journal of Non-Crystalline Solids",
+    "shortjournal": "J. Non-Cryst. Solids",
     "author": "Ivanda, M. and Clasen, R. and Hornfeck, M. and Kiefer, W.",
     "urldate": "2026-10-17",
     "date": "2003-07-15",
-    "file": "Ivanda et al._2003_Raman spectroscopy on SiO2 glasses sintered from nanosized particles.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Ivanda et al._2003_Raman spectroscopy on SiO2 glasses sintered from nanosized particles.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\X6IBD9PH\\\\S0022309303001728.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Ivanda et al._2003_Raman spectroscopy on SiO2 glasses sintered from nanosized particles.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\X6IBD9PH\\\\S0022309303001728.html:text/html"
   },
   "Li.FiberglassScienceTechnology.2021": {
     "_type": "collection",
@@ -1043,11 +1087,11 @@
     "pages": "276–282",
     "number": "3",
     "journaltitle": "Journal of Solid State Chemistry",
-    "shortjournal": "Journal of Solid State Chemistry",
+    "shortjournal": "J. Solid State Chem.",
     "author": "Balachandran, U. and Eror, N. G.",
     "urldate": "2026-10-17",
     "date": "1982-05-01",
-    "file": "Balachandran and Eror_1982_Raman spectra of titanium dioxide.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Balachandran and Eror_1982_Raman spectra of titanium dioxide.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\LPQUDG4B\\\\0022459682900068.html:text/html"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Balachandran and Eror_1982_Raman spectra of titanium dioxide.pdf:application/pdf;ScienceDirect Snapshot:C\\:\\\\Users\\\\jsommer1\\\\Zotero\\\\storage\\\\LPQUDG4B\\\\0022459682900068.html:text/html"
   },
   "Challagulla.StructureSensitivePhotocatalytic.2017": {
     "_type": "article",
@@ -1061,13 +1105,13 @@
     "pages": "8783",
     "number": "1",
     "journaltitle": "Scientific Reports",
-    "shortjournal": "Sci Rep",
+    "shortjournal": "Sci. Rep.",
     "publisher": "Nature Publishing Group",
     "author": "Challagulla, Swapna and Tarafder, Kartick and Ganesan, Ramakrishnan and Roy, Sounak",
     "urldate": "2026-10-17",
     "date": "2017-08-18",
     "langid": "english",
-    "file": "Challagulla et al._2017_Structure sensitive photocatalytic reduction of nitroarenes over TiO 2.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Challagulla et al._2017_Structure sensitive photocatalytic reduction of nitroarenes over TiO 2.pdf:application/pdf"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Challagulla et al._2017_Structure sensitive photocatalytic reduction of nitroarenes over TiO 2.pdf:application/pdf"
   },
   "Perevedentseva.RamanSpectroscopicStudy.2021": {
     "_type": "article",
@@ -1081,38 +1125,12 @@
     "pages": "5920",
     "number": "20",
     "journaltitle": "Materials",
+    "shortjournal": "Materials",
     "publisher": "Multidisciplinary Digital Publishing Institute",
     "author": "Perevedentseva, Elena and Lin, Yu-Chung and Karmenyan, Artashes and Wu, Kuan-Ting and Lugovtsov, Andrei and Shirshin, Evgeny and Priezzhev, Alexander and Cheng, Chia-Liang",
     "urldate": "2026-10-17",
     "date": "2021-10",
     "langid": "english",
-    "file": "Perevedentseva et al._2021_Raman Spectroscopic Study of TiO2 Nanoparticles’ Effects on the Hemoglobin State in Individual Red B.pdf:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Perevedentseva et al._2021_Raman Spectroscopic Study of TiO2 Nanoparticles’ Effects on the Hemoglobin State in Individual Red B.pdf:application/pdf"
-  },
-  "Hansen.UniversalRoleGallium.2025": {
-    "_type": "article",
-    "title": "The Universal Role of Gallium in Promoting Methanol Formation across CO2 Hydrogenation Catalysts",
-    "volume": "58",
-    "url": "https://doi.org/10.1021/acs.accounts.5c00581",
-    "doi": "10.1021/acs.accounts.5c00581",
-    "pages": "3392–3401",
-    "number": "22",
-    "journaltitle": "Accounts of Chemical Research",
-    "shortjournal": "Acc. Chem. Res.",
-    "publisher": "American Chemical Society",
-    "author": "Hansen, Colin and Zhou, Wei and Copéret, Christophe",
-    "date": "2025-11-06"
-  },
-  "Zhou.GalliumUniversalPromoter.2025": {
-    "_type": "article",
-    "title": "Gallium: A Universal Promoter Switching CO2 Methanation Catalysts to Produce Methanol",
-    "volume": "5",
-    "url": "https://doi.org/10.1021/jacsau.4c00893",
-    "doi": "10.1021/jacsau.4c00893",
-    "pages": "217–224",
-    "journaltitle": "JACS Au",
-    "shortjournal": "JACS Au",
-    "publisher": "American Chemical Society",
-    "author": "Zhou, Wei and Hansen, Colin and Cao, Weicheng and Brack, Enzo and Docherty, Scott R. and Ehinger, Christian and Wang, Yuhao and Wang, Chunliang and Copéret, Christophe",
-    "date": "2025"
+    "file": "PDF:C\\:\\\\Users\\\\jsommer1\\\\OneDrive\\\\[Literature]\\\\Perevedentseva et al._2021_Raman Spectroscopic Study of TiO2 Nanoparticles’ Effects on the Hemoglobin State in Individual Red B.pdf:application/pdf"
   }
 }
